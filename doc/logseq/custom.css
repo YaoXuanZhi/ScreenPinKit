@@ -1,0 +1,27 @@
+@import url('https://cdn.jsdelivr.net/gh/dracula/logseq@master/custom.css');
+
+/* vismode icon component by cannibalox */ 
+/* part of the ls-vizmods-suite         */ 
+a.tag[data-ref*=".v-eisenhower-matrix"]:before {
+   content:"🚩今日目标";
+   font-size: 0.75rem; 
+   line-height: 0.75rem;
+   }
+a.tag[data-ref*=".v-"]:hover:before {
+   padding-right:0.3rem;
+   }
+a.tag[data-ref*=".v-"]:hover {
+   font-size: 0.75rem; 
+   line-height: 0.75rem;
+   }
+a.tag[data-ref*=".v-"]{
+   font-size: 0px; 
+   font-family: iosevka, fira code, consolas, source code pro;
+   color: #88e165;
+   background-color: #1a2d23;
+   /*border: 1px solid #a1c65d; border-radius: 3px;*/
+   padding: 0 2px;
+   }
+
+/* 隐藏Table View */
+div:not(#today-queries) > div.custom-query > div > div.content, div:not(#today-queries) > div.custom-query > div > div.initial > div > div.flex { display: none }
