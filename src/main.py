@@ -1,7 +1,9 @@
-import sys
+import sys, math
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from canvas_scene import CanvasScene
+from canvas_view import CanvasView
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -18,8 +20,12 @@ class MainWindow(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        label = QLabel("Hello World")
-        self.layout.addWidget(label)
+        scene = CanvasScene()
+        rectItem = scene.addRect(0, 0, 100, 100)
+        rectItem.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
+        view = CanvasView(scene)
+        self.layout.addWidget(view)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
