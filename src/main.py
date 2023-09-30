@@ -23,6 +23,7 @@ class MainWindow(QWidget):
         scene = CanvasScene()
         rectItem = scene.addRect(0, 0, 100, 100)
         rectItem.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
+        rectItem.setPen(QPen(Qt.red))
         view = CanvasView(scene)
         self.layout.addWidget(view)
 
