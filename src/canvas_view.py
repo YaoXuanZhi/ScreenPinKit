@@ -7,6 +7,12 @@ class CanvasView(QGraphicsView):
         super().__init__(scene, parent)
         self.initUI()
 
+        self.zoomInFactor = 1.25
+        self.zoomClamp = True # 是否限制缩放比率
+        self.zoom = 10
+        self.zoomStep = 1
+        self.zoomRange = [0, 10]
+
     def initUI(self):
         self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing | QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
 
@@ -15,8 +21,10 @@ class CanvasView(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        # self.scene_width, self.scene_height = 64000, 64000
-        # self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
+        self.scene_width, self.scene_height = 64000, 64000
+        self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
+
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MiddleButton:
@@ -37,6 +45,26 @@ class CanvasView(QGraphicsView):
             self.rightMouseButtonRelease(event)
         else:
             super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event):
+        # calculate our zoom Factor
+        zoomOutFactor = 1 / self.zoomInFactor
+
+        # calculate zoom
+        if event.angleDelta().y() > 0:
+            zoomFactor = self.zoomInFactor
+            self.zoom += self.zoomStep
+        else:
+            zoomFactor = zoomOutFactor
+            self.zoom -= self.zoomStep
+
+        clamped = False
+        if self.zoom < self.zoomRange[0]: self.zoom, clamped = self.zoomRange[0], True
+        if self.zoom > self.zoomRange[1]: self.zoom, clamped = self.zoomRange[1], True
+
+        # set scene scale
+        if not clamped or self.zoomClamp is False:
+            self.scale(zoomFactor, zoomFactor)
 
 
     def middleMouseButtonPress(self, event):
