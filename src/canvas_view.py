@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 class CanvasView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
         super().__init__(scene, parent)
+        # self.setStyleSheet("""QGraphicsView { selection-background-color: rgb(255, 255, 255); }""")
         self.initUI()
 
         self.zoomInFactor = 1.25
@@ -25,6 +26,7 @@ class CanvasView(QGraphicsView):
         self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
 
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setDragMode(QGraphicsView.RubberBandDrag)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MiddleButton:
