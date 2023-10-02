@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from canvas_item.canvas_node_item import *
 
 class CanvasView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -85,6 +86,13 @@ class CanvasView(QGraphicsView):
         self.setDragMode(QGraphicsView.NoDrag)
 
     def leftMouseButtonPress(self, event):
+        item = self.getItemAtClick(event)
+        self.last_lmb_click_scene_pos = self.mapToScene(event.pos())
+
+        if type(item) is QDMGraphicsSocket:
+            print(f"=======> {item.boundingRect()}")
+            return
+
         return super().mousePressEvent(event)
 
     def leftMouseButtonRelease(self, event):
@@ -95,3 +103,9 @@ class CanvasView(QGraphicsView):
 
     def rightMouseButtonRelease(self, event):
         return super().mouseReleaseEvent(event)
+
+    def getItemAtClick(self, event):
+        """ return the object on which we've clicked/release mouse button """
+        pos = event.pos()
+        obj = self.itemAt(pos)
+        return obj

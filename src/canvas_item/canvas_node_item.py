@@ -58,7 +58,7 @@ class QDMNodeContentWidget(QWidget):
         self.layout.addWidget(QTextEdit("foo"))
 
 class CanvasNodeItem(QGraphicsItem):
-    def __init__(self, node, title='Node Graphics Item', parent=None):
+    def __init__(self, title='Node Graphics Item', parent=None):
         super().__init__(parent)
 
         self.content = QDMNodeContentWidget()
@@ -92,15 +92,6 @@ class CanvasNodeItem(QGraphicsItem):
         self.initContent()
 
         self.initUI()
-
-
-    # def boundingRect(self):
-    #     return QRectF(
-    #         0,
-    #         0,
-    #         2 * self.edge_size + self.width,
-    #         2 * self.edge_size + self.height
-    #     ).normalized()
 
     def boundingRect(self):
         return QRectF(
