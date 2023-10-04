@@ -1,9 +1,10 @@
 import math
-from PyQt5.QtWidgets import QGraphicsScene
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from canvas_item.canvas_node_item import *
 from canvas_item.canvas_node_rect import *
+from canvas_item.canvas_editable_rect import *
 
 class QDMGraphicsSocket(QGraphicsItem):
     def __init__(self, socket, socket_type=1):
@@ -98,3 +99,6 @@ class CanvasScene(QGraphicsScene):
 
         rectItem = CanvasNodeRect(QRectF(-100, -100, 100, 100))
         self.addItem(rectItem)
+
+        editableRectItem = CanvasEditableRect(QRectF(-100, 200, 100, 100))
+        self.addItem(editableRectItem)
