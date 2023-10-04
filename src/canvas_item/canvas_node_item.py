@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QGraphicsSceneMouseEvent
+import sys
 
 LEFT_TOP = 1
 LEFT_BOTTOM = 2
@@ -28,11 +30,18 @@ class QDMGraphicsSocket(QGraphicsItem):
         self._pen.setWidthF(self.outline_width)
         self._brush = QBrush(self._color_background)
 
-    def paint(self, painter, QStyleOptionGraphicsItem, widget=None):
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
+
+    def paint(self, painter:QPainter, QStyleOptionGraphicsItem, widget=None):
         # painting circle
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         painter.drawEllipse(-self.radius, -self.radius, 2 * self.radius, 2 * self.radius)
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        # 将类名和当前函数打印出来
+        print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> mousePressEvent")
+        return super().mousePressEvent(event)
 
     def boundingRect(self):
         return QRectF(
@@ -131,10 +140,11 @@ class CanvasNodeItem(QGraphicsItem):
         self.grContent.setWidget(self.content)
 
     def initSockets(self):
+        self.inputs:list[QDMGraphicsSocket] = []
         self.socket_type = 1
         socket = QDMGraphicsSocket(self.socket_type, self)
         socket.setPos(*self.getSocketPosition(1, LEFT_BOTTOM))
-        pass
+        self.inputs.append(socket)
 
     def paint(self, painter, QStyleOptionGraphicsItem, widget=None):
         # title
