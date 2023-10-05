@@ -1,3 +1,7 @@
+# https://blog.csdn.net/qq_33659478/article/details/126646020
+# https://blog.csdn.net/xiaonuo911teamo/article/details/106129696
+# https://blog.csdn.net/xiaonuo911teamo/article/details/106075647
+import math
 from enum import Enum
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -106,12 +110,16 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         parentItem:CanvasEditableFrame = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.startRotate(event.pos())
+        else:
+            parentItem.startResize(event.pos())
         return super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         parentItem:CanvasEditableFrame = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.endRotate(event.pos())
+        else:
+            parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
 class CanvasEditableFrame(QGraphicsRectItem):
@@ -294,6 +302,28 @@ class CanvasEditableFrame(QGraphicsRectItem):
         painter.setPen(Qt.white)
 
         painter.restore()
+
+    def startResize(self, localPos:QPointF) -> None:
+        self.oldCenter = self.boundingRect().center()
+
+    def endResize(self, localPos:QPointF) -> None:
+        # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
+        rect = self.rect()
+        angle = math.radians(self.rotation())
+
+        p1 = rect.center()
+        origin = self.transformOriginPoint()
+        p2 = QPointF(0, 0)
+
+        p2.setX(origin.x() + math.cos(angle)*(p1.x() - origin.x()) - math.sin(angle)*(p1.y() - origin.y()))
+        p2.setY(origin.y() + math.sin(angle)*(p1.x() - origin.x()) + math.cos(angle)*(p1.y() - origin.y()))
+
+        diff:QPointF = p1 - p2
+
+        self.setRect(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
+        self.setTransformOriginPoint(self.rect().center())
+
+        self.initControllers()
 
     def startRotate(self, localPos:QPointF) -> None:
         self.originPos = self.rect().center()
