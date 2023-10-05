@@ -1,11 +1,8 @@
-import typing, math
 from enum import Enum
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
-import sys
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -111,6 +108,12 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
             parentItem.startRotate(event.pos())
         return super().mousePressEvent(event)
 
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        if self.posType == EnumPosType.ControllerPosTT:
+            parentItem.endRotate(event.pos())
+        return super().mouseReleaseEvent(event)
+
 class CanvasEditableFrame(QGraphicsRectItem):
     PI = 3.14159265358979
 
@@ -169,13 +172,10 @@ class CanvasEditableFrame(QGraphicsRectItem):
                 controller.hide()
 
     def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
-        originPos = self.boundingRect().center()
-        p1 = QLineF(originPos, self.m_pressPos)
-        p2 = QLineF(originPos, localPos)
+        p1 = QLineF(self.originPos, self.m_pressPos)
+        p2 = QLineF(self.originPos, localPos)
 
         dRotateAngle = p2.angleTo(p1)
-
-        self.setTransformOriginPoint(originPos)
 
         dCurAngle = self.rotation() + dRotateAngle
         while dCurAngle > 360.0:
@@ -252,6 +252,7 @@ class CanvasEditableFrame(QGraphicsRectItem):
         self.initControllers()
 
     def hasFocusWrapper(self):
+        # if self.hasFocus() or self.isSelected():
         if self.hasFocus():
             return True
         else:
@@ -295,5 +296,9 @@ class CanvasEditableFrame(QGraphicsRectItem):
         painter.restore()
 
     def startRotate(self, localPos:QPointF) -> None:
-        self.m_transform = self.transform()
+        self.originPos = self.rect().center()
+        self.setTransformOriginPoint(self.originPos)
         self.m_pressPos = localPos
+    
+    def endRotate(self, localPos:QPointF) -> None:
+        pass

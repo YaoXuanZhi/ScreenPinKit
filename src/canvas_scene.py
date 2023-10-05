@@ -100,5 +100,6 @@ class CanvasScene(QGraphicsScene):
         rectItem = CanvasNodeRect(QRectF(-100, -100, 100, 100))
         self.addItem(rectItem)
 
-        editableRectItem = CanvasEditableRect(QRectF(-100, 200, 100, 100))
+        editableRectItem = CanvasEditableFrame(QRectF(-100, 200, 100, 100))
+        # editableRectItem = CanvasEditableFrame(QRectF(-200, 200, 150, 150))
         self.addItem(editableRectItem)
