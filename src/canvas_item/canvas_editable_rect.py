@@ -8,14 +8,15 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphic
 import sys
 
 class EnumPosType(Enum):
-    ControllerPosTL = 1
-    ControllerPosTC = 2
-    ControllerPosTR = 3
-    ControllerPosRC = 4
-    ControllerPosBR = 5
-    ControllerPosBC = 6
-    ControllerPosBL = 7
-    ControllerPosLC = 8
+    ControllerPosTL = "左上角"
+    ControllerPosTC = "顶部居中"
+    ControllerPosTR = "右上角"
+    ControllerPosRC = "右侧居中"
+    ControllerPosBR = "右下角"
+    ControllerPosBC = "底部居中"
+    ControllerPosBL = "左下角"
+    ControllerPosLC = "左侧居中"
+    ControllerPosTT = "顶部悬浮"
 
 class CanvasEllipseItem(QGraphicsEllipseItem):
     def __init__(self, interfaceCursor:QCursor, parent:QGraphicsItem = None) -> None:
@@ -72,6 +73,10 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         elif posType == EnumPosType.ControllerPosLC:
             # 左侧居中
             return (rect.topLeft() + rect.bottomLeft()) / 2 - QPointF(radius, radius)
+        elif posType == EnumPosType.ControllerPosTT:
+            # 顶部悬浮
+            hoverDistance = 30
+            return (rect.topLeft() + rect.topRight()) / 2 - QPointF(radius, radius + hoverDistance)
 
     def setRectWrapper(self, attachRect:QRectF, posType:EnumPosType, radius:float, size:QSizeF):
         self.posType = posType
@@ -156,6 +161,7 @@ class CanvasEditableFrame(QGraphicsRectItem):
             [EnumPosType.ControllerPosBC, Qt.CursorShape.SizeVerCursor], 
             [EnumPosType.ControllerPosBL, Qt.CursorShape.SizeBDiagCursor], 
             [EnumPosType.ControllerPosLC, Qt.CursorShape.SizeHorCursor],
+            [EnumPosType.ControllerPosTT, Qt.CursorShape.PointingHandCursor],
             ]
 
         if len(self.controllers) == 0:
