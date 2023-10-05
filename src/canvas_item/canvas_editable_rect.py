@@ -4,7 +4,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
 import sys
 
 class EnumPosType(Enum):
@@ -20,8 +20,7 @@ class EnumPosType(Enum):
 class CanvasEllipseItem(QGraphicsEllipseItem):
     def __init__(self, interfaceCursor:QCursor, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         self.setAcceptHoverEvents(True)
         self.lastCursor = None
         self.interfaceCursor = interfaceCursor
@@ -87,16 +86,33 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         parentItem:CanvasEditableFrame = self.parentItem()
         parentItem.updateEdge(self.posType, event.pos())
 
+    def focusInEvent(self, event: QFocusEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem.focusInEvent(event)
+        return super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem.focusOutEvent(event)
+        return super().focusOutEvent(event)
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem.mousePressEvent(event)
+        return super().mousePressEvent(event)
+
 class CanvasEditableFrame(QGraphicsRectItem):
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
 
-        self.m_margin = 20.0
+        self.radius = 8
+        self.m_margin = self.radius
+        # self.m_margin = 20.0
         self.m_borderWidth = 5
         self.m_padding = 20.0
 
-        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
-        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
+        self.m_penDefault = QPen(Qt.white, 1)
+        self.m_penSelected = QPen(QColor("#FFFFA637"), 1)
 
         self.initUI()
 
@@ -125,16 +141,12 @@ class CanvasEditableFrame(QGraphicsRectItem):
         self.lastCursor = None
         self.shapePath = QPainterPath()
 
-        # self.initControllers()
-
     def initControllers(self):
         if not hasattr(self, "controllers"):
             self.controllers:list[CanvasEllipseItem] = []
 
-        # rect = self.rect()
         rect = self.getBorderRect()
-        radius = 8
-        size = QSizeF(radius*2, radius*2)
+        size = QSizeF(self.radius*2, self.radius*2)
         posTypes = [
             [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
             [EnumPosType.ControllerPosTC, Qt.CursorShape.SizeVerCursor], 
@@ -149,11 +161,11 @@ class CanvasEditableFrame(QGraphicsRectItem):
         if len(self.controllers) == 0:
             for info in posTypes:
                 controller = CanvasEllipseItem(info[-1], self)
-                controller.setRectWrapper(rect, info[0], radius, size)
+                controller.setRectWrapper(rect, info[0], self.radius, size)
                 self.controllers.append(controller)
         else:
             for controller in self.controllers:
-                controller.resetPosition(rect, radius, size)
+                controller.resetPosition(rect, self.radius, size)
                 if not controller.isVisible():
                     controller.show()
 
@@ -174,13 +186,29 @@ class CanvasEditableFrame(QGraphicsRectItem):
         return super().hoverLeaveEvent(event)
 
     def focusInEvent(self, event: QFocusEvent) -> None:
-        self.initControllers()
-        return super().focusInEvent(event)
+        if self.hasFocusWrapper():
+            self.initControllers()
 
     def focusOutEvent(self, event: QFocusEvent) -> None:
-        if not self.isSelected():
+        scenePos = self.gtCurrentScenePos()
+
+        # 计算绘图区和工具区的并集
+        rects = [self.sceneBoundingRect().toRect()]
+        for controller in self.controllers:
+            rects.append(controller.sceneBoundingRect().toRect())
+        region = QRegion()
+        region.setRects(rects)
+
+        # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
+        if not region.contains(scenePos):
             self.hideControllers()
-        return super().focusOutEvent(event)
+
+    def gtCurrentScenePos(self):
+        screenPos = self.cursor().pos()
+        view = self.scene().views()[0]
+        widgetPos = view.mapFromGlobal(screenPos)
+        scenePos = view.mapToScene(widgetPos)
+        return scenePos.toPoint()
 
     def updateEdge(self, currentPosType, localPos:QPointF):
         offset = self.m_margin + self.m_borderWidth / 2
@@ -214,20 +242,32 @@ class CanvasEditableFrame(QGraphicsRectItem):
         self.setRect(newRect)
         self.initControllers()
 
+    def hasFocusWrapper(self):
+        if self.hasFocus():
+            return True
+        else:
+            if hasattr(self, 'controllers'):
+                for controller in self.controllers:
+                    if controller.hasFocus():
+                        return True
+        return False
+
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
         self.shapePath.clear()
-        if self.isSelected():
+        if self.hasFocusWrapper():
             region = QRegion()
             rects = [self.boundingRect().toRect()]
-            for controller in self.controllers:
-                rects.append(controller.boundingRect().toRect())
+            if hasattr(self, 'controllers'):
+                for controller in self.controllers:
+                    rects.append(controller.boundingRect().toRect())
             region.setRects(rects)
             self.shapePath.addRegion(region)
         else:
             fullRect = self.boundingRect()
             selectRegion = QRegion(fullRect.toRect())
-            subRect:QRectF = self.boundingRect() - QMarginsF(self.m_padding, self.m_padding, self.m_padding, self.m_padding)
+            offset = self.m_margin + self.m_borderWidth
+            subRect:QRectF = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
             finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
             self.shapePath.addRegion(finalRegion)
         return self.shapePath
@@ -243,7 +283,8 @@ class CanvasEditableFrame(QGraphicsRectItem):
         borderColor = QColor(255, 255, 153)
         contentColor = QColor(253, 203, 151)
 
-        painter.setPen(boundingColor)
+        # painter.setPen(boundingColor)
+        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
         painter.drawRect(boundingRect)
         painter.setPen(Qt.white)
         painter.drawText(boundingRect, Qt.AlignTop | Qt.AlignLeft, "margin")
