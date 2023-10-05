@@ -1,4 +1,4 @@
-import typing
+import typing, math
 from enum import Enum
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
@@ -30,7 +30,8 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         pen.setColor(Qt.lightGray)
         pen.setWidth(1)
         self.setPen(pen)
-        self.setBrush(Qt.blue)
+        self.setBrush(QBrush(Qt.NoBrush))
+        # self.setBrush(Qt.blue)
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
@@ -89,6 +90,9 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         parentItem:CanvasEditableFrame = self.parentItem()
+        if self.posType == EnumPosType.ControllerPosTT:
+            parentItem.mouseMoveRotateOperator(event.scenePos(), event.pos())
+            return
         parentItem.updateEdge(self.posType, event.pos())
 
     def focusInEvent(self, event: QFocusEvent) -> None:
@@ -103,41 +107,23 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         parentItem:CanvasEditableFrame = self.parentItem()
-        parentItem.mousePressEvent(event)
+        if self.posType == EnumPosType.ControllerPosTT:
+            parentItem.startRotate(event.pos())
         return super().mousePressEvent(event)
 
 class CanvasEditableFrame(QGraphicsRectItem):
+    PI = 3.14159265358979
+
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
 
         self.radius = 8
-        self.m_margin = self.radius
-        # self.m_margin = 20.0
-        self.m_borderWidth = 5
-        self.m_padding = 20.0
+        self.m_borderWidth = 1
 
-        self.m_penDefault = QPen(Qt.white, 1)
-        self.m_penSelected = QPen(QColor("#FFFFA637"), 1)
+        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
+        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
 
         self.initUI()
-
-    def getMarginRect(self) -> QRectF:
-        return self.rect()
-
-    def getPaddingRect(self) -> QRectF:
-        contentRect = self.getContentRect()
-        offset = self.m_padding
-        return contentRect + QMarginsF(offset, offset, offset, offset)
-
-    def getBorderRect(self) -> QRectF:
-        contentRect = self.getContentRect()
-        offset = self.m_borderWidth + self.m_padding
-        return contentRect + QMarginsF(offset, offset, offset, offset)
-
-    def getContentRect(self) -> QRectF:
-        contentRect = self.rect()
-        offset = self.m_margin + self.m_borderWidth + self.m_padding
-        return contentRect - QMarginsF(offset, offset, offset, offset)
 
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
@@ -146,11 +132,13 @@ class CanvasEditableFrame(QGraphicsRectItem):
         self.lastCursor = None
         self.shapePath = QPainterPath()
 
+        self.m_pressPos = QPointF() # 本地坐标点击的点
+
     def initControllers(self):
         if not hasattr(self, "controllers"):
             self.controllers:list[CanvasEllipseItem] = []
 
-        rect = self.getBorderRect()
+        rect = self.boundingRect()
         size = QSizeF(self.radius*2, self.radius*2)
         posTypes = [
             [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
@@ -179,6 +167,21 @@ class CanvasEditableFrame(QGraphicsRectItem):
         for controller in self.controllers:
             if controller.isVisible():
                 controller.hide()
+
+    def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
+        originPos = self.boundingRect().center()
+        p1 = QLineF(originPos, self.m_pressPos)
+        p2 = QLineF(originPos, localPos)
+
+        dRotateAngle = p2.angleTo(p1)
+
+        self.setTransformOriginPoint(originPos)
+
+        dCurAngle = self.rotation() + dRotateAngle
+        while dCurAngle > 360.0:
+            dCurAngle -= 360.0
+        self.setRotation(dCurAngle)
+        self.update()
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
@@ -217,7 +220,7 @@ class CanvasEditableFrame(QGraphicsRectItem):
         return scenePos.toPoint()
 
     def updateEdge(self, currentPosType, localPos:QPointF):
-        offset = self.m_margin + self.m_borderWidth / 2
+        offset = self.m_borderWidth / 2
         lastRect = self.rect()
         newRect = lastRect.adjusted(0, 0, 0, 0)
         if currentPosType == EnumPosType.ControllerPosTL:
@@ -272,7 +275,7 @@ class CanvasEditableFrame(QGraphicsRectItem):
         else:
             fullRect = self.boundingRect()
             selectRegion = QRegion(fullRect.toRect())
-            offset = self.m_margin + self.m_borderWidth
+            offset = self.m_borderWidth
             subRect:QRectF = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
             finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
             self.shapePath.addRegion(finalRegion)
@@ -282,28 +285,15 @@ class CanvasEditableFrame(QGraphicsRectItem):
         painter.save()
 
         boundingRect = self.rect()
-        borderRect:QRect = self.getBorderRect()
-        contentRect = self.getContentRect()
-
         boundingColor = QColor(0, 0, 125)
-        borderColor = QColor(255, 255, 153)
-        contentColor = QColor(253, 203, 151)
 
         # painter.setPen(boundingColor)
         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
         painter.drawRect(boundingRect)
         painter.setPen(Qt.white)
-        painter.drawText(boundingRect, Qt.AlignTop | Qt.AlignLeft, "margin")
-
-        painter.setPen(QPen(borderColor, self.m_borderWidth))
-        painter.drawRect(borderRect)
-        painter.setPen(Qt.white)
-        borderRect.adjust(self.m_borderWidth, self.m_borderWidth, -self.m_borderWidth, -self.m_borderWidth)
-        painter.drawText(borderRect, Qt.AlignTop | Qt.AlignLeft, "border")
-
-        painter.setPen(contentColor)
-        painter.drawRect(contentRect)
-        painter.setPen(Qt.white)
-        painter.drawText(contentRect, Qt.AlignTop | Qt.AlignLeft, "content")
 
         painter.restore()
+
+    def startRotate(self, localPos:QPointF) -> None:
+        self.m_transform = self.transform()
+        self.m_pressPos = localPos
