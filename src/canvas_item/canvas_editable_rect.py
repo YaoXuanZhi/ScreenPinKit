@@ -90,17 +90,12 @@ class CanvasEditableRect(QGraphicsRectItem):
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
 
-        self._pen_width = 2
-        self._pen_default = QPen(Qt.white, self._pen_width)
-        # self._pen_default = QPen(QColor("#7F000000"))
-        self._pen_selected = QPen(QColor("#FFFFA637"), self._pen_width)
+        self.m_borderWidth = 2
+        self.m_edgeSize = 10.0
+        self.m_padding = 10.0
 
-        self._brush_title = QBrush(QColor("#FF313131"))
-        self._brush_background = QBrush(QColor("#E3212121"))
-
-        self.edge_size = 10.0
-        # self._padding = 4.0
-        self._padding = 10.0
+        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
+        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
 
         self.initUI()
 
@@ -145,7 +140,7 @@ class CanvasEditableRect(QGraphicsRectItem):
 
         self.lastCursor = None
         self.shapePath = QPainterPath()
-        # self.initControllers()
+        self.initControllers()
 
     def updateEdge(self, currentPosType, localPos:QPointF):
         lastRect = self.rect()
@@ -170,49 +165,199 @@ class CanvasEditableRect(QGraphicsRectItem):
         self.setRect(newRect)
         self.initControllers()
 
-    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        self.lastCursor = self.cursor()
-        print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
-        self.setCursor(Qt.CursorShape.SizeAllCursor)
+    # def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+    #     self.lastCursor = self.cursor()
+    #     print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
+    #     self.setCursor(Qt.CursorShape.SizeAllCursor)
 
-    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
-        if self.lastCursor != None:
-            self.setCursor(self.lastCursor)
-            self.lastCursor = None
+    # def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+    #     print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
+    #     if self.lastCursor != None:
+    #         self.setCursor(self.lastCursor)
+    #         self.lastCursor = None
 
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
-        self.initControllers()
-        return super().focusInEvent(event)
+    # def focusInEvent(self, event: QFocusEvent) -> None:
+    #     print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
+    #     self.initControllers()
+    #     return super().focusInEvent(event)
 
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        self.hideControllers()
-        return super().focusOutEvent(event)
+    # def focusOutEvent(self, event: QFocusEvent) -> None:
+    #     self.hideControllers()
+    #     return super().focusOutEvent(event)
 
-    # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
-    def shape(self) -> QPainterPath:
-        self.shapePath.clear()
-        if self.hasFocus():
-            region = QRegion()
-            rects = [self.boundingRect().toRect()]
-            for controller in self.controllers:
-                rects.append(controller.boundingRect().toRect())
-            region.setRects(rects)
-            self.shapePath.addRegion(region)
-        else:
-            fullRect = self.boundingRect()
-            selectRegion = QRegion(fullRect.toRect())
-            subRect = self.boundingRect() - QMarginsF(self._padding, self._padding, self._padding, self._padding)
-            finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
-            self.shapePath.addRegion(finalRegion)
-        return self.shapePath
+    # # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
+    # def shape(self) -> QPainterPath:
+    #     self.shapePath.clear()
+    #     if self.hasFocus():
+    #         region = QRegion()
+    #         rects = [self.boundingRect().toRect()]
+    #         for controller in self.controllers:
+    #             rects.append(controller.boundingRect().toRect())
+    #         region.setRects(rects)
+    #         self.shapePath.addRegion(region)
+    #     else:
+    #         fullRect = self.boundingRect()
+    #         selectRegion = QRegion(fullRect.toRect())
+    #         subRect = self.boundingRect() - QMarginsF(self.m_padding, self.m_padding, self.m_padding, self.m_padding)
+    #         finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
+    #         self.shapePath.addRegion(finalRegion)
+    #     return self.shapePath
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         # outline
         path_outline = QPainterPath()
         # path_outline.addRoundedRect(self.boundingRect(), self.edge_size, self.edge_size)
         path_outline.addRect(self.boundingRect())
-        painter.setPen(self._pen_default if not self.isSelected() else self._pen_selected)
+        painter.setPen(self.m_penDefault if not self.isSelected() else self.m_penSelected)
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(path_outline.simplified())
+
+class CanvasEditableFrame(QGraphicsRectItem):
+    def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
+        super().__init__(rect, parent)
+
+        self.m_margin = 20.0
+        self.m_borderWidth = 5
+        self.m_padding = 20.0
+
+        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
+        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
+
+        self.initUI()
+
+    def getMarginRect(self) -> QRectF:
+        return self.boundingRect()
+
+    def getPaddingRect(self) -> QRectF:
+        contentRect = self.getContentRect()
+        offset = self.m_padding
+        return contentRect + QMarginsF(offset, offset, offset, offset)
+
+    def getBorderRect(self) -> QRectF:
+        contentRect = self.getContentRect()
+        offset = self.m_borderWidth + self.m_padding
+        return contentRect + QMarginsF(offset, offset, offset, offset)
+
+    def getContentRect(self) -> QRectF:
+        contentRect = self.boundingRect()
+        offset = self.m_margin + self.m_borderWidth + self.m_padding
+        return contentRect - QMarginsF(offset, offset, offset, offset)
+
+    def initUI(self):
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
+        self.setAcceptHoverEvents(True)
+
+        self.lastCursor = None
+        self.shapePath = QPainterPath()
+
+        self.initControllers()
+
+    def initControllers(self):
+        if not hasattr(self, "controllers"):
+            self.controllers:list[CanvasEllipseItem] = []
+
+        rect = self.rect()
+        radius = 5
+        size = QSizeF(radius*2, radius*2)
+        posTypes = [
+            [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
+            [EnumPosType.ControllerPosTC, Qt.CursorShape.SizeVerCursor], 
+            [EnumPosType.ControllerPosTR, Qt.CursorShape.SizeBDiagCursor], 
+            [EnumPosType.ControllerPosRC, Qt.CursorShape.SizeHorCursor], 
+            [EnumPosType.ControllerPosBR, Qt.CursorShape.SizeFDiagCursor], 
+            [EnumPosType.ControllerPosBC, Qt.CursorShape.SizeVerCursor], 
+            [EnumPosType.ControllerPosBL, Qt.CursorShape.SizeBDiagCursor], 
+            [EnumPosType.ControllerPosLC, Qt.CursorShape.SizeHorCursor],
+            ]
+
+        if len(self.controllers) == 0:
+            for info in posTypes:
+                controller = CanvasEllipseItem(info[-1], self)
+                controller.setRectWrapper(rect, info[0], radius, size)
+                self.controllers.append(controller)
+        else:
+            for controller in self.controllers:
+                controller.resetPosition(rect, radius, size)
+                if not controller.isVisible():
+                    controller.show()
+
+    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+        self.lastCursor = self.cursor()
+        self.setCursor(Qt.CursorShape.SizeAllCursor)
+        return super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+        if self.lastCursor != None:
+            self.setCursor(self.lastCursor)
+            self.lastCursor = None
+        return super().hoverLeaveEvent(event)
+
+    def updateEdge(self, currentPosType, localPos:QPointF):
+        lastRect = self.rect()
+        newRect = lastRect.adjusted(0, 0, 0, 0)
+        if currentPosType == EnumPosType.ControllerPosTL:
+            newRect.setTopLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosTC:
+            newRect.setTop(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosTR:
+            newRect.setTopRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosRC:
+            newRect.setRight(localPos.x())
+        elif currentPosType == EnumPosType.ControllerPosBR:
+            newRect.setBottomRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosBC:
+            newRect.setBottom(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosBL:
+            newRect.setBottomLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosLC:
+            newRect.setLeft(localPos.x())
+
+        self.setRect(newRect)
+        self.initControllers()
+
+    # # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
+    # def shape(self) -> QPainterPath:
+    #     self.shapePath.clear()
+    #     if self.hasFocus():
+    #         region = QRegion()
+    #         rects = [self.boundingRect().toRect()]
+    #         for controller in self.controllers:
+    #             rects.append(controller.boundingRect().toRect())
+    #         region.setRects(rects)
+    #         self.shapePath.addRegion(region)
+    #     else:
+    #         fullRect = self.boundingRect()
+    #         selectRegion = QRegion(fullRect.toRect())
+    #         subRect = self.boundingRect() - QMarginsF(self.m_padding, self.m_padding, self.m_padding, self.m_padding)
+    #         finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
+    #         self.shapePath.addRegion(finalRegion)
+    #     return self.shapePath
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+        painter.save()
+
+        boundingRect = self.boundingRect()
+        borderRect:QRect = self.getBorderRect()
+        contentRect = self.getContentRect()
+
+        boundingColor = QColor(0, 0, 125)
+        borderColor = QColor(255, 255, 153)
+        contentColor = QColor(253, 203, 151)
+
+        painter.setPen(boundingColor)
+        painter.drawRect(boundingRect)
+        painter.setPen(Qt.white)
+        painter.drawText(boundingRect, Qt.AlignTop | Qt.AlignLeft, "margin")
+
+        painter.setPen(QPen(borderColor, self.m_borderWidth))
+        painter.drawRect(borderRect)
+        painter.setPen(Qt.white)
+        borderRect.adjust(self.m_borderWidth, self.m_borderWidth, -self.m_borderWidth, -self.m_borderWidth)
+        painter.drawText(borderRect, Qt.AlignTop | Qt.AlignLeft, "border")
+
+        painter.setPen(contentColor)
+        painter.drawRect(contentRect)
+        painter.setPen(Qt.white)
+        painter.drawText(contentRect, Qt.AlignTop | Qt.AlignLeft, "content")
+
+        painter.restore()
