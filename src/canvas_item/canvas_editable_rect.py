@@ -85,50 +85,30 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         parentItem:CanvasEditableRect = self.parentItem()
-
-        newRect = parentItem.boundingRect()
-        if self.posType == EnumPosType.ControllerPosTL:
-            newRect.setTopLeft(event.pos())
-        elif self.posType == EnumPosType.ControllerPosTC:
-            newRect.setTop(event.pos().y())
-        elif self.posType == EnumPosType.ControllerPosTR:
-            newRect.setTopRight(event.pos())
-        elif self.posType == EnumPosType.ControllerPosRC:
-            newRect.setRight(event.pos().x())
-        elif self.posType == EnumPosType.ControllerPosBR:
-            newRect.setBottomRight(event.pos())
-        elif self.posType == EnumPosType.ControllerPosBC:
-            newRect.setBottom(event.pos().y())
-        elif self.posType == EnumPosType.ControllerPosBL:
-            newRect.setBottomLeft(event.pos())
-        elif self.posType == EnumPosType.ControllerPosLC:
-            newRect.setLeft(event.pos().x())
-
-        parentItem.setRect(newRect)
-        # print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> {newRect} / {event.pos()} ")
-        print(f"====> {newRect} / {event.pos()} / {self.pos()} ")
-        parentItem.initControllers()
-
+        parentItem.updateEdge(self.posType, event.pos())
 class CanvasEditableRect(QGraphicsRectItem):
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
 
-        self._pen_default = QPen(Qt.white)
+        self._pen_width = 2
+        self._pen_default = QPen(Qt.white, self._pen_width)
         # self._pen_default = QPen(QColor("#7F000000"))
-        self._pen_selected = QPen(QColor("#FFFFA637"))
+        self._pen_selected = QPen(QColor("#FFFFA637"), self._pen_width)
 
         self._brush_title = QBrush(QColor("#FF313131"))
         self._brush_background = QBrush(QColor("#E3212121"))
 
         self.edge_size = 10.0
-        self._padding = 4.0
+        # self._padding = 4.0
+        self._padding = 10.0
 
         self.initUI()
 
     def initControllers(self):
         if not hasattr(self, "controllers"):
             self.controllers:list[CanvasEllipseItem] = []
-        rect = self.boundingRect()
+        # rect = self.boundingRect()
+        rect = self.rect()
         radius = 5
         size = QSizeF(radius*2, radius*2)
         posTypes = [
@@ -150,13 +130,44 @@ class CanvasEditableRect(QGraphicsRectItem):
         else:
             for controller in self.controllers:
                 controller.resetPosition(rect, radius, size)
+                if not controller.isVisible():
+                    controller.show()
+
+    def hideControllers(self):
+        for controller in self.controllers:
+            if controller.isVisible():
+                controller.hide()
 
     def initUI(self):
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsMovable)
+        # self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         self.setAcceptHoverEvents(True)
-        self.lastCursor = None
 
+        self.lastCursor = None
+        self.shapePath = QPainterPath()
+        # self.initControllers()
+
+    def updateEdge(self, currentPosType, localPos:QPointF):
+        lastRect = self.rect()
+        newRect = lastRect.adjusted(0, 0, 0, 0)
+        if currentPosType == EnumPosType.ControllerPosTL:
+            newRect.setTopLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosTC:
+            newRect.setTop(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosTR:
+            newRect.setTopRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosRC:
+            newRect.setRight(localPos.x())
+        elif currentPosType == EnumPosType.ControllerPosBR:
+            newRect.setBottomRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosBC:
+            newRect.setBottom(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosBL:
+            newRect.setBottomLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosLC:
+            newRect.setLeft(localPos.x())
+
+        self.setRect(newRect)
         self.initControllers()
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
@@ -169,6 +180,33 @@ class CanvasEditableRect(QGraphicsRectItem):
         if self.lastCursor != None:
             self.setCursor(self.lastCursor)
             self.lastCursor = None
+
+    def focusInEvent(self, event: QFocusEvent) -> None:
+        print(f" {__class__.__name__}:{sys._getframe().f_code.co_name} ====> ")
+        self.initControllers()
+        return super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent) -> None:
+        self.hideControllers()
+        return super().focusOutEvent(event)
+
+    # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
+    def shape(self) -> QPainterPath:
+        self.shapePath.clear()
+        if self.hasFocus():
+            region = QRegion()
+            rects = [self.boundingRect().toRect()]
+            for controller in self.controllers:
+                rects.append(controller.boundingRect().toRect())
+            region.setRects(rects)
+            self.shapePath.addRegion(region)
+        else:
+            fullRect = self.boundingRect()
+            selectRegion = QRegion(fullRect.toRect())
+            subRect = self.boundingRect() - QMarginsF(self._padding, self._padding, self._padding, self._padding)
+            finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
+            self.shapePath.addRegion(finalRegion)
+        return self.shapePath
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         # outline
