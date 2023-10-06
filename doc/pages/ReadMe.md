@@ -20,8 +20,13 @@
 	- 快捷键自定义
 	- 多语言支持
 - 参考资料
+	- https://maicss.gitbook.io/pyqt-chinese-tutoral/
 	- https://github.com/fandesfyf/Jamscreenshot
 	- https://zh.snipaste.com/
+	- https://github.com/pyqtgraph/pyqtgraph
 	- https://gitlab.com/pavel.krupala/pyqt-node-editor
 		- 建议先跟着这个教程开发一个节点编辑器，然后熟悉QGraphicView的相关开发技术，方便自行来实现各种绘图工具
 		- {{video https://www.youtube.com/watch?v=YV2mEYd7nyM&list=PLZSNHzwDCOggHLThIbCxUhWTgrKVemZkz&index=2}}
+	- 对于如何绘制现有图元这个东西来说，可以从pygraph这个第三方库里提取出来，如下图所示：
+		- ![image.png](../assets/image_1696570666429_0.png)
+		- ![image.png](../assets/image_1696571013045_0.png)
