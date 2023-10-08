@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from canvas_item.canvas_node_item import *
 from canvas_item.canvas_node_rect import *
 from canvas_item.canvas_editable_rect import *
+from canvas_item.canvas_resize_rect import *
 
 class QDMGraphicsSocket(QGraphicsItem):
     def __init__(self, socket, socket_type=1):
@@ -97,7 +98,17 @@ class CanvasScene(QGraphicsScene):
         nodeItem.setPos(100, 100)
         self.addItem(nodeItem)
 
-        rectItem = CanvasNodeRect(QRectF(-100, -100, 100, 100))
+        # rectItem = CanvasNodeRect(QRectF(-100, -100, 100, 100))
+        # self.addItem(rectItem)
+
+        # rect = rectItem.sceneBoundingRect()
+        # rectItem.roiManager.addROI(rect.topLeft())
+        # rectItem.roiManager.addROI(rect.topRight())
+        # rectItem.roiManager.addROI(rect.bottomRight())
+        # rectItem.roiManager.addROI(rect.bottomLeft())
+
+
+        rectItem = ResizableRectItem(-100, -100, 100, 100)
         self.addItem(rectItem)
 
         editableRectItem = CanvasEditableFrame(QRectF(-100, 200, 100, 100))
