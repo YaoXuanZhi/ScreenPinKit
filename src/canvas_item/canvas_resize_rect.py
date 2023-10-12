@@ -118,10 +118,10 @@ class CanvasROIManager():
         self.parent.scene().removeItem(roiItem)
 
     def show(self):
-        if len(self.itemsOrderDict) == 0:
-            parent:ResizableRectItem = self.parent
-            parent.createResizeHandles()
-            return
+        # if len(self.itemsOrderDict) == 0:
+        #     parent:ResizableRectItem = self.parent
+        #     parent.createResizeHandles()
+        #     return
 
         for value in self.itemsOrderDict.values():
             roi:CanvasROIItem = value
@@ -154,6 +154,7 @@ class ResizableRectItem(QGraphicsWidget):
         self.m_pressPos = QPointF() # 本地坐标点击的点
 
         self.roiMgr = CanvasROIManager(self)
+        self.createResizeHandles()
 
     def createResizeHandlesBak(self):
         self.roiMgr = CanvasROIManager(self)
@@ -240,12 +241,10 @@ class ResizableRectItem(QGraphicsWidget):
         return scenePos.toPoint()
 
     def focusInEvent(self, event: QFocusEvent) -> None:
-        print("=========>")
         if self.hasFocusWrapper():
             self.roiMgr.show()
 
     def focusOutEvent(self, event: QFocusEvent) -> None:
-        print("=========<")
         scenePos = self.gtCurrentScenePos()
 
         # 计算绘图区和工具区的并集
@@ -308,7 +307,7 @@ class ResizableRectItem(QGraphicsWidget):
 
         diff:QPointF = p1 - p2
 
-        self.setGeometry(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
+        self.setGeometry(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()).normalized())
         self.setTransformOriginPoint(self.rect().center())
 
     def mouseMoveRotateOperator(self, localPos:QPointF) -> None:
