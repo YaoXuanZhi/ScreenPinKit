@@ -6,6 +6,7 @@ from canvas_item.canvas_node_item import *
 from canvas_item.canvas_node_rect import *
 from canvas_item.canvas_editable_rect import *
 from canvas_item.canvas_resize_rect import *
+from canvas_item.canvas_resize_rect2 import *
 
 class QDMGraphicsSocket(QGraphicsItem):
     def __init__(self, socket, socket_type=1):
@@ -108,7 +109,7 @@ class CanvasScene(QGraphicsScene):
         # rectItem.roiManager.addROI(rect.bottomLeft())
 
 
-        rectItem = ResizableRectItem(-100, -100, 100, 100)
+        rectItem = ResizableRectItem2(-100, -100, 100, 100)
         self.addItem(rectItem)
 
         editableRectItem = CanvasEditableFrame(QRectF(-100, 200, 100, 100))
