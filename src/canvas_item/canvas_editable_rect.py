@@ -569,28 +569,7 @@ class CanvasEditablePath(QGraphicsObject):
         pen = QPen(Qt.green, 1, Qt.DashLine)
         pen.setDashPattern([10, 5])
         painter.setPen(pen)
-        for i in range(0, self.polygon.count()):
-            points = []
-            polygonPath = QPainterPath()
-            startIndex = i
-            endIndex = i + 1
-            endIndex %= self.polygon.count()
-            startPoint = self.polygon.at(startIndex)
-            endPoint = self.polygon.at(endIndex)
-
-            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
-
-            points.append(startPoint - offset)
-            points.append(startPoint + offset)
-            points.append(endPoint + offset)
-            points.append(endPoint - offset)
-
-            polygonPath.addPolygon(QPolygonF(points))
-            polygonPath.closeSubpath()
-            painter.drawPath(polygonPath)
-
-            if self.polygon.count() < 3:
-                break
+        painter.drawPath(self.shapePath)
 
         painter.restore()
 
@@ -614,43 +593,45 @@ class CanvasEditablePath(QGraphicsObject):
 
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
-        self.shapePath.clear()
         if self.hasFocusWrapper():
+            selectPath = QPainterPath()
             region = QRegion()
             rects = [self.boundingRect().toRect()]
             for value in self.roiItemList:
                 roiItem:CanvasROI = value
                 rects.append(roiItem.boundingRect().toRect())
             region.setRects(rects)
-            self.shapePath.addRegion(region)
-        else:
-            for i in range(0, self.polygon.count()):
-                points = []
-                polygonPath = QPainterPath()
-                startIndex = i
-                endIndex = i + 1
-                endIndex %= self.polygon.count()
-                startPoint = self.polygon.at(startIndex)
-                endPoint = self.polygon.at(endIndex)
-
-                offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
-
-                points.append(startPoint - offset)
-                points.append(startPoint + offset)
-                points.append(endPoint + offset)
-                points.append(endPoint - offset)
-
-                polygonPath.addPolygon(QPolygonF(points))
-                polygonPath.closeSubpath()
-                self.shapePath.addPath(polygonPath)
-
-                if self.polygon.count() < 3:
-                    break
+            selectPath.addRegion(region)
+            return selectPath
 
         return self.shapePath
 
     def boundingRect(self) -> QRectF:
-        return self.polygon.boundingRect()
+        self.shapePath.clear()
+        for i in range(0, self.polygon.count()):
+            points = []
+            polygonPath = QPainterPath()
+            startIndex = i
+            endIndex = i + 1
+            endIndex %= self.polygon.count()
+            startPoint = self.polygon.at(startIndex)
+            endPoint = self.polygon.at(endIndex)
+
+            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+
+            points.append(startPoint - offset)
+            points.append(startPoint + offset)
+            points.append(endPoint + offset)
+            points.append(endPoint - offset)
+
+            polygonPath.addPolygon(QPolygonF(points))
+            polygonPath.closeSubpath()
+            self.shapePath.addPath(polygonPath)
+
+            if self.polygon.count() < 3:
+                break
+
+        return self.shapePath.boundingRect()
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursorDeque.append(self.cursor())
@@ -802,7 +783,7 @@ class CanvasEditablePath(QGraphicsObject):
     def endResize(self, localPos:QPointF) -> None:
         self.prepareGeometryChange()
         # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
-        rect = self.polygon.boundingRect()
+        rect = self.shapePath.boundingRect()
         angle = math.radians(self.rotation())
 
         p1 = rect.center()
