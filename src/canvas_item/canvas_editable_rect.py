@@ -416,7 +416,7 @@ class CanvasEditableFrame(QGraphicsRectItem):
         diff:QPointF = p1 - p2
 
         self.setRect(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
-        self.setTransformOriginPoint(self.rect().center())
+        self.setTransformOriginPoint(p1-diff)
 
         self.initControllers()
 
