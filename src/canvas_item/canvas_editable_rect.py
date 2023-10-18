@@ -97,10 +97,40 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setPen(pen)
         self.setBrush(QBrush(Qt.NoBrush))
         # self.setBrush(Qt.blue)
+
+    def setCustomCursor(self) -> QCursor:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        if self.posType == EnumPosType.ControllerPosTT:
+            self.setCursor(self.interfaceCursor)
+            return
+        elif self.posType == EnumPosType.ControllerPosRC:
+            pixmap = QPixmap("images/horizontal resize.png")
+        elif self.posType == EnumPosType.ControllerPosLC:
+            pixmap = QPixmap("images/horizontal resize.png")
+        elif self.posType == EnumPosType.ControllerPosTC:
+            pixmap = QPixmap("images/vertical resize.png")
+        elif self.posType == EnumPosType.ControllerPosBC:
+            pixmap = QPixmap("images/vertical resize.png")
+        elif self.posType == EnumPosType.ControllerPosTL:
+            pixmap = QPixmap("images/diagonal resize 1.png")
+        elif self.posType == EnumPosType.ControllerPosBR:
+            pixmap = QPixmap("images/diagonal resize 1.png")
+        elif self.posType == EnumPosType.ControllerPosTR:
+            pixmap = QPixmap("images/diagonal resize 2.png")
+        elif self.posType == EnumPosType.ControllerPosBL:
+            pixmap = QPixmap("images/diagonal resize 2.png")
+        else:
+            pixmap = QPixmap("images/location select.png")
+        transform = parentItem.transform()
+        transform.rotate(parentItem.rotation())
+        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+        newFinal = QCursor(finalPixmap, -1, -1)
+        self.setCursor(newFinal)
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        self.setCursor(self.interfaceCursor)
+        # self.setCursor(self.interfaceCursor)
+        self.setCustomCursor()
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
@@ -187,8 +217,6 @@ class CanvasEllipseItem(CanvasBaseItem):
         return super().mouseReleaseEvent(event)
 
 class CanvasEditableFrame(QGraphicsRectItem):
-    PI = 3.14159265358979
-
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
 
