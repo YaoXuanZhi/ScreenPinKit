@@ -115,3 +115,12 @@ class CanvasScene(QGraphicsScene):
         editableRectItem = CanvasEditableFrame(QRectF(-100, 200, 100, 100))
         # editableRectItem = CanvasEditableFrame(QRectF(-200, 200, 150, 150))
         self.addItem(editableRectItem)
+
+        pathItem = CanvasEditablePath()
+        targetRect = QRectF(300, 300, 150, 100)
+        points = [targetRect.topLeft(), targetRect.topRight(), targetRect.bottomRight(), targetRect.bottomLeft()]
+        for point in points:
+            pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+
+        pathItem.addPoint(QPointF(500, 150), Qt.CursorShape.SizeAllCursor)
+        self.addItem(pathItem)

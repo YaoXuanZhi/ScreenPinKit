@@ -423,7 +423,7 @@ class CanvasROI(CanvasBaseItem):
         if self.isMoving:
             parentItem:CanvasEditablePath = self.parentItem()
             localPos = self.mapToItem(parentItem, self.rect().center())
-            parentItem.movePointById(self.id, localPos)
+            parentItem.movePointById(self, localPos)
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
@@ -439,7 +439,7 @@ class CanvasROI(CanvasBaseItem):
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.RightButton:
             parentItem:CanvasEditablePath = self.parentItem()
-            parentItem.removePoint(self.id)
+            parentItem.removePoint(self)
         return super().mouseDoubleClickEvent(event)
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
@@ -448,20 +448,23 @@ class CanvasROI(CanvasBaseItem):
         painter.save()
         painter.setPen(Qt.white)
         font = painter.font()
-        font.setPixelSize(16)
+        font.setPixelSize(12)
         painter.setFont(font)
-        painter.drawText(self.rect(), Qt.AlignCenter, str(self.id))
+        parentItem:CanvasEditablePath = self.parentItem()
+        index = parentItem.roiItemList.index(self)
+        painter.drawText(self.rect(), Qt.AlignCenter, f"{index}/{self.id}")
         painter.restore()
 
 class CanvasEditablePath(QGraphicsObject):
     def __init__(self, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
 
-        self.radius = 8
-        self.m_borderWidth = 1
+        self.roiRadius = 14
+        self.m_borderWidth = 4
 
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
+        self.m_instId = 1
 
         self.initUI()
 
@@ -469,43 +472,50 @@ class CanvasEditablePath(QGraphicsObject):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         self.setAcceptHoverEvents(True)
 
-        self.itemOrderDict = OrderedDict()
         self.lastCursorDeque = deque()
         self.hoverCursor = Qt.SizeAllCursor
 
+        self.roiItemList:list[CanvasROI] = []
         self.polygon = QPolygonF()
         self.shapePath = QPainterPath()
 
-    def addPoint(self, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
-        id = self.polygon.count()
+    def addPoint(self, point:QPointF, cursor:QCursor = Qt.PointingHandCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
         self.polygon.append(point)
 
         roiItem = CanvasROI(cursor, id, self)
-        rect = QRectF(QPointF(0, 0), QSizeF(16, 16))
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
         rect.moveCenter(point)
         roiItem.setRect(rect)
 
-        self.itemOrderDict[id] = roiItem
+        self.roiItemList.append(roiItem)
         return roiItem
 
-    def removePoint(self, id:int):
-        lastRemoveKey = -1
-        for key in self.itemOrderDict.keys():
-            value = self.itemOrderDict[key]
-            roiItem:CanvasROI = value
-            if roiItem.id == id:
-                lastRemoveKey = key 
-            elif roiItem.id > id:
-                roiItem.id -= 1
-                roiItem.update()
+    def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
 
-        self.polygon.remove(id)
-        removeROIItem = self.itemOrderDict.pop(lastRemoveKey)
-        self.scene().removeItem(removeROIItem)
+        self.polygon.insert(insertIndex, point)
 
-    def movePointById(self, id:int, localPos:QPointF):
+        roiItem = CanvasROI(cursor, id, self)
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+        rect.moveCenter(point)
+        roiItem.setRect(rect)
+
+        self.roiItemList.insert(insertIndex, roiItem)
+        return roiItem
+
+    def removePoint(self, roiItem:CanvasROI):
+        index = self.roiItemList.index(roiItem)
+        self.polygon.remove(index)
+        self.roiItemList.remove(roiItem)
+        self.scene().removeItem(roiItem)
+
+    def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
+        index = self.roiItemList.index(roiItem)
         self.prepareGeometryChange()
-        self.polygon.replace(id, localPos)
+        self.polygon.replace(index, localPos)
         self.update()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
@@ -520,6 +530,31 @@ class CanvasEditablePath(QGraphicsObject):
             painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
             painter.drawRect(boundingRect)
 
+        pen = QPen(Qt.green, 1, Qt.DashLine)
+        pen.setDashPattern([10, 5])
+        painter.setPen(pen)
+        for i in range(0, self.polygon.count()):
+            points = []
+            polygonPath = QPainterPath()
+            polygonPath.clear()
+            points.clear()
+            startIndex = i
+            endIndex = i + 1
+            endIndex %= self.polygon.count()
+            startPoint = self.polygon.at(startIndex)
+            endPoint = self.polygon.at(endIndex)
+
+            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+
+            points.append(startPoint - offset)
+            points.append(startPoint + offset)
+            points.append(endPoint + offset)
+            points.append(endPoint - offset)
+
+            polygonPath.addPolygon(QPolygonF(points))
+            polygonPath.closeSubpath()
+            painter.drawPath(polygonPath)
+
         painter.restore()
 
     def hasFocusWrapper(self):
@@ -527,11 +562,18 @@ class CanvasEditablePath(QGraphicsObject):
         if self.hasFocus():
             return True
         else:
-            for value in self.itemOrderDict.values():
+            for value in self.roiItemList:
                 roiItem:CanvasROI = value
                 if roiItem.hasFocus():
                     return True
         return False
+
+    def calcOffset(self, startPoint:QPointF, endPoint:QPointF, dbRadious:float) -> QPointF:
+        '''计算线段法向量，并且将其长度设为圆的半径，计算它们的偏移量'''
+        v = QLineF(startPoint, endPoint)
+        n = v.normalVector()
+        n.setLength(dbRadious)
+        return n.p1() - n.p2()
 
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
@@ -539,13 +581,36 @@ class CanvasEditablePath(QGraphicsObject):
         if self.hasFocusWrapper():
             region = QRegion()
             rects = [self.boundingRect().toRect()]
-            for value in self.itemOrderDict.values():
+            for value in self.roiItemList:
                 roiItem:CanvasROI = value
                 rects.append(roiItem.boundingRect().toRect())
             region.setRects(rects)
             self.shapePath.addRegion(region)
         else:
-            self.shapePath.addPolygon(self.polygon)
+            # self.shapePath.addPolygon(self.polygon)
+
+            for i in range(0, self.polygon.count()):
+                points = []
+                polygonPath = QPainterPath()
+                polygonPath.clear()
+                points.clear()
+                startIndex = i
+                endIndex = i + 1
+                endIndex %= self.polygon.count()
+                startPoint = self.polygon.at(startIndex)
+                endPoint = self.polygon.at(endIndex)
+
+                offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+
+                points.append(startPoint - offset)
+                points.append(startPoint + offset)
+                points.append(endPoint + offset)
+                points.append(endPoint - offset)
+
+                polygonPath.addPolygon(QPolygonF(points))
+                polygonPath.closeSubpath()
+                self.shapePath.addPath(polygonPath)
+
         return self.shapePath
 
     def boundingRect(self) -> QRectF:
@@ -564,5 +629,27 @@ class CanvasEditablePath(QGraphicsObject):
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
-            self.addPoint(event.pos(), Qt.CursorShape.SizeBDiagCursor)
+            for i in range(0, self.polygon.count()):
+                points = []
+                polygonPath = QPainterPath()
+                polygonPath.clear()
+                points.clear()
+                startIndex = i
+                endIndex = i + 1
+                endIndex %= self.polygon.count()
+                startPoint = self.polygon.at(startIndex)
+                endPoint = self.polygon.at(endIndex)
+
+                offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+
+                points.append(startPoint - offset)
+                points.append(startPoint + offset)
+                points.append(endPoint + offset)
+                points.append(endPoint - offset)
+
+                polygonPath.addPolygon(QPolygonF(points))
+                polygonPath.closeSubpath()
+                if polygonPath.contains(event.pos()):
+                    self.insertPoint(endIndex, event.pos(), Qt.CursorShape.SizeBDiagCursor)
+                    break
         return super().mouseDoubleClickEvent(event)
