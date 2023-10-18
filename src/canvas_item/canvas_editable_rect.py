@@ -121,6 +121,9 @@ class CanvasEllipseItem(CanvasBaseItem):
             pixmap = QPixmap("images/diagonal resize 2.png")
         else:
             pixmap = QPixmap("images/location select.png")
+
+        pixmap = pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
         transform = parentItem.transform()
         transform.rotate(parentItem.rotation())
         finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
