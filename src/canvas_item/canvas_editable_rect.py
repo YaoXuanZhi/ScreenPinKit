@@ -582,6 +582,11 @@ class CanvasEditablePath(QGraphicsObject):
                 roiItem:CanvasROI = value
                 if roiItem.hasFocus():
                     return True
+
+            if hasattr(self, 'controllers'):
+                for controller in self.controllers:
+                    if controller.hasFocus():
+                        return True
         return False
 
     def calcOffset(self, startPoint:QPointF, endPoint:QPointF, dbRadious:float) -> QPointF:
