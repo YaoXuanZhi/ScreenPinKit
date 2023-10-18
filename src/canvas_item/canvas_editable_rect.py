@@ -554,6 +554,15 @@ class CanvasEditablePath(QGraphicsObject):
         self.update()
         self.initControllers()
 
+    def moveRoiItemsBy(self, offset:QPointF):
+        '''将所有的roiItem都移动一下'''
+        for i in range(0, self.polygon.count()):
+            roiItem:CanvasROI = self.roiItemList[i]
+            roiItem.moveBy(-offset.x(), -offset.y())
+            oldPos = self.polygon.at(i)
+            newPos = oldPos - offset
+            self.polygon.replace(i, newPos)
+
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
@@ -802,14 +811,7 @@ class CanvasEditablePath(QGraphicsObject):
         if diff.isNull():
             return
 
-        # 将已有坐标都纠正一遍
-        for i in range(0, self.polygon.count()):
-            roiItem:CanvasROI = self.roiItemList[i]
-            roiItem.moveBy(-diff.x(), -diff.y())
-            oldPos = self.polygon.at(i)
-            newPos = oldPos - diff
-            self.polygon.replace(i, newPos)
-
+        self.moveRoiItemsBy(diff)
         self.setTransformOriginPoint(p1-diff)
 
         self.initControllers()
