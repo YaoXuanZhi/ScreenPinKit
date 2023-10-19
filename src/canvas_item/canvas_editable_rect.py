@@ -469,6 +469,16 @@ class CanvasROI(CanvasBaseItem):
             self.lastCursor = None
         return super().hoverLeaveEvent(event)
 
+    def focusInEvent(self, event: QFocusEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem.focusInEvent(event)
+        return super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent) -> None:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem.focusOutEvent(event)
+        return super().focusOutEvent(event)
+
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.RightButton:
             parentItem:CanvasEditablePath = self.parentItem()
@@ -538,6 +548,8 @@ class CanvasEditablePath(QGraphicsObject):
         roiItem.setRect(rect)
 
         self.roiItemList.insert(insertIndex, roiItem)
+        print("555555555555555")
+        self.initControllers()
         return roiItem
 
     def removePoint(self, roiItem:CanvasROI):
@@ -546,12 +558,14 @@ class CanvasEditablePath(QGraphicsObject):
         self.roiItemList.remove(roiItem)
         self.scene().removeItem(roiItem)
         self.endResize(None)
+        self.focusOutEvent(None)
 
     def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
         index = self.roiItemList.index(roiItem)
         self.prepareGeometryChange()
         self.polygon.replace(index, localPos)
         self.update()
+        print("666666666666666")
         self.initControllers()
 
     def moveRoiItemsBy(self, offset:QPointF):
@@ -738,9 +752,11 @@ class CanvasEditablePath(QGraphicsObject):
 
     def focusInEvent(self, event: QFocusEvent) -> None:
         if self.hasFocusWrapper():
+            print("111111111111111")
             self.initControllers()
 
     def focusOutEvent(self, event: QFocusEvent) -> None:
+        print("focusOutEvent 111111111111111")
         scenePos = self.gtCurrentScenePos()
 
         # 计算绘图区和工具区的并集
@@ -752,6 +768,7 @@ class CanvasEditablePath(QGraphicsObject):
 
         # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
         if not region.contains(scenePos):
+            print("focusOutEvent 222222222222222")
             self.hideControllers()
 
     def gtCurrentScenePos(self):
@@ -796,7 +813,7 @@ class CanvasEditablePath(QGraphicsObject):
         xScale = newRect.width() / lastRect.width()
         yScale = newRect.height() / lastRect.height()
 
-        self.prepareGeometryChange()
+        # self.prepareGeometryChange()
 
         for i in range(0, self.polygon.count()):
             oldPos = self.polygon.at(i)
@@ -808,12 +825,13 @@ class CanvasEditablePath(QGraphicsObject):
 
             roiItem:CanvasROI = self.roiItemList[i]
             rect = roiItem.rect()
-            rect.moveCenter(newPos)
+            rect.moveCenter(self.mapToItem(roiItem, newPos))
             roiItem.setRect(rect)
 
             self.polygon.replace(i, newPos)
 
-        self.update()
+        # self.update()
+        print("222222222222222")
         self.initControllers()
 
     def startResize(self, localPos:QPointF) -> None:
@@ -839,6 +857,7 @@ class CanvasEditablePath(QGraphicsObject):
         self.moveRoiItemsBy(diff)
         self.setTransformOriginPoint(p1-diff)
 
+        print("333333333333333")
         self.initControllers()
         self.update()
 
