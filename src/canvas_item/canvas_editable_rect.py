@@ -566,14 +566,16 @@ class CanvasEditablePath(QGraphicsObject):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
-        boundingRect = self.boundingRect()
-
         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
         painter.drawPolygon(self.polygon)
 
         if self.hasFocusWrapper():
+            painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
+            painter.drawRect(self.polygon.boundingRect())
+
             painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
-            painter.drawRect(boundingRect)
+            rect = self.getStretchableRect()
+            painter.drawRect(rect)
 
         pen = QPen(Qt.green, 1, Qt.DashLine)
         pen.setDashPattern([10, 5])
@@ -692,7 +694,7 @@ class CanvasEditablePath(QGraphicsObject):
         if not hasattr(self, "controllers"):
             self.controllers:list[CanvasEllipseItem] = []
 
-        rect = self.boundingRect()
+        rect = self.getStretchableRect()
         size = QSizeF(self.radius*2, self.radius*2)
         posTypes = [
             [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
@@ -759,36 +761,69 @@ class CanvasEditablePath(QGraphicsObject):
         scenePos = view.mapToScene(widgetPos)
         return scenePos.toPoint()
 
-    def updateEdge(self, currentPosType, localPos:QPointF):
-        # offset = self.m_borderWidth / 2
-        # lastRect = self.rect()
-        # newRect = lastRect.adjusted(0, 0, 0, 0)
-        # if currentPosType == EnumPosType.ControllerPosTL:
-        #     localPos += QPointF(-offset, -offset)
-        #     newRect.setTopLeft(localPos)
-        # elif currentPosType == EnumPosType.ControllerPosTC:
-        #     localPos += QPointF(0, -offset)
-        #     newRect.setTop(localPos.y())
-        # elif currentPosType == EnumPosType.ControllerPosTR:
-        #     localPos += QPointF(offset, -offset)
-        #     newRect.setTopRight(localPos)
-        # elif currentPosType == EnumPosType.ControllerPosRC:
-        #     localPos += QPointF(offset, 0)
-        #     newRect.setRight(localPos.x())
-        # elif currentPosType == EnumPosType.ControllerPosBR:
-        #     localPos += QPointF(offset, offset)
-        #     newRect.setBottomRight(localPos)
-        # elif currentPosType == EnumPosType.ControllerPosBC:
-        #     localPos += QPointF(0, offset)
-        #     newRect.setBottom(localPos.y())
-        # elif currentPosType == EnumPosType.ControllerPosBL:
-        #     localPos += QPointF(-offset, offset)
-        #     newRect.setBottomLeft(localPos)
-        # elif currentPosType == EnumPosType.ControllerPosLC:
-        #     localPos = localPos - QPointF(offset, offset)
-        #     newRect.setLeft(localPos.x())
+    def getStretchableRect(self) -> QRect:
+        return self.polygon.boundingRect() + QMarginsF(self.roiRadius, self.roiRadius, self.roiRadius, self.roiRadius)
 
-        # self.setRect(newRect)
+    def updateEdge(self, currentPosType, localPos:QPointF):
+        offset = -self.roiRadius
+        lastRect = self.polygon.boundingRect().toRect()
+        newRect = lastRect.adjusted(0, 0, 0, 0)
+        if currentPosType == EnumPosType.ControllerPosTL:
+            localPos += QPointF(-offset, -offset)
+            newRect.setTopLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosTC:
+            localPos += QPointF(0, -offset)
+            newRect.setTop(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosTR:
+            localPos += QPointF(offset, -offset)
+            newRect.setTopRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosRC:
+            localPos += QPointF(offset, 0)
+            newRect.setRight(localPos.x())
+        elif currentPosType == EnumPosType.ControllerPosBR:
+            localPos += QPointF(offset, offset)
+            newRect.setBottomRight(localPos)
+        elif currentPosType == EnumPosType.ControllerPosBC:
+            localPos += QPointF(0, offset)
+            newRect.setBottom(localPos.y())
+        elif currentPosType == EnumPosType.ControllerPosBL:
+            localPos += QPointF(-offset, offset)
+            newRect.setBottomLeft(localPos)
+        elif currentPosType == EnumPosType.ControllerPosLC:
+            localPos = localPos - QPointF(offset, offset)
+            newRect.setLeft(localPos.x())
+
+        xScale = newRect.width() / lastRect.width()
+        yScale = newRect.height() / lastRect.height()
+
+        self.prepareGeometryChange()
+
+        # 右侧边缘调整
+        if currentPosType == EnumPosType.ControllerPosRC:
+            for i in range(0, self.polygon.count()):
+                oldPos = self.polygon.at(i)
+                newPos = QPointF(oldPos.x() + (oldPos.x() - lastRect.x()) * (xScale - 1), oldPos.y())
+
+                roiItem:CanvasROI = self.roiItemList[i]
+                rect = roiItem.rect()
+                rect.moveCenter(newPos)
+                roiItem.setRect(rect)
+
+                self.polygon.replace(i, newPos)
+        elif currentPosType == EnumPosType.ControllerPosBC:
+            for i in range(0, self.polygon.count()):
+                oldPos = self.polygon.at(i)
+                newPos = QPointF(oldPos.x(), oldPos.y() + (oldPos.y() - lastRect.y()) * (yScale - 1))
+
+                roiItem:CanvasROI = self.roiItemList[i]
+                rect = roiItem.rect()
+                rect.moveCenter(newPos)
+                roiItem.setRect(rect)
+
+                self.polygon.replace(i, newPos)
+
+
+        self.update()
         self.initControllers()
 
     def startResize(self, localPos:QPointF) -> None:
