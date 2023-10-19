@@ -798,30 +798,20 @@ class CanvasEditablePath(QGraphicsObject):
 
         self.prepareGeometryChange()
 
-        # 右侧边缘调整
-        if currentPosType == EnumPosType.ControllerPosRC:
-            for i in range(0, self.polygon.count()):
-                oldPos = self.polygon.at(i)
+        for i in range(0, self.polygon.count()):
+            oldPos = self.polygon.at(i)
+
+            if currentPosType == EnumPosType.ControllerPosRC:
                 newPos = QPointF(oldPos.x() + (oldPos.x() - lastRect.x()) * (xScale - 1), oldPos.y())
-
-                roiItem:CanvasROI = self.roiItemList[i]
-                rect = roiItem.rect()
-                rect.moveCenter(newPos)
-                roiItem.setRect(rect)
-
-                self.polygon.replace(i, newPos)
-        elif currentPosType == EnumPosType.ControllerPosBC:
-            for i in range(0, self.polygon.count()):
-                oldPos = self.polygon.at(i)
+            elif currentPosType == EnumPosType.ControllerPosBC:
                 newPos = QPointF(oldPos.x(), oldPos.y() + (oldPos.y() - lastRect.y()) * (yScale - 1))
 
-                roiItem:CanvasROI = self.roiItemList[i]
-                rect = roiItem.rect()
-                rect.moveCenter(newPos)
-                roiItem.setRect(rect)
+            roiItem:CanvasROI = self.roiItemList[i]
+            rect = roiItem.rect()
+            rect.moveCenter(newPos)
+            roiItem.setRect(rect)
 
-                self.polygon.replace(i, newPos)
-
+            self.polygon.replace(i, newPos)
 
         self.update()
         self.initControllers()
