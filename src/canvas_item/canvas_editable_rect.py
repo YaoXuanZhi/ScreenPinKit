@@ -10,6 +10,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
+import win32api, win32con, win32gui, ctypes, win32ui
+from PyQt5.QtWinExtras import QtWin
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -98,6 +100,119 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setBrush(QBrush(Qt.NoBrush))
         # self.setBrush(Qt.blue)
 
+    def getMouseCursorIconWinNew(self) -> QPixmap:
+        cursorInfo = win32gui.GetCursorInfo()
+        pixmap = QtWin.fromHICON(cursorInfo[1])
+        return pixmap
+
+    def getMouseCursorIconWin(self) -> QPixmap:
+    #   cursorWidth = ctypes.windll.user32.GetSystemMetrics(win32con.SM_CXCURSOR), 
+    #   cursorHeight = ctypes.windll.user32.GetSystemMetrics(win32con.SM_CYCURSOR)
+
+        ci = win32gui.GetCursorInfo() #获取光标信息
+
+        print(f'包含光标类型，句柄，坐标 {ci}') #包含光标类型，句柄，坐标
+        print(f'GetCursor获取的句柄 {win32gui.GetCursor()}')#win32gui.GetCursor()也为获取光标句柄 但和GetCursorInfo获取的句柄并不相同，不清楚为什么?
+
+        if(ci [1]==0):#在某些时候光标会被游戏或程序隐藏，因此报错
+            print("光标消失")
+
+        #-----------------------------------------------作废
+        #e=win32gui.SetCursor(ci[1])#更改光标 返回旧光标句柄类型
+        #print type(e)
+        #if (e == 0):
+            #print "光标消失"
+            #continue
+        #---------------------------------------------作废
+        ii=win32gui.GetIconInfo(ci[1])#返回光标的图像信息，注意：参数不可为win32gui.GetCursor()得到的句柄，不然热点读取出错，why？
+        print(f'光标参数 {ii}') #光标类型，热点坐标x，y，黑白位图，彩色位图
+        #我想用彩色位图导出bmp图片并不成功，在c++将位图放入Cimg.Attach里很轻松就能save搞定
+        #然后我并不清楚python内是否有可以使用的方法，pil里面是没找到
+        bm = win32gui.GetObject(ii[3])#返回PyBITMAP类型 可以获得光标尺寸，注意，这里最好放入黑白位图来获取，放入彩色位图可能导致单色光标报错
+        print(f"高 {bm.bmHeight} 宽 {bm.bmWidth}")
+
+        gdc=win32gui.GetDC(0)#使指定上下文0中提取出一个句柄，记得释放 0也应该表示整个屏幕
+        hdc = win32ui.CreateDCFromHandle(gdc)#依据其句柄创造出一个DC对象
+        hbmp = win32ui.CreateBitmap()#创建一个新位图
+        hbmp.CreateCompatibleBitmap(hdc,bm.bmWidth, bm.bmHeight)#设置位图 使其与上下文兼容以及图片的大小
+        hdc = hdc.CreateCompatibleDC()#建立一个与屏幕兼容的DC
+        # CreateCompatibleDC相当于在内存开辟一块地方，将屏幕或窗口复制进来，再对其操作，待操作完成后
+        #再复制回屏幕，完成对屏幕的刷新
+        hdc.SelectObject(hbmp)#将位图放入上下文中，就可以对位图进行编辑了
+
+        win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, ci[1], bm.bmWidth, bm.bmHeight, 0, None,2)#图标大小
+        #DrawIconEx 绘制位图放入到指定的上下文中
+        #hdc.GetHandleOutput()返回上下文句柄
+        #参数（需要放入的上下文句柄，x坐标，y坐标，需要放入的光标句柄，光标的高，光标的宽，动画光标取第几帧，背景画笔（可以是空），绘图类型int）
+        bitmapbits = hbmp.GetBitmapBits(True)#将该图片转换为字符串
+
+        # cursorPixmap = QtWin.fromHBITMAP(hbmp, QtWin.HBitmapFormat.HBitmapAlpha)
+        # cursorPixmap = QtWin.fromHBITMAP(bitmapbits)
+        cursorPixmap = QPixmap()
+        # cursorPixmap.loadFromData(bitmapbits)
+
+        # print(f"{bitmapbits}")
+        hbmp.SaveBitmapFile(hdc, 'scre99t.bmp')#将位图保存为图片，注意这里只能放dc
+
+        print(f"========> {hbmp.GetInfo()}")
+        bmp = QBitmap()
+        # bmp.fromData(len(bitmapbits), bitmapbits, QImage.Format.Format_ARGB32)
+        bmp.fromData(QSize(hbmp.GetSize()[0], hbmp.GetSize()[1]), bitmapbits, QImage.Format.Format_ARGB32)
+        bmp.save("fffff.bmp")
+
+        #资源释放
+        win32gui.ReleaseDC(0, gdc)#释放上下文 参数（窗口句柄，上下文句柄）
+        hdc.DeleteDC()
+        win32gui.DeleteObject(hbmp.GetHandle())
+        return cursorPixmap
+
+    def setSystemCursor(self, hoverCursor) -> QCursor:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        self.setCursor(self.interfaceCursor)
+        # if self.posType == EnumPosType.ControllerPosTT:
+        #     self.setCursor(self.interfaceCursor)
+        #     return
+
+        pixmap = self.getMouseCursorIconWin()
+        # pixmap = self.getMouseCursorIconWinNew()
+        transform = parentItem.transform()
+        transform.rotate(parentItem.rotation())
+        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+        newFinal = QCursor(finalPixmap, -1, -1)
+        self.setCursor(newFinal)
+        return
+
+        # 加载移动箭头光标资源
+        # hCursor = win32api.LoadCursor(0, win32con.IDC_SIZEALL)
+        hCursor = win32api.LoadCursor(0, win32con.IDC_SIZENS)
+        # width = int(ctypes.windll.user32.GetSystemMetrics(win32con.SM_CXCURSOR)),
+        # height = int(ctypes.windll.user32.GetSystemMetrics(win32con.SM_CYCURSOR))
+        width = 48
+        height = 48
+
+        print(f"=====> {width} : {height}")
+
+        # cursorInfo = win32gui.GetCursorInfo()
+        # # hCursor = cursorInfo[1]
+        # hCursor = win32gui.GetCursor()
+        # iconInfo = win32gui.GetIconInfo(hCursor)
+
+        # bm = win32gui.GetObject(iconInfo[3])
+        # width = bm.bmWidth
+        # height = bm.bmHeight
+
+        # 将光标资源转换为QPixmap对象
+        icon = QIcon(QtWin.fromHICON(hCursor))
+        # pixmap = QPixmap.fromImage(icon.pixmap(48, 48).toImage())
+        pixmap:QPixmap = icon.pixmap(width, height)
+        # pixmap.save("tsete.png")
+
+        transform = parentItem.transform()
+        transform.rotate(parentItem.rotation())
+        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+        newFinal = QCursor(finalPixmap, -1, -1)
+        self.setCursor(newFinal)
+
     def setCustomCursor(self) -> QCursor:
         parentItem:CanvasEditableFrame = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
@@ -132,8 +247,10 @@ class CanvasEllipseItem(CanvasBaseItem):
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        # self.setCursor(self.interfaceCursor)
-        self.setCustomCursor()
+        self.setCursor(self.interfaceCursor)
+        # self.setSystemCursor(self.interfaceCursor)
+        # self.setCustomCursor()
+
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
@@ -192,16 +309,6 @@ class CanvasEllipseItem(CanvasBaseItem):
             parentItem.mouseMoveRotateOperator(event.scenePos(), event.pos())
             return
         parentItem.updateEdge(self.posType, event.pos().toPoint())
-
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
-        parentItem.focusInEvent(event)
-        return super().focusInEvent(event)
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
-        parentItem.focusOutEvent(event)
-        return super().focusOutEvent(event)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         parentItem:CanvasEditableFrame = self.parentItem()
@@ -270,6 +377,8 @@ class CanvasEditableFrame(QGraphicsRectItem):
                     controller.show()
 
     def hideControllers(self):
+        if not hasattr(self, "controllers"):
+            return
         for controller in self.controllers:
             if controller.isVisible():
                 controller.hide()
@@ -296,31 +405,6 @@ class CanvasEditableFrame(QGraphicsRectItem):
             self.setCursor(self.lastCursor)
             self.lastCursor = None
         return super().hoverLeaveEvent(event)
-
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        if self.hasFocusWrapper():
-            self.initControllers()
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        scenePos = self.gtCurrentScenePos()
-
-        # 计算绘图区和工具区的并集
-        rects = [self.sceneBoundingRect().toRect()]
-        for controller in self.controllers:
-            rects.append(controller.sceneBoundingRect().toRect())
-        region = QRegion()
-        region.setRects(rects)
-
-        # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
-        if not region.contains(scenePos):
-            self.hideControllers()
-
-    def gtCurrentScenePos(self):
-        screenPos = self.cursor().pos()
-        view = self.scene().views()[0]
-        widgetPos = view.mapFromGlobal(screenPos)
-        scenePos = view.mapToScene(widgetPos)
-        return scenePos.toPoint()
 
     def updateEdge(self, currentPosType, localPos:QPoint):
         offset = self.m_borderWidth / 2
@@ -352,7 +436,6 @@ class CanvasEditableFrame(QGraphicsRectItem):
             newRect.setLeft(localPos.x())
 
         self.setRect(newRect)
-        self.initControllers()
 
     def hasFocusWrapper(self):
         # if self.hasFocus() or self.isSelected():
@@ -397,6 +480,11 @@ class CanvasEditableFrame(QGraphicsRectItem):
         painter.setPen(Qt.white)
 
         painter.restore()
+
+        if self.hasFocusWrapper():
+            self.initControllers()
+        else:
+            self.hideControllers()
 
     def startResize(self, localPos:QPointF) -> None:
         pass
@@ -469,16 +557,6 @@ class CanvasROI(CanvasBaseItem):
             self.lastCursor = None
         return super().hoverLeaveEvent(event)
 
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
-        parentItem.focusInEvent(event)
-        return super().focusInEvent(event)
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
-        parentItem.focusOutEvent(event)
-        return super().focusOutEvent(event)
-
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.RightButton:
             parentItem:CanvasEditablePath = self.parentItem()
@@ -548,23 +626,28 @@ class CanvasEditablePath(QGraphicsObject):
         roiItem.setRect(rect)
 
         self.roiItemList.insert(insertIndex, roiItem)
-        self.initControllers()
         return roiItem
 
     def removePoint(self, roiItem:CanvasROI):
+        # 如果是移除最后一个操作点，说明该路径将被移除
+        if len(self.roiItemList) == 1:
+            scene = self.scene()
+            scene.removeItem(self)
+            return
+
         index = self.roiItemList.index(roiItem)
         self.polygon.remove(index)
         self.roiItemList.remove(roiItem)
         self.scene().removeItem(roiItem)
         self.endResize(None)
-        self.focusOutEvent(None)
+        if len(self.roiItemList) > 0:
+            self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
         index = self.roiItemList.index(roiItem)
         self.prepareGeometryChange()
         self.polygon.replace(index, localPos)
         self.update()
-        self.initControllers()
 
     def moveRoiItemsBy(self, offset:QPointF):
         '''将所有的roiItem都移动一下'''
@@ -595,6 +678,11 @@ class CanvasEditablePath(QGraphicsObject):
         painter.drawPath(self.shapePath)
 
         painter.restore()
+
+        if self.hasFocusWrapper():
+            self.initControllers()
+        else:
+            self.hideControllers()
 
     def hasFocusWrapper(self):
         # if self.hasFocus() or self.isSelected():
@@ -723,6 +811,8 @@ class CanvasEditablePath(QGraphicsObject):
                     controller.show()
 
     def hideControllers(self):
+        if not hasattr(self, "controllers"):
+            return
         for controller in self.controllers:
             if controller.isVisible():
                 controller.hide()
@@ -738,62 +828,6 @@ class CanvasEditablePath(QGraphicsObject):
             dCurAngle -= 360.0
         self.setRotation(dCurAngle)
         self.update()
-
-    def handleFocusChanged(self, originItem, reason, value):
-        if value > 0:
-            if self.hasFocusWrapper():
-                self.initControllers()
-        elif value < 0 and reason == Qt.ActiveWindowFocusReason:
-            self.hideControllers()
-        else:
-            scenePos = self.gtCurrentScenePos()
-
-            # 计算绘图区和工具区的并集
-            rects = [self.mapRectToScene(self.getStretchableRect()).toRect()]
-            for controller in self.controllers:
-                rects.append(controller.sceneBoundingRect().toRect())
-
-            region = QRegion()
-            region.setRects(rects)
-
-            # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
-            if not region.contains(scenePos):
-                self.hideControllers()
-            else:
-                self.setFocus(Qt.OtherFocusReason)
-
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        if self.hasFocusWrapper():
-            self.initControllers()
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        if event != None and event.reason() != Qt.MouseFocusReason:
-            return
-        # if event != None and event.reason() == Qt.ActiveWindowFocusReason:
-        #     self.hideControllers()
-        #     return
-
-        scenePos = self.gtCurrentScenePos()
-
-        # 计算绘图区和工具区的并集
-        rects = [self.sceneBoundingRect().toRect()]
-        for controller in self.controllers:
-            rects.append(controller.sceneBoundingRect().toRect())
-        region = QRegion()
-        region.setRects(rects)
-
-        # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
-        if not region.contains(scenePos):
-            self.hideControllers()
-        else:
-            self.setFocus(Qt.OtherFocusReason)
-
-    def gtCurrentScenePos(self):
-        screenPos = self.cursor().pos()
-        view = self.scene().views()[0]
-        widgetPos = view.mapFromGlobal(screenPos)
-        scenePos = view.mapToScene(widgetPos)
-        return scenePos.toPoint()
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect() + QMarginsF(self.roiRadius, self.roiRadius, self.roiRadius, self.roiRadius)
@@ -829,8 +863,6 @@ class CanvasEditablePath(QGraphicsObject):
 
         xScale = newRect.width() / lastRect.width()
         yScale = newRect.height() / lastRect.height()
-
-        # self.prepareGeometryChange()
 
         for i in range(0, self.polygon.count()):
             oldPos = self.polygon.at(i)
@@ -871,13 +903,28 @@ class CanvasEditablePath(QGraphicsObject):
 
             self.polygon.replace(i, newPos)
 
-        # self.update()
-        self.initControllers()
+        self.update()
 
     def startResize(self, localPos:QPointF) -> None:
         pass
 
     def endResize(self, localPos:QPointF) -> None:
+        self.prepareGeometryChange()
+
+        rect = self.shapePath.boundingRect()
+        # 计算正常旋转角度（0度）下，中心的的坐标
+        oldCenter = QPointF(self.x()+rect.x()+rect.width()/2, self.y()+rect.y()+rect.height()/2)
+        # 计算旋转后，中心坐标在view中的位置
+        newCenter = self.mapToScene(rect.center())
+        # 设置正常坐标减去两个坐标的差
+        difference = oldCenter-newCenter
+        self.setPos(self.x()-difference.x(), self.y()-difference.y())
+        # 最后设置旋转中心
+        self.setTransformOriginPoint(rect.center())
+
+        self.update()
+
+    def endResizeOld(self, localPos:QPointF) -> None:
         self.prepareGeometryChange()
         # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
         rect = self.shapePath.boundingRect()
@@ -897,7 +944,6 @@ class CanvasEditablePath(QGraphicsObject):
         self.moveRoiItemsBy(diff)
         self.setTransformOriginPoint(p1-diff)
 
-        self.initControllers()
         self.update()
 
     def startRotate(self, localPos:QPointF) -> None:
