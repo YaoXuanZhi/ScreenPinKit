@@ -55,15 +55,24 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.pixmapWidget.copyToClipboard()
 
     def saveToDisk(self):
-        print(f"====> save to disk {self.save_file_dialog()}")
+        savePath = self.save_file_dialog()
+        if savePath != None:
+            finalPixmap = self.pixmapWidget.getFinalPixmap()
+            finalPixmap.save(savePath, "png")
 
     def save_file_dialog(self):
-        dlg = win32ui.CreateFileDialog(0)  # 0表示保存文件对话框
+        openFlags = win32con.OFN_OVERWRITEPROMPT|win32con.OFN_EXPLORER
+        fspec = "PNG(*.png)"
+        # 获取当前时间，并格式化
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+        fileName = f"Snipaste_{now_str}.png"
+        dlg = win32ui.CreateFileDialog(0, None, fileName, openFlags, fspec)  # 0表示保存文件对话框
         dlg.SetOFNInitialDir('C:\\')  # 设置保存文件对话框中的初始显示目录
-        dlg.DoModal()
-
-        filename = dlg.GetPathName()  # 获取选择的文件名称
-        return filename
+        isOk = dlg.DoModal()
+        if isOk == 1:
+            return dlg.GetPathName()  # 获取选择的文件名称
+        return None
 
     # https://zhangzc.blog.csdn.net/article/details/113916322
     # 改变窗口穿透状态

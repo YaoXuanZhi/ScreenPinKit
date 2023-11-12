@@ -1064,11 +1064,12 @@ class QPainterWidget(QPixmapWidget):
 
     def destroyImage(self):
         self.parentWidget().close()
-        
-    def copyToClipboard(self):
-        # 经测试，这种方式截屏会有概率出现白边，推测是精度问题导致的，遂改成下面的实现
-        # QApplication.clipboard().setPixmap(self.grab())
 
+    # 得到最终绘制后的Pixmap
+    def getFinalPixmap(self) -> QPixmap:
+        # 经测试，这种方式截屏会有概率出现白边，推测是精度问题导致的，遂改成下面的实现
+        # return self.grab()
+        
         basePixmap = self.physicalPixmap.copy()
         painter = QPainter()
         painter.begin(basePixmap)
@@ -1076,7 +1077,11 @@ class QPainterWidget(QPixmapWidget):
             widget:QWidget = action.painterTool
             painter.drawPixmap(widget.geometry(), widget.grab())
         painter.end()
-        QApplication.clipboard().setPixmap(basePixmap)
+        return basePixmap
+        
+    def copyToClipboard(self):
+        finalPixmap = self.getFinalPixmap()
+        QApplication.clipboard().setPixmap(finalPixmap)
 
     def drawText(self):
         self.currentDrawActionEnum = DrawActionEnum.DrawText
