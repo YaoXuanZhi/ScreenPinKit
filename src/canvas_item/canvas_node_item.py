@@ -36,7 +36,7 @@ class QDMGraphicsSocket(QGraphicsItem):
         # painting circle
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
-        painter.drawEllipse(-self.radius, -self.radius, 2 * self.radius, 2 * self.radius)
+        painter.drawEllipse(QRectF(-self.radius, -self.radius, 2*self.radius, 2*self.radius).toRect())
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         # 将类名和当前函数打印出来
@@ -135,8 +135,9 @@ class CanvasNodeItem(QGraphicsItem):
 
     def initContent(self):
         self.grContent = QGraphicsProxyWidget(self)
-        self.content.setGeometry(self.edge_size, self.title_height + self.edge_size,
-                                 self.width - 2*self.edge_size, self.height - 2*self.edge_size-self.title_height)
+        newGeometry = QRectF(self.edge_size, self.title_height + self.edge_size,
+                                 self.width - 2*self.edge_size, self.height - 2*self.edge_size-self.title_height).toRect()
+        self.content.setGeometry(newGeometry)
         self.grContent.setWidget(self.content)
 
     def initSockets(self):

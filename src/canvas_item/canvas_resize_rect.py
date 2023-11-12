@@ -134,7 +134,57 @@ class CanvasROIManager():
             if roi.isVisible():
                 roi.hide()
 
+class RectLayoutItem(QGraphicsLayoutItem):
+    def __init__(self, attachItem:QGraphicsRectItem):
+        super().__init__(None, False)
+        self.attach_item = attachItem
+
+    def sizeHint(self, which, constraint=QSizeF()):
+        # fm = QFontMetrics(self.text_item.font())
+        # return QSizeF(fm.width(self.text_item.toPlainText()), fm.height())
+        return QSizeF(self.attach_item.rect().size())
+
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        self.attach_item.setPos(rect.topLeft())
+
+class MyGraphicsRectItem(QGraphicsRectItem):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.layoutItem:RectLayoutItem = RectLayoutItem(self)
+
+        self.m_layout:QGraphicsLayout = None
+
+    def layout(self) -> QGraphicsLayout:
+        return self.m_layout 
+
+    def setLayoutHelper(self, layout:QGraphicsLayout):
+        self.m_layout = layout
+        if not layout:
+            layout.updateGeometry()
+
+    def setLayout(self, layout:QGraphicsLayout):
+        if self.m_layout == layout:
+            return
+        self.setLayoutHelper(layout)
+        if not layout:
+            return
+
+        oldParent = layout.parentLayoutItem()
+        if oldParent != None and oldParent != self:
+            print("===========> exit")
+            return
+
+        layout.setParentLayoutItem(self.layoutItem)
+        # layout.setParentLayoutItem(super(QGraphicsRectItem, self))
+        layout.invalidate()
+
+    def setGeometry(self, x, y, w, h):
+        self.setRect(x, y, w, h)
+        self.layoutItem.setGeometry(QRectF(x, y, w, h))
+
 class ResizableRectItem(QGraphicsWidget):
+# class ResizableRectItem(MyGraphicsRectItem):
     def __init__(self, x, y, w, h, parent=None):
         super().__init__(parent)
         self.initUI()
@@ -155,13 +205,6 @@ class ResizableRectItem(QGraphicsWidget):
 
         self.roiMgr = CanvasROIManager(self)
         self.createResizeHandles()
-
-    def createResizeHandlesBak(self):
-        self.roiMgr = CanvasROIManager(self)
-        self.roiMgr.addROI(self.rect().topLeft())
-        self.roiMgr.addROI(self.rect().topRight())
-        self.roiMgr.addROI(self.rect().bottomLeft())
-        self.roiMgr.addROI(self.rect().bottomRight())
 
     def createResizeHandles(self):
         layout = QGraphicsAnchorLayout()
@@ -294,6 +337,20 @@ class ResizableRectItem(QGraphicsWidget):
         pass
 
     def endResize(self, localPos:QPointF) -> None:
+        rect = self.rect()
+        # 计算正常旋转角度（0度）下，中心的的坐标
+        oldCenter = QPointF(self.x()+rect.x()+rect.width()/2, self.y()+rect.y()+rect.height()/2)
+        # 计算旋转后，中心坐标在view中的位置
+        newCenter = self.mapToScene(rect.center())
+        # 设置正常坐标减去两个坐标的差
+        difference = oldCenter-newCenter
+        self.setPos(self.x()-difference.x(), self.y()-difference.y())
+        # 最后设置旋转中心
+        self.setTransformOriginPoint(rect.center())
+
+        self.update()
+
+    def endResizeBak(self, localPos:QPointF) -> None:
         # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
         rect = self.geometry()
         angle = math.radians(self.rotation())

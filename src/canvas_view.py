@@ -1,3 +1,4 @@
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,7 +11,7 @@ class CanvasView(QGraphicsView):
         self.initUI()
 
         self.zoomInFactor = 1.25
-        self.zoomClamp = True # 是否限制缩放比率
+        self.zoomClamp = False # 是否限制缩放比率
         self.zoom = 10
         self.zoomStep = 1
         self.zoomRange = [0, 10]
@@ -29,11 +30,21 @@ class CanvasView(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.RubberBandDrag)
 
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MiddleButton:
+            self.middleMouseButtonMove(event)
+        elif event.button() == Qt.LeftButton:
+            self.leftMouseButtonMove(event)
+        elif event.button() == Qt.RightButton:
+            self.rightMouseButtonMove(event)
+        else:
+            super().mouseMoveEvent(event)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MiddleButton:
             self.middleMouseButtonPress(event)
         elif event.button() == Qt.LeftButton:
-            self.rightMouseButtonPress(event)
+            self.leftMouseButtonPress(event)
         elif event.button() == Qt.RightButton:
             self.rightMouseButtonPress(event)
         else:
@@ -71,19 +82,24 @@ class CanvasView(QGraphicsView):
 
 
     def middleMouseButtonPress(self, event):
-        releaseEvent = QMouseEvent(QEvent.MouseButtonRelease, event.localPos(), event.screenPos(),
-                                   Qt.LeftButton, Qt.NoButton, event.modifiers())
-        super().mouseReleaseEvent(releaseEvent)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                                Qt.LeftButton, event.buttons() | Qt.LeftButton, event.modifiers())
-        super().mousePressEvent(fakeEvent)
+        # releaseEvent = QMouseEvent(QEvent.MouseButtonRelease, event.localPos(), event.screenPos(),
+        #                            Qt.LeftButton, Qt.NoButton, event.modifiers())
+        # super().mouseReleaseEvent(releaseEvent)
+        # self.setDragMode(QGraphicsView.ScrollHandDrag)
+        # fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+        #                         Qt.LeftButton, event.buttons() | Qt.LeftButton, event.modifiers())
+        # super().mousePressEvent(fakeEvent)
+        pass
 
     def middleMouseButtonRelease(self, event):
-        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                                Qt.LeftButton, event.buttons() & ~Qt.LeftButton, event.modifiers())
-        super().mouseReleaseEvent(fakeEvent)
-        self.setDragMode(QGraphicsView.RubberBandDrag)
+        # fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+        #                         Qt.LeftButton, event.buttons() & ~Qt.LeftButton, event.modifiers())
+        # super().mouseReleaseEvent(fakeEvent)
+        # self.setDragMode(QGraphicsView.RubberBandDrag)
+        pass
+
+    def middleMouseButtonMove(self, event):
+        return super().mouseMoveEvent(event)
 
     def leftMouseButtonPress(self, event):
         item = self.getItemAtClick(event)
@@ -98,11 +114,26 @@ class CanvasView(QGraphicsView):
     def leftMouseButtonRelease(self, event):
         return super().mouseReleaseEvent(event)
 
+    def leftMouseButtonMove(self, event):
+        return super().mouseMoveEvent(event)
+
     def rightMouseButtonPress(self, event):
-        return super().mousePressEvent(event)
+        releaseEvent = QMouseEvent(QEvent.MouseButtonRelease, event.localPos(), event.screenPos(),
+                                   Qt.LeftButton, Qt.NoButton, event.modifiers())
+        super().mouseReleaseEvent(releaseEvent)
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
+        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+                                Qt.LeftButton, event.buttons() | Qt.LeftButton, event.modifiers())
+        return super().mousePressEvent(fakeEvent)
 
     def rightMouseButtonRelease(self, event):
-        return super().mouseReleaseEvent(event)
+        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+                                Qt.LeftButton, event.buttons() & ~Qt.LeftButton, event.modifiers())
+        super().mouseReleaseEvent(fakeEvent)
+        self.setDragMode(QGraphicsView.RubberBandDrag)
+
+    def rightMouseButtonMove(self, event):
+        return super().mouseMoveEvent(event)
 
     def getItemAtClick(self, event):
         """ return the object on which we've clicked/release mouse button """

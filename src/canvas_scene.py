@@ -109,7 +109,8 @@ class CanvasScene(QGraphicsScene):
         # rectItem.roiManager.addROI(rect.bottomLeft())
 
 
-        rectItem = ResizableRectItem2(-100, -100, 100, 100)
+        # rectItem = ResizableRectItem2(-100, -100, 100, 100)
+        rectItem = ResizableRectItem(-100, -100, 100, 100)
         self.addItem(rectItem)
 
         editableRectItem = CanvasEditableFrame(QRectF(-100, 200, 100, 100))
