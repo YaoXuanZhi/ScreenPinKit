@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-import sys
+import win32ui, win32con
 import typing
 from enum import Enum
 from datetime import datetime
@@ -35,12 +35,35 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
 
+        self.initActions()
+
         self.unFocusColor = QColor(125, 125, 125, 50)
         self.focusColor = QColor(255, 0, 255, 50)
         self.focused = False
         self.painter = QPainter()
         self.closeCallback = closeCallback
         self.show()
+
+    def initActions(self):
+        actions = [
+            Action("复制贴图", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
+            Action("保存贴图", self, triggered=self.saveToDisk, shortcut="ctrl+s")
+        ]
+        self.addActions(actions)
+
+    def copyToClipboard(self):
+        self.pixmapWidget.copyToClipboard()
+
+    def saveToDisk(self):
+        print(f"====> save to disk {self.save_file_dialog()}")
+
+    def save_file_dialog(self):
+        dlg = win32ui.CreateFileDialog(0)  # 0表示保存文件对话框
+        dlg.SetOFNInitialDir('C:\\')  # 设置保存文件对话框中的初始显示目录
+        dlg.DoModal()
+
+        filename = dlg.GetPathName()  # 获取选择的文件名称
+        return filename
 
     # https://zhangzc.blog.csdn.net/article/details/113916322
     # 改变窗口穿透状态
