@@ -1194,8 +1194,8 @@ class QPainterWidget(QPixmapWidget):
         drawWidget = QPenRectangleBak(self)
         drawWidget.move(0, 0)
         drawWidget.resize(self.size())
-        # drawWidget.init()
-        drawWidget.initUI()
+        drawWidget.init()
+        # drawWidget.initUI()
         # drawWidget.show()
 
         def ban(canEnabled):
