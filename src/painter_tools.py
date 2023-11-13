@@ -273,7 +273,7 @@ class QPenLine(QWidget):
         self.pointsItems = []
         self.isRecord = False
 
-        self.pen = QPen(QColor(Qt.black), 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.pen = QPen(QColor(Qt.red), 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         self.painter = QPainter()
 
     def paintEvent(self, event):
@@ -634,9 +634,9 @@ class QPenArrow(QWidget):
             for points in self.pointsItems:
                 self.paintArrow(points[0], points[-1], self.painter)
 
-            if self.topEdgeRect != None and not self.isRecord and points[0] != points[-1]:
-                self.painter.setPen(self.borderPen)
-                self.painter.drawRect(QRect(self.points[0], self.points[-1]))
+            # if self.topEdgeRect != None and not self.isRecord and points[0] != points[-1]:
+            #     self.painter.setPen(self.borderPen)
+            #     self.painter.drawRect(QRect(self.points[0], self.points[-1]))
 
         self.painter.end()
 
@@ -828,8 +828,8 @@ class QPenStar(QWidget):
         # p.drawText(oldBottomLeft, "oldBottomLeft")
         # p.drawText(oldTopRight, "oldTopRight")
 
-        p.setPen(QPen(Qt.green, 1, Qt.DashLine))
-        p.drawRect(QRectF(oldBottomLeft, oldTopRight))
+        # p.setPen(QPen(Qt.green, 1, Qt.DashLine))
+        # p.drawRect(QRectF(oldBottomLeft, oldTopRight))
 
         p.restore()
 
@@ -844,9 +844,9 @@ class QPenStar(QWidget):
             for points in self.pointsItems:
                 self.paintStar(points[0], points[-1], self.painter)
 
-            if self.topEdgeRect != None and not self.isRecord:
-                self.painter.setPen(self.borderPen)
-                self.painter.drawRect(QRect(self.points[0], self.points[-1]))
+            # if self.topEdgeRect != None and not self.isRecord:
+            #     self.painter.setPen(self.borderPen)
+            #     self.painter.drawRect(QRect(self.points[0], self.points[-1]))
 
         self.painter.end()
 
