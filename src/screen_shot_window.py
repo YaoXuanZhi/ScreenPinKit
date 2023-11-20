@@ -380,7 +380,7 @@ class ScreenShotWindow(QWidget):
                 self.centerLeftMid(), self.centerRightMid(),
                 self.centerTopMid(), self.centerBottomMid()
             ]
-            blueDotRadius = QPointF(4*self.screenDevicePixelRatio, 4*self.screenDevicePixelRatio)  # 椭圆蓝点
+            blueDotRadius = QPointF(5*self.screenDevicePixelRatio, 5*self.screenDevicePixelRatio)  # 椭圆蓝点
             self.painter.setPen(self.pen_SolidLine_lightWhite)
             self.painter.setBrush(self.color_lightBlue)
             for point in points:
