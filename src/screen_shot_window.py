@@ -19,13 +19,13 @@ class ScreenShotWindow(QWidget):
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
 
         self.freeze_imgs:list[FreezerWindow] = []
+        self.screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
 
         startupImagePath, screenX, screenY = self.findScreenImagePath()
         if startupImagePath != None and os.path.exists(startupImagePath):
             imgpix = QPixmap(startupImagePath)
-            screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
-            imgpix.setDevicePixelRatio(screenDevicePixelRatio)
-            realSize = imgpix.size() / screenDevicePixelRatio
+            imgpix.setDevicePixelRatio(self.screenDevicePixelRatio)
+            realSize = imgpix.size() / self.screenDevicePixelRatio
             self.addFreezeImg(QPoint(screenX, screenY), realSize,  imgpix)
 
         actions = [
@@ -380,7 +380,7 @@ class ScreenShotWindow(QWidget):
                 self.centerLeftMid(), self.centerRightMid(),
                 self.centerTopMid(), self.centerBottomMid()
             ]
-            blueDotRadius = QPointF(8, 8)  # 椭圆蓝点
+            blueDotRadius = QPointF(4*self.screenDevicePixelRatio, 4*self.screenDevicePixelRatio)  # 椭圆蓝点
             self.painter.setPen(self.pen_SolidLine_lightWhite)
             self.painter.setBrush(self.color_lightBlue)
             for point in points:
