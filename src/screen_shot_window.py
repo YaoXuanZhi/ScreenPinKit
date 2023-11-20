@@ -512,12 +512,15 @@ class ScreenShotWindow(QWidget):
     def clearScreenImages(self):
         filePaths = glob.glob('*.png')
         for filePath in filePaths:
-            matchResult = re.match(r'screen ([-]*\d+)-(\d+).png', filePath)
+            matchResult = re.match(self.getImageNamePattern(), filePath)
             if len(matchResult.groups()) > 0:
                 os.remove(filePath)
 
     def getScreenImageName(self, screenPoint:QPoint):
         return f'screen {screenPoint.x()}-{screenPoint.y()}.png'
+
+    def getImageNamePattern(self):
+        return r'screen ([-]*\d+)-([-]*\d+).png'
 
     def findScreenImagePath(self):
         # 查找文件后缀名为.png的文件路径
@@ -525,7 +528,7 @@ class ScreenShotWindow(QWidget):
         if len(filePaths) > 0:
             # 遍历filePaths中的文件路径
             for filePath in filePaths:
-                matchResult = re.match(r'screen ([-]*\d+)-(\d+).png', filePath)
+                matchResult = re.match(self.getImageNamePattern(), filePath)
 
                 if matchResult != None:
                     x = int(matchResult.group(1))
