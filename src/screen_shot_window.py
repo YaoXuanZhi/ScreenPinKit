@@ -512,7 +512,7 @@ class ScreenShotWindow(QWidget):
     def clearScreenImages(self):
         filePaths = glob.glob('*.png')
         for filePath in filePaths:
-            matchResult = re.match(r'screen (\d+)-(\d+).png', filePath)
+            matchResult = re.match(r'screen ([-]*\d+)-(\d+).png', filePath)
             if len(matchResult.groups()) > 0:
                 os.remove(filePath)
 
@@ -525,7 +525,7 @@ class ScreenShotWindow(QWidget):
         if len(filePaths) > 0:
             # 遍历filePaths中的文件路径
             for filePath in filePaths:
-                matchResult = re.match(r'screen (\d+)-(\d+).png', filePath)
+                matchResult = re.match(r'screen ([-]*\d+)-(\d+).png', filePath)
 
                 if matchResult != None:
                     x = int(matchResult.group(1))
