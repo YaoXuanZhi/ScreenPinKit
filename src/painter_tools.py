@@ -987,6 +987,8 @@ class QPainterWidget(QPixmapWidget):
         if self.toolbar != None:
             self.clearDrawFlag()
             self.toolbar.close()
+            self.toolbar.destroy()
+            self.toolbar = None
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -1013,7 +1015,7 @@ class QPainterWidget(QPixmapWidget):
             if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
                 self.clearDrawFlag()
             elif self.toolbar != None and self.toolbar.isVisible():
-                self.toolbar.close()
+                self.completeDraw()
             else:
                 self.destroyImage()
 
