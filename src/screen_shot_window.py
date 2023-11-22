@@ -458,7 +458,7 @@ class ScreenShotWindow(QWidget):
         if event.button() == QtCore.Qt.MouseButton.RightButton:
             self.cancelScreenShot()
 
-    def cancelScreenshot(self):
+    def cancelScreenShot(self):
         if self.hasScreenShot or self.isCapturing:  # 清空已划定的的截图区域
             self.clearScreenShot()
         else:
