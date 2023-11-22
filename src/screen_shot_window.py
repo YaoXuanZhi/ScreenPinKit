@@ -29,7 +29,8 @@ class ScreenShotWindow(QWidget):
             self.addFreezeImg(QPoint(screenX, screenY), realSize,  imgpix)
 
         actions = [
-            Action("贴图", self, triggered=self.tryFreezeImg, shortcut="ctrl+t")
+            Action("贴图", self, triggered=self.tryFreezeImg, shortcut="ctrl+t"),
+            Action("取消截图", self, triggered=self.cancelScreenShot, shortcut="esc"),
         ]
         self.addActions(actions)
 
@@ -455,10 +456,13 @@ class ScreenShotWindow(QWidget):
                 self.setCenterArea(pos, pos)
                 self.isCapturing = True  # 进入划定截图区域模式
         if event.button() == QtCore.Qt.MouseButton.RightButton:
-            if self.hasScreenShot or self.isCapturing:  # 清空已划定的的截图区域
-                self.clearScreenShot()
-            else:
-                self.close()
+            self.cancelScreenShot()
+
+    def cancelScreenshot(self):
+        if self.hasScreenShot or self.isCapturing:  # 清空已划定的的截图区域
+            self.clearScreenShot()
+        else:
+            self.close()
 
     def mouseReleaseEvent(self, event):
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
