@@ -79,6 +79,8 @@ class ScreenShotWindow(QWidget):
         self.pen_DashLine_lightBlue = QPen(self.color_lightBlue)  # 虚线，浅蓝色
         self.pen_DashLine_lightBlue.setStyle(QtCore.Qt.PenStyle.DashLine)
 
+        self.initMagnifyingGlass()
+
     def clearScreenShot(self, isGotoScreeShot=True):
         self.hasScreenShot = False  # 是否已通过拖动鼠标左键划定截图区域
         self.isCapturing = False  # 正在拖动鼠标左键选定截图区域时
@@ -422,6 +424,37 @@ class ScreenShotWindow(QWidget):
                 maskPixmap.fill(self.color_black)
                 self.painter.drawPixmap(area.topLeft(), maskPixmap)
 
+    def initMagnifyingGlass(self):
+        screenPos = QCursor.pos()
+        parentPos = self.mapFromGlobal(screenPos)
+        localPos:QPoint = self.mapFrom(self, parentPos)
+        self.mouse_posX = localPos.x()
+        self.mouse_posY = localPos.y()
+        self.tool_width = 5
+
+    def paintMagnifyingGlass(self):
+        self.painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+        if self.mouse_posX > self.width() - 140:
+            enlarge_box_x = self.mouse_posX - 140
+        else:
+            enlarge_box_x = self.mouse_posX + 20
+        if self.mouse_posY > self.height() - 140:
+            enlarge_box_y = self.mouse_posY - 120
+        else:
+            enlarge_box_y = self.mouse_posY + 20
+        enlarge_rect = QRect(enlarge_box_x, enlarge_box_y, 120, 120)
+        self.painter.drawRect(enlarge_rect)
+        self.painter.drawText(enlarge_box_x, enlarge_box_y - 8,
+                            '({0}x{1})'.format(self.mouse_posX, self.mouse_posY))
+        p = self.screenPixmap
+        larger_pix = p.copy(self.mouse_posX - 60, self.mouse_posY - 60, 120, 120).scaled(
+            120 + self.tool_width * 10, 120 + self.tool_width * 10)
+        pix = larger_pix.copy(larger_pix.width() / 2 - 60, larger_pix.height() / 2 - 60, 120, 120)
+        self.painter.drawPixmap(enlarge_box_x, enlarge_box_y, pix)
+        self.painter.setPen(QPen(Qt.green, 1, Qt.SolidLine))
+        self.painter.drawLine(enlarge_box_x, enlarge_box_y + 60, enlarge_box_x + 120, enlarge_box_y + 60)
+        self.painter.drawLine(enlarge_box_x + 60, enlarge_box_y, enlarge_box_x + 60, enlarge_box_y + 120)
+
     def paintEvent(self, event):
         canvasPixmap = self.screenPixmap.copy()
         self.painter.begin(canvasPixmap)
@@ -432,6 +465,7 @@ class ScreenShotWindow(QWidget):
         else:
             self.paintMaskLayer()
 
+        self.paintMagnifyingGlass ()
         self.painter.end()
 
         self.painter.begin(self)
@@ -475,6 +509,9 @@ class ScreenShotWindow(QWidget):
 
     def mouseMoveEvent(self, event):
         pos = event.pos()
+        if self.isVisible():
+            self.mouse_posX = pos.x()
+            self.mouse_posY = pos.y()
         if self.isCapturing:
             self.hasScreenShot = True
             self.setEndPoint(pos, remake=True)

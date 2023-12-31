@@ -861,8 +861,8 @@ class CanvasEditablePath(QGraphicsObject):
             localPos = localPos - QPoint(offset, offset)
             newRect.setLeft(localPos.x())
 
-        xScale = newRect.width() / lastRect.width()
-        yScale = newRect.height() / lastRect.height()
+        xScale = newRect.width() / max(lastRect.width(), 1)
+        yScale = newRect.height() / max(lastRect.height(), 1)
 
         for i in range(0, self.polygon.count()):
             oldPos = self.polygon.at(i)
