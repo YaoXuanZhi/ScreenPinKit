@@ -51,7 +51,7 @@ class ScreenShotWindow(QWidget):
         focusFreezeWnd:FreezerWindow = None
         screenPos = QCursor.pos()
         for freeze_img in self.freeze_imgs:
-            if freeze_img.geometry().contains(screenPos):
+            if freeze_img != None and freeze_img.geometry().contains(screenPos):
                 focusFreezeWnd = freeze_img
                 break
         if focusFreezeWnd != None:
