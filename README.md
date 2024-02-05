@@ -56,3 +56,9 @@ wheel                  0.38.4
 (pyqt5) D:\OpenSource\mini-screenshot\src>python --version
 Python 3.8.17
 ```
+
+## Python热重载开发技术
+ - [热加载技术：修改Python代码并实时查看结果](https://zhuanlan.zhihu.com/p/591448630)
+ - [Reloadium 可以为任何 Python 应用程序添加热重载](https://gitee.com/mirrors/reloadium)
+ - [Python代码热重载函数reload](https://shuke163.github.io/2020/04/23/Python%E4%BB%A3%E7%A0%81%E7%83%AD%E9%87%8D%E8%BD%BD%E5%87%BD%E6%95%B0reload/)
+ - [reload---python模块重载技术](http://www.coolpython.net/flask_tutorial/deep-learn/flask-reload.html)
