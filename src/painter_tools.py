@@ -355,6 +355,66 @@ class DraggableRect(QGraphicsRectItem):
         else:
             super().mouseReleaseEvent(event)
 
+class QPenPolygonalLine(QWidget):
+    """ 折线工具 """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setMouseTracking(True)
+
+        self.pointsItems = []
+        self.isRecord = False
+        # 光标正在移动的点
+        self.movePoint = None
+
+        self.pen = QPen(QColor(Qt.red), 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.painter = QPainter()
+
+    def paintEvent(self, event):
+        self.painter.begin(self)
+        self.painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+
+        count = len(self.pointsItems)
+        if count > 0:
+            self.painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            self.painter.setPen(self.pen)
+
+            for points in self.pointsItems:
+                count = count - 1
+                for i in range(len(points) - 1):
+                    self.painter.drawLine(points[i], points[i+1])
+
+                if self.isRecord and count == 0 and len(points) > 0 and not self.movePoint == None:
+                    # 获取points最后一个元素
+                    self.painter.drawLine(points[-1], self.movePoint)
+
+        self.painter.end()
+
+        super().paintEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            if not self.isRecord:
+                self.isRecord = True
+                self.points = []
+                self.pointsItems.append(self.points)
+                self.points.append(event.pos())
+            else:
+                self.points.append(event.pos())
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        if self.isRecord:
+            self.movePoint = event.pos()
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:
+            if self.isRecord:
+                self.isRecord = False
+                self.update()
+                self.movePoint = None
+
 class QPenRectangleBak(QWidget):
     """ 绘制矩形工具 """
     def __init__(self, parent=None):
@@ -904,6 +964,7 @@ class DrawActionEnum(Enum):
     DrawRectangle = "绘制矩形"
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
+    DrawPolygonalLine = "绘制多边形"
 
 # 绘制动作
 class DrawAction():
@@ -1097,7 +1158,14 @@ class QPainterWidget(QPixmapWidget):
         self.createCustomInfoBar(f"【使用记号笔】待支持")
 
     def drawPolygonalLine(self):
-        self.createCustomInfoBar(f"【绘制折线】待支持")
+        self.currentDrawActionEnum = DrawActionEnum.DrawPolygonalLine
+        self.checkDrawActionChange()
+        self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
+        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawPolygonalLine:
+            # 如果上一个绘图工具是绘制折线，则切换到编辑状态
+            self.drawActions[-1].switchEditState(True)
+        else:
+            self.setBeginDrawPolygonalLine()
 
     def drawPolygonal(self):
         self.createCustomInfoBar(f"【绘制多边形】待支持")
@@ -1212,6 +1280,18 @@ class QPainterWidget(QPixmapWidget):
             drawWidget.setAttribute(Qt.WA_TransparentForMouseEvents, not canEnabled)
 
         self.addDrawAction(DrawAction(DrawActionEnum.DrawRectangle, drawWidget, callback=lambda canEnabled: ban(canEnabled)))
+
+    def setBeginDrawPolygonalLine(self):
+        drawWidget = QPenPolygonalLine(self)
+        drawWidget.move(0, 0)
+        drawWidget.resize(self.size())
+        drawWidget.show()
+
+        def ban(canEnabled):
+            drawWidget.setEnabled(canEnabled)
+            drawWidget.setAttribute(Qt.WA_TransparentForMouseEvents, not canEnabled)
+
+        self.addDrawAction(DrawAction(DrawActionEnum.DrawPolygonalLine, drawWidget, callback=lambda canEnabled: ban(canEnabled)))
 
     def setBeginDrawArrow(self):
         drawWidget = QPenArrow(self)
