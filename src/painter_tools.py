@@ -474,7 +474,7 @@ class QPenRectangleBak(QWidget):
         self.layout.addWidget(view)
         self.show()
 
-        textContainer.realItem.setPlainText("")
+        textContainer.realItem.setPlainText("测试文本")
         textContainer.switchEditableBox()
 
 class QPenRectangle(QWidget):

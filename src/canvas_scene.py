@@ -117,6 +117,7 @@ class CanvasScene(QGraphicsScene):
         # editableRectItem = CanvasEditableFrame(QRectF(-200, 200, 150, 150))
         self.addItem(editableRectItem)
 
+        # 添加一个路径编辑器
         pathItem = CanvasEditablePath()
         targetRect = QRectF(300, 300, 150, 100)
         points = [targetRect.topLeft(), targetRect.topRight(), targetRect.bottomRight(), targetRect.bottomLeft()]
@@ -125,3 +126,11 @@ class CanvasScene(QGraphicsScene):
 
         pathItem.addPoint(QPointF(500, 150), Qt.CursorShape.SizeAllCursor)
         self.addItem(pathItem)
+
+        # 添加一个线段
+        polyonLineItem = CanvasEditablePath()
+        polyonLineItem.addPoint(QPointF(100, 100))
+        polyonLineItem.addPoint(QPointF(100, 200))
+        polyonLineItem.addPoint(QPointF(200, 100))
+        polyonLineItem.setRoiItemEditable(False)
+        self.addItem(polyonLineItem)

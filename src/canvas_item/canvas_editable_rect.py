@@ -590,10 +590,14 @@ class CanvasEditablePath(QGraphicsObject):
 
         self.initUI()
 
+    def setRoiItemEditable(self, canEditable:bool):
+        self.canRoiItemEditable = canEditable
+
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         self.setAcceptHoverEvents(True)
 
+        self.canRoiItemEditable = True
         self.lastCursorDeque = deque()
         self.hoverCursor = Qt.SizeAllCursor
 
@@ -629,6 +633,9 @@ class CanvasEditablePath(QGraphicsObject):
         return roiItem
 
     def removePoint(self, roiItem:CanvasROI):
+        if not self.canRoiItemEditable:
+            return
+
         # 如果是移除最后一个操作点，说明该路径将被移除
         if len(self.roiItemList) == 1:
             scene = self.scene()
@@ -661,10 +668,11 @@ class CanvasEditablePath(QGraphicsObject):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
-        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
+        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.canRoiItemEditable else self.m_penSelected)
         painter.drawPolygon(self.polygon)
 
-        if self.hasFocusWrapper():
+        # 绘制操作边框
+        if self.hasFocusWrapper() and self.canRoiItemEditable:
             painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
             painter.drawRect(self.polygon.boundingRect())
 
@@ -672,10 +680,11 @@ class CanvasEditablePath(QGraphicsObject):
             rect = self.getStretchableRect()
             painter.drawRect(rect)
 
-        pen = QPen(Qt.green, 1, Qt.DashLine)
-        pen.setDashPattern([10, 5])
-        painter.setPen(pen)
-        painter.drawPath(self.shapePath)
+        if self.canRoiItemEditable:
+            pen = QPen(Qt.green, 1, Qt.DashLine)
+            pen.setDashPattern([10, 5])
+            painter.setPen(pen)
+            painter.drawPath(self.shapePath)
 
         painter.restore()
 
@@ -709,7 +718,7 @@ class CanvasEditablePath(QGraphicsObject):
 
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
-        if self.hasFocusWrapper():
+        if self.hasFocusWrapper() and self.canRoiItemEditable:
             selectPath = QPainterPath()
             region = QRegion()
             rects = [self.boundingRect().toRect()]
@@ -782,6 +791,9 @@ class CanvasEditablePath(QGraphicsObject):
         return super().mouseDoubleClickEvent(event)
 
     def initControllers(self):
+        if not self.canRoiItemEditable:
+            return
+
         if not hasattr(self, "controllers"):
             self.controllers:list[CanvasEllipseItem] = []
 
