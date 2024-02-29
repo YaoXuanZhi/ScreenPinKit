@@ -134,3 +134,15 @@ class CanvasScene(QGraphicsScene):
         polyonLineItem.addPoint(QPointF(200, 100))
         polyonLineItem.setRoiItemEditable(False)
         self.addItem(polyonLineItem)
+
+        # 添加一个五角星
+        starItem = CanvasEditablePath()
+        # starPoints = [QPointF(688.0, 227.45203596003702), QPointF(538.5, 93.0), QPointF(389.0, 227.452035960037), QPointF(446.1039186818908, 445.0), QPointF(630.8960813181093, 445.00000000000006), QPointF(573.7921626362186, 227.45203596003702), QPointF(503.20783736378144, 227.45203596003702), QPointF(481.39608131810934, 310.547964039963), QPointF(538.5, 361.9040719200741), QPointF(595.6039186818907, 310.54796403996295), QPointF(389.0, 93.0), QPointF(688.0, 445.00000000000006)]
+        starPoints = [QPointF(495.5, 156.0), QPointF(528.4314828612207, 283.194681746285), QPointF(635.0, 283.194681746285), QPointF(548.7842585693896, 361.8053182537149), QPointF(581.7157414306103, 488.99999999999994), QPointF(495.5, 410.38936349257006), QPointF(409.2842585693897, 489.0), QPointF(442.21574143061036, 361.805318253715), QPointF(356.0, 283.19468174628497), QPointF(462.5685171387793, 283.194681746285), QPointF(495.5, 156.0)]
+
+        starItem.setRoiItemEditable(False)
+        for point in starPoints:
+            starItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+
+        self.addItem(starItem)
+

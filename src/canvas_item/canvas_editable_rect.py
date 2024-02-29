@@ -565,13 +565,15 @@ class CanvasROI(CanvasBaseItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         super().paint(painter, option, widget)
+        parentItem:CanvasEditablePath = self.parentItem()
+        # if not hasattr(parentItem, "canRoiItemEditable") or not parentItem.canRoiItemEditable:
+        #     return
 
         painter.save()
         painter.setPen(Qt.white)
         font = painter.font()
         font.setPixelSize(12)
         painter.setFont(font)
-        parentItem:CanvasEditablePath = self.parentItem()
         index = parentItem.roiItemList.index(self)
         painter.drawText(self.rect(), Qt.AlignCenter, f"{index}/{self.id}")
         painter.restore()
@@ -610,13 +612,15 @@ class CanvasEditablePath(QGraphicsObject):
         id = self.m_instId
         self.polygon.append(point)
 
-        roiItem = CanvasROI(cursor, id, self)
-        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-        rect.moveCenter(point)
-        roiItem.setRect(rect)
+        if self.canRoiItemEditable:
+            roiItem = CanvasROI(cursor, id, self)
+            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+            rect.moveCenter(point)
+            roiItem.setRect(rect)
 
-        self.roiItemList.append(roiItem)
-        return roiItem
+            self.roiItemList.append(roiItem)
+            return roiItem
+        return None
 
     def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
         self.m_instId += 1
