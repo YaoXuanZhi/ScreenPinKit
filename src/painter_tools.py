@@ -6,7 +6,7 @@ from datetime import datetime
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt, QPoint, QRect, QSize, QRectF, QMargins, QPointF, QSizeF
 
-from PyQt5.QtGui import QIcon, QCursor, QPainter, QColor, QPen, QPixmap, QPainterPath, QBrush, QMoveEvent, QFocusEvent, QRegion, QFont
+from PyQt5.QtGui import QIcon, QCursor, QPainter, QColor, QPen, QPixmap, QPainterPath, QBrush, QMoveEvent, QFocusEvent, QRegion, QFont, QPolygon, QPolygonF
 from PyQt5.QtWidgets import QLabel, QMenu, QWidget, QApplication, QSizePolicy, QVBoxLayout, QHBoxLayout, QGraphicsDropShadowEffect, QToolBar, QAction, QActionGroup
 from qfluentwidgets import (RoundMenu, Action, FluentIcon, InfoBar, InfoBarPosition, CommandBarView, Flyout, FlyoutAnimationType, TeachingTip, TeachingTipTailPosition, TeachingTipView)
 from icon import ScreenShotIcon
@@ -264,6 +264,7 @@ class QPenErase(QWidget):
                 self.isRecord = False
                 self.update()
 
+# https://qt.0voice.com/?id=2028#:~:text=%E5%9C%A8Qt%E7%9A%84QGraphicsView%E4%B8%AD%EF%BC%8C%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%E9%87%8D%E5%86%99%E9%BC%A0%E6%A0%87%E4%BA%8B%E4%BB%B6%E6%9D%A5%E5%AE%9E%E7%8E%B0%E7%94%BB%E7%AC%94%E5%92%8C%E6%A9%A1%E7%9A%AE%E6%AA%AB%E5%8A%9F%E8%83%BD%E3%80%82%20%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4%E5%A6%82%E4%B8%8B%EF%BC%9A%20%E9%87%8D%E5%86%99QGraphicsView%E7%9A%84mousePressEvent%20%28%29%E5%87%BD%E6%95%B0%EF%BC%8C%E5%9C%A8%E8%AF%A5%E5%87%BD%E6%95%B0%E4%B8%AD%E8%AE%B0%E5%BD%95%E4%B8%8B%E9%BC%A0%E6%A0%87%E6%8C%89%E4%B8%8B%E6%97%B6%E7%9A%84%E5%9D%90%E6%A0%87%EF%BC%8C%E5%B9%B6%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84%E7%94%BB%E7%AC%94%E6%88%96%E8%80%85%E6%A9%A1%E7%9A%AE%E6%AA%AB%E9%A1%B9%E3%80%82,%E9%87%8D%E5%86%99QGraphicsView%E7%9A%84mouseMoveEvent%20%28%29%E5%87%BD%E6%95%B0%EF%BC%8C%E5%9C%A8%E8%AF%A5%E5%87%BD%E6%95%B0%E4%B8%AD%E6%A0%B9%E6%8D%AE%E9%BC%A0%E6%A0%87%E4%BD%8D%E7%BD%AE%E8%AE%A1%E7%AE%97%E5%87%BA%E5%BD%93%E5%89%8D%E9%9C%80%E8%A6%81%E7%BB%98%E5%88%B6%E6%88%96%E5%88%A0%E9%99%A4%E7%9A%84%E5%8C%BA%E5%9F%9F%EF%BC%8C%E5%B9%B6%E5%B0%86%E8%AF%A5%E5%8C%BA%E5%9F%9F%E5%BA%94%E7%94%A8%E5%88%B0%E7%94%BB%E7%AC%94%E6%88%96%E6%A9%A1%E7%9A%AE%E6%AA%AB%E9%A1%B9%E4%B8%8A%E3%80%82%20%E5%9C%A8mouseReleaseEvent%20%28%29%E5%87%BD%E6%95%B0%E4%B8%AD%E6%B8%85%E9%99%A4%E4%B9%8B%E5%89%8D%E4%BF%9D%E5%AD%98%E7%9A%84%E5%9D%90%E6%A0%87%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%B9%B6%E5%B0%86%E7%94%BB%E7%AC%94%E6%88%96%E6%A9%A1%E7%9A%AE%E6%AA%AB%E9%A1%B9%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%9C%BA%E6%99%AF%E4%B8%AD%E3%80%82
 class QPenLine(QWidget):
     """ 画笔工具 """
     def __init__(self, parent=None):
@@ -283,10 +284,20 @@ class QPenLine(QWidget):
         if len(self.pointsItems) > 0:
             self.painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
             self.painter.setPen(self.pen)
-
             for points in self.pointsItems:
-                for i in range(len(points) - 1):
-                    self.painter.drawLine(points[i], points[i+1])
+                # for i in range(len(points) - 1):
+                #     self.painter.drawLine(points[i], points[i+1])
+
+                # tempPath = QPainterPath()
+                # tempPath.addPolygon(QPolygonF(points))
+                # self.painter.drawPath(tempPath)
+
+                tempPath = QPainterPath()
+                tempPath.moveTo(points[0])
+                for i in range(1, len(points)):
+                    tempPath.cubicTo(points[i-1], (points[i] + points[i-1]) / 2, points[i])
+                self.painter.drawPath(tempPath)
+
         self.painter.end()
 
         super().paintEvent(event)
@@ -537,6 +548,138 @@ class QPenRectangle(QWidget):
             if self.topEdgeRect != None and not self.isRecord:
                 self.painter.setPen(self.borderPen)
                 self.painter.drawRect(QRect(self.points[0], self.points[-1]))
+
+        self.painter.end()
+
+        super().paintEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            if self.points != None and not self.isRecord:
+                result = self.containsBoarder(event.pos(), QRect(self.points[0], self.points[-1]))
+                if result != None:
+                    self.isMoving = True
+                    self._drag_vector = event.pos() - self.points[0]
+                    self.editingRect = QRect(self.points[0], self.points[-1])
+                    return
+
+            self.isRecord = True
+            self.points = [event.pos(), event.pos()]
+            self.pointsItems.append(self.points)
+
+    def mouseMoveEvent(self, event):
+        pos = event.pos()
+        if event.buttons() == Qt.LeftButton:
+            if self.isMoving:
+                self.editingRect.moveTo(pos - self._drag_vector)
+                self.points[0] = self.editingRect.topLeft()
+                self.points[-1] = self.editingRect.bottomRight()
+            elif self.isRecord:
+                self.points[-1] = event.pos()
+            self.update()
+
+        if self.points != None and not self.isRecord:
+            result = self.containsBoarder(event.pos(), QRect(self.points[0], self.points[-1]))
+            self.update()
+            if result != None:
+                self.setCursor(Qt.CursorShape.SizeAllCursor)
+            else:
+                self.setCursor(Qt.CursorShape.ArrowCursor)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            if self.isMoving:
+                self.isMoving = False
+                self.update()
+            elif self.isRecord:
+                self.points[-1] = event.pos()
+                self.isRecord = False
+                self.update()
+
+class QMarkerPen(QWidget):
+    """ 记号笔 """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setMouseTracking(True)
+
+        self.points = None
+        self.pointsItems = []
+        self.isRecord = False
+
+        self.pen = QPen(QColor(Qt.yellow), 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.borderPen = QPen(QColor(Qt.blue), 1, Qt.DashLine, Qt.RoundCap, Qt.RoundJoin)
+        self.borderPen.setDashPattern([5, 5])
+        self.painter = QPainter()
+
+        self.borderWidth = 2
+        self.topEdgeRect = None
+        self.bottomEdgeRect = None
+        self.leftEdgeRect = None
+        self.rightEdgeRect = None
+
+        self.isMoving = False
+
+    def containsBoarder(self, pos:QPoint, rect:QRect):
+        # 计算Qt.TopEdge的所在区域
+        self.topEdgeRect = QRect(rect.topLeft() - QPoint(0, self.borderWidth), QSize(rect.width(), self.borderWidth * 2))
+        # 计算Qt.BottomEdge的所在区域
+        self.bottomEdgeRect = QRect(rect.bottomLeft() - QPoint(0, self.borderWidth), QSize(rect.width(), self.borderWidth * 2))
+        # 计算Qt.LeftEdge的所在区域
+        self.leftEdgeRect = QRect(rect.topLeft() - QPoint(self.borderWidth, 0), QSize(self.borderWidth * 2, rect.height()))
+        # 计算Qt.RightEdge的所在区域
+        self.rightEdgeRect = QRect(rect.topRight() - QPoint(self.borderWidth, 0), QSize(self.borderWidth * 2, rect.height() - self.borderWidth * 2))
+
+        checkRects = [(Qt.Edge.TopEdge, self.topEdgeRect), (Qt.Edge.BottomEdge, self.bottomEdgeRect), (Qt.Edge.LeftEdge, self.leftEdgeRect), (Qt.Edge.RightEdge, self.rightEdgeRect)]
+
+        for checkRect in checkRects:
+            if checkRect[1].contains(pos):
+                return checkRect[0]
+        return None
+
+    def ban(self):
+        self.isMoving = False
+        self.isRecord = True
+        self.update()
+
+    # https://blog.csdn.net/luoyayun361/article/details/104340258
+    def paintMarker(self, begin:QPoint, end:QPoint, p:QPainter):
+        if begin == end:
+            return
+
+        p.save()
+
+        pen = QPen(QColor(0, 0, 0, 100), 15)
+        # pen = QPen(Qt.red, 20)
+        # pen = QPen(QtCore.Qt.PenStyle.NoPen)
+        brush = QBrush(QColor(255, 255, 255, 127))
+        p.setBrush(brush)
+        p.setPen(pen)
+        rect = QRectF(begin, end)
+        # p.drawRoundedRect(rect, 3.0, 5.0, Qt.SizeMode.RelativeSize)
+        # p.drawRoundedRect(rect, 20, 20)
+        # p.drawLine(begin.x(), begin.y(), end.x(), end.y())
+        tempPath = QPainterPath()
+        tempPath.moveTo(begin)
+        tempPath.lineTo(end)
+        # tempPath.addRoundedRect(rect, 15, 15)
+        p.drawPath(tempPath)
+        p.restore()
+
+    def paintEvent(self, event):
+        self.painter.begin(self)
+        self.painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+
+        if len(self.pointsItems) > 0:
+            self.painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            self.painter.setPen(self.pen)
+
+            for points in self.pointsItems:
+                self.paintMarker(points[0], points[-1], self.painter)
+
+            # if self.topEdgeRect != None and not self.isRecord and points[0] != points[-1]:
+            #     self.painter.setPen(self.borderPen)
+            #     self.painter.drawRect(QRect(self.points[0], self.points[-1]))
 
         self.painter.end()
 
@@ -965,6 +1108,7 @@ class DrawActionEnum(Enum):
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制多边形"
+    DrawMarkerPen = "使用记号笔"
 
 # 绘制动作
 class DrawAction():
@@ -1155,7 +1299,14 @@ class QPainterWidget(QPixmapWidget):
         self.setDrawActionEditable(DrawActionEnum.DrawText, True)
 
     def useMarkerPen(self):
-        self.createCustomInfoBar(f"【使用记号笔】待支持")
+        self.currentDrawActionEnum = DrawActionEnum.DrawMarkerPen
+        self.checkDrawActionChange()
+        self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
+        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawMarkerPen:
+            # 如果上一个绘图工具是绘制箭头，则切换到编辑状态
+            self.drawActions[-1].switchEditState(True)
+        else:
+            self.setBeginDrawMarkerPen()
 
     def drawPolygonalLine(self):
         self.currentDrawActionEnum = DrawActionEnum.DrawPolygonalLine
@@ -1306,6 +1457,20 @@ class QPainterWidget(QPixmapWidget):
             drawWidget.setAttribute(Qt.WA_TransparentForMouseEvents, not canEnabled)
 
         self.addDrawAction(DrawAction(DrawActionEnum.DrawArrow, drawWidget, callback=lambda canEnabled: ban(canEnabled)))
+
+    def setBeginDrawMarkerPen(self):
+        drawWidget = QMarkerPen(self)
+        drawWidget.move(0, 0)
+        drawWidget.resize(self.size())
+        drawWidget.show()
+
+        def ban(canEnabled):
+            if hasattr(drawWidget, "ban"):
+                drawWidget.ban()
+            drawWidget.setEnabled(canEnabled)
+            drawWidget.setAttribute(Qt.WA_TransparentForMouseEvents, not canEnabled)
+
+        self.addDrawAction(DrawAction(DrawActionEnum.DrawMarkerPen, drawWidget, callback=lambda canEnabled: ban(canEnabled)))
 
     def setBeginDrawStar(self):
         drawWidget = QPenStar(self)

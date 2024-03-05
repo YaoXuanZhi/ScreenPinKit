@@ -583,8 +583,9 @@ class CanvasEditablePath(QGraphicsObject):
         super().__init__(parent)
 
         self.radius = 8
-        self.roiRadius = 14
+        # self.roiRadius = 14
         self.m_borderWidth = 4
+        self.roiRadius = self.m_borderWidth + 3
 
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
@@ -684,7 +685,7 @@ class CanvasEditablePath(QGraphicsObject):
             rect = self.getStretchableRect()
             painter.drawRect(rect)
 
-        if self.canRoiItemEditable:
+        if self.canRoiItemEditable or True:
             pen = QPen(Qt.green, 1, Qt.DashLine)
             pen.setDashPattern([10, 5])
             painter.setPen(pen)
@@ -745,7 +746,8 @@ class CanvasEditablePath(QGraphicsObject):
             startPoint = self.polygon.at(startIndex)
             endPoint = self.polygon.at(endIndex)
 
-            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+            # offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
+            offset = self.calcOffset(startPoint, endPoint, 5)
 
             points.append(startPoint - offset)
             points.append(startPoint + offset)
@@ -817,6 +819,7 @@ class CanvasEditablePath(QGraphicsObject):
 
         if len(self.controllers) == 0:
             for info in posTypes:
+                # controller = CanvasEllipseItem(info[-1], self)
                 controller = CanvasEllipseItem(info[-1], self)
                 controller.setRectWrapper(rect, info[0], self.radius, size)
                 self.controllers.append(controller)

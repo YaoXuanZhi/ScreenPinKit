@@ -16,9 +16,16 @@
 		- 线条（含贝塞尔线条、折线）
 		- 橡皮擦
 		- 箭头
+		- [JeffCheng95/Draw_Image: 高仿画图板并拓展。在VS2015环境下，利用MFC框架实现的一款高仿“画图”工具，实现绝大部分功能甚至更多创新点。(带注释) 实现了点、直线、曲线、折线、矩形、圆形、多边形等等形状，并且具有区域限制、鼠标捕捉等功能； 实现了不同笔型，包括铅笔、圆珠笔、荧光笔等等； 可以根据不同的笔设置不同的笔宽和笔色以及虚线、点线等等功能； 实现了多种画图工具，包括不限于橡皮、笔刷子、油漆桶、部分区域颜色填充、设置字体和颜色、添加文字； 实现放大镜功能等； 添加多个资源文件，制作工具栏，设置工具栏，实现滚动条滚屏操作等； 实现保存图片、关闭保存等等功能。 (github.com)](https://github.com/JeffCheng95/Draw_Image)
 	- OCR&翻译
 	- 快捷键自定义
 	- 多语言支持
+	- 笔锋笔形支持
+		- [Qt 实现钢笔画线效果详细原理_qt 钢笔工具-CSDN博客](https://blog.csdn.net/luoyayun361/article/details/104340258)
+		- [Qt 实现画线笔锋效果详细原理_qt 划线-CSDN博客](https://blog.csdn.net/luoyayun361/article/details/104312253)
+		- [原笔迹手写实现平滑和笔锋效果之:笔迹的平滑(一) - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8047259.html)
+		- [原笔迹手写实现平滑和笔锋效果之:笔迹的平滑(二) - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8048102.html)
+		- [原笔迹手写实现平滑和笔锋效果之:笔锋效果(三)[完结篇] - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8051912.html)
 - 参考资料
 	- https://maicss.gitbook.io/pyqt-chinese-tutoral/
 	- https://github.com/fandesfyf/Jamscreenshot
