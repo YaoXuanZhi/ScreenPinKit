@@ -128,6 +128,8 @@ class ScreenShotWindow(QWidget):
         return finalPixmap, finalGeometry
 
     def reShow(self):
+        if self.isActiveWindow():
+            return
         finalPixmap, finalGeometry = self.grabScreens()
         self.screenPixmap = finalPixmap
         self.setGeometry(finalGeometry)
