@@ -30,7 +30,7 @@ class QDMGraphicsSocket(QGraphicsItem):
         self._pen.setWidthF(self.outline_width)
         self._brush = QBrush(self._color_background)
 
-    def paint(self, painter, QStyleOptionGraphicsItem, widget=None):
+    def paint(self, painter:QPainter, QStyleOptionGraphicsItem, widget=None):
         # painting circle
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
