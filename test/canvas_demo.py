@@ -8,6 +8,10 @@ from PyQt5.QtCore import *
 class UICanvasTextItem(QGraphicsTextItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
+        font = QFont()
+        font.setPointSize(20)
+        self.setFont(font)
+
         self.setDefaultFlag()
         self.setDefaultTextColor(Qt.white)
 
@@ -15,10 +19,6 @@ class UICanvasTextItem(QGraphicsTextItem):
     def setDefaultFlag(self):
         self.setTextInteractionFlags(Qt.NoTextInteraction)
         self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
-
-        font = QFont()
-        font.setPointSize(20)
-        self.setFont(font)
 
     # 取消文本选中状态
     def cancelSelectedText(self):
@@ -68,6 +68,21 @@ class UICanvasTextItem(QGraphicsTextItem):
 
         super().mouseDoubleClickEvent(event)
 
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        # 自定义滚轮事件的行为
+        finalFont = self.font()
+        finalFontSize = finalFont.pointSize()
+        # 例如，你可以改变文本的大小
+        if event.angleDelta().y() > 0:
+            # 放大
+            finalFontSize = finalFontSize + 1
+        else:
+            # 缩小
+            finalFontSize = finalFontSize - 1
+        finalFont.setPointSize(finalFontSize)
+        self.setFont(finalFont)
+        self.update()
+
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -111,7 +126,18 @@ class CanvasView(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.RubberBandDrag)
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, event:QWheelEvent):
+        # 检查滚轮事件是否在 UICanvasTextItem 上发生
+        item = self.itemAt(event.pos())
+        if item and isinstance(item, UICanvasTextItem):
+            item.wheelEvent(event)
+            # 接受事件，防止它被传递到其他处理器
+            event.accept()
+        else:
+            # 如果不是在 QGraphicsTextItem 上，调用默认的处理方法
+            self.wheelEventView(event)
+
+    def wheelEventView(self, event):
         # calculate our zoom Factor
         zoomOutFactor = 1 / self.zoomInFactor
 
