@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPaintEvent, QPainter
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QGraphicsSceneMouseEvent
 
 class UICanvasTextItem(QGraphicsTextItem):
     def __init__(self, parent: QWidget = None) -> None:
@@ -30,15 +31,19 @@ class UICanvasTextItem(QGraphicsTextItem):
         '''判断窗口的鼠标是否穿透了'''
         return (self.textInteractionFlags() | Qt.TextEditorInteraction) == self.textInteractionFlags()
 
-    def switchEditableBox(self):
+    def switchEditableBox(self, event: QGraphicsSceneMouseEvent):
         self.clearFocus()
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.setFocus()
 
+        pos = self.mapToText(event.pos()) # 让光标移到当前鼠标所在位置
+        # pos = math.ceil(len(self.toPlainText())/2) # 让光标移到文本中间
         textCursor = self.textCursor()
-        pos = math.ceil(len(self.toPlainText())/2)
         textCursor.setPosition(pos)
         self.setTextCursor(textCursor)
+
+    def mapToText(self, pos):
+        return self.document().documentLayout().hitTest(QPointF(pos), Qt.FuzzyHit)
 
     def focusInEvent(self, event: QFocusEvent) -> None:
         if (event.reason() != Qt.PopupFocusReason): # 注意右键菜单在此进入焦点时不保存原始文本
@@ -64,7 +69,8 @@ class UICanvasTextItem(QGraphicsTextItem):
         if(event.button() == Qt.LeftButton):
             if not self.isCanEditable():
                 # 左键双击进入可编辑状态并打开焦点
-                self.switchEditableBox()
+                self.switchEditableBox(event)
+                return
 
         super().mouseDoubleClickEvent(event)
 
@@ -78,7 +84,7 @@ class UICanvasTextItem(QGraphicsTextItem):
             finalFontSize = finalFontSize + 1
         else:
             # 缩小
-            finalFontSize = finalFontSize - 1
+            finalFontSize = max(1, finalFontSize - 1)
         finalFont.setPointSize(finalFontSize)
         self.setFont(finalFont)
         self.update()

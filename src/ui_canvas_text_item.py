@@ -310,23 +310,46 @@ class UICanvasTextItem(QGraphicsTextItem):
         '''判断窗口的鼠标是否穿透了'''
         return (self.textInteractionFlags() | Qt.TextEditorInteraction) == self.textInteractionFlags()
 
-    def switchEditableBox(self):
+    def switchEditableBox(self, event: QGraphicsSceneMouseEvent = None):
         self.clearFocus()
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.setFocus()
 
+        if event == None:
+            return
+
+        pos = self.mapToText(event.pos()) # 让光标移到当前鼠标所在位置
+        # pos = math.ceil(len(self.toPlainText())/2) # 让光标移到文本中间
         textCursor = self.textCursor()
-        pos = math.ceil(len(self.toPlainText())/2)
         textCursor.setPosition(pos)
         self.setTextCursor(textCursor)
+
+    def mapToText(self, pos):
+        return self.document().documentLayout().hitTest(QPointF(pos), Qt.FuzzyHit)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if(event.button() == Qt.LeftButton):
             if not self.isCanEditable():
                 # 左键双击进入可编辑状态并打开焦点
-                self.switchEditableBox()
+                self.switchEditableBox(event)
+                return
 
         super().mouseDoubleClickEvent(event)
+
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        # 自定义滚轮事件的行为
+        finalFont = self.font()
+        finalFontSize = finalFont.pointSize()
+        # 例如，你可以改变文本的大小
+        if event.angleDelta().y() > 0:
+            # 放大
+            finalFontSize = finalFontSize + 1
+        else:
+            # 缩小
+            finalFontSize = max(1, finalFontSize - 1)
+        finalFont.setPointSize(finalFontSize)
+        self.setFont(finalFont)
+        self.update()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing, True)

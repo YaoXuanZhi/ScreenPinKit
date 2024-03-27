@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from canvas_item.canvas_node_item import *
+from ui_canvas_text_item import UICanvasTextItem
 
 class CanvasView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -61,6 +62,14 @@ class CanvasView(QGraphicsView):
             super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event):
+        # 检查滚轮事件是否在 UICanvasTextItem 上发生
+        item = self.itemAt(event.pos())
+        if item and isinstance(item, UICanvasTextItem):
+            item.wheelEvent(event)
+            # 接受事件，防止它被传递到其他处理器
+            event.accept()
+            return
+
         # calculate our zoom Factor
         zoomOutFactor = 1 / self.zoomInFactor
 
