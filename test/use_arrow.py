@@ -37,13 +37,75 @@ class CanvasROI(QGraphicsEllipseItem):
         if self.isMoving:
             parentItem:UICanvasArrowItem = self.parentItem()
             localPos = self.mapToItem(parentItem, self.rect().center())
-            parentItem.movePointById(self, localPos)
+            parentItem.roiMgr.movePointById(self, localPos)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.RightButton:
             parentItem:UICanvasArrowItem = self.parentItem()
-            parentItem.removePoint(self)
+            parentItem.roiMgr.removePoint(self)
         return super().mouseDoubleClickEvent(event)
+
+class CanvasROIManager(QObject):
+    removeROIAfterSignal = pyqtSignal(int)
+    moveROIAfterSignal = pyqtSignal(int, QPointF)
+    def __init__(self,parent=None, attachParent:QGraphicsItem=None):
+        super().__init__(parent)
+        self.attachParent = attachParent
+
+        self.roiItemList:list[CanvasROI] = []
+
+        self.m_instId = 0
+        self.canRoiItemEditable = True
+        self.radius = 8
+        # self.roiRadius = 14
+        self.m_borderWidth = 4
+        self.roiRadius = self.m_borderWidth + 3
+
+    def addPoint(self, point:QPointF, cursor:QCursor = Qt.PointingHandCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
+
+        if self.canRoiItemEditable:
+            roiItem = CanvasROI(cursor, id, self.attachParent)
+            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+            rect.moveCenter(point)
+            roiItem.setRect(rect)
+
+            self.roiItemList.append(roiItem)
+            return roiItem
+        return None
+
+    def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
+
+        roiItem = CanvasROI(cursor, id, self)
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+        rect.moveCenter(point)
+        roiItem.setRect(rect)
+
+        self.roiItemList.insert(insertIndex, roiItem)
+        return roiItem
+
+    def removePoint(self, roiItem:CanvasROI):
+        if not self.canRoiItemEditable:
+            return
+
+        # 如果是移除最后一个操作点，说明该路径将被移除
+        if len(self.roiItemList) == 1:
+            scene = self.attachParent.scene()
+            scene.removeItem(self)
+            return
+
+        index = self.roiItemList.index(roiItem)
+        self.roiItemList.remove(roiItem)
+        self.attachParent.scene().removeItem(roiItem)
+
+        self.removeROIAfterSignal.emit(index)
+
+    def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
+        index = self.roiItemList.index(roiItem)
+        self.moveROIAfterSignal.emit(index, localPos)
 
 class UICanvasArrowItem(QGraphicsPathItem):
     def __init__(self, parent: QWidget = None) -> None:
@@ -72,14 +134,19 @@ class UICanvasArrowItem(QGraphicsPathItem):
         self.zoomStep = 1
         self.zoomRange = [0, 10]
 
-        self.roiItemList:list[CanvasROI] = []
+        self.roiMgr = CanvasROIManager(attachParent=self)
 
-        self.m_instId = 0
-        self.canRoiItemEditable = True
-        self.radius = 8
-        # self.roiRadius = 14
-        self.m_borderWidth = 4
-        self.roiRadius = self.m_borderWidth + 3
+        self.roiMgr.removeROIAfterSignal.connect(self.removeROIAfterCallback)
+        self.roiMgr.moveROIAfterSignal.connect(self.moveROIAfterCallback)
+
+    def removeROIAfterCallback(self, index:int):
+        self.points.remove(self.points[index])
+        self.endResize(None)
+
+    def moveROIAfterCallback(self, index:int, localPos:QPointF):
+        self.prepareGeometryChange()
+        self.points[index] = localPos
+        self.rebuild()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
         option.state = option.state & ~QStyle.StateFlag.State_Selected
@@ -116,10 +183,20 @@ class UICanvasArrowItem(QGraphicsPathItem):
 
         for i in range(0, len(self.points)):
             point:QPoint = self.points[i]
-            self.addPoint(point)
+            self.roiMgr.addPoint(point)
 
         self.isShowController = True
         self.rebuild()
+
+    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+        for roiItem in self.roiMgr.roiItemList:
+            roiItem.show()
+        return super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+        for roiItem in self.roiMgr.roiItemList:
+            roiItem.hide()
+        return super().hoverLeaveEvent(event)
 
     def buildArrow(self, path:QPainterPath, points:list):
         path.clear()
@@ -169,62 +246,6 @@ class UICanvasArrowItem(QGraphicsPathItem):
                 path.moveTo(point)
             else:
                 path.lineTo(point)
-
-    def addPoint(self, point:QPointF, cursor:QCursor = Qt.PointingHandCursor) -> CanvasROI:
-        self.m_instId += 1
-        id = self.m_instId
-
-        if self.canRoiItemEditable:
-            roiItem = CanvasROI(cursor, id, self)
-            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-            rect.moveCenter(point)
-            roiItem.setRect(rect)
-
-            self.roiItemList.append(roiItem)
-            return roiItem
-        return None
-
-    def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
-        self.m_instId += 1
-        id = self.m_instId
-
-        roiItem = CanvasROI(cursor, id, self)
-        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-        rect.moveCenter(point)
-        roiItem.setRect(rect)
-
-        self.roiItemList.insert(insertIndex, roiItem)
-        return roiItem
-
-    def removePoint(self, roiItem:CanvasROI):
-        if not self.canRoiItemEditable:
-            return
-
-        # 如果是移除最后一个操作点，说明该路径将被移除
-        if len(self.roiItemList) == 1:
-            scene = self.scene()
-            scene.removeItem(self)
-            return
-
-        index = self.roiItemList.index(roiItem)
-        self.roiItemList.remove(roiItem)
-        self.points.remove(self.points[index])
-        self.scene().removeItem(roiItem)
-        self.endResize(None)
-        if len(self.roiItemList) > 0:
-            self.setFocus(Qt.FocusReason.OtherFocusReason)
-
-    def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
-        index = self.roiItemList.index(roiItem)
-        self.prepareGeometryChange()
-        self.points[index] = localPos
-        self.rebuild()
-
-    def moveRoiItemsBy(self, offset:QPointF):
-        '''将所有的roiItem都移动一下'''
-        for i in range(0, len(self.roiItemList)):
-            roiItem:CanvasROI = self.roiItemList[i]
-            roiItem.moveBy(-offset.x(), -offset.y())
 
     def endResize(self, localPos:QPointF) -> None:
         self.prepareGeometryChange()
