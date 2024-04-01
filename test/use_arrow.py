@@ -6,10 +6,49 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
+class CanvasROI(QGraphicsEllipseItem):
+    def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
+        super().__init__(parent)
+        self.hoverCursor = hoverCursor
+        self.id = id
+        self.initUI()
+
+    def initUI(self):
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
+        self.setAcceptHoverEvents(True)
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+        option.state = option.state & ~QStyle.StateFlag.State_Selected
+        # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
+        return super().paint(painter, option, widget)
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.isMoving = True
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.isMoving = False
+        parentItem:UICanvasArrowItem = self.parentItem()
+        parentItem.endResize(event.pos())
+        return super().mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super().mouseMoveEvent(event)
+        if self.isMoving:
+            parentItem:UICanvasArrowItem = self.parentItem()
+            localPos = self.mapToItem(parentItem, self.rect().center())
+            parentItem.movePointById(self, localPos)
+
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.RightButton:
+            parentItem:UICanvasArrowItem = self.parentItem()
+            parentItem.removePoint(self)
+        return super().mouseDoubleClickEvent(event)
+
 class UICanvasArrowItem(QGraphicsPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
         self.setAcceptHoverEvents(True)
 
         self.setBrush(QBrush(QColor(255, 0, 0, 100)))
@@ -32,6 +71,20 @@ class UICanvasArrowItem(QGraphicsPathItem):
         self.zoom = 5
         self.zoomStep = 1
         self.zoomRange = [0, 10]
+
+        self.roiItemList:list[CanvasROI] = []
+
+        self.m_instId = 0
+        self.canRoiItemEditable = True
+        self.radius = 8
+        # self.roiRadius = 14
+        self.m_borderWidth = 4
+        self.roiRadius = self.m_borderWidth + 3
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+        option.state = option.state & ~QStyle.StateFlag.State_Selected
+        # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
+        return super().paint(painter, option, widget)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         zoomOutFactor = 1 / self.zoomInFactor
@@ -57,6 +110,16 @@ class UICanvasArrowItem(QGraphicsPathItem):
     def rebuild(self):
         self.buildArrow(self.arrowPath, self.points)
         self.setPath(self.arrowPath)
+
+    def showControllers(self):
+        '''生成操作点'''
+
+        for i in range(0, len(self.points)):
+            point:QPoint = self.points[i]
+            self.addPoint(point)
+
+        self.isShowController = True
+        self.rebuild()
 
     def buildArrow(self, path:QPainterPath, points:list):
         path.clear()
@@ -107,6 +170,79 @@ class UICanvasArrowItem(QGraphicsPathItem):
             else:
                 path.lineTo(point)
 
+    def addPoint(self, point:QPointF, cursor:QCursor = Qt.PointingHandCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
+
+        if self.canRoiItemEditable:
+            roiItem = CanvasROI(cursor, id, self)
+            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+            rect.moveCenter(point)
+            roiItem.setRect(rect)
+
+            self.roiItemList.append(roiItem)
+            return roiItem
+        return None
+
+    def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
+        self.m_instId += 1
+        id = self.m_instId
+
+        roiItem = CanvasROI(cursor, id, self)
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+        rect.moveCenter(point)
+        roiItem.setRect(rect)
+
+        self.roiItemList.insert(insertIndex, roiItem)
+        return roiItem
+
+    def removePoint(self, roiItem:CanvasROI):
+        if not self.canRoiItemEditable:
+            return
+
+        # 如果是移除最后一个操作点，说明该路径将被移除
+        if len(self.roiItemList) == 1:
+            scene = self.scene()
+            scene.removeItem(self)
+            return
+
+        index = self.roiItemList.index(roiItem)
+        self.roiItemList.remove(roiItem)
+        self.points.remove(self.points[index])
+        self.scene().removeItem(roiItem)
+        self.endResize(None)
+        if len(self.roiItemList) > 0:
+            self.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
+        index = self.roiItemList.index(roiItem)
+        self.prepareGeometryChange()
+        self.points[index] = localPos
+        self.rebuild()
+
+    def moveRoiItemsBy(self, offset:QPointF):
+        '''将所有的roiItem都移动一下'''
+        for i in range(0, len(self.roiItemList)):
+            roiItem:CanvasROI = self.roiItemList[i]
+            roiItem.moveBy(-offset.x(), -offset.y())
+
+    def endResize(self, localPos:QPointF) -> None:
+        self.prepareGeometryChange()
+        self.rebuild()
+
+        rect = self.arrowPath.boundingRect()
+        # 计算正常旋转角度（0度）下，中心的的坐标
+        oldCenter = QPointF(self.x()+rect.x()+rect.width()/2, self.y()+rect.y()+rect.height()/2)
+        # 计算旋转后，中心坐标在view中的位置
+        newCenter = self.mapToScene(rect.center())
+        # 设置正常坐标减去两个坐标的差
+        difference = oldCenter-newCenter
+        self.setPos(self.x()-difference.x(), self.y()-difference.y())
+        # 最后设置旋转中心
+        self.setTransformOriginPoint(rect.center())
+
+        self.update()
+
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -147,8 +283,7 @@ class DrawingView(QGraphicsView):
                     self.scene().addItem(self.pathItem)
                     self.pathItem.points = [targetPos, targetPos]
                 else:
-                    self.pathItem.points.append(targetPos)
-                    self.pathItem.rebuild()
+                    self.pathItem.showControllers()
                     self.pathItem = None
                 return
         super().mousePressEvent(event)
