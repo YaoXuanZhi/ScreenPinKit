@@ -7,36 +7,58 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent, QGraphicsSceneWheelEvent, QStyleOptionGraphicsItem, QWidget
 from PyQt5.QtSvg import QSvgWidget
 
-class UICanvasTextItem(QGraphicsTextItem):
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent)
-        font = QFont()
-        font.setPointSize(20)
-        self.setFont(font)
-
+class UICanvasMarkderItem(QGraphicsRectItem):
+    markderIndex = 0
+    def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
+        super().__init__(rect, parent)
+        self.showText = ""
         self.setDefaultFlag()
-        self.setDefaultTextColor(Qt.white)
+        UICanvasMarkderItem.markderIndex = self.markderIndex + 1
+        self.showText = f"{self.markderIndex}"
 
     # 设置默认模式
     def setDefaultFlag(self):
-        self.setTextInteractionFlags(Qt.NoTextInteraction)
         self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
         painter.save()
+        painter.setBrush(QBrush(QColor(255, 255, 0, 50)))
+        painter.setPen(Qt.NoPen)
+        painter.drawEllipse(self.boundingRect())
 
-        # outline
-        # path_outline = QPainterPath()
-        # path_outline.addRoundedRect(self.boundingRect(), self.edge_size, self.edge_size)
-        # painter.setPen(self._pen_default if not self.isSelected() else self._pen_selected)
-        # painter.setBrush(Qt.NoBrush)
-        # painter.drawPath(path_outline.simplified())
-        # self.pathItem.setBrush(QBrush(QColor(255, 255, 0, 50)))  # Yellow fill with alpha 50
-        # painter.fillRect(self.boundingRect(), Qt.yellow)
-        painter.fillRect(self.boundingRect(), QBrush(QColor(255, 255, 0, 50)))
+        painter.setPen(QColor(255, 255, 255))
+
+        offset = 5
+        tempRect2 = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
+        self.font = QFont()
+        self.adjustFontSizeToFit(self.showText, self.font, tempRect2, 1, 100)
+        painter.setFont(self.font)
+
+        align = Qt.AlignHCenter | Qt.AlignVCenter
+        painter.drawText(self.rect(), align, self.showText)
 
         painter.restore()
-        return super().paint(painter, option, widget)
+
+    def adjustFontSizeToFit(self, text, font:QFont, rect:QRectF, minFontSize = 1, maxFontSize = 50):
+        '''调整字体适应大小'''
+
+        # 计算给定字体大小下的文本宽度和高度
+        def calcFontSize(targetFont):
+            font_metrics = QFontMetricsF(targetFont)
+            return font_metrics.size(0, text)
+
+        finalFontSize = minFontSize
+        while finalFontSize >= minFontSize and finalFontSize < maxFontSize:
+            # 获取当前字体大小下的文本尺寸
+            size = calcFontSize(QFont(font.family(), finalFontSize))
+            if size.width() <= rect.width() and size.height() <= rect.height():
+                # 如果文本可以放入矩形区域内，尝试使用更大的字体大小
+                finalFontSize += 1
+            else:
+                # 文本太大，无法放入矩形区域，跳出循环
+                break
+
+            font.setPointSize(finalFontSize)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -47,67 +69,6 @@ class DrawingScene(QGraphicsScene):
         rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         rectItem.setAcceptHoverEvents(True)
         self.addItem(rectItem)
-
-        # 绘制箭头图元
-        self.addArrow(QPoint(120, 120), QPoint(200, 200))
-
-    def addArrow(self, begin:QPoint, end:QPoint):
-        x1 = begin.x()                                      # 取 points[0] 起点的 x
-        y1 = begin.y()                                      # 取 points[0] 起点的 y  
-        x2 = end.x()                                        # 取 points[count-1] 终点的 x  
-        y2 = end.y()                                        # 取 points[count-1] 终点的 y  
-        l = 32.0                                            # 箭头的长度  
-        a = 0.5                                             # 箭头与线段角度  
-        x3 = x2 - l * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - a) # 计算箭头的终点（x3,y3）  
-        y3 = y2 - l * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - a)   
-        x4 = x2 - l * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - a) # 计算箭头的终点（x4,y4）  
-        y4 = y2 - l * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - a)   
-
-        i = 18                                              # 箭身的长度
-        b = 0.2                                             # 箭身与线段角度  
-        x5 = x2 - i * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - b) # 计算箭头的终点（x5,y5）  
-        y5 = y2 - i * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - b)   
-        x6 = x2 - i * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - b) # 计算箭头的终点（x6,y6）  
-        y6 = y2 - i * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - b)   
-
-        arrowTailPos = QPointF(x1, y1) # 箭尾位置点
-        arrowHeadPos = QPointF(x2, y2) # 箭头位置点
-        arrowHeadRightPos = QPointF(x3, y3) # 箭头右侧边缘位置点
-        arrowHeadLeftPos = QPointF(x4, y4) # 箭头左侧边缘位置点
-        arrowBodyRightPos = QPointF(x5, y5) # 箭身右侧位置点
-        arrowBodyLeftPos = QPointF(x6, y6) # 箭身左侧位置点
-
-        fullPath = QPainterPath()
-        fullPath.moveTo(arrowTailPos)
-        fullPath.lineTo(arrowBodyLeftPos)
-        fullPath.lineTo(arrowHeadLeftPos)
-        fullPath.lineTo(arrowHeadPos)
-        fullPath.lineTo(arrowHeadRightPos)
-        fullPath.lineTo(arrowBodyRightPos)
-        fullPath.closeSubpath()
-
-        pathItem = QGraphicsPathItem(fullPath)
-        pathItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        pathItem.setAcceptHoverEvents(True)
-        self.addItem(pathItem)
-
-    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        # 检查滚轮事件是否在 UICanvasTextItem 上发生
-        # item = self.itemAt(event.scenePos(), Qt.NoModifier)
-        if len(self.selectedItems()) < 1:
-            return super().wheelEvent(event)
-        else:
-            selectItem = self.selectedItems()[0]
-            return
-        # if item and isinstance(item, UICanvasTextItem):
-        #     item.wheelEvent(event)
-        #     # 接受事件，防止它被传递到其他处理器
-        #     event.accept()
-        # else:
-        #     # 如果不是在 QGraphicsTextItem 上，调用默认的处理方法
-        #     # self.wheelEventView(event)
-        #     return super().wheelEvent(event)
-
 
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -133,10 +94,8 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
-                    self.currentItem = UICanvasTextItem()
-                    self.currentItem.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsFocusable)
-                    self.currentItem.setAcceptHoverEvents(True)
-                    self.currentItem.setPlainText("1")
+                    self.currentItem = UICanvasMarkderItem(QRectF(0, 0, 20, 20))
+
                     self.scene().addItem(self.currentItem)
 
                     targetPos = self.mapToScene(event.pos())
@@ -157,17 +116,6 @@ class DrawingView(QGraphicsView):
         elif (event.button() == Qt.LeftButton):
             self.setDragMode(self.dragMode() & ~QGraphicsView.RubberBandDrag)
         return super().mouseDoubleClickEvent(event)
-
-    # def wheelEvent(self, event:QWheelEvent):
-    #     # 检查滚轮事件是否在 UICanvasTextItem 上发生
-    #     # item = self.itemAt(event.pos())
-    #     # if item and isinstance(item, UICanvasTextItem):
-    #     #     item.wheelEventHandle(event)
-    #     #     # 接受事件，防止它被传递到其他处理器
-    #     #     event.accept()
-    #     # else:
-    #         # 如果不是在 QGraphicsTextItem 上，调用默认的处理方法
-    #     super().wheelEvent(event)    
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
