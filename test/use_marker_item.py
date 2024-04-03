@@ -60,6 +60,12 @@ class UICanvasMarkderItem(QGraphicsRectItem):
 
             font.setPointSize(finalFontSize)
 
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            raise NotImplementedError("子类需要重写该函数")
+            return
+        return super().mouseDoubleClickEvent(event)
+
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)

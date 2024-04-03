@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent, QGraphicsSceneWheelEvent, QStyleOptionGraphicsItem, QWidget
-from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 
 class QDMNodeContentWidget(QSvgWidget):
     def __init__(self, parent=None):
@@ -22,10 +22,13 @@ class QDMNodeContentWidget(QSvgWidget):
         # self.layout.addWidget(self.wdg_label)
         # self.layout.addWidget(QTextEdit("foo"))
 
-        if UICanvasSvgItem.markderIndex % 2 == 0:
-            self.load("D:/OpenSource/mini-screenshot-sync/test/resources/zsh.svg")
-        else:
-            self.load("D:/OpenSource/mini-screenshot-sync/test/resources/circles_single.svg")
+        flag = UICanvasSvgItem.markderIndex % 3
+        if flag == 0:
+            self.load("resources/zsh.svg")
+        elif flag == 1:
+            self.load("resources/circles_single.svg")
+        elif flag == 2:
+            self.load("resources/horizontal+resize.svg")
 
 class UICanvasSvgItem(QGraphicsRectItem):
     markderIndex = 0
@@ -41,6 +44,7 @@ class UICanvasSvgItem(QGraphicsRectItem):
 
     def adjustWidgetSizeToFit(self):
         '''控件尺寸适配svg图片'''
+        svgRender:QSvgRenderer = self.content.renderer()
         svgBoundRect = QRect(QPoint(0, 0), self.content.renderer().defaultSize())
         self.setRect(QRectF(svgBoundRect))
         self.content.setGeometry(svgBoundRect)

@@ -22,22 +22,16 @@ class CanvasROI(QGraphicsEllipseItem):
         # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         return super().paint(painter, option, widget)
 
-    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        self.isMoving = True
-        return super().mousePressEvent(event)
-
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        self.isMoving = False
         parentItem:UICanvasGlowPathItem = self.parentItem()
         parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        parentItem:UICanvasGlowPathItem = self.parentItem()
+        localPos = self.mapToItem(parentItem, self.rect().center())
+        parentItem.roiMgr.movePointById(self, localPos)
         super().mouseMoveEvent(event)
-        if self.isMoving:
-            parentItem:UICanvasGlowPathItem = self.parentItem()
-            localPos = self.mapToItem(parentItem, self.rect().center())
-            parentItem.roiMgr.movePointById(self, localPos)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.RightButton:
