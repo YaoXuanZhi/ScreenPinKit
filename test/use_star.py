@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from canvas_util import *
 
-class UICanvasArrowItem(UICanvasCommonPathItem):
+class UICanvasStarItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
 
@@ -80,12 +80,9 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())
                 if self.pathItem == None:
-                    self.pathItem = UICanvasArrowItem()
+                    self.pathItem = UICanvasStarItem()
                     self.scene().addItem(self.pathItem)
                     self.pathItem.points = [targetPos, targetPos]
-                else:
-                    self.pathItem.showControllers()
-                    self.pathItem = None
                 return
         super().mousePressEvent(event)
 
@@ -100,6 +97,10 @@ class DrawingView(QGraphicsView):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton and self.pathItem != None:
             self.scene().removeItem(self.pathItem)
+            self.pathItem = None
+            return
+        if event.button() == Qt.LeftButton and self.pathItem != None:
+            self.pathItem.showControllers()
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

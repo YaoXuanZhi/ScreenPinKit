@@ -117,9 +117,6 @@ class DrawingView(QGraphicsView):
                     self.pathItem = UICanvasArrowItem()
                     self.scene().addItem(self.pathItem)
                     self.pathItem.points = [targetPos, targetPos]
-                else:
-                    self.pathItem.showControllers()
-                    self.pathItem = None
                 return
         super().mousePressEvent(event)
 
@@ -134,6 +131,10 @@ class DrawingView(QGraphicsView):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton and self.pathItem != None:
             self.scene().removeItem(self.pathItem)
+            self.pathItem = None
+            return
+        elif event.button() == Qt.LeftButton and self.pathItem != None:
+            self.pathItem.showControllers()
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)
