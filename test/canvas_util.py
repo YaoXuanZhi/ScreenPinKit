@@ -4,13 +4,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys, math
 
-class CavasArrowStyle:
-    arrowLength:float = 32.0 # 箭头的长度  
-    arrowAngle:float = 0.5 # 箭头与线段角度  
-
-    arrowBodyLength:float = 18 # 箭身的长度
-    arrowBodyAngle:float = 0.2 # 箭身与线段角度  
-
 class CanvasUtil:
     @staticmethod
     def buildSegmentsPath(targetPath:QPainterPath, points:list):
@@ -32,7 +25,7 @@ class CanvasUtil:
                 targetPath.lineTo(point)
 
     @staticmethod
-    def buildArrowPath(targetPath:QPainterPath, points:list, arrowStyle:CavasArrowStyle):
+    def buildArrowPath(targetPath:QPainterPath, points:list, arrowStyle:map):
         """
         构造箭头
 
@@ -43,6 +36,11 @@ class CanvasUtil:
         """
         targetPath.clear()
 
+        arrowLength = arrowStyle["arrowLength"]
+        arrowAngle = arrowStyle["arrowAngle"]
+        arrowBodyLength = arrowStyle["arrowBodyLength"]
+        arrowBodyAngle = arrowStyle["arrowBodyAngle"]
+
         begin = points[0]
         end = points[-1]
 
@@ -50,15 +48,15 @@ class CanvasUtil:
         y1 = begin.y()  # 取 points[0] 起点的 y  
         x2 = end.x()    # 取 points[count-1] 终点的 x  
         y2 = end.y()    # 取 points[count-1] 终点的 y  
-        x3 = x2 - arrowStyle.arrowLength * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - arrowStyle.arrowAngle) # 计算箭头的终点（x3,y3）  
-        y3 = y2 - arrowStyle.arrowLength * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - arrowStyle.arrowAngle)   
-        x4 = x2 - arrowStyle.arrowLength * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - arrowStyle.arrowAngle) # 计算箭头的终点（x4,y4）  
-        y4 = y2 - arrowStyle.arrowLength * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - arrowStyle.arrowAngle)   
+        x3 = x2 - arrowLength * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - arrowAngle) # 计算箭头的终点（x3,y3）  
+        y3 = y2 - arrowLength * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - arrowAngle)   
+        x4 = x2 - arrowLength * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - arrowAngle) # 计算箭头的终点（x4,y4）  
+        y4 = y2 - arrowLength * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - arrowAngle)   
 
-        x5 = x2 - arrowStyle.arrowBodyLength * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - arrowStyle.arrowBodyAngle) # 计算箭头的终点（x5,y5）  
-        y5 = y2 - arrowStyle.arrowBodyLength * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - arrowStyle.arrowBodyAngle)   
-        x6 = x2 - arrowStyle.arrowBodyLength * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - arrowStyle.arrowBodyAngle) # 计算箭头的终点（x6,y6）  
-        y6 = y2 - arrowStyle.arrowBodyLength * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - arrowStyle.arrowBodyAngle)   
+        x5 = x2 - arrowBodyLength * math.cos(math.atan2((y2 - y1) , (x2 - x1)) - arrowBodyAngle) # 计算箭头的终点（x5,y5）  
+        y5 = y2 - arrowBodyLength * math.sin(math.atan2((y2 - y1) , (x2 - x1)) - arrowBodyAngle)   
+        x6 = x2 - arrowBodyLength * math.sin(math.atan2((x2 - x1) , (y2 - y1)) - arrowBodyAngle) # 计算箭头的终点（x6,y6）  
+        y6 = y2 - arrowBodyLength * math.cos(math.atan2((x2 - x1) , (y2 - y1)) - arrowBodyAngle)   
 
         arrowTailPos = QPointF(x1, y1) # 箭尾位置点
         arrowHeadPos = QPointF(x2, y2) # 箭头位置点
@@ -335,3 +333,41 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.setTransformOriginPoint(rect.center())
 
         self.update()
+
+class CanvasAttribute(QObject):
+    valueChangedSignal = pyqtSignal(QVariant)
+    displayName:str
+
+    isFirstSetValue = True
+
+    lastValue:QVariant = None
+    currentValue:QVariant = None
+
+    def __init__(self, parent: QObject = None) -> None:
+        super().__init__(parent)
+
+    def getType(self) -> QVariant.Type:
+        value:QVariant = self.currentValue
+        return value.type()
+
+    def setDisplayName(self, name:str) -> None:
+        self.displayName = name
+
+    def getLastValue(self) -> QVariant:
+        return self.lastValue
+
+    def getValue(self) -> QVariant:
+        return self.currentValue
+
+    def setValue(self, value:QVariant) -> None:
+        if self.isFirstSetValue:
+            self.lastValue = value
+            self.isFirstSetValue = False
+
+        if self.currentValue == value:
+            return
+
+        self.lastValue = self.currentValue
+        self.currentValue = value
+
+        self.valueChangedSignal.emit(value)

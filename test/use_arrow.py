@@ -10,28 +10,27 @@ from canvas_util import *
 class UICanvasArrowItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
-        self.setAcceptHoverEvents(True)
-
-        self.setBrush(QBrush(QColor(255, 0, 0, 100)))
-        self.setPen(QPen(QColor(255, 0, 0), 2, Qt.SolidLine))
-
-        self.arrowStyle = CavasArrowStyle()
-
-        #箭头的长度
-        self.arrowStyle.arrowLength = 32.0
-        #箭头与线段角度
-        self.arrowStyle.arrowAngle = 0.5
-        #箭身的长度
-        self.arrowStyle.arrowBodyLength = 18
-        #箭身与线段角度
-        self.arrowStyle.arrowBodyAngle = 0.2  
+        self.initStyle()
 
         self.zoomInFactor = 1.25
         self.zoomClamp = True # 是否限制缩放比率
         self.zoom = 5
         self.zoomStep = 1
         self.zoomRange = [0, 10]
+
+    def initStyle(self):
+        arrowStyleMap = {
+            "arrowLength" : 32.0,
+            "arrowAngle" : 0.5,
+            "arrowBodyLength" : 18,
+            "arrowBodyAngle" : 0.2,
+
+            "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
+            "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
+        }
+        self.styleAttribute = CanvasAttribute()
+        self.styleAttribute.setValue(QVariant(arrowStyleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.rebuildUI)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         zoomOutFactor = 1 / self.zoomInFactor
@@ -49,13 +48,17 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
         if self.zoom > self.zoomRange[1]: self.zoom, clamped = self.zoomRange[1], True
 
         if not clamped or self.zoomClamp is False:
-            self.arrowStyle.arrowLength = self.arrowStyle.arrowLength * zoomFactor
-            self.arrowStyle.arrowBodyLength = self.arrowStyle.arrowBodyLength * zoomFactor
-
-        self.rebuildUI()
+            oldArrowStyleMap = self.styleAttribute.getValue().value()
+            oldArrowStyleMap["arrowLength"] = oldArrowStyleMap["arrowLength"] * zoomFactor
+            oldArrowStyleMap["arrowBodyLength"] = oldArrowStyleMap["arrowBodyLength"] * zoomFactor
+            oldArrowStyleMap["arrowBrush"] = QBrush(QColor(255, 0, 0, int(100 * zoomFactor * 1.2)))
+            self.styleAttribute.setValue(QVariant(oldArrowStyleMap))
 
     def rebuildUI(self):
-        CanvasUtil.buildArrowPath(self.attachPath, self.points, self.arrowStyle)
+        arrowStyleMap = self.styleAttribute.getValue().value()
+        self.setBrush(arrowStyleMap["arrowBrush"])
+        self.setPen(arrowStyleMap["arrowPen"])
+        CanvasUtil.buildArrowPath(self.attachPath, self.points, arrowStyleMap)
         self.setPath(self.attachPath)
 
     def showControllers(self):

@@ -1,43 +1,51 @@
 import sys, math
-from PyQt5.QtCore import QRectF
-from PyQt5.QtGui import QMouseEvent, QPaintEvent, QPainter
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QObject, QVariant
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
 from canvas_util import *
 
 class UICanvasPolygonItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.initPenStyle()
+        self.initStyle()
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        oldArrowStyleMap = self.styleAttribute.getValue().value()
+        finalPen:QPen = oldArrowStyleMap["pen"]
+
         # 计算缩放比例
         if event.delta() > 0:
-            self.penWidth = self.penWidth + 1
+            newPenWidth = finalPen.width() + 1
         else:
-            self.penWidth = max(1, self.penWidth - 1)
+            newPenWidth = max(1, finalPen.width() - 1)
 
-        self.updatePenStyle()
+        finalPen.setWidth(newPenWidth)
+
+        arrowStyleMap = {
+            "pen" : finalPen,
+        }
+
+        self.styleAttribute.setValue(QVariant(arrowStyleMap))
 
     def rebuildUI(self):
+        arrowStyleMap = self.styleAttribute.getValue().value()
+        self.setPen(arrowStyleMap["pen"])
         CanvasUtil.buildSegmentsPath(self.attachPath, self.points)
         self.setPath(self.attachPath)
 
-    def initPenStyle(self):
-        self.usePen = QPen()
-        self.penWidth = 32
-        self.penColor = QColor(255, 255, 0, 100)
-        self.updatePenStyle()
-
-    def updatePenStyle(self):
-        self.usePen.setWidth(self.penWidth)
-        self.usePen.setCosmetic(True)
-        self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-        self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
-        self.usePen.setColor(self.penColor)
-        self.setPen(self.usePen)
+    def initStyle(self):
+        initPen = QPen(QColor(255, 255, 0, 100))
+        initPen.setWidth(32)
+        initPen.setCosmetic(True)
+        initPen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        initPen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        arrowStyleMap = {
+            "pen" : initPen,
+        }
+        self.styleAttribute = CanvasAttribute()
+        self.styleAttribute.setValue(QVariant(arrowStyleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.rebuildUI)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
