@@ -1138,12 +1138,36 @@ class QPainterWidget(QPixmapWidget):
         self.actionGroup:QActionGroup = None
         self.clearDraw(True)
 
+    def showSubCommandBar(self, parent:QWidget):
+        view = CommandBarView(self)
+
+        view.addAction(Action(FluentIcon.SHARE, '分享'))
+        view.addAction(Action(FluentIcon.SAVE, '保存'))
+        view.addAction(Action(FluentIcon.DELETE, '删除'))
+
+        # view.hBoxLayout.setContentsMargins(-10, -10, -10, -10)
+        view.resizeToSuitableWidth()
+
+        # Flyout.make(view, self.imageLabel, parent, FlyoutAnimationType.FADE_IN)
+        TeachingTip.make(
+            target=parent,
+            view=view,
+            duration=-1,
+            tailPosition= TeachingTipTailPosition.TOP_RIGHT,
+            # parent=parent
+            parent=self
+        )
+
     def showCommandBar(self):
         if self.toolbar != None:
             self.toolbar.show()
             return
 
         position = TeachingTipTailPosition.TOP_RIGHT
+        # position = TeachingTipTailPosition.TOP_LEFT
+        # position = TeachingTipTailPosition.BOTTOM
+        # position = TeachingTipTailPosition.TOP
+        # position = TeachingTipTailPosition.LEFT
         view = CommandBarView(self)
         closeAction = Action(ScreenShotIcon.FINISHED, '完成绘画')
 
@@ -1186,6 +1210,8 @@ class QPainterWidget(QPixmapWidget):
             parent=self
         )
 
+        # self.showSubCommandBar(self.toolbar)
+        self.showSubCommandBar(self.toolbar)
         closeAction.triggered.connect(self.completeDraw)
 
     def completeDraw(self):

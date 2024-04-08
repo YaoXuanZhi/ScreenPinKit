@@ -12,6 +12,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
 import win32api, win32con, win32gui, ctypes, win32ui
 from PyQt5.QtWinExtras import QtWin
+from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -244,12 +245,35 @@ class CanvasEllipseItem(CanvasBaseItem):
         finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
         newFinal = QCursor(finalPixmap, -1, -1)
         self.setCursor(newFinal)
+
+    def setSvgCursor(self) -> QCursor:
+        parentItem:CanvasEditableFrame = self.parentItem()
+        if self.posType == EnumPosType.ControllerPosTT:
+            self.setCursor(self.interfaceCursor)
+            return
+        else:
+            svgRender = QSvgRenderer("../test/resources/diagonal resize 2.svg")
+            pixmap = QPixmap(128, 128)
+            pixmap.fill(Qt.GlobalColor.transparent)
+            painter = QPainter()
+            painter.begin(pixmap)
+            svgRender.render(painter)
+            painter.end()
+
+        pixmap = pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        transform = parentItem.transform()
+        transform.rotate(parentItem.rotation())
+        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+        newFinal = QCursor(finalPixmap, -1, -1)
+        self.setCursor(newFinal)
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        self.setCursor(self.interfaceCursor)
+        # self.setCursor(self.interfaceCursor)
         # self.setSystemCursor(self.interfaceCursor)
         # self.setCustomCursor()
+        self.setSvgCursor()
 
         return super().hoverEnterEvent(event)
 

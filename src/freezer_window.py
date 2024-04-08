@@ -1,5 +1,5 @@
 # coding=utf-8
-import os
+import os, math
 import win32ui, win32con
 import typing
 from enum import Enum
@@ -15,6 +15,7 @@ from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QTextEdit
 from painter_tools import QDragWindow, QPainterWidget
 from ui_canvas_text_item import UICanvasTextItem, QGraphicsContainer
+from PyQt5.QtGui import QImage, QPixmap
 
 class FreezerWindow(QDragWindow):  # 固定图片类
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
@@ -57,7 +58,11 @@ class FreezerWindow(QDragWindow):  # 固定图片类
     def saveToDisk(self):
         savePath = self.save_file_dialog()
         if savePath != None:
-            finalPixmap = self.pixmapWidget.getFinalPixmap()
+            # 保存的截图无阴影
+            # finalPixmap = self.pixmapWidget.getFinalPixmap()
+
+            # 保存带阴影的截图
+            finalPixmap = self.grab()
             finalPixmap.save(savePath, "png")
 
     def save_file_dialog(self):
@@ -94,7 +99,7 @@ class FreezerWindow(QDragWindow):  # 固定图片类
 
     # 判断窗口的鼠标是否穿透了
     def isMouseThought(self):
-        return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags();
+        return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags()
 
     def mousePressEvent(self, event):
         self.isPresse = True
@@ -137,6 +142,7 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             # i_path.addRect(ref)
             i_path.addRoundedRect(ref, self.xRadius, self.yRadius)
             color.setAlpha(150 - i**0.5*50)
+            # color.setAlpha(150 - math.sqrt(i) * 50)
             self.painter.setPen(color)
             self.painter.drawPath(i_path)
 
