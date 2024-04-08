@@ -6,10 +6,18 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent, QGraphicsSceneWheelEvent, QStyleOptionGraphicsItem, QWidget
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
+# 使用https://svgco.de/工具来将位图转换为矢量图
 
 class QDMNodeContentWidget(QSvgWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        # 设置该控件的背景透明
+        self.setStyleSheet("""
+            QSvgWidget {
+                background-color: transparent;
+            }
+        """)
 
         self.initUI()
 
@@ -18,17 +26,23 @@ class QDMNodeContentWidget(QSvgWidget):
         self.layout.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout)
 
-        # self.wdg_label = QLabel("Some Title")
-        # self.layout.addWidget(self.wdg_label)
-        # self.layout.addWidget(QTextEdit("foo"))
-
-        flag = UICanvasSvgItem.markderIndex % 3
+        # return
+        flag = UICanvasSvgItem.markderIndex % 6
         if flag == 0:
-            self.load("resources/zsh.svg")
+            self.load("resources/vertical resize.svg")
         elif flag == 1:
-            self.load("resources/circles_single.svg")
+            self.load("resources/diagonal resize_1_test.svg")
         elif flag == 2:
             self.load("resources/horizontal+resize.svg")
+        elif flag == 3:
+            self.load("resources/learnmore.svg")
+        elif flag == 4:
+            self.load("resources/open-folder.svg")
+        elif flag == 5:
+            self.load("resources/circles_single.svg")
+        else:
+            # self.load("resources/open-folder.svg")
+            self.load("resources/diagonal resize 2.svg")
 
 class UICanvasSvgItem(QGraphicsRectItem):
     markderIndex = 0
@@ -38,6 +52,8 @@ class UICanvasSvgItem(QGraphicsRectItem):
         self.setDefaultFlag()
         UICanvasSvgItem.markderIndex = self.markderIndex + 1
         self.showText = f"{self.markderIndex}"
+        # 去除边框
+        self.setPen(QPen(Qt.NoPen))
 
         self.content = QDMNodeContentWidget()
         self.initContent()
@@ -102,7 +118,9 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
-                    self.currentItem = UICanvasSvgItem(QRectF(0, 0, 20, 20))
+                    # self.currentItem = UICanvasSvgItem(QRectF(0, 0, 20, 20))
+                    # self.currentItem = UICanvasSvgItem(QRectF(0, 0, 100, 100))
+                    self.currentItem = UICanvasSvgItem(QRectF(0, 0, 300, 300))
 
                     self.scene().addItem(self.currentItem)
 
