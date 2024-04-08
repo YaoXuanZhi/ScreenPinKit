@@ -335,3 +335,39 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.setTransformOriginPoint(rect.center())
 
         self.update()
+
+class ZoomComponent(QObject):
+    '''缩放组件'''
+
+    signal = pyqtSignal(float)
+
+    def __init__(self, parent: QObject = None) -> None:
+        super().__init__(parent)
+
+        self.zoomInFactor = 1.25
+        self.zoomClamp = False # 是否限制缩放比率
+        self.zoom = 10
+        self.zoomStep = 1
+        self.zoomRange = [0, 10]
+
+    def TriggerEvent(self, angleDelta):
+        '''触发事件'''
+
+        # calculate our zoom Factor
+        zoomOutFactor = 1 / self.zoomInFactor
+
+        # calculate zoom
+        if angleDelta > 0:
+            zoomFactor = self.zoomInFactor
+            self.zoom += self.zoomStep
+        else:
+            zoomFactor = zoomOutFactor
+            self.zoom -= self.zoomStep
+
+        clamped = False
+        if self.zoom < self.zoomRange[0]: self.zoom, clamped = self.zoomRange[0], True
+        if self.zoom > self.zoomRange[1]: self.zoom, clamped = self.zoomRange[1], True
+
+        # set scene scale
+        if not clamped or self.zoomClamp is False:
+            self.signal.emit(zoomFactor)

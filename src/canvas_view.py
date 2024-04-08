@@ -1,9 +1,11 @@
 from PyQt5 import QtGui
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from canvas_item.canvas_node_item import *
 from ui_canvas_text_item import UICanvasTextItem
+from canvas_util import *
 
 class CanvasView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -11,11 +13,11 @@ class CanvasView(QGraphicsView):
         # self.setStyleSheet("""QGraphicsView { selection-background-color: rgb(255, 255, 255); }""")
         self.initUI()
 
-        self.zoomInFactor = 1.25
-        self.zoomClamp = False # 是否限制缩放比率
-        self.zoom = 10
-        self.zoomStep = 1
-        self.zoomRange = [0, 10]
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.signal.connect(self.zoomHandle)
+    
+    def zoomHandle(self, zoomFactor):
+        self.scale(zoomFactor, zoomFactor)
 
     def initUI(self):
         self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing | QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
@@ -70,25 +72,7 @@ class CanvasView(QGraphicsView):
             event.accept()
             return
 
-        # calculate our zoom Factor
-        zoomOutFactor = 1 / self.zoomInFactor
-
-        # calculate zoom
-        if event.angleDelta().y() > 0:
-            zoomFactor = self.zoomInFactor
-            self.zoom += self.zoomStep
-        else:
-            zoomFactor = zoomOutFactor
-            self.zoom -= self.zoomStep
-
-        clamped = False
-        if self.zoom < self.zoomRange[0]: self.zoom, clamped = self.zoomRange[0], True
-        if self.zoom > self.zoomRange[1]: self.zoom, clamped = self.zoomRange[1], True
-
-        # set scene scale
-        if not clamped or self.zoomClamp is False:
-            self.scale(zoomFactor, zoomFactor)
-
+        self.zoomComponent.TriggerEvent(event.angleDelta().y())
 
     def middleMouseButtonPress(self, event):
         # releaseEvent = QMouseEvent(QEvent.MouseButtonRelease, event.localPos(), event.screenPos(),
