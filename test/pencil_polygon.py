@@ -1,6 +1,7 @@
 import sys, math
 from PyQt5.QtCore import QObject, QVariant
 from PyQt5.QtGui import *
+from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from canvas_util import *
@@ -76,6 +77,41 @@ class DrawingScene(QGraphicsScene):
 
         self.addItem(rectItem)
 
+        self.pathItem = None
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        if event.button() == Qt.LeftButton:
+            if not self.views()[0].isCanDrag():
+                targetPos = event.scenePos()
+                if self.pathItem == None:
+                    self.pathItem = UICanvasPolygonItem()
+                    self.addItem(self.pathItem)
+                    self.pathItem.points = [targetPos, targetPos]
+                else:
+                    self.pathItem.points.append(targetPos)
+                    self.pathItem.rebuildUI()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.pathItem != None and not self.views()[0].isCanDrag():
+            targetPos = event.scenePos()
+            self.pathItem.points[-1] = targetPos
+            self.pathItem.rebuildUI()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton and self.pathItem != None:
+            if len(self.pathItem.points) > 2:
+                self.pathItem.points = self.pathItem.points[0:-1]
+                self.pathItem.showControllers()
+            else:
+                self.removeItem(self.pathItem)
+            self.pathItem = None
+            return
+        super().mouseReleaseEvent(event)
+
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
         super().__init__(scene, parent)
@@ -95,40 +131,12 @@ class DrawingView(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         # self.setDragMode(QGraphicsView.RubberBandDrag)
 
-        self.pathItem = None
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            if not self.isCanDrag():
-                targetPos = self.mapToScene(event.pos())
-                if self.pathItem == None:
-                    self.pathItem = UICanvasPolygonItem()
-                    self.scene().addItem(self.pathItem)
-                    self.pathItem.points = [targetPos, targetPos]
-                else:
-                    self.pathItem.points.append(targetPos)
-                    self.pathItem.rebuildUI()
-                return
-        super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if self.pathItem != None and not self.isCanDrag():
-            targetPos = self.mapToScene(event.pos())
-            self.pathItem.points[-1] = targetPos
-            self.pathItem.rebuildUI()
-            return
-        super().mouseMoveEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.RightButton and self.pathItem != None:
-            if len(self.pathItem.points) > 2:
-                self.pathItem.points = self.pathItem.points[0:-1]
-                self.pathItem.showControllers()
-            else:
-                self.scene().removeItem(self.pathItem)
-            self.pathItem = None
-            return
-        super().mouseReleaseEvent(event)
+    # def mousePressEvent(self, event: QMouseEvent) -> None:
+    #     if event.button() == Qt.LeftButton:
+    #         if not self.isCanDrag():
+    #             targetPos = self.mapToScene(event.pos())
+    #             print(f"------> view {targetPos}")
+    #     return super().mousePressEvent(event)
 
     def isCanDrag(self):
         '''判断当前是否可以拖曳图元'''
