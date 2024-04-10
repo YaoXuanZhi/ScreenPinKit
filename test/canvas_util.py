@@ -2,7 +2,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import sys, math
+import sys, math, typing
 
 class CanvasUtil:
     @staticmethod
@@ -23,6 +23,8 @@ class CanvasUtil:
                 targetPath.moveTo(point)
             else:
                 targetPath.lineTo(point)
+
+        return points
 
     @staticmethod
     def buildArrowPath(targetPath:QPainterPath, points:list, arrowStyle:map):
@@ -72,6 +74,8 @@ class CanvasUtil:
         targetPath.lineTo(arrowHeadRightPos)
         targetPath.lineTo(arrowBodyRightPos)
         targetPath.closeSubpath()
+
+        return [arrowTailPos, arrowBodyLeftPos, arrowHeadLeftPos, arrowHeadPos, arrowHeadRightPos, arrowBodyRightPos]
 
     @staticmethod
     def buildStarPath(targetPath:QPainterPath, points:list):
@@ -153,6 +157,8 @@ class CanvasUtil:
         targetPath.lineTo(G)
         targetPath.lineTo(B)
         targetPath.closeSubpath()
+
+        return [B, F, A, J, E, I, D, H, C, G, B]
 
 class CanvasROI(QGraphicsEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
@@ -349,6 +355,10 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
 
     def completeDraw(self):
         self.showControllers()
+
+    @typing.overload
+    def getEdgePoints(self) -> list:
+        return self.points
 
 class CanvasAttribute(QObject):
     valueChangedSignal = pyqtSignal(QVariant)

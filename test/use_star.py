@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from canvas_util import *
+from canvas_editable_rect import CanvasEditablePath
 
 class UICanvasStarItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
@@ -24,18 +25,30 @@ class UICanvasStarItem(UICanvasCommonPathItem):
         self.zoomComponent.TriggerEvent(event.delta())
 
     def rebuildUI(self):
-        CanvasUtil.buildStarPath(self.attachPath, self.points)
+        self.edgetPoints = CanvasUtil.buildStarPath(self.attachPath, self.points)
         self.setPath(self.attachPath)
+
+    def getEdgePoints(self) -> list:
+        return self.edgetPoints
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # 绘制矩形图元
-        rectItem = QGraphicsRectItem(QRectF(-100, -100, 100, 100))
-        rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        rectItem.setAcceptHoverEvents(True)
-        self.addItem(rectItem)
+        # # 绘制矩形图元
+        # rectItem = QGraphicsRectItem(QRectF(-100, -100, 100, 100))
+        # rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
+        # rectItem.setAcceptHoverEvents(True)
+        # self.addItem(rectItem)
+
+        # pathItem = CanvasEditablePath()
+        # targetRect = QRectF(300, 300, 150, 100)
+        # points = [targetRect.topLeft(), targetRect.topRight(), targetRect.bottomRight(), targetRect.bottomLeft()]
+        # for point in points:
+        #     pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+
+        # pathItem.addPoint(QPointF(500, 150), Qt.CursorShape.SizeAllCursor)
+        # self.addItem(pathItem)
 
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -85,6 +98,13 @@ class DrawingView(QGraphicsView):
         if event.button() == Qt.LeftButton and self.pathItem != None:
             self.pathItem.completeDraw()
             self.pathItem.setEditableState(True)
+
+            pathItem = CanvasEditablePath()
+            for point in self.pathItem.getEdgePoints():
+                pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+            self.scene().addItem(pathItem)
+
+            self.scene().removeItem(self.pathItem)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

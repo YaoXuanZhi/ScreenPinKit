@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from canvas_util import *
+from canvas_editable_rect import CanvasEditablePath
 
 class UICanvasArrowItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
@@ -43,8 +44,11 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
         arrowStyleMap = self.styleAttribute.getValue().value()
         self.setBrush(arrowStyleMap["arrowBrush"])
         self.setPen(arrowStyleMap["arrowPen"])
-        CanvasUtil.buildArrowPath(self.attachPath, self.points, arrowStyleMap)
+        self.edgePoints = CanvasUtil.buildArrowPath(self.attachPath, self.points, arrowStyleMap)
         self.setPath(self.attachPath)
+
+    def getEdgePoints(self) -> list:
+        return self.edgePoints
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -105,8 +109,15 @@ class DrawingView(QGraphicsView):
             if self.pathItem.points[0] == self.pathItem.points[-1]:
                 self.scene().removeItem(self.pathItem)
             else:
-                self.pathItem.completeDraw()
-                self.pathItem.setEditableState(True)
+                # self.pathItem.completeDraw()
+                # self.pathItem.setEditableState(True)
+
+                pathItem = CanvasEditablePath()
+                for point in self.pathItem.getEdgePoints():
+                    pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+                self.scene().addItem(pathItem)
+                self.scene().removeItem(self.pathItem)
+
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

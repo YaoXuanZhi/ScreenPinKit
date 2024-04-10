@@ -270,10 +270,10 @@ class CanvasEllipseItem(CanvasBaseItem):
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        # self.setCursor(self.interfaceCursor)
+        self.setCursor(self.interfaceCursor)
         # self.setSystemCursor(self.interfaceCursor)
         # self.setCustomCursor()
-        self.setSvgCursor()
+        # self.setSvgCursor()
 
         return super().hoverEnterEvent(event)
 
@@ -604,7 +604,7 @@ class CanvasROI(QGraphicsEllipseItem):
         painter.restore()
 
 class CanvasEditablePath(QGraphicsObject):
-    def __init__(self, parent:QGraphicsItem = None) -> None:
+    def __init__(self, parent:QGraphicsItem = None, isClosePath:bool = True) -> None:
         super().__init__(parent)
 
         self.radius = 8
@@ -615,6 +615,7 @@ class CanvasEditablePath(QGraphicsObject):
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
         self.m_instId = 0
+        self.isClosePath = isClosePath
 
         self.initUI()
 
