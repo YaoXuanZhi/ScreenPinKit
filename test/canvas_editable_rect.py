@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphic
 import win32api, win32con, win32gui, ctypes, win32ui
 from PyQt5.QtWinExtras import QtWin
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
+from canvas_util import CanvasUtil
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -612,6 +613,7 @@ class CanvasEditablePath(QGraphicsObject):
     RoiEditableMode = 1 << 0 # Roi点可编辑模式
     FrameEditableMode = 1 << 1 # 边框可编辑模式
     FocusFrameMode = 1 << 2 # 焦点框模式
+    AdvanceSelectMode = 1 << 3 # 高级选择模式
 
     def setEditMode(self, flag, isEnable:bool):
         if isEnable:
@@ -628,14 +630,18 @@ class CanvasEditablePath(QGraphicsObject):
     def isFrameEditableMode(self):
         return self.editMode | CanvasEditablePath.FrameEditableMode == self.editMode
 
+    def isAdvanceSelectMode(self):
+        return self.editMode | CanvasEditablePath.AdvanceSelectMode == self.editMode
+
     def __init__(self, parent:QGraphicsItem = None, isClosePath:bool = True) -> None:
         super().__init__(parent)
-        self.editMode = CanvasEditablePath.RoiEditableMode | CanvasEditablePath.FrameEditableMode | CanvasEditablePath.FocusFrameMode
+        self.editMode = CanvasEditablePath.RoiEditableMode | CanvasEditablePath.FrameEditableMode | CanvasEditablePath.FocusFrameMode | CanvasEditablePath.AdvanceSelectMode
 
         self.radius = 8
-        # self.roiRadius = 14
         self.m_borderWidth = 4
         self.roiRadius = self.m_borderWidth + 3
+        # self.roiRadius = 5
+        self.roiRadius = 1
 
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
@@ -725,18 +731,20 @@ class CanvasEditablePath(QGraphicsObject):
 
         # 绘制操作边框
         if self.hasFocusWrapper() and self.isFrameEditableMode():
-            painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
-            painter.drawRect(self.polygon.boundingRect())
+            if self.roiRadius > 3:
+                painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
+                painter.drawRect(self.polygon.boundingRect())
 
             painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
             rect = self.getStretchableRect()
             painter.drawRect(rect)
 
-        if self.isFocusFrameMode() or True:
-            pen = QPen(Qt.green, 1, Qt.DashLine)
-            pen.setDashPattern([10, 5])
-            painter.setPen(pen)
-            painter.drawPath(self.shapePath)
+        # 绘制路径虚线
+        # if self.isAdvanceSelectMode():
+        #     pen = QPen(Qt.green, 1, Qt.DashLine)
+        #     pen.setDashPattern([10, 5])
+        #     painter.setPen(pen)
+        #     painter.drawPath(self.shapePath)
 
         painter.restore()
 
@@ -794,8 +802,7 @@ class CanvasEditablePath(QGraphicsObject):
             startPoint = self.polygon.at(startIndex)
             endPoint = self.polygon.at(endIndex)
 
-            # offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
-            offset = self.calcOffset(startPoint, endPoint, 5)
+            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
 
             points.append(startPoint - offset)
             points.append(startPoint + offset)
@@ -813,11 +820,19 @@ class CanvasEditablePath(QGraphicsObject):
     def boundingRect(self) -> QRectF:
         self.shapePath.clear()
 
-        def appendShapePath(startIndex, endIndex, polygonPath):
-            self.shapePath.addPath(polygonPath)
-            return False
+        if self.isAdvanceSelectMode():
+            def appendShapePath(startIndex, endIndex, polygonPath):
+                self.shapePath.addPath(polygonPath)
+                return False
 
-        self.foreachPolygonSegments(appendShapePath)
+            self.foreachPolygonSegments(appendShapePath)
+        else:
+            points = []
+            for i in range(0, self.polygon.count()):
+                points.append(self.polygon.at(i))
+
+            CanvasUtil.buildSegmentsPath(self.shapePath, points, self.isClosePath)
+
         return self.shapePath.boundingRect()
 
 

@@ -105,9 +105,10 @@ class DrawingView(QGraphicsView):
 
                 # 可编辑边缘和操作点
                 pathItem = CanvasEditablePath()
-                pathItem.setEditMode(CanvasEditablePath.FrameEditableMode, False)
-                pathItem.setEditMode(CanvasEditablePath.FocusFrameMode, False)
+                # pathItem.setEditMode(CanvasEditablePath.FrameEditableMode, False)
+                # pathItem.setEditMode(CanvasEditablePath.FocusFrameMode, False)
                 pathItem.setEditMode(CanvasEditablePath.RoiEditableMode, False)
+                # pathItem.setEditMode(CanvasEditablePath.AdvanceSelectMode, False)
 
                 for point in self.pathItem.getEdgePoints():
                     pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
