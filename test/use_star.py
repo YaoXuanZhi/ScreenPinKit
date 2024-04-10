@@ -14,31 +14,14 @@ class UICanvasStarItem(UICanvasCommonPathItem):
         self.setBrush(QBrush(QColor(255, 0, 0, 100)))
         self.setPen(QPen(QColor(255, 0, 0), 2, Qt.SolidLine))
 
-        self.zoomInFactor = 1.25
-        self.zoomClamp = True # 是否限制缩放比率
-        self.zoom = 5
-        self.zoomStep = 1
-        self.zoomRange = [0, 10]
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.signal.connect(self.zoomHandle)
+
+    def zoomHandle(self, zoomFactor):
+        print(f"待实现缩放 {zoomFactor}")
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        zoomOutFactor = 1 / self.zoomInFactor
-
-        # 计算缩放比例
-        if event.delta() > 0:
-            zoomFactor = self.zoomInFactor
-            self.zoom += self.zoomStep
-        else:
-            zoomFactor = zoomOutFactor
-            self.zoom -= self.zoomStep
-
-        clamped = False
-        if self.zoom < self.zoomRange[0]: self.zoom, clamped = self.zoomRange[0], True
-        if self.zoom > self.zoomRange[1]: self.zoom, clamped = self.zoomRange[1], True
-
-        if not clamped or self.zoomClamp is False:
-            print("待实现缩放")
-
-        self.rebuildUI()
+        self.zoomComponent.TriggerEvent(event.delta())
 
     def rebuildUI(self):
         CanvasUtil.buildStarPath(self.attachPath, self.points)
@@ -100,7 +83,8 @@ class DrawingView(QGraphicsView):
             self.pathItem = None
             return
         if event.button() == Qt.LeftButton and self.pathItem != None:
-            self.pathItem.showControllers()
+            self.pathItem.completeDraw()
+            self.pathItem.setEditableState(True)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

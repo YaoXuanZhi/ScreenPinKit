@@ -1,7 +1,7 @@
 import sys, math
 from PyQt5.QtCore import QObject, QVariant
 from PyQt5.QtGui import *
-from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QFocusEvent, QMouseEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from canvas_util import *
@@ -105,7 +105,8 @@ class DrawingScene(QGraphicsScene):
         if event.button() == Qt.RightButton and self.pathItem != None:
             if len(self.pathItem.points) > 2:
                 self.pathItem.points = self.pathItem.points[0:-1]
-                self.pathItem.showControllers()
+                self.pathItem.completeDraw()
+                self.pathItem.setEditableState(True)
             else:
                 self.removeItem(self.pathItem)
             self.pathItem = None

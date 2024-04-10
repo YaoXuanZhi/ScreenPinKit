@@ -157,9 +157,10 @@ class DrawingScene(QGraphicsScene):
             # smoothCurve = SmoothCurveGenerator.buildSmoothCurve(self.points)
             # self.pathItem.setPath(smoothCurve)
             # self.points.clear()
-            smoothCurve = SmoothCurveGenerator.fitCurve(self.points)
-            self.pathItem.setPath(smoothCurve)
-            self.points.clear()
+            # smoothCurve = SmoothCurveGenerator.fitCurve(self.points)
+            # self.pathItem.setPath(smoothCurve)
+            # self.pathItem.setPath(smoothCurve)
+            # self.points.clear()
             self.pathItem = None
 
 class DrawingView(QGraphicsView):

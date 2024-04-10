@@ -255,7 +255,7 @@ class CanvasROIManager(QObject):
 class UICanvasCommonPathItem(QGraphicsPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.setDefaultFlag()
+        self.setEditableState(False)
 
         self.attachPath = QPainterPath()
         self.points = []
@@ -297,7 +297,8 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
             if len(self.points) > 0:
                 for i in range(0, len(self.points)):
                     point:QPoint = self.points[i]
-                    self.roiMgr.addPoint(point)
+                    roiItem = self.roiMgr.addPoint(point)
+                    roiItem.hide()
 
                 self.rebuildUI()
         else:
@@ -316,10 +317,12 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.hideControllers()
         return super().hoverLeaveEvent(event)
 
-    # 设置默认模式
-    def setDefaultFlag(self):
-        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsFocusable)
-        self.setAcceptHoverEvents(True)
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
         '''去掉虚线'''
@@ -343,6 +346,9 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.setTransformOriginPoint(rect.center())
 
         self.update()
+
+    def completeDraw(self):
+        self.showControllers()
 
 class CanvasAttribute(QObject):
     valueChangedSignal = pyqtSignal(QVariant)

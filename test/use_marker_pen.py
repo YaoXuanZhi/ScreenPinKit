@@ -114,8 +114,8 @@ class DrawingView(QGraphicsView):
             self.pathItem = None
             return
         elif event.button() == Qt.LeftButton and self.pathItem != None:
-            self.pathItem.showControllers()
-            self.pathItem.setFocus(Qt.FocusReason.OtherFocusReason)
+            self.pathItem.completeDraw()
+            self.pathItem.setEditableState(True)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

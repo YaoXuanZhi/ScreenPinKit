@@ -31,6 +31,14 @@ class DrawingScene(QGraphicsScene):
         self.pathItem = None
 
         self.initNodes()
+        self.itemList:list = []
+
+    def setEditableState(self, isEditable:bool):
+        # return
+        for item0 in self.itemList:
+            if issubclass(type(item0), UICanvasCommonPathItem):
+                item:UICanvasCommonPathItem = item0
+                item.setEditableState(isEditable)
 
     def initNodes(self):
         # 添加一个路径编辑器
@@ -44,13 +52,21 @@ class DrawingScene(QGraphicsScene):
         self.addItem(pathItem)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        view:DrawingView = self.views()[0]
+        pos = view.mapFromScene(event.scenePos())
+        item = view.itemAt(pos)
+        if item != None and self.pathItem != item:
+            return super().mousePressEvent(event)
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if event.button() == Qt.LeftButton:
-                if not self.views()[0].isCanDrag():
+
+                # if not self.views()[0].isCanDrag() and (not item or self.pathItem == item or not issubclass(type(item), CanvasROI)):
+                if not view.isCanDrag() and (not item or self.pathItem == item or not issubclass(type(item), CanvasROI) or issubclass(type(item), UICanvasCommonPathItem)):
                     targetPos = event.scenePos()
 
                     if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
                         if self.pathItem == None:
+                            self.setEditableState(False)
                             self.pathItem = UICanvasPolygonItem()
                             self.addItem(self.pathItem)
                             self.pathItem.points = [targetPos, targetPos]
@@ -59,6 +75,7 @@ class DrawingScene(QGraphicsScene):
                             self.pathItem.rebuildUI()
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                         if self.pathItem == None:
+                            self.setEditableState(False)
                             self.pathItem = UICanvasArrowItem()
                             self.addItem(self.pathItem)
                             self.pathItem.points = [targetPos, targetPos]
@@ -85,20 +102,25 @@ class DrawingScene(QGraphicsScene):
                 if event.button() == Qt.RightButton and self.pathItem != None:
                     if len(self.pathItem.points) > 2:
                         self.pathItem.points = self.pathItem.points[0:-1]
-                        self.pathItem.showControllers()
+                        self.pathItem.completeDraw()
+                        self.itemList.append(self.pathItem)
                     else:
                         self.removeItem(self.pathItem)
+                    self.setEditableState(True)
                     self.pathItem = None
             elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:                
                 if event.button() == Qt.RightButton and self.pathItem != None:
                     self.removeItem(self.pathItem)
+                    self.setEditableState(True)
                     self.pathItem = None
                     # return
                 elif event.button() == Qt.LeftButton and self.pathItem != None:
                     if self.pathItem.points[0] == self.pathItem.points[-1]:
                         self.removeItem(self.pathItem)
                     else:
-                        self.pathItem.showControllers()
+                        self.pathItem.completeDraw()
+                        self.itemList.append(self.pathItem)
+                    self.setEditableState(True)
                     self.pathItem = None
                     # return
             # return
@@ -137,16 +159,22 @@ class DrawingView(QGraphicsView):
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         item = self.itemAt(event.pos())
-        if item != None:
-            return
-        if(event.button() == Qt.RightButton):
-            if self.isCanDrag():
-                self.setEnabled(False)
-            else:
-                self.setDragMode(QGraphicsView.RubberBandDrag)
-        elif (event.button() == Qt.LeftButton):
-            self.setDragMode(self.dragMode() & ~QGraphicsView.RubberBandDrag)
+        if item == None:
+            if(event.button() == Qt.RightButton):
+                if self.isCanDrag():
+                    self.setEnabled(False)
+                else:
+                    self.setDragMode(QGraphicsView.RubberBandDrag)
+            elif (event.button() == Qt.LeftButton):
+                self.setDragMode(self.dragMode() & ~QGraphicsView.RubberBandDrag)
         return super().mouseDoubleClickEvent(event)
+
+
+    def switchCanvas(self):
+        if self.isCanDrag():
+            self.setDragMode(self.dragMode() & ~QGraphicsView.RubberBandDrag)
+        else:
+            self.setDragMode(QGraphicsView.RubberBandDrag)
 
 # 拖曳移动窗口类
 class QDragWindow(QLabel):
@@ -210,14 +238,20 @@ class MainWindow(QDragWindow):
             QAction("切到画板但无操作", self, triggered=self.showTest, shortcut="ctrl+t"),
             QAction("切换到铅笔", self, triggered=self.drawArrow, shortcut="ctrl+a"),
             QAction("切换到折线", self, triggered=self.usePolygon, shortcut="ctrl+b"),
+            QAction("切换视图操作", self, triggered=self.switchCanvas, shortcut="ctrl+z"),
         ]
         self.addActions(actions)
 
     def quitDraw(self):
+        print("退出绘画模式")
         self.view.setEnabled(False)
 
     def showTest(self):
+        print("开启绘画模式")
         self.view.setEnabled(True)
+
+    def switchCanvas(self):
+        self.view.switchCanvas()
 
     def drawArrow(self):
         self.scene.currentDrawActionEnum = DrawActionEnum.DrawArrow

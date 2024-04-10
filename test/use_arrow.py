@@ -105,7 +105,8 @@ class DrawingView(QGraphicsView):
             if self.pathItem.points[0] == self.pathItem.points[-1]:
                 self.scene().removeItem(self.pathItem)
             else:
-                self.pathItem.showControllers()
+                self.pathItem.completeDraw()
+                self.pathItem.setEditableState(True)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)
