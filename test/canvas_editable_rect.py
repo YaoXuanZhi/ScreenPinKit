@@ -651,8 +651,7 @@ class CanvasEditablePath(QGraphicsObject):
         self.initUI()
 
     def initUI(self):
-        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        self.setAcceptHoverEvents(True)
+        self.setEditableState(True)
 
         self.lastCursorDeque = deque()
         self.hoverCursor = Qt.SizeAllCursor
@@ -1035,3 +1034,10 @@ class CanvasEditablePath(QGraphicsObject):
     
     def endRotate(self, localPos:QPointF) -> None:
         pass
+
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)
