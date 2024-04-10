@@ -109,14 +109,8 @@ class DrawingView(QGraphicsView):
             if self.pathItem.points[0] == self.pathItem.points[-1]:
                 self.scene().removeItem(self.pathItem)
             else:
-                # self.pathItem.completeDraw()
-                # self.pathItem.setEditableState(True)
-
-                pathItem = CanvasEditablePath()
-                for point in self.pathItem.getEdgePoints():
-                    pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
-                self.scene().addItem(pathItem)
-                self.scene().removeItem(self.pathItem)
+                self.pathItem.completeDraw()
+                self.pathItem.setEditableState(True)
 
             self.pathItem = None
             return

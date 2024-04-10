@@ -6,7 +6,7 @@ import sys, math, typing
 
 class CanvasUtil:
     @staticmethod
-    def buildSegmentsPath(targetPath:QPainterPath, points:list):
+    def buildSegmentsPath(targetPath:QPainterPath, points:list, isClosePath:bool = False):
         """
         构造连续线段
 
@@ -23,6 +23,9 @@ class CanvasUtil:
                 targetPath.moveTo(point)
             else:
                 targetPath.lineTo(point)
+
+        if isClosePath:
+            targetPath.closeSubpath()
 
         return points
 
@@ -155,10 +158,10 @@ class CanvasUtil:
         targetPath.lineTo(H)
         targetPath.lineTo(C)
         targetPath.lineTo(G)
-        targetPath.lineTo(B)
+        # targetPath.moveTo(B)
         targetPath.closeSubpath()
 
-        return [B, F, A, J, E, I, D, H, C, G, B]
+        return [B, F, A, J, E, I, D, H, C, G]
 
 class CanvasROI(QGraphicsEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:

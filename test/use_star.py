@@ -7,6 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from canvas_util import *
 from canvas_editable_rect import CanvasEditablePath
+from pencil_polygon import UICanvasPolygonItem
 
 class UICanvasStarItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None) -> None:
@@ -96,15 +97,30 @@ class DrawingView(QGraphicsView):
             self.pathItem = None
             return
         if event.button() == Qt.LeftButton and self.pathItem != None:
-            self.pathItem.completeDraw()
-            self.pathItem.setEditableState(True)
+            if self.pathItem.points[0] == self.pathItem.points[-1]:
+                self.scene().removeItem(self.pathItem)
+            else:
+                self.pathItem.completeDraw()
+                self.pathItem.setEditableState(True)
 
-            pathItem = CanvasEditablePath()
-            for point in self.pathItem.getEdgePoints():
-                pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
-            self.scene().addItem(pathItem)
+                # 可编辑边缘和操作点
+                pathItem = CanvasEditablePath()
+                pathItem.setEditMode(CanvasEditablePath.FrameEditableMode, False)
+                pathItem.setEditMode(CanvasEditablePath.FocusFrameMode, False)
+                pathItem.setEditMode(CanvasEditablePath.RoiEditableMode, False)
 
-            self.scene().removeItem(self.pathItem)
+                for point in self.pathItem.getEdgePoints():
+                    pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
+                self.scene().addItem(pathItem)
+
+                # 仅编辑操作带你
+                # pathItem = UICanvasPolygonItem(None, True)
+                # pathItem.points = self.pathItem.getEdgePoints()
+                # pathItem.completeDraw()
+                # pathItem.setEditableState(True)
+                # self.scene().addItem(pathItem)
+
+                self.scene().removeItem(self.pathItem)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

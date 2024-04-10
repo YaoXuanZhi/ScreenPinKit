@@ -168,7 +168,8 @@ class CanvasEllipseItem(CanvasBaseItem):
         return cursorPixmap
 
     def setSystemCursor(self, hoverCursor) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         self.setCursor(self.interfaceCursor)
         # if self.posType == EnumPosType.ControllerPosTT:
         #     self.setCursor(self.interfaceCursor)
@@ -215,7 +216,8 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setCursor(newFinal)
 
     def setCustomCursor(self) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             self.setCursor(self.interfaceCursor)
             return
@@ -247,7 +249,8 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setCursor(newFinal)
 
     def setSvgCursor(self) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             self.setCursor(self.interfaceCursor)
             return
@@ -328,14 +331,16 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setRect(QRectF(pos, size))
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.mouseMoveRotateOperator(event.scenePos(), event.pos())
             return
         parentItem.updateEdge(self.posType, event.pos().toPoint())
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.startRotate(event.pos())
         else:
@@ -343,202 +348,203 @@ class CanvasEllipseItem(CanvasBaseItem):
         return super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.endRotate(event.pos())
         else:
             parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
-class CanvasEditableFrame(QGraphicsRectItem):
-    def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
-        super().__init__(rect, parent)
+# class CanvasEditableFrame(QGraphicsRectItem):
+#     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
+#         super().__init__(rect, parent)
 
-        self.radius = 8
-        self.m_borderWidth = 1
+#         self.radius = 8
+#         self.m_borderWidth = 1
 
-        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
-        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
+#         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
+#         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
 
-        self.initUI()
+#         self.initUI()
 
-    def initUI(self):
-        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        self.setAcceptHoverEvents(True)
+#     def initUI(self):
+#         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
+#         self.setAcceptHoverEvents(True)
 
-        self.lastCursor = None
-        self.shapePath = QPainterPath()
+#         self.lastCursor = None
+#         self.shapePath = QPainterPath()
 
-        self.m_pressPos = QPointF() # 本地坐标点击的点
+#         self.m_pressPos = QPointF() # 本地坐标点击的点
 
-    def initControllers(self):
-        if not hasattr(self, "controllers"):
-            self.controllers:list[CanvasEllipseItem] = []
+#     def initControllers(self):
+#         if not hasattr(self, "controllers"):
+#             self.controllers:list[CanvasEllipseItem] = []
 
-        rect = self.boundingRect()
-        size = QSizeF(self.radius*2, self.radius*2)
-        posTypes = [
-            [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
-            [EnumPosType.ControllerPosTC, Qt.CursorShape.SizeVerCursor], 
-            [EnumPosType.ControllerPosTR, Qt.CursorShape.SizeBDiagCursor], 
-            [EnumPosType.ControllerPosRC, Qt.CursorShape.SizeHorCursor], 
-            [EnumPosType.ControllerPosBR, Qt.CursorShape.SizeFDiagCursor], 
-            [EnumPosType.ControllerPosBC, Qt.CursorShape.SizeVerCursor], 
-            [EnumPosType.ControllerPosBL, Qt.CursorShape.SizeBDiagCursor], 
-            [EnumPosType.ControllerPosLC, Qt.CursorShape.SizeHorCursor],
-            [EnumPosType.ControllerPosTT, Qt.CursorShape.PointingHandCursor],
-            ]
+#         rect = self.boundingRect()
+#         size = QSizeF(self.radius*2, self.radius*2)
+#         posTypes = [
+#             [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
+#             [EnumPosType.ControllerPosTC, Qt.CursorShape.SizeVerCursor], 
+#             [EnumPosType.ControllerPosTR, Qt.CursorShape.SizeBDiagCursor], 
+#             [EnumPosType.ControllerPosRC, Qt.CursorShape.SizeHorCursor], 
+#             [EnumPosType.ControllerPosBR, Qt.CursorShape.SizeFDiagCursor], 
+#             [EnumPosType.ControllerPosBC, Qt.CursorShape.SizeVerCursor], 
+#             [EnumPosType.ControllerPosBL, Qt.CursorShape.SizeBDiagCursor], 
+#             [EnumPosType.ControllerPosLC, Qt.CursorShape.SizeHorCursor],
+#             [EnumPosType.ControllerPosTT, Qt.CursorShape.PointingHandCursor],
+#             ]
 
-        if len(self.controllers) == 0:
-            for info in posTypes:
-                controller = CanvasEllipseItem(info[-1], self)
-                controller.setRectWrapper(rect, info[0], self.radius, size)
-                self.controllers.append(controller)
-        else:
-            for controller in self.controllers:
-                controller.resetPosition(rect, self.radius, size)
-                if not controller.isVisible():
-                    controller.show()
+#         if len(self.controllers) == 0:
+#             for info in posTypes:
+#                 controller = CanvasEllipseItem(info[-1], self)
+#                 controller.setRectWrapper(rect, info[0], self.radius, size)
+#                 self.controllers.append(controller)
+#         else:
+#             for controller in self.controllers:
+#                 controller.resetPosition(rect, self.radius, size)
+#                 if not controller.isVisible():
+#                     controller.show()
 
-    def hideControllers(self):
-        if not hasattr(self, "controllers"):
-            return
-        for controller in self.controllers:
-            if controller.isVisible():
-                controller.hide()
+#     def hideControllers(self):
+#         if not hasattr(self, "controllers"):
+#             return
+#         for controller in self.controllers:
+#             if controller.isVisible():
+#                 controller.hide()
 
-    def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
-        p1 = QLineF(self.originPos, self.m_pressPos)
-        p2 = QLineF(self.originPos, localPos)
+#     def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
+#         p1 = QLineF(self.originPos, self.m_pressPos)
+#         p2 = QLineF(self.originPos, localPos)
 
-        dRotateAngle = p2.angleTo(p1)
+#         dRotateAngle = p2.angleTo(p1)
 
-        dCurAngle = self.rotation() + dRotateAngle
-        while dCurAngle > 360.0:
-            dCurAngle -= 360.0
-        self.setRotation(dCurAngle)
-        self.update()
+#         dCurAngle = self.rotation() + dRotateAngle
+#         while dCurAngle > 360.0:
+#             dCurAngle -= 360.0
+#         self.setRotation(dCurAngle)
+#         self.update()
 
-    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        self.lastCursor = self.cursor()
-        self.setCursor(Qt.CursorShape.SizeAllCursor)
-        return super().hoverEnterEvent(event)
+#     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+#         self.lastCursor = self.cursor()
+#         self.setCursor(Qt.CursorShape.SizeAllCursor)
+#         return super().hoverEnterEvent(event)
 
-    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        if self.lastCursor != None:
-            self.setCursor(self.lastCursor)
-            self.lastCursor = None
-        return super().hoverLeaveEvent(event)
+#     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+#         if self.lastCursor != None:
+#             self.setCursor(self.lastCursor)
+#             self.lastCursor = None
+#         return super().hoverLeaveEvent(event)
 
-    def updateEdge(self, currentPosType, localPos:QPoint):
-        offset = self.m_borderWidth / 2
-        lastRect = self.rect()
-        newRect = lastRect.adjusted(0, 0, 0, 0)
-        if currentPosType == EnumPosType.ControllerPosTL:
-            localPos += QPoint(-offset, -offset)
-            newRect.setTopLeft(localPos)
-        elif currentPosType == EnumPosType.ControllerPosTC:
-            localPos += QPoint(0, -offset)
-            newRect.setTop(localPos.y())
-        elif currentPosType == EnumPosType.ControllerPosTR:
-            localPos += QPoint(offset, -offset)
-            newRect.setTopRight(localPos)
-        elif currentPosType == EnumPosType.ControllerPosRC:
-            localPos += QPoint(offset, 0)
-            newRect.setRight(localPos.x())
-        elif currentPosType == EnumPosType.ControllerPosBR:
-            localPos += QPoint(offset, offset)
-            newRect.setBottomRight(localPos)
-        elif currentPosType == EnumPosType.ControllerPosBC:
-            localPos += QPoint(0, offset)
-            newRect.setBottom(localPos.y())
-        elif currentPosType == EnumPosType.ControllerPosBL:
-            localPos += QPoint(-offset, offset)
-            newRect.setBottomLeft(localPos)
-        elif currentPosType == EnumPosType.ControllerPosLC:
-            localPos = localPos - QPoint(offset, offset)
-            newRect.setLeft(localPos.x())
+#     def updateEdge(self, currentPosType, localPos:QPoint):
+#         offset = self.m_borderWidth / 2
+#         lastRect = self.rect()
+#         newRect = lastRect.adjusted(0, 0, 0, 0)
+#         if currentPosType == EnumPosType.ControllerPosTL:
+#             localPos += QPoint(-offset, -offset)
+#             newRect.setTopLeft(localPos)
+#         elif currentPosType == EnumPosType.ControllerPosTC:
+#             localPos += QPoint(0, -offset)
+#             newRect.setTop(localPos.y())
+#         elif currentPosType == EnumPosType.ControllerPosTR:
+#             localPos += QPoint(offset, -offset)
+#             newRect.setTopRight(localPos)
+#         elif currentPosType == EnumPosType.ControllerPosRC:
+#             localPos += QPoint(offset, 0)
+#             newRect.setRight(localPos.x())
+#         elif currentPosType == EnumPosType.ControllerPosBR:
+#             localPos += QPoint(offset, offset)
+#             newRect.setBottomRight(localPos)
+#         elif currentPosType == EnumPosType.ControllerPosBC:
+#             localPos += QPoint(0, offset)
+#             newRect.setBottom(localPos.y())
+#         elif currentPosType == EnumPosType.ControllerPosBL:
+#             localPos += QPoint(-offset, offset)
+#             newRect.setBottomLeft(localPos)
+#         elif currentPosType == EnumPosType.ControllerPosLC:
+#             localPos = localPos - QPoint(offset, offset)
+#             newRect.setLeft(localPos.x())
 
-        self.setRect(newRect)
+#         self.setRect(newRect)
 
-    def hasFocusWrapper(self):
-        # if self.hasFocus() or self.isSelected():
-        if self.hasFocus():
-            return True
-        else:
-            if hasattr(self, 'controllers'):
-                for controller in self.controllers:
-                    if controller.hasFocus():
-                        return True
-        return False
+#     def hasFocusWrapper(self):
+#         # if self.hasFocus() or self.isSelected():
+#         if self.hasFocus():
+#             return True
+#         else:
+#             if hasattr(self, 'controllers'):
+#                 for controller in self.controllers:
+#                     if controller.hasFocus():
+#                         return True
+#         return False
 
-    # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
-    def shape(self) -> QPainterPath:
-        self.shapePath.clear()
-        if self.hasFocusWrapper():
-            region = QRegion()
-            rects = [self.boundingRect().toRect()]
-            if hasattr(self, 'controllers'):
-                for controller in self.controllers:
-                    rects.append(controller.boundingRect().toRect())
-            region.setRects(rects)
-            self.shapePath.addRegion(region)
-        else:
-            fullRect = self.boundingRect()
-            selectRegion = QRegion(fullRect.toRect())
-            offset = self.m_borderWidth
-            subRect:QRectF = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
-            finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
-            self.shapePath.addRegion(finalRegion)
-        return self.shapePath
+#     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
+#     def shape(self) -> QPainterPath:
+#         self.shapePath.clear()
+#         if self.hasFocusWrapper():
+#             region = QRegion()
+#             rects = [self.boundingRect().toRect()]
+#             if hasattr(self, 'controllers'):
+#                 for controller in self.controllers:
+#                     rects.append(controller.boundingRect().toRect())
+#             region.setRects(rects)
+#             self.shapePath.addRegion(region)
+#         else:
+#             fullRect = self.boundingRect()
+#             selectRegion = QRegion(fullRect.toRect())
+#             offset = self.m_borderWidth
+#             subRect:QRectF = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
+#             finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
+#             self.shapePath.addRegion(finalRegion)
+#         return self.shapePath
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
-        painter.save()
+#     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+#         painter.save()
 
-        boundingRect = self.rect()
-        boundingColor = QColor(0, 0, 125)
+#         boundingRect = self.rect()
+#         boundingColor = QColor(0, 0, 125)
 
-        # painter.setPen(boundingColor)
-        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
-        painter.drawRect(boundingRect)
-        painter.setPen(Qt.white)
+#         # painter.setPen(boundingColor)
+#         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
+#         painter.drawRect(boundingRect)
+#         painter.setPen(Qt.white)
 
-        painter.restore()
+#         painter.restore()
 
-        if self.hasFocusWrapper():
-            self.initControllers()
-        else:
-            self.hideControllers()
+#         if self.hasFocusWrapper():
+#             self.initControllers()
+#         else:
+#             self.hideControllers()
 
-    def startResize(self, localPos:QPointF) -> None:
-        pass
+#     def startResize(self, localPos:QPointF) -> None:
+#         pass
 
-    def endResize(self, localPos:QPointF) -> None:
-        # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
-        rect = self.rect()
-        angle = math.radians(self.rotation())
+#     def endResize(self, localPos:QPointF) -> None:
+#         # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
+#         rect = self.rect()
+#         angle = math.radians(self.rotation())
 
-        p1 = rect.center()
-        origin = self.transformOriginPoint()
-        p2 = QPointF(0, 0)
+#         p1 = rect.center()
+#         origin = self.transformOriginPoint()
+#         p2 = QPointF(0, 0)
 
-        p2.setX(origin.x() + math.cos(angle)*(p1.x() - origin.x()) - math.sin(angle)*(p1.y() - origin.y()))
-        p2.setY(origin.y() + math.sin(angle)*(p1.x() - origin.x()) + math.cos(angle)*(p1.y() - origin.y()))
+#         p2.setX(origin.x() + math.cos(angle)*(p1.x() - origin.x()) - math.sin(angle)*(p1.y() - origin.y()))
+#         p2.setY(origin.y() + math.sin(angle)*(p1.x() - origin.x()) + math.cos(angle)*(p1.y() - origin.y()))
 
-        diff:QPointF = p1 - p2
+#         diff:QPointF = p1 - p2
 
-        self.setRect(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
-        self.setTransformOriginPoint(p1-diff)
+#         self.setRect(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
+#         self.setTransformOriginPoint(p1-diff)
 
-        self.initControllers()
+#         self.initControllers()
 
-    def startRotate(self, localPos:QPointF) -> None:
-        self.originPos = self.boundingRect().center()
-        self.setTransformOriginPoint(self.originPos)
-        self.m_pressPos = localPos
+#     def startRotate(self, localPos:QPointF) -> None:
+#         self.originPos = self.boundingRect().center()
+#         self.setTransformOriginPoint(self.originPos)
+#         self.m_pressPos = localPos
     
-    def endRotate(self, localPos:QPointF) -> None:
-        pass
+#     def endRotate(self, localPos:QPointF) -> None:
+#         pass
 
 # class CanvasROI(CanvasBaseItem):
 class CanvasROI(QGraphicsEllipseItem):
@@ -560,7 +566,8 @@ class CanvasROI(QGraphicsEllipseItem):
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         self.isMoving = False
-        parentItem:CanvasEditableFrame = self.parentItem()
+        # parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
@@ -591,8 +598,6 @@ class CanvasROI(QGraphicsEllipseItem):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         super().paint(painter, option, widget)
         parentItem:CanvasEditablePath = self.parentItem()
-        # if not hasattr(parentItem, "canRoiItemEditable") or not parentItem.canRoiItemEditable:
-        #     return
 
         painter.save()
         painter.setPen(Qt.white)
@@ -604,8 +609,28 @@ class CanvasROI(QGraphicsEllipseItem):
         painter.restore()
 
 class CanvasEditablePath(QGraphicsObject):
+    RoiEditableMode = 1 << 0 # Roi点可编辑模式
+    FrameEditableMode = 1 << 1 # 边框可编辑模式
+    FocusFrameMode = 1 << 2 # 焦点框模式
+
+    def setEditMode(self, flag, isEnable:bool):
+        if isEnable:
+            self.editMode = self.editMode | flag
+        else:
+            self.editMode = self.editMode &~ flag
+
+    def isFocusFrameMode(self):
+        return self.editMode | CanvasEditablePath.FocusFrameMode == self.editMode
+
+    def isRoiEditableMode(self):
+        return self.editMode | CanvasEditablePath.RoiEditableMode == self.editMode
+
+    def isFrameEditableMode(self):
+        return self.editMode | CanvasEditablePath.FrameEditableMode == self.editMode
+
     def __init__(self, parent:QGraphicsItem = None, isClosePath:bool = True) -> None:
         super().__init__(parent)
+        self.editMode = CanvasEditablePath.RoiEditableMode | CanvasEditablePath.FrameEditableMode | CanvasEditablePath.FocusFrameMode
 
         self.radius = 8
         # self.roiRadius = 14
@@ -619,14 +644,10 @@ class CanvasEditablePath(QGraphicsObject):
 
         self.initUI()
 
-    def setRoiItemEditable(self, canEditable:bool):
-        self.canRoiItemEditable = canEditable
-
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         self.setAcceptHoverEvents(True)
 
-        self.canRoiItemEditable = True
         self.lastCursorDeque = deque()
         self.hoverCursor = Qt.SizeAllCursor
 
@@ -639,15 +660,15 @@ class CanvasEditablePath(QGraphicsObject):
         id = self.m_instId
         self.polygon.append(point)
 
-        if self.canRoiItemEditable:
-            roiItem = CanvasROI(cursor, id, self)
-            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-            rect.moveCenter(point)
-            roiItem.setRect(rect)
+        roiItem = CanvasROI(cursor, id, self)
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+        rect.moveCenter(point)
+        roiItem.setRect(rect)
 
-            self.roiItemList.append(roiItem)
-            return roiItem
-        return None
+        self.roiItemList.append(roiItem)
+        if not self.isRoiEditableMode():
+            roiItem.hide()
+        return roiItem
 
     def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
         self.m_instId += 1
@@ -664,7 +685,7 @@ class CanvasEditablePath(QGraphicsObject):
         return roiItem
 
     def removePoint(self, roiItem:CanvasROI):
-        if not self.canRoiItemEditable:
+        if not self.isRoiEditableMode():
             return
 
         # 如果是移除最后一个操作点，说明该路径将被移除
@@ -699,11 +720,11 @@ class CanvasEditablePath(QGraphicsObject):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
-        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.canRoiItemEditable else self.m_penSelected)
+        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.isFocusFrameMode() else self.m_penSelected)
         painter.drawPolygon(self.polygon)
 
         # 绘制操作边框
-        if self.hasFocusWrapper() and self.canRoiItemEditable:
+        if self.hasFocusWrapper() and self.isFrameEditableMode():
             painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
             painter.drawRect(self.polygon.boundingRect())
 
@@ -711,7 +732,7 @@ class CanvasEditablePath(QGraphicsObject):
             rect = self.getStretchableRect()
             painter.drawRect(rect)
 
-        if self.canRoiItemEditable or True:
+        if self.isFocusFrameMode() or True:
             pen = QPen(Qt.green, 1, Qt.DashLine)
             pen.setDashPattern([10, 5])
             painter.setPen(pen)
@@ -719,10 +740,11 @@ class CanvasEditablePath(QGraphicsObject):
 
         painter.restore()
 
-        if self.hasFocusWrapper():
-            self.initControllers()
-        else:
-            self.hideControllers()
+        if self.isFrameEditableMode():
+            if self.hasFocusWrapper():
+                self.initControllers()
+            else:
+                self.hideControllers()
 
     def hasFocusWrapper(self):
         # if self.hasFocus() or self.isSelected():
@@ -749,7 +771,7 @@ class CanvasEditablePath(QGraphicsObject):
 
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
-        if self.hasFocusWrapper() and self.canRoiItemEditable:
+        if self.hasFocusWrapper() and self.isFrameEditableMode():
             selectPath = QPainterPath()
             region = QRegion()
             rects = [self.boundingRect().toRect()]
@@ -823,7 +845,7 @@ class CanvasEditablePath(QGraphicsObject):
         return super().mouseDoubleClickEvent(event)
 
     def initControllers(self):
-        if not self.canRoiItemEditable:
+        if not self.isFrameEditableMode():
             return
 
         if not hasattr(self, "controllers"):

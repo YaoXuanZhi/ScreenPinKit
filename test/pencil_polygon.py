@@ -7,9 +7,10 @@ from PyQt5.QtCore import *
 from canvas_util import *
 
 class UICanvasPolygonItem(UICanvasCommonPathItem):
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, parent: QWidget = None, isClosePath:bool = False) -> None:
         super().__init__(parent)
         self.initStyle()
+        self.isClosePath = isClosePath
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         oldArrowStyleMap = self.styleAttribute.getValue().value()
@@ -32,7 +33,7 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
     def rebuildUI(self):
         arrowStyleMap = self.styleAttribute.getValue().value()
         self.setPen(arrowStyleMap["pen"])
-        CanvasUtil.buildSegmentsPath(self.attachPath, self.points)
+        CanvasUtil.buildSegmentsPath(self.attachPath, self.points, self.isClosePath)
         self.setPath(self.attachPath)
 
     def initStyle(self):
