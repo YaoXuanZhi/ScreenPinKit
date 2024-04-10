@@ -200,6 +200,82 @@ class CanvasUtil:
         return points
 
     @staticmethod
+    def calcOffset(startPoint:QPointF, endPoint:QPointF, dbRadious:float) -> QPointF:
+        '''计算线段法向量，并且将其长度设为圆的半径，计算它们的偏移量'''
+        v = QLineF(startPoint, endPoint)
+        n = v.normalVector()
+        n.setLength(dbRadious)
+        return n.p1() - n.p2()
+
+    @staticmethod
+    def foreachPolygonSegments(points:list, roiRadius:float, callback:callable):
+        if len(points) < 2:
+            return
+        for i in range(0, len(points)):
+            points = []
+            polygonPath = QPainterPath()
+            startIndex = i
+            endIndex = i + 1
+            endIndex %= len(points)
+            startPoint = points[startIndex]
+            endPoint = points[endIndex]
+
+            offset = CanvasUtil.calcOffset(startPoint, endPoint, roiRadius)
+
+            points.append(startPoint - offset)
+            points.append(startPoint + offset)
+            points.append(endPoint + offset)
+            points.append(endPoint - offset)
+
+            polygonPath.addPolygon(QPolygonF(points))
+            polygonPath.closeSubpath()
+            if callback(startIndex, endIndex, polygonPath):
+                break
+
+            if len(points) < 3:
+                break
+
+    @staticmethod
+    def buildSegmentsRectPath(targetPath:QPainterPath, targetPoints:list, isClosePath:bool = False):
+        """
+        构造连续矩形线段
+
+        Parameters:
+        targetPath: 目标路径
+        points: 记录点
+        """
+
+        targetPath.clear()
+
+        roiRadius = 4
+
+        for i in range(0, len(targetPoints)):
+            points = []
+            polygonPath = QPainterPath()
+            startIndex = i
+            endIndex = i + 1
+            endIndex %= len(targetPoints)
+            startPoint = targetPoints[startIndex]
+            endPoint = targetPoints[endIndex]
+
+            offset = CanvasUtil.calcOffset(startPoint, endPoint, roiRadius)
+
+            points.append(startPoint - offset)
+            points.append(startPoint + offset)
+            points.append(endPoint + offset)
+            points.append(endPoint - offset)
+
+            polygonPath.addPolygon(QPolygonF(points))
+            polygonPath.closeSubpath()
+
+            targetPath.addPath(polygonPath)
+
+            if len(points) < 3:
+                break
+
+        return targetPoints
+
+    @staticmethod
     def buildArrowPath(targetPath:QPainterPath, points:list, arrowStyle:map):
         """
         构造箭头
@@ -334,11 +410,13 @@ class CanvasUtil:
         return [B, F, A, J, E, I, D, H, C, G]
 
 class CanvasROI(QGraphicsEllipseItem):
+# class CanvasROI(CanvasEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
         self.hoverCursor = hoverCursor
         self.id = id
         self.initUI()
+        self.isMoving = False
 
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
@@ -349,15 +427,21 @@ class CanvasROI(QGraphicsEllipseItem):
         # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         return super().paint(painter, option, widget)
 
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.isMoving = True
+        return super().mousePressEvent(event)
+
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.isMoving = False
         parentItem:UICanvasCommonPathItem = self.parentItem()
         parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:UICanvasCommonPathItem = self.parentItem()
-        localPos = self.mapToItem(parentItem, self.rect().center())
-        parentItem.roiMgr.movePointById(self, localPos)
+        if self.isMoving:
+            parentItem:UICanvasCommonPathItem = self.parentItem()
+            localPos = self.mapToItem(parentItem, self.rect().center())
+            parentItem.roiMgr.movePointById(self, localPos)
         super().mouseMoveEvent(event)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -596,6 +680,7 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
             selectPath = QPainterPath()
             region = QRegion()
             rects = [self.boundingRect().toRect()]
+            # rects = [self.attachPath.boundingRect().toRect()]
             for value in self.roiMgr.roiItemList:
                 roiItem:CanvasROI = value
                 rects.append(roiItem.boundingRect().toRect())
@@ -605,48 +690,11 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
 
         return self.attachPath
 
-    def calcOffset(self, startPoint:QPointF, endPoint:QPointF, dbRadious:float) -> QPointF:
-        '''计算线段法向量，并且将其长度设为圆的半径，计算它们的偏移量'''
-        v = QLineF(startPoint, endPoint)
-        n = v.normalVector()
-        n.setLength(dbRadious)
-        return n.p1() - n.p2()
-
-    def foreachPolygonSegments(self, callback:callable):
-        # for i in range(0, self.polygon.count()):
-        for i in range(0, len(self.points)):
-            points = []
-            polygonPath = QPainterPath()
-            startIndex = i
-            endIndex = i + 1
-            endIndex %= len(self.points)
-            startPoint = self.points[startIndex]
-            endPoint = self.points[endIndex]
-
-            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
-
-            points.append(startPoint - offset)
-            points.append(startPoint + offset)
-            points.append(endPoint + offset)
-            points.append(endPoint - offset)
-
-            polygonPath.addPolygon(QPolygonF(points))
-            polygonPath.closeSubpath()
-            if callback(startIndex, endIndex, polygonPath):
-                break
-
-            if len(self.points) < 3:
-                break
-
     def boundingRect(self) -> QRectF:
         self.attachPath.clear()
 
         if self.isAdvanceSelectMode():
-            def appendShapePath(startIndex, endIndex, polygonPath):
-                self.attachPath.addPath(polygonPath)
-                return False
-
-            self.foreachPolygonSegments(appendShapePath)
+            CanvasUtil.buildSegmentsRectPath(self.attachPath, self.points, self.isClosePath)
         else:
             points = []
             for i in range(0, len(self.points)):
@@ -656,42 +704,24 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
 
         return self.attachPath.boundingRect()
 
-    # def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
-    #     '''去掉虚线'''
-    #     option.state = option.state & ~QStyle.StateFlag.State_Selected
-    #     # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
-
-    #     if self.isFrameEditableMode():
-    #         if self.hasFocusWrapper():
-    #             self.initControllers()
-    #         else:
-    #             self.hideControllers()
-                
-    #     return super().paint(painter, option, widget)
-
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.isFocusFrameMode() else self.m_penSelected)
-        finalPolygon = QPolygonF(self.points)
-        painter.drawPolygon(finalPolygon)
+
+        shapePath = QPainterPath()
+        CanvasUtil.buildSegmentsPath(shapePath, self.points, self.isClosePath)
+        painter.drawPath(shapePath)
 
         # 绘制操作边框
         if self.hasFocusWrapper() and self.isFrameEditableMode():
             if self.roiRadius > 3:
                 painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
-                painter.drawRect(finalPolygon.boundingRect())
+                painter.drawRect(self.attachPath.boundingRect())
 
             painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
             rect = self.getStretchableRect()
             painter.drawRect(rect)
-
-        # 绘制路径虚线
-        # if self.isAdvanceSelectMode():
-        #     pen = QPen(Qt.green, 1, Qt.DashLine)
-        #     pen.setDashPattern([10, 5])
-        #     painter.setPen(pen)
-        #     painter.drawPath(self.shapePath)
 
         painter.restore()
 
@@ -705,6 +735,7 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         offset = -self.roiRadius
         finalPolygon = QPolygonF(self.points)
         lastRect = finalPolygon.boundingRect().toRect()
+        # lastRect = self.attachPath.toFillPolygon().boundingRect().toRect()
         newRect = lastRect.adjusted(0, 0, 0, 0)
         if currentPosType == EnumPosType.ControllerPosTL:
             localPos += QPoint(-offset, -offset)
@@ -734,8 +765,8 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         xScale = newRect.width() / max(lastRect.width(), 1)
         yScale = newRect.height() / max(lastRect.height(), 1)
 
-        for i in range(0, finalPolygon.count()):
-            oldPos = finalPolygon.at(i)
+        for i in range(0, len(self.points)):
+            oldPos = self.points[i]
 
             if currentPosType == EnumPosType.ControllerPosTC:
                 yPos = oldPos.y() - abs(oldPos.y() - lastRect.bottomRight().y()) * (yScale - 1)
@@ -771,7 +802,6 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
             rect.moveCenter(self.mapToItem(roiItem, newPos))
             roiItem.setRect(rect)
 
-            finalPolygon.replace(i, newPos)
             self.points[i] = newPos
 
         self.update()
