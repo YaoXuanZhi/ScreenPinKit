@@ -61,26 +61,6 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
         CanvasUtil.buildArrowPath(self.attachPath, self.points, arrowStyleMap)
         self.setPath(self.attachPath)
 
-    def showControllers(self):
-        '''生成操作点'''
-
-        for i in range(0, len(self.points)):
-            point:QPoint = self.points[i]
-            self.roiMgr.addPoint(point)
-
-        self.isShowController = True
-        self.rebuildUI()
-
-    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        for roiItem in self.roiMgr.roiItemList:
-            roiItem.show()
-        return super().hoverEnterEvent(event)
-
-    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        for roiItem in self.roiMgr.roiItemList:
-            roiItem.hide()
-        return super().hoverLeaveEvent(event)
-
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -137,7 +117,10 @@ class DrawingView(QGraphicsView):
             self.pathItem = None
             return
         elif event.button() == Qt.LeftButton and self.pathItem != None:
-            self.pathItem.showControllers()
+            if self.pathItem.points[0] == self.pathItem.points[-1]:
+                self.scene().removeItem(self.pathItem)
+            else:
+                self.pathItem.showControllers()
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

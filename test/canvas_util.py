@@ -249,6 +249,9 @@ class CanvasROIManager(QObject):
         index = self.roiItemList.index(roiItem)
         self.moveROIAfterSignal.emit(index, localPos)
 
+    def roiItemCount(self):
+        return len(self.roiItemList)
+
 class UICanvasCommonPathItem(QGraphicsPathItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
@@ -290,20 +293,27 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
     def showControllers(self):
         '''生成操作点'''
 
-        for i in range(0, len(self.points)):
-            point:QPoint = self.points[i]
-            self.roiMgr.addPoint(point)
+        if self.roiMgr.roiItemCount() == 0:
+            if len(self.points) > 0:
+                for i in range(0, len(self.points)):
+                    point:QPoint = self.points[i]
+                    self.roiMgr.addPoint(point)
 
-        self.rebuildUI()
+                self.rebuildUI()
+        else:
+            for roiItem in self.roiMgr.roiItemList:
+                roiItem.show()
+
+    def hideControllers(self):
+        for roiItem in self.roiMgr.roiItemList:
+            roiItem.hide()
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        for roiItem in self.roiMgr.roiItemList:
-            roiItem.show()
+        self.showControllers()
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        for roiItem in self.roiMgr.roiItemList:
-            roiItem.hide()
+        self.hideControllers()
         return super().hoverLeaveEvent(event)
 
     # 设置默认模式
