@@ -208,37 +208,12 @@ class CanvasUtil:
         return n.p1() - n.p2()
 
     @staticmethod
-    def foreachPolygonSegments(points:list, roiRadius:float, callback:callable):
-        if len(points) < 2:
-            return
-        for i in range(0, len(points)):
-            points = []
-            polygonPath = QPainterPath()
-            startIndex = i
-            endIndex = i + 1
-            endIndex %= len(points)
-            startPoint = points[startIndex]
-            endPoint = points[endIndex]
-
-            offset = CanvasUtil.calcOffset(startPoint, endPoint, roiRadius)
-
-            points.append(startPoint - offset)
-            points.append(startPoint + offset)
-            points.append(endPoint + offset)
-            points.append(endPoint - offset)
-
-            polygonPath.addPolygon(QPolygonF(points))
-            polygonPath.closeSubpath()
-            if callback(startIndex, endIndex, polygonPath):
-                break
-
-            if len(points) < 3:
-                break
-
-    @staticmethod
-    def buildSegmentsRectPath(targetPath:QPainterPath, targetPoints:list, isClosePath:bool = False):
+    def buildSegmentsRectPath(targetPath:QPainterPath, targetPoints:list, offsetLength:int, isClosePath:bool = False):
         """
         构造连续矩形线段
+
+        Note:
+        将相邻两点加上线条宽度构成的连续矩形合并成一个pathItem
 
         Parameters:
         targetPath: 目标路径
@@ -247,27 +222,27 @@ class CanvasUtil:
 
         targetPath.clear()
 
-        roiRadius = 4
-
         for i in range(0, len(targetPoints)):
             points = []
-            polygonPath = QPainterPath()
             startIndex = i
             endIndex = i + 1
             endIndex %= len(targetPoints)
             startPoint = targetPoints[startIndex]
             endPoint = targetPoints[endIndex]
 
-            offset = CanvasUtil.calcOffset(startPoint, endPoint, roiRadius)
+            if not isClosePath and endIndex == 0: 
+                break
+
+            offset = CanvasUtil.calcOffset(startPoint, endPoint, offsetLength)
 
             points.append(startPoint - offset)
             points.append(startPoint + offset)
             points.append(endPoint + offset)
             points.append(endPoint - offset)
 
+            polygonPath = QPainterPath()
             polygonPath.addPolygon(QPolygonF(points))
             polygonPath.closeSubpath()
-
             targetPath.addPath(polygonPath)
 
             if len(points) < 3:
@@ -410,13 +385,15 @@ class CanvasUtil:
         return [B, F, A, J, E, I, D, H, C, G]
 
 class CanvasROI(QGraphicsEllipseItem):
-# class CanvasROI(CanvasEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
         self.hoverCursor = hoverCursor
         self.id = id
         self.initUI()
         self.isMoving = False
+        self.setBrush(Qt.GlobalColor.white)
+        self.setPen(QPen(Qt.NoPen))
+        self.parent = parent
 
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
@@ -429,6 +406,8 @@ class CanvasROI(QGraphicsEllipseItem):
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         self.isMoving = True
+        if not self.parent.hasFocus():
+            self.parent.setFocus(Qt.FocusReason.OtherFocusReason)
         return super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -516,6 +495,13 @@ class CanvasROIManager(QObject):
         return len(self.roiItemList)
 
 class UICanvasCommonPathItem(QGraphicsPathItem):
+    '''
+    绘图工具-通用Path图元
+
+    Note:
+    该图元为PathItem新增了交互式编辑行为
+    '''
+
     RoiEditableMode = 1 << 0 # Roi点可编辑模式
     FrameEditableMode = 1 << 1 # 边框可编辑模式
     FocusFrameMode = 1 << 2 # 焦点框模式
@@ -539,11 +525,14 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
     def isAdvanceSelectMode(self):
         return self.editMode | UICanvasCommonPathItem.AdvanceSelectMode == self.editMode
 
+    def __initEditMode(self):
+        self.editMode = UICanvasCommonPathItem.RoiEditableMode | UICanvasCommonPathItem.FrameEditableMode | UICanvasCommonPathItem.FocusFrameMode | UICanvasCommonPathItem.AdvanceSelectMode
+
     def __init__(self, parent: QWidget = None, isClosePath:bool = False) -> None:
         super().__init__(parent)
+        self.__initEditMode()
         self.isClosePath = isClosePath
         self.setEditableState(False)
-        self.editMode = UICanvasCommonPathItem.RoiEditableMode | UICanvasCommonPathItem.FrameEditableMode | UICanvasCommonPathItem.FocusFrameMode | UICanvasCommonPathItem.AdvanceSelectMode
 
         self.attachPath = QPainterPath()
         self.points = []
@@ -553,12 +542,14 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.roiMgr.removeROIAfterSignal.connect(self.removeROIAfterCallback)
         self.roiMgr.moveROIAfterSignal.connect(self.moveROIAfterCallback)
 
-        self.roiRadius = 1
+        # self.roiRadius = 1
         self.radius = 8
 
-        self.m_borderWidth = 4
+        self.m_borderWidth = 1
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
+
+        self.devicePixelRatio = 1
 
     def removeROIAfterCallback(self, index:int):
         self.points.remove(self.points[index])
@@ -567,23 +558,19 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
     def moveROIAfterCallback(self, index:int, localPos:QPointF):
         self.prepareGeometryChange()
         self.points[index] = localPos
-        self.rebuildUI()
+        self.update()
 
-    def rebuildUI(self):
-        """
-        重建UI
+    def getOffsetLength(self) -> int:
+        # 在分段构造的时候，需要传入一个偏移长度
+        return self.radius
 
-        Raises:
-        NotImplementedError: 子类需要重写该函数
-
-        Examples:
-        ```python
-        # 构造连续线段
-        CanvasUtil.buildSegmentsPath(self.path, self.points)
-        self.setPath(self.path)
-        ```
-        """
-        raise NotImplementedError("子类需要重写该函数")
+    def buildShapePath(self, targetPath:QPainterPath, targetPoints:list, isClosePath:bool):
+        '''构造形状路径'''
+        # 封闭曲线没必要针对每段进行细分模拟
+        if self.isAdvanceSelectMode() and not self.isClosePath:
+            CanvasUtil.buildSegmentsRectPath(targetPath, targetPoints, self.getOffsetLength(), isClosePath)
+        else:
+            CanvasUtil.buildSegmentsPath(targetPath, targetPoints, isClosePath)
 
     def showRoiItems(self):
         '''生成操作点'''
@@ -595,10 +582,11 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
                     roiItem = self.roiMgr.addPoint(point)
                     roiItem.hide()
 
-                self.rebuildUI()
+                self.update()
         else:
-            for roiItem in self.roiMgr.roiItemList:
-                roiItem.show()
+            if self.isRoiEditableMode():
+                for roiItem in self.roiMgr.roiItemList:
+                    roiItem.show()
 
     def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
         p1 = QLineF(self.originPos, self.m_pressPos)
@@ -613,7 +601,9 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         self.update()
 
     def getStretchableRect(self) -> QRect:
-        return QPolygonF(self.points).boundingRect() + QMarginsF(self.roiRadius, self.roiRadius, self.roiRadius, self.roiRadius)
+        # return QPolygonF(self.points).boundingRect() + QMarginsF(self.roiRadius, self.roiRadius, self.roiRadius, self.roiRadius)
+        # return self.attachPath.boundingRect() + QMarginsF(self.roiRadius, self.roiRadius, self.roiRadius, self.roiRadius)
+        return self.attachPath.boundingRect() + QMarginsF(self.radius, self.radius, self.radius, self.radius)
 
     def initControllers(self):
         if not self.isFrameEditableMode():
@@ -679,8 +669,7 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
         if self.hasFocusWrapper() and self.isFrameEditableMode():
             selectPath = QPainterPath()
             region = QRegion()
-            rects = [self.boundingRect().toRect()]
-            # rects = [self.attachPath.boundingRect().toRect()]
+            rects = [self.attachPath.boundingRect().toRect()]
             for value in self.roiMgr.roiItemList:
                 roiItem:CanvasROI = value
                 rects.append(roiItem.boundingRect().toRect())
@@ -693,29 +682,26 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
     def boundingRect(self) -> QRectF:
         self.attachPath.clear()
 
-        if self.isAdvanceSelectMode():
-            CanvasUtil.buildSegmentsRectPath(self.attachPath, self.points, self.isClosePath)
-        else:
-            points = []
-            for i in range(0, len(self.points)):
-                points.append(self.points[i])
-
-            CanvasUtil.buildSegmentsPath(self.attachPath, points, self.isClosePath)
+        self.buildShapePath(self.attachPath, self.points, self.isClosePath)
 
         return self.attachPath.boundingRect()
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
-        painter.save()
-
+    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        # 绘制路径
         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.isFocusFrameMode() else self.m_penSelected)
+        painter.drawPath(self.attachPath)
 
-        shapePath = QPainterPath()
-        CanvasUtil.buildSegmentsPath(shapePath, self.points, self.isClosePath)
-        painter.drawPath(shapePath)
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+        self.devicePixelRatio = painter.device().devicePixelRatioF()
+        painter.save()
+        self.customPaint(painter, self.attachPath)
+        painter.restore()
+
+        painter.save()
 
         # 绘制操作边框
         if self.hasFocusWrapper() and self.isFrameEditableMode():
-            if self.roiRadius > 3:
+            if self.radius > 3:
                 painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
                 painter.drawRect(self.attachPath.boundingRect())
 
@@ -725,6 +711,7 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
 
         painter.restore()
 
+        # 更新边框操作点位置
         if self.isFrameEditableMode():
             if self.hasFocusWrapper():
                 self.initControllers()
@@ -732,10 +719,9 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
                 self.hideControllers()
 
     def updateEdge(self, currentPosType, localPos:QPoint):
-        offset = -self.roiRadius
-        finalPolygon = QPolygonF(self.points)
-        lastRect = finalPolygon.boundingRect().toRect()
-        # lastRect = self.attachPath.toFillPolygon().boundingRect().toRect()
+        offset = -self.radius
+        # lastRect = self.attachPath.boundingRect().toRect()
+        lastRect = QPolygonF(self.points).boundingRect().toRect()
         newRect = lastRect.adjusted(0, 0, 0, 0)
         if currentPosType == EnumPosType.ControllerPosTL:
             localPos += QPoint(-offset, -offset)
@@ -819,7 +805,7 @@ class UICanvasCommonPathItem(QGraphicsPathItem):
 
     def endResize(self, localPos:QPointF) -> None:
         self.prepareGeometryChange()
-        self.rebuildUI()
+        self.update()
 
         rect = self.attachPath.boundingRect()
         # 计算正常旋转角度（0度）下，中心的的坐标
@@ -905,7 +891,7 @@ class ZoomComponent(QObject):
 
         self.zoomInFactor = 1.25
         self.zoomClamp = False # 是否限制缩放比率
-        self.zoom = 10
+        self.zoom = 5
         self.zoomStep = 1
         self.zoomRange = [0, 10]
 

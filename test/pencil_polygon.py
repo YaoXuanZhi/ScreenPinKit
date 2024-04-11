@@ -9,12 +9,13 @@ from canvas_util import *
 class UICanvasPolygonItem(UICanvasCommonPathItem):
     def __init__(self, parent: QWidget = None, isClosePath:bool = False) -> None:
         super().__init__(parent)
-        self.initStyle()
+        self.__initEditMode()
+        self.__initStyle()
         self.isClosePath = isClosePath
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldArrowStyleMap["pen"]
+        finalStyleMap = self.styleAttribute.getValue().value()
+        finalPen:QPen = finalStyleMap["pen"]
 
         # 计算缩放比例
         if event.delta() > 0:
@@ -24,19 +25,10 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
 
         finalPen.setWidth(newPenWidth)
 
-        arrowStyleMap = {
-            "pen" : finalPen,
-        }
+        finalStyleMap["pen"] = finalPen
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
-        self.styleAttribute.setValue(QVariant(arrowStyleMap))
-
-    def rebuildUI(self):
-        arrowStyleMap = self.styleAttribute.getValue().value()
-        self.setPen(arrowStyleMap["pen"])
-        CanvasUtil.buildSegmentsPath(self.attachPath, self.points, self.isClosePath)
-        self.setPath(self.attachPath)
-
-    def initStyle(self):
+    def __initStyle(self):
         initPen = QPen(QColor(255, 255, 0, 100))
         initPen.setWidth(32)
         initPen.setCosmetic(True)
@@ -47,13 +39,16 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(arrowStyleMap))
-        self.styleAttribute.valueChangedSignal.connect(self.rebuildUI)
+        self.styleAttribute.valueChangedSignal.connect(self.update)
 
-    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.LeftButton:
-            print("添加操作点")
-            return
-        return super().mouseDoubleClickEvent(event)
+    def __initEditMode(self):
+        '''仅保Roi操作点'''
+        # self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
+
+    # def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    #     styleMap = self.styleAttribute.getValue().value()
+    #     painter.setPen(styleMap["pen"])
+    #     painter.drawPath(targetPath)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -73,7 +68,7 @@ class DrawingScene(QGraphicsScene):
         polyonLineItem.roiMgr.addPoint(QPointF(100, 100))
         polyonLineItem.roiMgr.addPoint(QPointF(100, 200))
         polyonLineItem.roiMgr.addPoint(QPointF(200, 100))
-        polyonLineItem.rebuildUI()
+        polyonLineItem.update()
         self.addItem(polyonLineItem)
 
         self.addItem(rectItem)
@@ -90,7 +85,7 @@ class DrawingScene(QGraphicsScene):
                     self.pathItem.points = [targetPos, targetPos]
                 else:
                     self.pathItem.points.append(targetPos)
-                    self.pathItem.rebuildUI()
+                    self.pathItem.update()
                 return
         super().mousePressEvent(event)
 
@@ -98,7 +93,7 @@ class DrawingScene(QGraphicsScene):
         if self.pathItem != None and not self.views()[0].isCanDrag():
             targetPos = event.scenePos()
             self.pathItem.points[-1] = targetPos
-            self.pathItem.rebuildUI()
+            self.pathItem.update()
             return
         super().mouseMoveEvent(event)
 

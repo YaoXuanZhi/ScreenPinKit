@@ -5,45 +5,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QGraphicsSceneDragDropEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
+from pencil_polygon_ex import UICanvasPolygonItem
 from canvas_util import *
 
-class UICanvasGlowPathItem(UICanvasCommonPathItem):
+class UICanvasMarkerPen(UICanvasPolygonItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.initPenStyle()
 
-    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        # 计算缩放比例
-        if event.delta() > 0:
-            self.penWidth = self.penWidth + 1
-        else:
-            self.penWidth = max(1, self.penWidth - 1)
-
-        self.updatePenStyle()
-
-    def rebuildUI(self):
-        CanvasUtil.buildSegmentsPath(self.attachPath, self.points)
-        self.setPath(self.attachPath)
-
-    def initPenStyle(self):
-        self.usePen = QPen()
-        self.penWidth = 32
-        self.penColor = QColor(255, 255, 0, 100)
-        self.updatePenStyle()
-
-    def updatePenStyle(self):
-        self.usePen.setWidth(self.penWidth)
-        self.usePen.setCosmetic(True)
-        self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-        self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
-        self.usePen.setColor(self.penColor)
-        self.setPen(self.usePen)
-
-    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.LeftButton:
-            print("添加操作点")
-            return
-        return super().mouseDoubleClickEvent(event)
+    def __initEditMode(self):
+        '''仅保Roi操作点'''
+        self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
+        self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, True) 
+        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -54,17 +27,6 @@ class DrawingScene(QGraphicsScene):
         # rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
         rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         rectItem.setAcceptHoverEvents(True)
-
-        # 添加一个线段
-        polyonLineItem = UICanvasGlowPathItem()
-        polyonLineItem.points.append(QPointF(100, 100))
-        polyonLineItem.points.append(QPointF(100, 200))
-        polyonLineItem.points.append(QPointF(200, 100))
-        polyonLineItem.roiMgr.addPoint(QPointF(100, 100))
-        polyonLineItem.roiMgr.addPoint(QPointF(100, 200))
-        polyonLineItem.roiMgr.addPoint(QPointF(200, 100))
-        polyonLineItem.rebuildUI()
-        self.addItem(polyonLineItem)
 
         self.addItem(rectItem)
 
@@ -94,7 +56,7 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())
                 if self.pathItem == None:
-                    self.pathItem = UICanvasGlowPathItem()
+                    self.pathItem = UICanvasPolygonItem()
                     self.scene().addItem(self.pathItem)
                     self.pathItem.points = [targetPos, targetPos]
                 return
@@ -104,7 +66,7 @@ class DrawingView(QGraphicsView):
         if self.pathItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
             self.pathItem.points[-1] = targetPos
-            self.pathItem.rebuildUI()
+            self.pathItem.update()
             return
         super().mouseMoveEvent(event)
 

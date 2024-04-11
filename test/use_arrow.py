@@ -9,21 +9,19 @@ from canvas_util import *
 from canvas_editable_rect import CanvasEditablePath
 
 class UICanvasArrowItem(UICanvasCommonPathItem):
+    '''
+    绘图工具-箭头图元
+    '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.initStyle()
+        self.__initEditMode()
+        self.__initStyle()
 
         self.zoomComponent = ZoomComponent()
+        self.zoomComponent.zoomClamp = True
         self.zoomComponent.signal.connect(self.zoomHandle)
 
-    def zoomHandle(self, zoomFactor):
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        oldArrowStyleMap["arrowLength"] = oldArrowStyleMap["arrowLength"] * zoomFactor
-        oldArrowStyleMap["arrowBodyLength"] = oldArrowStyleMap["arrowBodyLength"] * zoomFactor
-        oldArrowStyleMap["arrowBrush"] = QBrush(QColor(255, 0, 0, int(100 * zoomFactor * 1.2)))
-        self.styleAttribute.setValue(QVariant(oldArrowStyleMap))
-
-    def initStyle(self):
+    def __initStyle(self):
         arrowStyleMap = {
             "arrowLength" : 32.0,
             "arrowAngle" : 0.5,
@@ -35,30 +33,37 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(arrowStyleMap))
-        self.styleAttribute.valueChangedSignal.connect(self.rebuildUI)
+        self.styleAttribute.valueChangedSignal.connect(self.update)
+
+    def __initEditMode(self):
+        '''仅保Roi操作点'''
+        self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
+        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False)
+        self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False)
+
+    def zoomHandle(self, zoomFactor):
+        oldArrowStyleMap = self.styleAttribute.getValue().value()
+        oldArrowStyleMap["arrowLength"] = oldArrowStyleMap["arrowLength"] * zoomFactor
+        oldArrowStyleMap["arrowBodyLength"] = oldArrowStyleMap["arrowBodyLength"] * zoomFactor
+        oldArrowStyleMap["arrowBrush"] = QBrush(QColor(255, 0, 0, int(100 * zoomFactor * 1.2)))
+        self.styleAttribute.setValue(QVariant(oldArrowStyleMap))
+
+    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        arrowStyleMap = self.styleAttribute.getValue().value()
+        painter.setBrush(arrowStyleMap["arrowBrush"])
+        painter.setPen(arrowStyleMap["arrowPen"])
+        painter.drawPath(targetPath)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         self.zoomComponent.TriggerEvent(event.delta())
 
-    def rebuildUI(self):
+    def buildShapePath(self, targetPath:QPainterPath, targetPoints:list, isClosePath:bool):
         arrowStyleMap = self.styleAttribute.getValue().value()
-        self.setBrush(arrowStyleMap["arrowBrush"])
-        self.setPen(arrowStyleMap["arrowPen"])
-        self.edgePoints = CanvasUtil.buildArrowPath(self.attachPath, self.points, arrowStyleMap)
-        self.setPath(self.attachPath)
-
-    def getEdgePoints(self) -> list:
-        return self.edgePoints
+        CanvasUtil.buildArrowPath(targetPath, targetPoints, arrowStyleMap)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # 绘制矩形图元
-        rectItem = QGraphicsRectItem(QRectF(-100, -100, 100, 100))
-        rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        rectItem.setAcceptHoverEvents(True)
-        self.addItem(rectItem)
 
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -96,7 +101,7 @@ class DrawingView(QGraphicsView):
         if self.pathItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
             self.pathItem.points[-1] = targetPos
-            self.pathItem.rebuildUI()
+            self.pathItem.update()
             return
         super().mouseMoveEvent(event)
 

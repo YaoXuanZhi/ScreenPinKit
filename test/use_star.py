@@ -10,46 +10,68 @@ from canvas_editable_rect import CanvasEditablePath
 from pencil_polygon import UICanvasPolygonItem
 
 class UICanvasStarItem(UICanvasCommonPathItem):
+    '''
+    绘图工具-五角星图元
+    '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-
-        self.setBrush(QBrush(QColor(255, 0, 0, 100)))
-        self.setPen(QPen(QColor(255, 0, 0), 2, Qt.SolidLine))
+        self.__initEditMode()
+        self.__initStyle()
 
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.signal.connect(self.zoomHandle)
 
+    def __initStyle(self):
+        self.defaultPenWidth = 3
+        styleMap = {
+            "brush" : QBrush(QColor(255, 0, 0, 100)),
+            "pen" : QPen(QColor(255, 0, 0), self.defaultPenWidth, Qt.SolidLine),
+        }
+        self.styleAttribute = CanvasAttribute()
+        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.update)
+
+    def __initEditMode(self):
+        '''仅保留边框操作点'''
+        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False)
+        self.setEditMode(UICanvasCommonPathItem.RoiEditableMode, False)
+        self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False)
+
     def zoomHandle(self, zoomFactor):
-        print(f"待实现缩放 {zoomFactor}")
+        finalStyleMap = self.styleAttribute.getValue().value()
+
+        finalBrush:QBrush = finalStyleMap["brush"]
+        finalBrushColor = finalBrush.color()
+        finalBrushColor.setAlpha(int(100 * zoomFactor * 1.2))
+        finalBrush.setColor(finalBrushColor)
+        finalStyleMap["brush"] = finalBrush
+
+        finalPen:QPen = finalStyleMap["pen"]
+        finalPenColor = finalPen.color()
+        finalPenColor.setAlpha(int(100 * zoomFactor * 1.4))
+        finalPen.setColor(finalPenColor)
+        finalPenWidth = finalPen.width()
+        finalPenWidth = int(self.defaultPenWidth * zoomFactor)
+        finalPen.setWidth(finalPenWidth)
+        finalStyleMap["pen"] = finalPen
+
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
+
+    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        arrowStyleMap = self.styleAttribute.getValue().value()
+        painter.setBrush(arrowStyleMap["brush"])
+        painter.setPen(arrowStyleMap["pen"])
+        painter.drawPath(targetPath)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         self.zoomComponent.TriggerEvent(event.delta())
 
-    def rebuildUI(self):
-        self.edgetPoints = CanvasUtil.buildStarPath(self.attachPath, self.points)
-        self.setPath(self.attachPath)
-
-    def getEdgePoints(self) -> list:
-        return self.edgetPoints
+    def buildShapePath(self, targetPath:QPainterPath, targetPoints:list, isClosePath:bool):
+        CanvasUtil.buildStarPath(targetPath, targetPoints)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # # 绘制矩形图元
-        # rectItem = QGraphicsRectItem(QRectF(-100, -100, 100, 100))
-        # rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        # rectItem.setAcceptHoverEvents(True)
-        # self.addItem(rectItem)
-
-        # pathItem = CanvasEditablePath()
-        # targetRect = QRectF(300, 300, 150, 100)
-        # points = [targetRect.topLeft(), targetRect.topRight(), targetRect.bottomRight(), targetRect.bottomLeft()]
-        # for point in points:
-        #     pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
-
-        # pathItem.addPoint(QPointF(500, 150), Qt.CursorShape.SizeAllCursor)
-        # self.addItem(pathItem)
 
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -87,7 +109,7 @@ class DrawingView(QGraphicsView):
         if self.pathItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
             self.pathItem.points[-1] = targetPos
-            self.pathItem.rebuildUI()
+            self.pathItem.update()
             return
         super().mouseMoveEvent(event)
 
@@ -102,26 +124,6 @@ class DrawingView(QGraphicsView):
             else:
                 self.pathItem.completeDraw()
                 self.pathItem.setEditableState(True)
-
-                # 可编辑边缘和操作点
-                pathItem = CanvasEditablePath()
-                # pathItem.setEditMode(CanvasEditablePath.FrameEditableMode, False)
-                # pathItem.setEditMode(CanvasEditablePath.FocusFrameMode, False)
-                pathItem.setEditMode(CanvasEditablePath.RoiEditableMode, False)
-                # pathItem.setEditMode(CanvasEditablePath.AdvanceSelectMode, False)
-
-                for point in self.pathItem.getEdgePoints():
-                    pathItem.addPoint(point, Qt.CursorShape.PointingHandCursor)
-                self.scene().addItem(pathItem)
-
-                # 仅编辑操作带你
-                # pathItem = UICanvasPolygonItem(None, True)
-                # pathItem.points = self.pathItem.getEdgePoints()
-                # pathItem.completeDraw()
-                # pathItem.setEditableState(True)
-                # self.scene().addItem(pathItem)
-
-                self.scene().removeItem(self.pathItem)
             self.pathItem = None
             return
         super().mouseReleaseEvent(event)

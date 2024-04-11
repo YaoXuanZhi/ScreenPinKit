@@ -7,9 +7,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from canvas_util import *
 from use_arrow import UICanvasArrowItem
-from pencil_polygon import UICanvasPolygonItem
-# from ..src.canvas_item.canvas_editable_rect import CanvasEditablePath 
+from pencil_polygon_ex import UICanvasPolygonItem
 from canvas_editable_rect import CanvasEditablePath
+from use_marker_pen import UICanvasMarkerPen
 
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
@@ -72,11 +72,17 @@ class DrawingScene(QGraphicsScene):
                             self.pathItem.points = [targetPos, targetPos]
                         else:
                             self.pathItem.points.append(targetPos)
-                            self.pathItem.rebuildUI()
+                            self.pathItem.update()
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                         if self.pathItem == None:
                             self.setEditableState(False)
                             self.pathItem = UICanvasArrowItem()
+                            self.addItem(self.pathItem)
+                            self.pathItem.points = [targetPos, targetPos]
+                    elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                        if self.pathItem == None:
+                            self.setEditableState(False)
+                            self.pathItem = UICanvasMarkerPen()
                             self.addItem(self.pathItem)
                             self.pathItem.points = [targetPos, targetPos]
                     # return
@@ -89,10 +95,13 @@ class DrawingScene(QGraphicsScene):
 
                 if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
                     self.pathItem.points[-1] = targetPos
-                    self.pathItem.rebuildUI()
+                    self.pathItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                     self.pathItem.points[-1] = targetPos
-                    self.pathItem.rebuildUI()
+                    self.pathItem.update()
+                elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                    self.pathItem.points[-1] = targetPos
+                    self.pathItem.update()
                 # return
         super().mouseMoveEvent(event)
 
@@ -100,7 +109,7 @@ class DrawingScene(QGraphicsScene):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
                 if event.button() == Qt.RightButton and self.pathItem != None:
-                    if len(self.pathItem.points) > 2:
+                    if len(self.pathItem.points) > 1:
                         self.pathItem.points = self.pathItem.points[0:-1]
                         self.pathItem.completeDraw()
                         self.itemList.append(self.pathItem)
@@ -116,8 +125,27 @@ class DrawingScene(QGraphicsScene):
                     # return
                 elif event.button() == Qt.LeftButton and self.pathItem != None:
                     if self.pathItem.points[0] == self.pathItem.points[-1]:
+                        print(f"111 {self.pathItem.points[0]} == {self.pathItem.points[-1]}")
                         self.removeItem(self.pathItem)
                     else:
+                        print(f" 222 {self.pathItem.points[0]} == {self.pathItem.points[-1]}")
+                        self.pathItem.completeDraw()
+                        self.itemList.append(self.pathItem)
+                    self.setEditableState(True)
+                    self.pathItem = None
+                    # return
+            elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:                
+                if event.button() == Qt.RightButton and self.pathItem != None:
+                    self.removeItem(self.pathItem)
+                    self.setEditableState(True)
+                    self.pathItem = None
+                    # return
+                elif event.button() == Qt.LeftButton and self.pathItem != None:
+                    if self.pathItem.points[0] == self.pathItem.points[-1]:
+                        print(f"111 {self.pathItem.points[0]} == {self.pathItem.points[-1]}")
+                        self.removeItem(self.pathItem)
+                    else:
+                        print(f" 222 {self.pathItem.points[0]} == {self.pathItem.points[-1]}")
                         self.pathItem.completeDraw()
                         self.itemList.append(self.pathItem)
                     self.setEditableState(True)
@@ -238,6 +266,7 @@ class MainWindow(QDragWindow):
             QAction("切到画板但无操作", self, triggered=self.showTest, shortcut="ctrl+t"),
             QAction("切换到铅笔", self, triggered=self.drawArrow, shortcut="ctrl+a"),
             QAction("切换到折线", self, triggered=self.usePolygon, shortcut="ctrl+b"),
+            QAction("切换到记号笔", self, triggered=self.useMarkerPen, shortcut="ctrl+c"),
             QAction("切换视图操作", self, triggered=self.switchCanvas, shortcut="ctrl+z"),
         ]
         self.addActions(actions)
@@ -260,6 +289,11 @@ class MainWindow(QDragWindow):
 
     def usePolygon(self):
         self.scene.currentDrawActionEnum = DrawActionEnum.DrawPolygonalLine
+        self.scene.pathItem = None
+        self.view.setEnabled(True)
+
+    def useMarkerPen(self):
+        self.scene.currentDrawActionEnum = DrawActionEnum.DrawMarkerPen
         self.scene.pathItem = None
         self.view.setEnabled(True)
 
