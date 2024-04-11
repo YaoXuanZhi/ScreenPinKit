@@ -86,10 +86,10 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
             painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
             painter.drawPath(targetPath)
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPoints:list, isClosePath:bool):
+    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         self.paintPath.clear()
-        CanvasUtil.buildSegmentsPath(self.paintPath, targetPoints, isClosePath)
-        super().buildShapePath(targetPath, targetPoints, isClosePath)
+        CanvasUtil.buildSegmentsPath(self.paintPath, targetPolygon, isClosePath)
+        super().buildShapePath(targetPath, targetPolygon, isClosePath)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -100,15 +100,6 @@ class DrawingScene(QGraphicsScene):
         rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
         # rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
         rectItem.setAcceptHoverEvents(True)
-
-        # 添加一个线段
-        polyonLineItem = UICanvasPolygonItem()
-        polyonLineItem.points.append(QPointF(100, 100))
-        polyonLineItem.points.append(QPointF(100, 200))
-        polyonLineItem.points.append(QPointF(200, 100))
-        polyonLineItem.completeDraw()
-        polyonLineItem.setEditableState(True)
-        self.addItem(polyonLineItem)
 
         self.addItem(rectItem)
 
@@ -121,9 +112,10 @@ class DrawingScene(QGraphicsScene):
                 if self.pathItem == None:
                     self.pathItem = UICanvasPolygonItem()
                     self.addItem(self.pathItem)
-                    self.pathItem.points = [targetPos, targetPos]
+                    self.pathItem.polygon.append(targetPos)
+                    self.pathItem.polygon.append(targetPos)
                 else:
-                    self.pathItem.points.append(targetPos)
+                    self.pathItem.polygon.append(targetPos)
                     self.pathItem.update()
                 return
         super().mousePressEvent(event)
@@ -131,15 +123,17 @@ class DrawingScene(QGraphicsScene):
     def mouseMoveEvent(self, event):
         if self.pathItem != None and not self.views()[0].isCanDrag():
             targetPos = event.scenePos()
-            self.pathItem.points[-1] = targetPos
+            # self.pathItem.points[-1] = targetPos
+            self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
             self.pathItem.update()
             return
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton and self.pathItem != None:
-            if len(self.pathItem.points) > 2:
-                self.pathItem.points = self.pathItem.points[0:-1]
+            if self.pathItem.polygon.count() > 2:
+                # self.pathItem.points = self.pathItem.points[0:-1]
+                self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
                 self.pathItem.completeDraw()
                 self.pathItem.setEditableState(True)
             else:

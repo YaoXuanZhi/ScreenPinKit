@@ -53,26 +53,6 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # 绘制矩形图元
-        rectItem = QGraphicsRectItem(QRectF(-100, -100, 200, 30))
-        rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
-        # rectItem.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        rectItem.setAcceptHoverEvents(True)
-
-        # 添加一个线段
-        polyonLineItem = UICanvasPolygonItem()
-        polyonLineItem.points.append(QPointF(100, 100))
-        polyonLineItem.points.append(QPointF(100, 200))
-        polyonLineItem.points.append(QPointF(200, 100))
-        polyonLineItem.roiMgr.addPoint(QPointF(100, 100))
-        polyonLineItem.roiMgr.addPoint(QPointF(100, 200))
-        polyonLineItem.roiMgr.addPoint(QPointF(200, 100))
-        polyonLineItem.update()
-        self.addItem(polyonLineItem)
-
-        self.addItem(rectItem)
-
         self.pathItem = None
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):

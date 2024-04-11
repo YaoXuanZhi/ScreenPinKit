@@ -826,11 +826,7 @@ class CanvasEditablePath(QGraphicsObject):
 
             self.foreachPolygonSegments(appendShapePath)
         else:
-            points = []
-            for i in range(0, self.polygon.count()):
-                points.append(self.polygon.at(i))
-
-            CanvasUtil.buildSegmentsPath(self.shapePath, points, self.isClosePath)
+            CanvasUtil.buildSegmentsPath(self.shapePath, self.polygon, self.isClosePath)
 
         return self.shapePath.boundingRect()
 

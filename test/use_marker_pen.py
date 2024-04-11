@@ -11,11 +11,11 @@ from canvas_util import *
 class UICanvasMarkerPen(UICanvasPolygonItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
+        self.__initEditMode()
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
         self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
-        self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, True) 
         self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
 class DrawingScene(QGraphicsScene):
@@ -56,16 +56,17 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())
                 if self.pathItem == None:
-                    self.pathItem = UICanvasPolygonItem()
+                    self.pathItem = UICanvasMarkerPen()
                     self.scene().addItem(self.pathItem)
-                    self.pathItem.points = [targetPos, targetPos]
+                    self.pathItem.polygon.append(targetPos)
+                    self.pathItem.polygon.append(targetPos)
                 return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.pathItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
-            self.pathItem.points[-1] = targetPos
+            self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
             self.pathItem.update()
             return
         super().mouseMoveEvent(event)

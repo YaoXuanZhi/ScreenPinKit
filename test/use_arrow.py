@@ -57,9 +57,9 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         self.zoomComponent.TriggerEvent(event.delta())
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPoints:list, isClosePath:bool):
+    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         arrowStyleMap = self.styleAttribute.getValue().value()
-        CanvasUtil.buildArrowPath(targetPath, targetPoints, arrowStyleMap)
+        CanvasUtil.buildArrowPath(targetPath, targetPolygon, arrowStyleMap)
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -93,14 +93,15 @@ class DrawingView(QGraphicsView):
                 if self.pathItem == None:
                     self.pathItem = UICanvasArrowItem()
                     self.scene().addItem(self.pathItem)
-                    self.pathItem.points = [targetPos, targetPos]
+                    self.pathItem.polygon.append(targetPos)
+                    self.pathItem.polygon.append(targetPos)
                 return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.pathItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
-            self.pathItem.points[-1] = targetPos
+            self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
             self.pathItem.update()
             return
         super().mouseMoveEvent(event)
@@ -111,7 +112,7 @@ class DrawingView(QGraphicsView):
             self.pathItem = None
             return
         elif event.button() == Qt.LeftButton and self.pathItem != None:
-            if self.pathItem.points[0] == self.pathItem.points[-1]:
+            if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
                 self.scene().removeItem(self.pathItem)
             else:
                 self.pathItem.completeDraw()
