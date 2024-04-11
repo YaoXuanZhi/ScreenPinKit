@@ -15,8 +15,8 @@ class UICanvasMarkerPen(UICanvasPolygonItem):
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
-        self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
-        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(UICanvasCommonPathItem.BorderEditableMode, False)
+        self.setEditMode(UICanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):

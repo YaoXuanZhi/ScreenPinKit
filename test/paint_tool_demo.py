@@ -32,6 +32,37 @@ class DrawingScene(QGraphicsScene):
 
         self.itemList:list = []
 
+        self.initNodes()
+
+    def initNodes(self):
+        startPos = QPointF(100, 100)
+        endPos = QPointF(300, 300)
+
+        arrowStyleMap = {
+            "arrowLength" : 32.0,
+            "arrowAngle" : 0.5,
+            "arrowBodyLength" : 18,
+            "arrowBodyAngle" : 0.2,
+
+            "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
+            "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
+        }
+        # finalPoints = CanvasUtil.buildArrowPath(QPainterPath(), QPolygonF([startPos, endPos]), arrowStyleMap)
+        finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([startPos, endPos]))
+        pathItem1 = UICanvasCommonPathItem(None, False)
+        pathItem1.polygon = QPolygonF(finalPoints)
+        pathItem1.setEditableState(True)
+        pathItem1.completeDraw()
+        self.addItem(pathItem1)
+
+        pathItem2 = UICanvasCommonPathItem(None, True)
+        pathItem2.polygon = QPolygonF(finalPoints)
+        pathItem2.completeDraw()
+        pathItem2.setEditableState(True)
+        pathItem2.moveBy(300, 0)
+        self.addItem(pathItem2)
+
+
     def setEditableState(self, isEditable:bool):
         for item0 in self.itemList:
             if issubclass(type(item0), UICanvasCommonPathItem):

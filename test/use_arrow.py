@@ -37,8 +37,8 @@ class UICanvasArrowItem(UICanvasCommonPathItem):
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
-        self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
-        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False)
+        self.setEditMode(UICanvasCommonPathItem.BorderEditableMode, False)
+        self.setEditMode(UICanvasCommonPathItem.HitTestMode, False)
         self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False)
 
     def zoomHandle(self, zoomFactor):

@@ -33,7 +33,7 @@ class UICanvasStarItem(UICanvasCommonPathItem):
 
     def __initEditMode(self):
         '''仅保留边框操作点'''
-        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False)
+        self.setEditMode(UICanvasCommonPathItem.HitTestMode, False)
         self.setEditMode(UICanvasCommonPathItem.RoiEditableMode, False)
         self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False)
 

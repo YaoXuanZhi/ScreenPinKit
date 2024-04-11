@@ -55,9 +55,9 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
-        # self.setEditMode(UICanvasCommonPathItem.FrameEditableMode, False)
-        # self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, True) 
-        self.setEditMode(UICanvasCommonPathItem.FocusFrameMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(UICanvasCommonPathItem.BorderEditableMode, False)
+        # self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False) 
+        self.setEditMode(UICanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         oldArrowStyleMap = self.styleAttribute.getValue().value()
@@ -82,7 +82,7 @@ class UICanvasPolygonItem(UICanvasCommonPathItem):
         painter.setPen(styleMap["pen"])
         painter.drawPath(self.paintPath)
 
-        if self.isFocusFrameMode():
+        if self.isHitTestMode():
             painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
             painter.drawPath(targetPath)
 
