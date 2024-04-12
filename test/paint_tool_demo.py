@@ -291,6 +291,10 @@ class MainWindow(QDragWindow):
     def quitDraw(self):
         print("退出绘画模式")
         self.view.setEnabled(False)
+        for item in self.view.scene().items():
+            if hasattr(item, "roiMgr"):
+                roiMgr:CanvasROIManager = item.roiMgr
+                roiMgr.setShowState(False)
 
     def showTest(self):
         print("开启绘画模式")

@@ -4,6 +4,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys, math, typing
 from enum import Enum
+# https://codebrowser.dev/qt5/qtbase/src/gui/kernel/qevent.cpp.html
+
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
