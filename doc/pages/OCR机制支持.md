@@ -1,0 +1,3 @@
+- [PaddleOCR二次全流程——1. 确定字体_ocr常用中英文字体font-CSDN博客](https://blog.csdn.net/Castlehe/article/details/115399563)
+- 实现思路
+	- 用PaddleOCR、CnOCR来将文本识别出来，获得它的识别出来的文本框，然后没建立一个QGraphicsTextItem的时候，都针对这个Rect来测算它的合适字体，并且未选中的时候，让这个文本框是透明显示的，直到选中文本框才会显示出来

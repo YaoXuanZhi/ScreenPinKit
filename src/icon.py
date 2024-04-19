@@ -1,8 +1,8 @@
 # coding: utf-8
 from enum import Enum
+import os
 
 from qfluentwidgets import FluentIconBase, getIconColor, Theme
-
 
 class ScreenShotIcon(FluentIconBase, Enum):
     LOGO = "截图"
@@ -38,7 +38,4 @@ class ScreenShotIcon(FluentIconBase, Enum):
     POLYGON = "多边形"
 
     def path(self, theme=Theme.AUTO):
-        # return f"resource/icons/{self.value}_{getIconColor(theme)}.svg"
-        return f"resource/icons/icons8-{self.value}-64.png"
-
-# QIcon(ScreenShotIcon.path(ScreenShotIcon.LOGO))
+        return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")

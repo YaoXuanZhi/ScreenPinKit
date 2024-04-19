@@ -4,15 +4,13 @@
 import math
 from enum import Enum
 from collections import OrderedDict, deque
-from PyQt5 import QtCore
-from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneDragDropEvent, QGraphicsSceneHoverEvent, QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
 import win32api, win32con, win32gui, ctypes, win32ui
 from PyQt5.QtWinExtras import QtWin
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
+from .canvas_util import CanvasUtil
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -101,121 +99,8 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setBrush(QBrush(Qt.NoBrush))
         # self.setBrush(Qt.blue)
 
-    def getMouseCursorIconWinNew(self) -> QPixmap:
-        cursorInfo = win32gui.GetCursorInfo()
-        pixmap = QtWin.fromHICON(cursorInfo[1])
-        return pixmap
-
-    def getMouseCursorIconWin(self) -> QPixmap:
-    #   cursorWidth = ctypes.windll.user32.GetSystemMetrics(win32con.SM_CXCURSOR), 
-    #   cursorHeight = ctypes.windll.user32.GetSystemMetrics(win32con.SM_CYCURSOR)
-
-        ci = win32gui.GetCursorInfo() #获取光标信息
-
-        print(f'包含光标类型，句柄，坐标 {ci}') #包含光标类型，句柄，坐标
-        print(f'GetCursor获取的句柄 {win32gui.GetCursor()}')#win32gui.GetCursor()也为获取光标句柄 但和GetCursorInfo获取的句柄并不相同，不清楚为什么?
-
-        if(ci [1]==0):#在某些时候光标会被游戏或程序隐藏，因此报错
-            print("光标消失")
-
-        #-----------------------------------------------作废
-        #e=win32gui.SetCursor(ci[1])#更改光标 返回旧光标句柄类型
-        #print type(e)
-        #if (e == 0):
-            #print "光标消失"
-            #continue
-        #---------------------------------------------作废
-        ii=win32gui.GetIconInfo(ci[1])#返回光标的图像信息，注意：参数不可为win32gui.GetCursor()得到的句柄，不然热点读取出错，why？
-        print(f'光标参数 {ii}') #光标类型，热点坐标x，y，黑白位图，彩色位图
-        #我想用彩色位图导出bmp图片并不成功，在c++将位图放入Cimg.Attach里很轻松就能save搞定
-        #然后我并不清楚python内是否有可以使用的方法，pil里面是没找到
-        bm = win32gui.GetObject(ii[3])#返回PyBITMAP类型 可以获得光标尺寸，注意，这里最好放入黑白位图来获取，放入彩色位图可能导致单色光标报错
-        print(f"高 {bm.bmHeight} 宽 {bm.bmWidth}")
-
-        gdc=win32gui.GetDC(0)#使指定上下文0中提取出一个句柄，记得释放 0也应该表示整个屏幕
-        hdc = win32ui.CreateDCFromHandle(gdc)#依据其句柄创造出一个DC对象
-        hbmp = win32ui.CreateBitmap()#创建一个新位图
-        hbmp.CreateCompatibleBitmap(hdc,bm.bmWidth, bm.bmHeight)#设置位图 使其与上下文兼容以及图片的大小
-        hdc = hdc.CreateCompatibleDC()#建立一个与屏幕兼容的DC
-        # CreateCompatibleDC相当于在内存开辟一块地方，将屏幕或窗口复制进来，再对其操作，待操作完成后
-        #再复制回屏幕，完成对屏幕的刷新
-        hdc.SelectObject(hbmp)#将位图放入上下文中，就可以对位图进行编辑了
-
-        win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, ci[1], bm.bmWidth, bm.bmHeight, 0, None,2)#图标大小
-        #DrawIconEx 绘制位图放入到指定的上下文中
-        #hdc.GetHandleOutput()返回上下文句柄
-        #参数（需要放入的上下文句柄，x坐标，y坐标，需要放入的光标句柄，光标的高，光标的宽，动画光标取第几帧，背景画笔（可以是空），绘图类型int）
-        bitmapbits = hbmp.GetBitmapBits(True)#将该图片转换为字符串
-
-        # cursorPixmap = QtWin.fromHBITMAP(hbmp, QtWin.HBitmapFormat.HBitmapAlpha)
-        # cursorPixmap = QtWin.fromHBITMAP(bitmapbits)
-        cursorPixmap = QPixmap()
-        # cursorPixmap.loadFromData(bitmapbits)
-
-        # print(f"{bitmapbits}")
-        hbmp.SaveBitmapFile(hdc, 'scre99t.bmp')#将位图保存为图片，注意这里只能放dc
-
-        print(f"========> {hbmp.GetInfo()}")
-        bmp = QBitmap()
-        # bmp.fromData(len(bitmapbits), bitmapbits, QImage.Format.Format_ARGB32)
-        bmp.fromData(QSize(hbmp.GetSize()[0], hbmp.GetSize()[1]), bitmapbits, QImage.Format.Format_ARGB32)
-        bmp.save("fffff.bmp")
-
-        #资源释放
-        win32gui.ReleaseDC(0, gdc)#释放上下文 参数（窗口句柄，上下文句柄）
-        hdc.DeleteDC()
-        win32gui.DeleteObject(hbmp.GetHandle())
-        return cursorPixmap
-
-    def setSystemCursor(self, hoverCursor) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
-        self.setCursor(self.interfaceCursor)
-        # if self.posType == EnumPosType.ControllerPosTT:
-        #     self.setCursor(self.interfaceCursor)
-        #     return
-
-        pixmap = self.getMouseCursorIconWin()
-        # pixmap = self.getMouseCursorIconWinNew()
-        transform = parentItem.transform()
-        transform.rotate(parentItem.rotation())
-        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
-        newFinal = QCursor(finalPixmap, -1, -1)
-        self.setCursor(newFinal)
-        return
-
-        # 加载移动箭头光标资源
-        # hCursor = win32api.LoadCursor(0, win32con.IDC_SIZEALL)
-        hCursor = win32api.LoadCursor(0, win32con.IDC_SIZENS)
-        # width = int(ctypes.windll.user32.GetSystemMetrics(win32con.SM_CXCURSOR)),
-        # height = int(ctypes.windll.user32.GetSystemMetrics(win32con.SM_CYCURSOR))
-        width = 48
-        height = 48
-
-        print(f"=====> {width} : {height}")
-
-        # cursorInfo = win32gui.GetCursorInfo()
-        # # hCursor = cursorInfo[1]
-        # hCursor = win32gui.GetCursor()
-        # iconInfo = win32gui.GetIconInfo(hCursor)
-
-        # bm = win32gui.GetObject(iconInfo[3])
-        # width = bm.bmWidth
-        # height = bm.bmHeight
-
-        # 将光标资源转换为QPixmap对象
-        icon = QIcon(QtWin.fromHICON(hCursor))
-        # pixmap = QPixmap.fromImage(icon.pixmap(48, 48).toImage())
-        pixmap:QPixmap = icon.pixmap(width, height)
-        # pixmap.save("tsete.png")
-
-        transform = parentItem.transform()
-        transform.rotate(parentItem.rotation())
-        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
-        newFinal = QCursor(finalPixmap, -1, -1)
-        self.setCursor(newFinal)
-
     def setCustomCursor(self) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             self.setCursor(self.interfaceCursor)
             return
@@ -247,7 +132,7 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setCursor(newFinal)
 
     def setSvgCursor(self) -> QCursor:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             self.setCursor(self.interfaceCursor)
             return
@@ -270,10 +155,10 @@ class CanvasEllipseItem(CanvasBaseItem):
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        # self.setCursor(self.interfaceCursor)
+        self.setCursor(self.interfaceCursor)
         # self.setSystemCursor(self.interfaceCursor)
         # self.setCustomCursor()
-        self.setSvgCursor()
+        # self.setSvgCursor()
 
         return super().hoverEnterEvent(event)
 
@@ -328,14 +213,14 @@ class CanvasEllipseItem(CanvasBaseItem):
         self.setRect(QRectF(pos, size))
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.mouseMoveRotateOperator(event.scenePos(), event.pos())
             return
         parentItem.updateEdge(self.posType, event.pos().toPoint())
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.startRotate(event.pos())
         else:
@@ -343,204 +228,15 @@ class CanvasEllipseItem(CanvasBaseItem):
         return super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         if self.posType == EnumPosType.ControllerPosTT:
             parentItem.endRotate(event.pos())
         else:
             parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
-class CanvasEditableFrame(QGraphicsRectItem):
-    def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
-        super().__init__(rect, parent)
-
-        self.radius = 8
-        self.m_borderWidth = 1
-
-        self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
-        self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
-
-        self.initUI()
-
-    def initUI(self):
-        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        self.setAcceptHoverEvents(True)
-
-        self.lastCursor = None
-        self.shapePath = QPainterPath()
-
-        self.m_pressPos = QPointF() # 本地坐标点击的点
-
-    def initControllers(self):
-        if not hasattr(self, "controllers"):
-            self.controllers:list[CanvasEllipseItem] = []
-
-        rect = self.boundingRect()
-        size = QSizeF(self.radius*2, self.radius*2)
-        posTypes = [
-            [EnumPosType.ControllerPosTL, Qt.CursorShape.SizeFDiagCursor], 
-            [EnumPosType.ControllerPosTC, Qt.CursorShape.SizeVerCursor], 
-            [EnumPosType.ControllerPosTR, Qt.CursorShape.SizeBDiagCursor], 
-            [EnumPosType.ControllerPosRC, Qt.CursorShape.SizeHorCursor], 
-            [EnumPosType.ControllerPosBR, Qt.CursorShape.SizeFDiagCursor], 
-            [EnumPosType.ControllerPosBC, Qt.CursorShape.SizeVerCursor], 
-            [EnumPosType.ControllerPosBL, Qt.CursorShape.SizeBDiagCursor], 
-            [EnumPosType.ControllerPosLC, Qt.CursorShape.SizeHorCursor],
-            [EnumPosType.ControllerPosTT, Qt.CursorShape.PointingHandCursor],
-            ]
-
-        if len(self.controllers) == 0:
-            for info in posTypes:
-                controller = CanvasEllipseItem(info[-1], self)
-                controller.setRectWrapper(rect, info[0], self.radius, size)
-                self.controllers.append(controller)
-        else:
-            for controller in self.controllers:
-                controller.resetPosition(rect, self.radius, size)
-                if not controller.isVisible():
-                    controller.show()
-
-    def hideControllers(self):
-        if not hasattr(self, "controllers"):
-            return
-        for controller in self.controllers:
-            if controller.isVisible():
-                controller.hide()
-
-    def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
-        p1 = QLineF(self.originPos, self.m_pressPos)
-        p2 = QLineF(self.originPos, localPos)
-
-        dRotateAngle = p2.angleTo(p1)
-
-        dCurAngle = self.rotation() + dRotateAngle
-        while dCurAngle > 360.0:
-            dCurAngle -= 360.0
-        self.setRotation(dCurAngle)
-        self.update()
-
-    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        self.lastCursor = self.cursor()
-        self.setCursor(Qt.CursorShape.SizeAllCursor)
-        return super().hoverEnterEvent(event)
-
-    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        if self.lastCursor != None:
-            self.setCursor(self.lastCursor)
-            self.lastCursor = None
-        return super().hoverLeaveEvent(event)
-
-    def updateEdge(self, currentPosType, localPos:QPoint):
-        offset = self.m_borderWidth / 2
-        lastRect = self.rect()
-        newRect = lastRect.adjusted(0, 0, 0, 0)
-        if currentPosType == EnumPosType.ControllerPosTL:
-            localPos += QPoint(-offset, -offset)
-            newRect.setTopLeft(localPos)
-        elif currentPosType == EnumPosType.ControllerPosTC:
-            localPos += QPoint(0, -offset)
-            newRect.setTop(localPos.y())
-        elif currentPosType == EnumPosType.ControllerPosTR:
-            localPos += QPoint(offset, -offset)
-            newRect.setTopRight(localPos)
-        elif currentPosType == EnumPosType.ControllerPosRC:
-            localPos += QPoint(offset, 0)
-            newRect.setRight(localPos.x())
-        elif currentPosType == EnumPosType.ControllerPosBR:
-            localPos += QPoint(offset, offset)
-            newRect.setBottomRight(localPos)
-        elif currentPosType == EnumPosType.ControllerPosBC:
-            localPos += QPoint(0, offset)
-            newRect.setBottom(localPos.y())
-        elif currentPosType == EnumPosType.ControllerPosBL:
-            localPos += QPoint(-offset, offset)
-            newRect.setBottomLeft(localPos)
-        elif currentPosType == EnumPosType.ControllerPosLC:
-            localPos = localPos - QPoint(offset, offset)
-            newRect.setLeft(localPos.x())
-
-        self.setRect(newRect)
-
-    def hasFocusWrapper(self):
-        # if self.hasFocus() or self.isSelected():
-        if self.hasFocus():
-            return True
-        else:
-            if hasattr(self, 'controllers'):
-                for controller in self.controllers:
-                    if controller.hasFocus():
-                        return True
-        return False
-
-    # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
-    def shape(self) -> QPainterPath:
-        self.shapePath.clear()
-        if self.hasFocusWrapper():
-            region = QRegion()
-            rects = [self.boundingRect().toRect()]
-            if hasattr(self, 'controllers'):
-                for controller in self.controllers:
-                    rects.append(controller.boundingRect().toRect())
-            region.setRects(rects)
-            self.shapePath.addRegion(region)
-        else:
-            fullRect = self.boundingRect()
-            selectRegion = QRegion(fullRect.toRect())
-            offset = self.m_borderWidth
-            subRect:QRectF = self.boundingRect() - QMarginsF(offset, offset, offset, offset)
-            finalRegion = selectRegion.subtracted(QRegion(subRect.toRect()))
-            self.shapePath.addRegion(finalRegion)
-        return self.shapePath
-
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
-        painter.save()
-
-        boundingRect = self.rect()
-        boundingColor = QColor(0, 0, 125)
-
-        # painter.setPen(boundingColor)
-        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() else self.m_penSelected)
-        painter.drawRect(boundingRect)
-        painter.setPen(Qt.white)
-
-        painter.restore()
-
-        if self.hasFocusWrapper():
-            self.initControllers()
-        else:
-            self.hideControllers()
-
-    def startResize(self, localPos:QPointF) -> None:
-        pass
-
-    def endResize(self, localPos:QPointF) -> None:
-        # 解决有旋转角度的矩形，拉伸之后，再次旋转，旋转中心该仍然为之前坐标，手动设置为中心，会产生漂移的问题
-        rect = self.rect()
-        angle = math.radians(self.rotation())
-
-        p1 = rect.center()
-        origin = self.transformOriginPoint()
-        p2 = QPointF(0, 0)
-
-        p2.setX(origin.x() + math.cos(angle)*(p1.x() - origin.x()) - math.sin(angle)*(p1.y() - origin.y()))
-        p2.setY(origin.y() + math.sin(angle)*(p1.x() - origin.x()) + math.cos(angle)*(p1.y() - origin.y()))
-
-        diff:QPointF = p1 - p2
-
-        self.setRect(rect.adjusted(-diff.x(), -diff.y(), -diff.x(), -diff.y()))
-        self.setTransformOriginPoint(p1-diff)
-
-        self.initControllers()
-
-    def startRotate(self, localPos:QPointF) -> None:
-        self.originPos = self.boundingRect().center()
-        self.setTransformOriginPoint(self.originPos)
-        self.m_pressPos = localPos
-    
-    def endRotate(self, localPos:QPointF) -> None:
-        pass
-
-class CanvasROI(CanvasBaseItem):
+# class CanvasROI(CanvasBaseItem):
+class CanvasROI(QGraphicsEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
         self.hoverCursor = hoverCursor
@@ -559,7 +255,7 @@ class CanvasROI(CanvasBaseItem):
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         self.isMoving = False
-        parentItem:CanvasEditableFrame = self.parentItem()
+        parentItem = self.parentItem()
         parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
 
@@ -590,8 +286,6 @@ class CanvasROI(CanvasBaseItem):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         super().paint(painter, option, widget)
         parentItem:CanvasEditablePath = self.parentItem()
-        # if not hasattr(parentItem, "canRoiItemEditable") or not parentItem.canRoiItemEditable:
-        #     return
 
         painter.save()
         painter.setPen(Qt.white)
@@ -603,28 +297,48 @@ class CanvasROI(CanvasBaseItem):
         painter.restore()
 
 class CanvasEditablePath(QGraphicsObject):
-    def __init__(self, parent:QGraphicsItem = None) -> None:
+    RoiEditableMode = 1 << 0 # Roi点可编辑模式
+    BorderEditableMode = 1 << 1 # 边界可编辑模式
+    HitTestMode = 1 << 2 # 测试点击模式
+    AdvanceSelectMode = 1 << 3 # 高级选择模式
+
+    def setEditMode(self, flag, isEnable:bool):
+        if isEnable:
+            self.editMode = self.editMode | flag
+        else:
+            self.editMode = self.editMode &~ flag
+
+    def isHitTestMode(self):
+        return self.editMode | CanvasEditablePath.HitTestMode == self.editMode
+
+    def isRoiEditableMode(self):
+        return self.editMode | CanvasEditablePath.RoiEditableMode == self.editMode
+
+    def isBorderEditableMode(self):
+        return self.editMode | CanvasEditablePath.BorderEditableMode == self.editMode
+
+    def isAdvanceSelectMode(self):
+        return self.editMode | CanvasEditablePath.AdvanceSelectMode == self.editMode
+
+    def __init__(self, parent:QGraphicsItem = None, isClosePath:bool = True) -> None:
         super().__init__(parent)
+        self.editMode = CanvasEditablePath.RoiEditableMode | CanvasEditablePath.BorderEditableMode | CanvasEditablePath.HitTestMode | CanvasEditablePath.AdvanceSelectMode
 
         self.radius = 8
-        # self.roiRadius = 14
         self.m_borderWidth = 4
         self.roiRadius = self.m_borderWidth + 3
+        # self.roiRadius = 5
 
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)
         self.m_instId = 0
+        self.isClosePath = isClosePath
 
         self.initUI()
 
-    def setRoiItemEditable(self, canEditable:bool):
-        self.canRoiItemEditable = canEditable
-
     def initUI(self):
-        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)
-        self.setAcceptHoverEvents(True)
+        self.setEditableState(True)
 
-        self.canRoiItemEditable = True
         self.lastCursorDeque = deque()
         self.hoverCursor = Qt.SizeAllCursor
 
@@ -637,15 +351,15 @@ class CanvasEditablePath(QGraphicsObject):
         id = self.m_instId
         self.polygon.append(point)
 
-        if self.canRoiItemEditable:
-            roiItem = CanvasROI(cursor, id, self)
-            rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-            rect.moveCenter(point)
-            roiItem.setRect(rect)
+        roiItem = CanvasROI(cursor, id, self)
+        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
+        rect.moveCenter(point)
+        roiItem.setRect(rect)
 
-            self.roiItemList.append(roiItem)
-            return roiItem
-        return None
+        self.roiItemList.append(roiItem)
+        if not self.isRoiEditableMode():
+            roiItem.hide()
+        return roiItem
 
     def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
         self.m_instId += 1
@@ -662,7 +376,7 @@ class CanvasEditablePath(QGraphicsObject):
         return roiItem
 
     def removePoint(self, roiItem:CanvasROI):
-        if not self.canRoiItemEditable:
+        if not self.isRoiEditableMode():
             return
 
         # 如果是移除最后一个操作点，说明该路径将被移除
@@ -697,30 +411,28 @@ class CanvasEditablePath(QGraphicsObject):
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
         painter.save()
 
-        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.canRoiItemEditable else self.m_penSelected)
+        painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.isHitTestMode() else self.m_penSelected)
         painter.drawPolygon(self.polygon)
 
         # 绘制操作边框
-        if self.hasFocusWrapper() and self.canRoiItemEditable:
-            painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
-            painter.drawRect(self.polygon.boundingRect())
+        if self.hasFocusWrapper():
+            if self.radius > 3 and self.isHitTestMode():
+                painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
+                painter.drawRect(self.polygon.boundingRect())
 
-            painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
-            rect = self.getStretchableRect()
-            painter.drawRect(rect)
-
-        if self.canRoiItemEditable or True:
-            pen = QPen(Qt.green, 1, Qt.DashLine)
-            pen.setDashPattern([10, 5])
-            painter.setPen(pen)
-            painter.drawPath(self.shapePath)
+            if self.isBorderEditableMode():
+                painter.setPen(QPen(Qt.yellow, 1, Qt.DashLine))
+                rect = self.getStretchableRect()
+                painter.drawRect(rect)
 
         painter.restore()
 
-        if self.hasFocusWrapper():
-            self.initControllers()
-        else:
-            self.hideControllers()
+        # 更新边框操作点位置
+        if self.isBorderEditableMode():
+            if self.hasFocusWrapper():
+                self.initControllers()
+            else:
+                self.hideControllers()
 
     def hasFocusWrapper(self):
         # if self.hasFocus() or self.isSelected():
@@ -747,7 +459,7 @@ class CanvasEditablePath(QGraphicsObject):
 
     # 修改光标选中的区域 https://doc.qt.io/qtforpython-5/PySide2/QtGui/QRegion.html
     def shape(self) -> QPainterPath:
-        if self.hasFocusWrapper() and self.canRoiItemEditable:
+        if self.hasFocusWrapper() and self.isBorderEditableMode():
             selectPath = QPainterPath()
             region = QRegion()
             rects = [self.boundingRect().toRect()]
@@ -770,8 +482,7 @@ class CanvasEditablePath(QGraphicsObject):
             startPoint = self.polygon.at(startIndex)
             endPoint = self.polygon.at(endIndex)
 
-            # offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
-            offset = self.calcOffset(startPoint, endPoint, 5)
+            offset = self.calcOffset(startPoint, endPoint, self.roiRadius)
 
             points.append(startPoint - offset)
             points.append(startPoint + offset)
@@ -789,11 +500,15 @@ class CanvasEditablePath(QGraphicsObject):
     def boundingRect(self) -> QRectF:
         self.shapePath.clear()
 
-        def appendShapePath(startIndex, endIndex, polygonPath):
-            self.shapePath.addPath(polygonPath)
-            return False
+        if self.isAdvanceSelectMode():
+            def appendShapePath(startIndex, endIndex, polygonPath):
+                self.shapePath.addPath(polygonPath)
+                return False
 
-        self.foreachPolygonSegments(appendShapePath)
+            self.foreachPolygonSegments(appendShapePath)
+        else:
+            CanvasUtil.buildSegmentsPath(self.shapePath, self.polygon, self.isClosePath)
+
         return self.shapePath.boundingRect()
 
 
@@ -821,7 +536,7 @@ class CanvasEditablePath(QGraphicsObject):
         return super().mouseDoubleClickEvent(event)
 
     def initControllers(self):
-        if not self.canRoiItemEditable:
+        if not self.isBorderEditableMode():
             return
 
         if not hasattr(self, "controllers"):
@@ -996,3 +711,10 @@ class CanvasEditablePath(QGraphicsObject):
     
     def endRotate(self, localPos:QPointF) -> None:
         pass
+
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)

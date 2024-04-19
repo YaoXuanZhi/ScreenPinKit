@@ -9,9 +9,6 @@ from qfluentwidgets import Action
 from system_tray_icon import SystemTrayIcon
 from screen_shot_window import ScreenShotWindow
 
-from canvas_scene import CanvasScene
-from canvas_view import CanvasView
-
 class SettingWindow(QWidget):
     def __init__(self):
         super().__init__()

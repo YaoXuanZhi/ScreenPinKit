@@ -26,6 +26,10 @@
 		- [原笔迹手写实现平滑和笔锋效果之:笔迹的平滑(一) - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8047259.html)
 		- [原笔迹手写实现平滑和笔锋效果之:笔迹的平滑(二) - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8048102.html)
 		- [原笔迹手写实现平滑和笔锋效果之:笔锋效果(三)[完结篇] - 88911562 - 博客园 (cnblogs.com)](https://www.cnblogs.com/zl03jsj/p/8051912.html)
+	- 特殊菜单
+		- [Qt，C++开发炫酷圆形扇形菜单面板_qt 圆形窗口-CSDN博客](https://blog.csdn.net/wastelandboy/article/details/123492815)
+		- [Qt自定义圆形环状菜单_qt环形菜单-CSDN博客](https://blog.csdn.net/qq_40162965/article/details/112374406)
+		- [Qt之悬浮球菜单 - 朝十晚八 - 博客园 (cnblogs.com)](https://www.cnblogs.com/swarmbees/p/16837670.html)
 - 参考资料
 	- https://maicss.gitbook.io/pyqt-chinese-tutoral/
 	- https://github.com/fandesfyf/Jamscreenshot
