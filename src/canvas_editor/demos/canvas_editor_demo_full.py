@@ -72,8 +72,8 @@ class MainWindow(QDragWindow):
             QAction("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
-            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawMarkerPen), shortcut="alt+3"),
-            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.ApplyErase), shortcut="alt+4"),
+            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen), shortcut="alt+3"),
+            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+4"),
         ]
         self.addActions(actions)
 
@@ -93,12 +93,16 @@ class MainWindow(QDragWindow):
         self.canvasEditor.switchDrawTool(drawActionEnum)
 
     def initUI(self):
-        self.setStyleSheet("QWidget { background-color: #E3212121; }")
         self.contentLayout = QVBoxLayout(self)
-        self.physicalPixmap = QPixmap("screen 143-313.png")
-        # self.physicalPixmap = QPixmap()
-        self.shadowWidth = 20
+        self.shadowWidth = 10
         sceneBrush = None
+
+        # 桌面标注模式
+        self.physicalPixmap = QPixmap()
+
+        # 截图标注模式
+        # imagePath = os.path.join(os.path.dirname(__file__), "screen 143-313.png")
+        # self.physicalPixmap = QPixmap(imagePath)
 
         finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
         if self.physicalPixmap.isNull():

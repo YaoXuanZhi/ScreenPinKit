@@ -3,18 +3,17 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from .canvas_util import *
 
-class CanvasPencilItem(CanvasCommonPathItem):
+class CanvasEraserItem(CanvasCommonPathItem):
     '''
-    绘图工具-铅笔图元
+    绘图工具-橡皮擦图元
     '''
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, parent: QWidget = None, pen:QPen = QPen(QColor(0, 255, 0, 100))) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
-        self.__initStyle()
+        self.__initStyle(pen)
 
-    def __initStyle(self):
-        initPen = QPen(QColor(0, 255, 0, 100))
-        initPen.setWidth(5)
+    def __initStyle(self, pen:QPen):
+        initPen = pen
         initPen.setCosmetic(True)
         initPen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         initPen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -40,8 +39,8 @@ class CanvasPencilItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldArrowStyleMap["pen"]
+        oldStyleMap = self.styleAttribute.getValue().value()
+        finalPen:QPen = oldStyleMap["pen"]
 
         # 计算缩放比例
         if event.delta() > 0:
@@ -59,6 +58,7 @@ class CanvasPencilItem(CanvasCommonPathItem):
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         styleMap = self.styleAttribute.getValue().value()
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         painter.setPen(styleMap["pen"])
         painter.drawPath(targetPath)
 

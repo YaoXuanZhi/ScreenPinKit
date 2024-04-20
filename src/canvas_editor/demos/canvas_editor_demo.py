@@ -10,17 +10,18 @@ from canvas_item import *
 
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
-    DrawText = "编辑文字"
+    EditText = "编辑文字"
     UsePencil = "使用画笔"
-    ApplyErase = "应用橡皮擦"
+    UseEraser = "使用橡皮擦"
+    UseMarkerPen = "使用记号笔"
+    UseMarkerItem = "使用标记"
+    PasteSvg = "粘贴图案"
+
     DrawRectangle = "绘制矩形"
     DrawEllipse = "绘制椭圆"
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
-    DrawPolygonalLine = "绘制多边形"
-    DrawMarkerPen = "使用记号笔"
-    DrawMarkerItem = "使用标记"
-    DrawSvg = "绘制图案"
+    DrawPolygonalLine = "绘制折线"
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
@@ -34,8 +35,8 @@ class DrawingScene(QGraphicsScene):
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
-        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
-        targetRect.moveCenter(finalGeometry.center()/-2)
+        targetPoint = self.views()[0].rect().center()
+        targetRect.moveCenter(targetPoint/-2)
 
         arrowStyleMap = {
             "arrowLength" : 32.0,
@@ -66,9 +67,8 @@ class DrawingScene(QGraphicsScene):
         pathItem3.addPoint(QPointF(-30, -50), Qt.PointingHandCursor)
         pathItem3.addPoint(QPointF(-200, -280), Qt.SizeAllCursor)
         pathItem3.update()
-        pathItem3.setPos(finalGeometry.center()/-2)
+        pathItem3.setPos(targetPoint/-2)
         self.addItem(pathItem3)
-
 
     def setEditableState(self, isEditable:bool):
         for item0 in self.itemList:
@@ -106,14 +106,13 @@ class DrawingScene(QGraphicsScene):
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
                         if self.pathItem == None:
                             self.setEditableState(False)
                             self.pathItem = CanvasMarkerPen()
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
-                    # return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -127,10 +126,9 @@ class DrawingScene(QGraphicsScene):
                 elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                     self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                     self.pathItem.update()
-                elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
                     self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                     self.pathItem.update()
-                # return
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -150,7 +148,6 @@ class DrawingScene(QGraphicsScene):
                     self.removeItem(self.pathItem)
                     self.setEditableState(True)
                     self.pathItem = None
-                    # return
                 elif event.button() == Qt.LeftButton and self.pathItem != None:
                     if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
                         self.removeItem(self.pathItem)
@@ -159,13 +156,11 @@ class DrawingScene(QGraphicsScene):
                         self.itemList.append(self.pathItem)
                     self.setEditableState(True)
                     self.pathItem = None
-                    # return
-            elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:                
+            elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:                
                 if event.button() == Qt.RightButton and self.pathItem != None:
                     self.removeItem(self.pathItem)
                     self.setEditableState(True)
                     self.pathItem = None
-                    # return
                 elif event.button() == Qt.LeftButton and self.pathItem != None:
                     if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
                         self.removeItem(self.pathItem)
@@ -174,8 +169,6 @@ class DrawingScene(QGraphicsScene):
                         self.itemList.append(self.pathItem)
                     self.setEditableState(True)
                     self.pathItem = None
-                    # return
-            # return
         super().mouseReleaseEvent(event)
 
 class DrawingView(QGraphicsView):
@@ -272,7 +265,6 @@ class QDragWindow(QLabel):
                 self.move(event.x() + self.x() - self.posX, event.y() + self.y() - self.posY)
 
 class MainWindow(QDragWindow):
-# class MainWindow(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.defaultFlag()
@@ -296,7 +288,7 @@ class MainWindow(QDragWindow):
             QAction("切到画板但无操作", self, triggered=self.startDraw, shortcut="ctrl+t"),
             QAction("切换到箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
-            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawMarkerPen), shortcut="alt+3"),
+            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen), shortcut="alt+3"),
             QAction("切换多选操作", self, triggered=self.switchCanvas, shortcut="alt+4"),
         ]
         self.addActions(actions)
@@ -331,10 +323,15 @@ class MainWindow(QDragWindow):
         self.view.setEnabled(drawActionEnum != DrawActionEnum.DrawNone)
 
     def initUI(self):
-        self.setStyleSheet("QWidget { background-color: #E3212121; }")
         self.contentLayout = QVBoxLayout(self)
-        self.physicalPixmap = QPixmap("screen 300-107.png")
-        self.shadowWidth = 20
+        self.shadowWidth = 10
+
+        # # 桌面标注模式
+        # self.physicalPixmap = QPixmap()
+
+        # 截图标注模式
+        imagePath = os.path.join(os.path.dirname(__file__), "screen 143-313.png")
+        self.physicalPixmap = QPixmap(imagePath)
 
         if self.physicalPixmap.isNull():
             finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()

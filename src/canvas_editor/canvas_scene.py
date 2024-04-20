@@ -1,3 +1,4 @@
+import os, random
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -5,17 +6,18 @@ from canvas_item import *
 
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
-    DrawText = "编辑文字"
+    EditText = "编辑文字"
     UsePencil = "使用画笔"
-    ApplyErase = "应用橡皮擦"
+    UseEraser = "使用橡皮擦"
+    UseMarkerPen = "使用记号笔"
+    UseMarkerItem = "使用标记"
+    PasteSvg = "粘贴图案"
+
     DrawRectangle = "绘制矩形"
     DrawEllipse = "绘制椭圆"
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
-    DrawPolygonalLine = "绘制多边形"
-    DrawMarkerPen = "使用记号笔"
-    DrawMarkerItem = "使用标记"
-    DrawSvg = "绘制图案"
+    DrawPolygonalLine = "绘制折线"
 
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
@@ -30,8 +32,8 @@ class CanvasScene(QGraphicsScene):
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
-        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
-        targetRect.moveCenter(finalGeometry.center()/-2)
+        targetPoint = self.views()[0].rect().center()
+        targetRect.moveCenter(targetPoint/-2)
 
         arrowStyleMap = {
             "arrowLength" : 32.0,
@@ -62,9 +64,8 @@ class CanvasScene(QGraphicsScene):
         pathItem3.addPoint(QPointF(-30, -50), Qt.PointingHandCursor)
         pathItem3.addPoint(QPointF(-200, -280), Qt.SizeAllCursor)
         pathItem3.update()
-        pathItem3.setPos(finalGeometry.center()/-2)
+        pathItem3.setPos(targetPoint/-2)
         self.addItem(pathItem3)
-
 
     def setEditableState(self, isEditable:bool):
         for item0 in self.itemList:
@@ -90,7 +91,7 @@ class CanvasScene(QGraphicsScene):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if event.button() == Qt.LeftButton:
                 if not view.isCanDrag() and item == None:
-                    if self.currentDrawActionEnum == DrawActionEnum.DrawText:
+                    if self.currentDrawActionEnum == DrawActionEnum.EditText:
                         self.pathItem = CanvasTextItem()
                         self.pathItem.switchEditableBox()
                         self.addItem(self.pathItem)
@@ -98,14 +99,27 @@ class CanvasScene(QGraphicsScene):
                         targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
                         self.pathItem.setPos(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerItem:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerItem:
                         self.pathItem = CanvasMarkderItem(QRectF(0, 0, 50, 50))
                         self.addItem(self.pathItem)
                         targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
                         self.pathItem.setPos(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.DrawSvg:
-                        self.pathItem = CanvasSvgItem(QRectF(0, 0, 300, 300))
+                    elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
+                        svgNames = [
+                            "diagonal_resize_1.svg",
+                            "diagonal_resize_2.svg",
+                            "horizontal_resize.svg",
+                            "vertical_resize.svg",
+                            "zsh.svg",
+                        ]
+                        svgName = svgNames[random.randint(0, 4)]
+                        svgPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources", svgName)
+                        if random.randint(0, 9) % 2 == 0:
+                            self.pathItem = CanvasSvgItem(QRectF(), svgPath)
+                        else:
+                            self.pathItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)
+
                         self.addItem(self.pathItem)
                         targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
@@ -116,7 +130,7 @@ class CanvasScene(QGraphicsScene):
                             self.pathItem = CanvasPencilItem()
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.ApplyErase:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseEraser:
                         if self.pathItem == None:
                             self.setEditableState(False)
                             if self.bgBrush != None:
@@ -124,7 +138,7 @@ class CanvasScene(QGraphicsScene):
                                 erasePen = QPen(eraseBrush, 10)
                             else:
                                 erasePen = QPen(Qt.GlobalColor.blue)
-                            self.pathItem = CanvasEraseItem(None, erasePen)
+                            self.pathItem = CanvasEraserItem(None, erasePen)
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
 
@@ -147,7 +161,7 @@ class CanvasScene(QGraphicsScene):
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
                         if self.pathItem == None:
                             self.setEditableState(False)
                             self.pathItem = CanvasMarkerPen()
@@ -179,13 +193,13 @@ class CanvasScene(QGraphicsScene):
                 elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                     self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                     self.pathItem.update()
-                elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:
+                elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
                     self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                     self.pathItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.UsePencil:
                     self.pathItem.polygon.append(targetPos)
                     self.pathItem.update()
-                elif self.currentDrawActionEnum == DrawActionEnum.ApplyErase:
+                elif self.currentDrawActionEnum == DrawActionEnum.UseEraser:
                     self.pathItem.polygon.append(targetPos)
                     self.pathItem.update()
                 elif self.currentDrawActionEnum in [DrawActionEnum.DrawRectangle, DrawActionEnum.DrawEllipse, DrawActionEnum.DrawStar]:
@@ -221,7 +235,7 @@ class CanvasScene(QGraphicsScene):
                         finalItem = self.pathItem
                     self.setEditableState(True)
                     self.pathItem = None
-            elif self.currentDrawActionEnum == DrawActionEnum.DrawMarkerPen:                
+            elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:                
                 if event.button() == Qt.RightButton and self.pathItem != None:
                     self.removeItem(self.pathItem)
                     self.setEditableState(True)
@@ -240,7 +254,7 @@ class CanvasScene(QGraphicsScene):
                     self.pathItem.completeDraw()
                     self.itemList.append(self.pathItem)
                     self.pathItem = None
-            elif self.currentDrawActionEnum == DrawActionEnum.ApplyErase:                
+            elif self.currentDrawActionEnum == DrawActionEnum.UseEraser:                
                 if event.button() == Qt.LeftButton and self.pathItem != None:
                     self.pathItem.completeDraw()
                     self.itemList.append(self.pathItem)

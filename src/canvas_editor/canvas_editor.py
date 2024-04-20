@@ -27,7 +27,6 @@ class CanvasEditor(QWidget):
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
         self.scene = CanvasScene(None, self.sceneBrush)
-
         self.view = CanvasView(self.scene)
         self.contentLayout.addWidget(self.view)
         self.setEditorEnabled(True)
