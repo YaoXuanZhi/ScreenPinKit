@@ -55,6 +55,7 @@ class MainWindow(QDragWindow):
         self.defaultFlag()
         self.initUI()
         self.initActions()
+        self.initSystemTrayMenu()
         self.show()
         self.painter = QPainter()
         self.focusColor = QColor(255, 0, 255, 50)
@@ -63,7 +64,30 @@ class MainWindow(QDragWindow):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+
+    def initSystemTrayMenu(self):
+        self.systemTrayIcon = QSystemTrayIcon()
+
+        trayPixmap = QPixmap(16, 16)
+        trayPixmap.fill(QColor(100, 100, 100))
+        self.systemTrayIcon.setIcon(QIcon(trayPixmap))
+        self.systemTrayIcon.setToolTip("CanvasEditorDemo")
+        self.systemTrayIcon.show()
+
+        contextMenu = QMenu(self)
+        trayMenuActions = [
+            QAction('退出', self, triggered=self.exit),
+            QAction('绘画模式', self, triggered=self.startDraw),
+        ]
+        contextMenu.addActions(trayMenuActions)
+        self.systemTrayIcon.setContextMenu(contextMenu)
+
+    def exit(self):
+        sys.exit(0)
+
+    def removeMouseThougth(self):
+        self.setMouseThought(False)
 
     def initActions(self):
         actions = [
@@ -85,9 +109,15 @@ class MainWindow(QDragWindow):
 
     def swtichShow(self):
         self.canvasEditor.setEditorEnabled(False)
+        self.setMouseThought(True)
+
+    def setMouseThought(self, isThought:bool):
+        self.setWindowFlag(Qt.WindowTransparentForInput, isThought)
+        self.show()
 
     def startDraw(self):
         self.canvasEditor.setEditorEnabled(True)
+        self.setMouseThought(False)
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.canvasEditor.switchDrawTool(drawActionEnum)
@@ -131,6 +161,8 @@ class MainWindow(QDragWindow):
         self.canvasEditor.scene.initNodes()
 
     def isAllowDrag(self):
+        if self.physicalPixmap.isNull():
+            return False
         return not self.canvasEditor.isEditorEnabled()
 
     def paintEvent(self, a0: QPaintEvent) -> None:

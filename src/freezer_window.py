@@ -24,11 +24,7 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.pixmapWidget = QPainterWidget(self, physicalPixmap, self.xRadius, self.yRadius)
         self.contentLayout.addWidget(self.pixmapWidget)
 
-        self.setMouseTracking(True)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
-
+        self.defaultFlag()
         self.initActions()
         self.initBlink()
 
@@ -38,6 +34,12 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.painter = QPainter()
         self.closeCallback = closeCallback
         self.show()
+
+    def defaultFlag(self):
+        self.setMouseTracking(True)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
     def initActions(self):
         actions = [
@@ -79,28 +81,22 @@ class FreezerWindow(QDragWindow):  # 固定图片类
     # 改变窗口穿透状态
     def changeMouseThought(self):
         if self.isMouseThought():
-            self.setWindowFlags(self.windowFlags() & ~Qt.WindowTransparentForInput)
+            self.setMouseThought(False)
         else:
-            self.setWindowFlags(self.windowFlags() | Qt.WindowTransparentForInput)
+            self.setMouseThought(True)
 
+    def setMouseThought(self, isThought:bool):
+        self.setWindowFlag(Qt.WindowTransparentForInput, isThought)
         self.show()
 
-    def setMouseThought(self, can:bool):
-        if can:
-            self.setWindowFlags(self.windowFlags() | Qt.WindowTransparentForInput)
-        else:
-            self.setWindowFlags(self.windowFlags() & ~Qt.WindowTransparentForInput)
-
-        self.show()
+    # 判断窗口的鼠标是否穿透了
+    def isMouseThought(self):
+        return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags()
 
     def isAllowDrag(self):
         if self.pixmapWidget.drawWidget != None:
             return not self.pixmapWidget.drawWidget.isEditorEnabled()
         return True
-
-    # 判断窗口的鼠标是否穿透了
-    def isMouseThought(self):
-        return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags()
 
     def mousePressEvent(self, event):
         self.isPresse = True
