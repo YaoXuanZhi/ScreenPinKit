@@ -201,13 +201,6 @@ class DrawingView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setDragMode(QGraphicsView.RubberBandDrag)
 
-    # def mousePressEvent(self, event: QMouseEvent) -> None:
-    #     if event.button() == Qt.LeftButton:
-    #         if not self.isCanDrag():
-    #             targetPos = self.mapToScene(event.pos())
-    #             print(f"------> view {targetPos}")
-    #     return super().mousePressEvent(event)
-
     def isCanDrag(self):
         '''判断当前是否可以拖曳图元'''
         matchMode = self.dragMode()

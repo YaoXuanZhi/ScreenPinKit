@@ -18,17 +18,17 @@ class CanvasEditor(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
     def initUI(self):
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.contentLayout = QVBoxLayout(self)
+        self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
         self.scene = CanvasScene(None, self.sceneBrush)
-        # self.scene.setBackgroundBrush(self.sceneBrush)
 
         self.view = CanvasView(self.scene)
-        self.layout.addWidget(self.view)
+        self.contentLayout.addWidget(self.view)
+        self.setEditorEnabled(True)
 
     def quitDraw(self):
-        self.view.setEnabled(False)
+        self.setEnabled(False)
         for item in self.view.scene().items():
             if hasattr(item, "roiMgr"):
                 roiMgr:CanvasROIManager = item.roiMgr
@@ -39,7 +39,21 @@ class CanvasEditor(QWidget):
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.scene.currentDrawActionEnum = drawActionEnum
         self.scene.pathItem = None
-        self.view.setEnabled(drawActionEnum != DrawActionEnum.DrawNone)
+        self.setEditorEnabled(drawActionEnum != DrawActionEnum.DrawNone)
 
-    def isAllowDrag(self):
-        return not self.view.isEnabled()
+    def isEditorEnabled(self):
+        return self.view.isEnabled()
+
+    def setEditorEnabled(self, isOpen:bool):
+        '''
+        为了兼容桌面标注和截图标注，默认给QGraphicsScene添加一个透明度为1的背景，
+        用来避免桌面标注时绘图层鼠标穿透了
+        '''
+        if isOpen:
+            color = QColor(Qt.GlobalColor.white)
+            # color.setAlpha(1)
+            color.setAlpha(100)
+            self.scene.setBackgroundBrush(QBrush(color))
+        else:
+            self.scene.setBackgroundBrush(QBrush(Qt.NoBrush))
+        self.view.setEnabled(isOpen)
