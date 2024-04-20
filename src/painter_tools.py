@@ -96,10 +96,10 @@ class QPainterWidget(QPixmapWidget):
         self.initLayout()
 
     def initLayout(self):
-        self.layout = QVBoxLayout()
-        self.layout.setAlignment(Qt.AlignHCenter)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.layout)
+        self.contentLayout = QVBoxLayout()
+        self.contentLayout.setAlignment(Qt.AlignHCenter)
+        self.contentLayout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.contentLayout)
 
         basePixmap = self.physicalPixmap.copy()
         self.sceneBrush = QBrush(basePixmap)
@@ -168,7 +168,7 @@ class QPainterWidget(QPixmapWidget):
 
         self.drawWidget = CanvasEditor(self, self.sceneBrush)
         self.drawWidget.initUI()
-        self.layout.addWidget(self.drawWidget)
+        self.contentLayout.addWidget(self.drawWidget)
 
     def completeDraw(self):
         if self.toolbar != None:

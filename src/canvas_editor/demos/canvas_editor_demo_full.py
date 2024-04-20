@@ -68,13 +68,12 @@ class MainWindow(QDragWindow):
     def initActions(self):
         actions = [
             QAction("退出", self, triggered=self.quitDraw, shortcut="esc"),
-            QAction("切到画板但无操作", self, triggered=self.swtichOption, shortcut="ctrl+w"),
-            QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="alt+w"),
-            QAction("切到画板但无操作", self, triggered=self.startDraw, shortcut="ctrl+t"),
+            QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="ctrl+w"),
+            QAction("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
             QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawMarkerPen), shortcut="alt+3"),
-            QAction("切换多选操作", self, triggered=self.switchCanvas, shortcut="alt+4"),
+            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.ApplyErase), shortcut="alt+4"),
         ]
         self.addActions(actions)
 
@@ -84,22 +83,11 @@ class MainWindow(QDragWindow):
         else:
             sys.exit(0)
 
-    def swtichOption(self):
-        # color = QColor(Qt.GlobalColor.yellow)
-        # color.setAlpha(1)
-        # self.scene.setBackgroundBrush(QBrush(color))
-        self.canvasEditor.setEditorEnabled(True)
-
     def swtichShow(self):
-        # self.scene.setBackgroundBrush(QBrush(Qt.NoBrush))
         self.canvasEditor.setEditorEnabled(False)
 
     def startDraw(self):
         self.canvasEditor.setEditorEnabled(True)
-
-    def switchCanvas(self):
-        # self.view.switchCanvas()
-        pass
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.canvasEditor.switchDrawTool(drawActionEnum)
@@ -108,23 +96,32 @@ class MainWindow(QDragWindow):
         self.setStyleSheet("QWidget { background-color: #E3212121; }")
         self.contentLayout = QVBoxLayout(self)
         self.physicalPixmap = QPixmap("screen 143-313.png")
+        # self.physicalPixmap = QPixmap()
         self.shadowWidth = 20
+        sceneBrush = None
 
+        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
         if self.physicalPixmap.isNull():
-            finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
             self.screenPixmap = finalPixmap
             self.setGeometry(finalGeometry)
             self.contentLayout.setContentsMargins(0, 0, 0, 0)
         else:
-            self.setPixmap(self.physicalPixmap)
+            # 计算得到高分辨率缩放下最终尺寸
+            screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+            self.physicalPixmap.setDevicePixelRatio(screenDevicePixelRatio)
+            realSize:QSizeF = self.physicalPixmap.size() / screenDevicePixelRatio
 
-            finalSize = self.physicalPixmap.size()
-            finalSize.setWidth(finalSize.width() + self.shadowWidth)
-            finalSize.setHeight(finalSize.height() + self.shadowWidth)
-            self.resize(finalSize)
+            screenPoint = finalGeometry.center() / 2
+            self.setGeometry(screenPoint.x()-self.shadowWidth, screenPoint.y()-self.shadowWidth, realSize.width()+2*self.shadowWidth, realSize.height()+2*self.shadowWidth)
             self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
 
-        self.canvasEditor = CanvasEditor()
+            sceneBrush = QBrush(self.physicalPixmap)
+            transform = QtGui.QTransform()
+            transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
+            transform.translate(-self.physicalPixmap.size().width()/2, -self.physicalPixmap.size().height()/2)
+            sceneBrush.setTransform(transform)
+
+        self.canvasEditor = CanvasEditor(None, sceneBrush)
         self.canvasEditor.initUI()
         self.contentLayout.addWidget(self.canvasEditor)
         self.canvasEditor.scene.initNodes()
@@ -159,11 +156,7 @@ class MainWindow(QDragWindow):
         self.painter.end()
 
         self.painter.begin(self)
-        frameRect = self.rect() - QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
-        self.painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
-        clipPath = QPainterPath()
-        clipPath.addRoundedRect(QRectF(self.rect()), 5, 5)
-        self.painter.setClipPath(clipPath)
+        frameRect:QRectF = self.rect() - QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
         self.painter.drawPixmap(frameRect, self.physicalPixmap)
         self.painter.end()
 

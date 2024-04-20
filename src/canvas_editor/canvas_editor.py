@@ -8,11 +8,16 @@ from .canvas_scene import CanvasScene, DrawActionEnum
 from .canvas_view import CanvasView
 
 class CanvasEditor(QWidget):
-    """ Canvas编辑层 """
+    '''
+    Canvas编辑层
+    sceneBrush == None时，则说明是桌面绘图，
+    在截图绘图里，其橡皮擦原理是基于sceneBrush来实现的
+    '''
     def __init__(self, parent=None, sceneBrush:QBrush = None):
         super().__init__(parent)
         self.sceneBrush = sceneBrush
         self.defaultFlag()
+        self.painter = QPainter()
 
     def defaultFlag(self):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -28,7 +33,7 @@ class CanvasEditor(QWidget):
         self.setEditorEnabled(True)
 
     def quitDraw(self):
-        self.setEnabled(False)
+        self.setEditorEnabled(False)
         for item in self.view.scene().items():
             if hasattr(item, "roiMgr"):
                 roiMgr:CanvasROIManager = item.roiMgr
@@ -49,11 +54,12 @@ class CanvasEditor(QWidget):
         为了兼容桌面标注和截图标注，默认给QGraphicsScene添加一个透明度为1的背景，
         用来避免桌面标注时绘图层鼠标穿透了
         '''
-        if isOpen:
-            color = QColor(Qt.GlobalColor.white)
-            # color.setAlpha(1)
-            color.setAlpha(100)
-            self.scene.setBackgroundBrush(QBrush(color))
-        else:
-            self.scene.setBackgroundBrush(QBrush(Qt.NoBrush))
+        if self.sceneBrush == None:
+            if isOpen:
+                color = QColor(Qt.GlobalColor.white)
+                color.setAlpha(1)
+                # color.setAlpha(100)
+                self.scene.setBackgroundBrush(QBrush(color))
+            else:
+                self.scene.setBackgroundBrush(QBrush(Qt.NoBrush))
         self.view.setEnabled(isOpen)

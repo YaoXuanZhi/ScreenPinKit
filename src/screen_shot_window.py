@@ -7,6 +7,7 @@ from PyQt5.QtGui import QCursor, QPainter, QColor, QPen, QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget
 from freezer_window import FreezerWindow
 from qfluentwidgets import (RoundMenu, Action, FluentIcon, InfoBar, InfoBarPosition, CommandBarView, Flyout, FlyoutAnimationType, TeachingTip, TeachingTipTailPosition, TeachingTipView)
+from canvas_item import *
 
 class ScreenShotWindow(QWidget):
     def __init__(self):
@@ -98,39 +99,10 @@ class ScreenShotWindow(QWidget):
         self.setCenterArea(pt_start, pt_end)
         self.update()
 
-    def grabScreens(self):
-        screens = QApplication.screens()
-        w = h = p = 0
-        screenPixs = []
-
-        #将多显示器的屏幕快照从左往右排序，与实际屏幕摆放位置一致
-        screens.sort(key=lambda screen: screen.geometry().x())
-
-        #考虑到需要兼容那种一个横屏、一个竖屏的情况
-        for screen in screens:
-            pix = screen.grabWindow(0)
-            w += pix.width()
-            h = max(h, pix.height())
-            screenPixs.append(pix)
-
-        finalPixmap = QPixmap(w, h)
-        finalPixmap.setDevicePixelRatio(screens[0].devicePixelRatio())
-        finalPixmap.fill(Qt.transparent)
-        painter = QPainter(finalPixmap)
-        for pix in screenPixs:
-            painter.drawPixmap(QPoint(p, 0), pix)
-            p = p + pix.width()
-
-        # # 拿到最左侧屏幕的左上角坐标
-        geometryTopLeft = screens[0].geometry().topLeft()
-
-        finalGeometry = QRect(geometryTopLeft, QSize(w, h))
-        return finalPixmap, finalGeometry
-
     def reShow(self):
         if self.isActiveWindow():
             return
-        finalPixmap, finalGeometry = self.grabScreens()
+        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
         self.screenPixmap = finalPixmap
         self.setGeometry(finalGeometry)
         self.initPainterTool()

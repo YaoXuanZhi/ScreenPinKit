@@ -199,7 +199,6 @@ class DrawingView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("background: transparent; border:0px;")
         self.setRenderHint(QPainter.Antialiasing)
-        self.setDragMode(QGraphicsView.RubberBandDrag)
 
     def isCanDrag(self):
         '''判断当前是否可以拖曳图元'''
@@ -295,9 +294,9 @@ class MainWindow(QDragWindow):
             QAction("切到画板但无操作", self, triggered=self.swtichOption, shortcut="ctrl+w"),
             QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="alt+w"),
             QAction("切到画板但无操作", self, triggered=self.startDraw, shortcut="ctrl+t"),
-            QAction("切换到铅笔", self, triggered=self.drawArrow, shortcut="alt+1"),
-            QAction("切换到折线", self, triggered=self.usePolygon, shortcut="alt+2"),
-            QAction("切换到记号笔", self, triggered=self.useMarkerPen, shortcut="alt+3"),
+            QAction("切换到箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+1"),
+            QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
+            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawMarkerPen), shortcut="alt+3"),
             QAction("切换多选操作", self, triggered=self.switchCanvas, shortcut="alt+4"),
         ]
         self.addActions(actions)
@@ -326,24 +325,14 @@ class MainWindow(QDragWindow):
     def switchCanvas(self):
         self.view.switchCanvas()
 
-    def drawArrow(self):
-        self.scene.currentDrawActionEnum = DrawActionEnum.DrawArrow
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum):
+        self.scene.currentDrawActionEnum = drawActionEnum
         self.scene.pathItem = None
-        self.view.setEnabled(True)
-
-    def usePolygon(self):
-        self.scene.currentDrawActionEnum = DrawActionEnum.DrawPolygonalLine
-        self.scene.pathItem = None
-        self.view.setEnabled(True)
-
-    def useMarkerPen(self):
-        self.scene.currentDrawActionEnum = DrawActionEnum.DrawMarkerPen
-        self.scene.pathItem = None
-        self.view.setEnabled(True)
+        self.view.setEnabled(drawActionEnum != DrawActionEnum.DrawNone)
 
     def initUI(self):
         self.setStyleSheet("QWidget { background-color: #E3212121; }")
-        self.layout = QVBoxLayout(self)
+        self.contentLayout = QVBoxLayout(self)
         self.physicalPixmap = QPixmap("screen 300-107.png")
         self.shadowWidth = 20
 
@@ -351,7 +340,7 @@ class MainWindow(QDragWindow):
             finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
             self.screenPixmap = finalPixmap
             self.setGeometry(finalGeometry)
-            self.layout.setContentsMargins(0, 0, 0, 0)
+            self.contentLayout.setContentsMargins(0, 0, 0, 0)
         else:
             self.setPixmap(self.physicalPixmap)
 
@@ -359,7 +348,7 @@ class MainWindow(QDragWindow):
             finalSize.setWidth(finalSize.width() + self.shadowWidth)
             finalSize.setHeight(finalSize.height() + self.shadowWidth)
             self.resize(finalSize)
-            self.layout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
+            self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
 
         self.scene = DrawingScene()
         if self.physicalPixmap.isNull():
@@ -367,7 +356,7 @@ class MainWindow(QDragWindow):
             color.setAlpha(1)
             self.scene.setBackgroundBrush(QBrush(color))
         self.view = DrawingView(self.scene)
-        self.layout.addWidget(self.view)
+        self.contentLayout.addWidget(self.view)
 
         self.scene.initNodes()
 

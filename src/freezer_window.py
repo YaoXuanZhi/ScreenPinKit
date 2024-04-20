@@ -12,17 +12,17 @@ from painter_tools import QDragWindow, QPainterWidget, DrawActionEnum
 class FreezerWindow(QDragWindow):  # 固定图片类
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent)
-        self.layout = QVBoxLayout(self)
+        self.contentLayout = QVBoxLayout(self)
         self.shadowWidth = 30
         self.xRadius = 20
         self.yRadius = 20
         self.borderLineWidth = 0.5
         self.physicalPixmap = physicalPixmap
         self.setGeometry(screenPoint.x()-self.shadowWidth, screenPoint.y()-self.shadowWidth, physicalSize.width()+2*self.shadowWidth, physicalSize.height()+2*self.shadowWidth)
-        self.layout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
+        self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
 
         self.pixmapWidget = QPainterWidget(self, physicalPixmap, self.xRadius, self.yRadius)
-        self.layout.addWidget(self.pixmapWidget)
+        self.contentLayout.addWidget(self.pixmapWidget)
 
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
@@ -95,7 +95,7 @@ class FreezerWindow(QDragWindow):  # 固定图片类
 
     def isAllowDrag(self):
         if self.pixmapWidget.drawWidget != None:
-            return self.pixmapWidget.drawWidget.isAllowDrag()
+            return not self.pixmapWidget.drawWidget.isEditorEnabled()
         return True
 
     # 判断窗口的鼠标是否穿透了

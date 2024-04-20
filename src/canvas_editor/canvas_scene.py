@@ -29,8 +29,9 @@ class CanvasScene(QGraphicsScene):
         self.itemList:list = []
 
     def initNodes(self):
-        startPos = QPointF(100, 100)
-        endPos = QPointF(300, 300)
+        targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
+        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
+        targetRect.moveCenter(finalGeometry.center()/-2)
 
         arrowStyleMap = {
             "arrowLength" : 32.0,
@@ -41,8 +42,8 @@ class CanvasScene(QGraphicsScene):
             "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
             "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
         }
-        # finalPoints = CanvasUtil.buildArrowPath(QPainterPath(), QPolygonF([startPos, endPos]), arrowStyleMap)
-        finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([startPos, endPos]))
+        # finalPoints = CanvasUtil.buildArrowPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]), arrowStyleMap)
+        finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]))
         pathItem1 = CanvasCommonPathItem(None, False)
         pathItem1.polygon = QPolygonF(finalPoints)
         pathItem1.setEditableState(True)
@@ -56,8 +57,14 @@ class CanvasScene(QGraphicsScene):
         pathItem2.moveBy(300, 0)
         self.addItem(pathItem2)
 
-        self.itemList.append(pathItem1)
-        self.itemList.append(pathItem2)
+        pathItem3 = CanvasEditablePath(None, False)
+        pathItem3.addPoint(QPointF(-100, -100), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(-30, -50), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(-200, -280), Qt.SizeAllCursor)
+        pathItem3.update()
+        pathItem3.setPos(finalGeometry.center()/-2)
+        self.addItem(pathItem3)
+
 
     def setEditableState(self, isEditable:bool):
         for item0 in self.itemList:
@@ -112,7 +119,7 @@ class CanvasScene(QGraphicsScene):
                     elif self.currentDrawActionEnum == DrawActionEnum.ApplyErase:
                         if self.pathItem == None:
                             self.setEditableState(False)
-                            if hasattr(self, "bgBrush"):
+                            if self.bgBrush != None:
                                 eraseBrush = self.bgBrush
                                 erasePen = QPen(eraseBrush, 10)
                             else:
