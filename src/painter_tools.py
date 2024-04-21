@@ -64,7 +64,9 @@ class QPixmapWidget(QLabel):
         self.painter = QPainter()
 
     def paintEvent(self, e):
-        super().paintEvent(e)
+        if self.physicalPixmap == None:
+            return super().paintEvent(e)
+
         canvasPixmap = self.physicalPixmap.copy()
         self.painter.begin(self)
         self.painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -92,6 +94,7 @@ class QPainterWidget(QPixmapWidget):
         self.toolbar:QWidget = None
         self.actionGroup:QActionGroup = None
         self.drawWidget:CanvasEditor = None
+        self.sceneBrush:QBrush = None
         self.clearDraw(True)
         self.initLayout()
 
@@ -101,13 +104,17 @@ class QPainterWidget(QPixmapWidget):
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.contentLayout)
 
-        basePixmap = self.physicalPixmap.copy()
-        self.sceneBrush = QBrush(basePixmap)
-        screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
-        transform = QtGui.QTransform()
-        transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
-        transform.translate(-basePixmap.size().width()/2, -basePixmap.size().height()/2)
-        self.sceneBrush.setTransform(transform)
+        if self.physicalPixmap != None:
+            basePixmap = self.physicalPixmap.copy()
+            self.sceneBrush = QBrush(basePixmap)
+            screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+            transform = QtGui.QTransform()
+            transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
+            transform.translate(-basePixmap.size().width()/2, -basePixmap.size().height()/2)
+            self.sceneBrush.setTransform(transform)
+
+    def getCommandBarPosition(self) -> TeachingTipTailPosition:
+        return TeachingTipTailPosition.TOP_RIGHT
 
     def showCommandBar(self):
         if self.toolbar != None:
@@ -115,7 +122,7 @@ class QPainterWidget(QPixmapWidget):
             self.drawWidget.switchDrawTool(DrawActionEnum.DrawNone)
             return
 
-        position = TeachingTipTailPosition.TOP_RIGHT
+        position = self.getCommandBarPosition()
         view = CommandBarView(self)
         closeAction = Action(ScreenShotIcon.FINISHED, '完成绘画')
 

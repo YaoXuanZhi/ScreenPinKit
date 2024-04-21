@@ -21,8 +21,8 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.setGeometry(screenPoint.x()-self.shadowWidth, screenPoint.y()-self.shadowWidth, physicalSize.width()+2*self.shadowWidth, physicalSize.height()+2*self.shadowWidth)
         self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
 
-        self.pixmapWidget = QPainterWidget(self, physicalPixmap, self.xRadius, self.yRadius)
-        self.contentLayout.addWidget(self.pixmapWidget)
+        self.painterWidget = QPainterWidget(self, physicalPixmap, self.xRadius, self.yRadius)
+        self.contentLayout.addWidget(self.painterWidget)
 
         self.defaultFlag()
         self.initActions()
@@ -94,8 +94,8 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags()
 
     def isAllowDrag(self):
-        if self.pixmapWidget.drawWidget != None:
-            return not self.pixmapWidget.drawWidget.isEditorEnabled()
+        if self.painterWidget.drawWidget != None:
+            return not self.painterWidget.drawWidget.isEditorEnabled()
         return True
 
     def mousePressEvent(self, event):
@@ -160,13 +160,13 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             blinkPen.setStyle(QtCore.Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
             blinkPen.setWidthF(self.borderLineWidth)  # 0表示线宽为1
             self.painter.setPen(blinkPen)
-            rect = self.pixmapWidget.geometry()
+            rect = self.painterWidget.geometry()
             # self.painter.drawRect(rect)
             self.painter.drawRoundedRect(rect, self.xRadius, self.yRadius)
 
         self.painter.end()
 
     def closeEvent(self, event) -> None:
-        self.pixmapWidget.close()
+        self.painterWidget.close()
         if self.closeCallback != None:
             self.closeCallback()
