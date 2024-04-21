@@ -358,6 +358,7 @@ class ScreenShotWindow(QWidget):
                 self.centerTopMid(), self.centerBottomMid()
             ]
             blueDotRadius = QPointF(5*self.screenDevicePixelRatio, 5*self.screenDevicePixelRatio)  # 椭圆蓝点
+            # blueDotRadius = QPointF(5, 5)  # 椭圆蓝点
             self.painter.setPen(self.pen_SolidLine_lightWhite)
             self.painter.setBrush(self.color_lightBlue)
             for point in points:
@@ -423,7 +424,7 @@ class ScreenShotWindow(QWidget):
         p = self.screenPixmap
         larger_pix = p.copy(self.mouse_posX - 60, self.mouse_posY - 60, 120, 120).scaled(
             120 + self.tool_width * 10, 120 + self.tool_width * 10)
-        pix = larger_pix.copy(larger_pix.width() / 2 - 60, larger_pix.height() / 2 - 60, 120, 120)
+        pix = larger_pix.copy(int(larger_pix.width() / 2 - 60), int(larger_pix.height() / 2 - 60), 120, 120)
         self.painter.drawPixmap(enlarge_box_x, enlarge_box_y, pix)
         self.painter.setPen(QPen(Qt.green, 1, Qt.SolidLine))
         self.painter.drawLine(enlarge_box_x, enlarge_box_y + 60, enlarge_box_x + 120, enlarge_box_y + 60)
@@ -434,12 +435,12 @@ class ScreenShotWindow(QWidget):
         self.painter.begin(canvasPixmap)
 
         if self.hasScreenShot:
-            self.paintCenterArea()  # 绘制中央截图区域
             self.paintMaskLayer(fullScreen=False)  # 绘制截图区域的周边区域遮罩层
+            self.paintCenterArea()  # 绘制中央截图区域
         else:
             self.paintMaskLayer()
 
-        self.paintMagnifyingGlass ()
+        self.paintMagnifyingGlass()
         self.painter.end()
 
         self.painter.begin(self)

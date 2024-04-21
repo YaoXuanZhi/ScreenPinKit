@@ -149,8 +149,8 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             ref = QRectF(self.shadowWidth-i, self.shadowWidth-i, self.width()-(self.shadowWidth-i)*2, self.height()-(self.shadowWidth-i)*2)
             # i_path.addRect(ref)
             i_path.addRoundedRect(ref, self.xRadius, self.yRadius)
-            color.setAlpha(150 - i**0.5*50)
-            # color.setAlpha(150 - math.sqrt(i) * 50)
+            color.setAlpha(int(150 - i**0.5*50))
+            # color.setAlpha(int(150 - math.sqrt(i) * 50))
             self.painter.setPen(color)
             self.painter.drawPath(i_path)
 
