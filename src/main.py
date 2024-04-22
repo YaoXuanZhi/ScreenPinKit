@@ -24,7 +24,7 @@ class MainWindow(QWidget):
         keyObj = KeyboardEx()
         keyObj.addHotKey("f6", lambda: self.screenPaint())
         keyObj.addHotKey("f7", self.screenShot)
-        keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.changeMouseThough())
+        keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.switchMouseThroughState())
 
     def initSystemTrayMenu(self):
         self.setWindowIcon(ScreenShotIcon.icon(ScreenShotIcon.LOGO))
@@ -56,7 +56,7 @@ class MainWindow(QWidget):
     def removeMouseThougth(self):
         for wnd in self.screenShotWindow.freeze_imgs:
             if wnd != None:
-                wnd.setMouseThought(False)
+                wnd.setMouseThroughState(False)
 
     def showSettingWindow(self):
         self.settingWindow = SettingWindow()

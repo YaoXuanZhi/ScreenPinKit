@@ -48,7 +48,7 @@ class ScreenShotWindow(QWidget):
         self.freeze_imgs[index] = None
 
     # 鼠标穿透策略：优先判断获取焦点窗口的
-    def changeMouseThough(self):
+    def switchMouseThroughState(self):
         focusFreezeWnd:FreezerWindow = None
         screenPos = QCursor.pos()
         for freeze_img in self.freeze_imgs:
@@ -56,10 +56,10 @@ class ScreenShotWindow(QWidget):
                 focusFreezeWnd = freeze_img
                 break
         if focusFreezeWnd != None:
-            focusFreezeWnd.changeMouseThought()
+            focusFreezeWnd.switchMouseThroughState()
         else:
             for freeze_img in self.freeze_imgs:
-                freeze_img.setMouseThought(False)
+                freeze_img.setMouseThroughState(False)
 
     def initPainterTool(self):
         self.painter = QPainter()

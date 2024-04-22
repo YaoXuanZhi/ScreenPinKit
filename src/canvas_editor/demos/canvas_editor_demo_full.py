@@ -87,7 +87,7 @@ class MainWindow(QDragWindow):
         sys.exit(0)
 
     def removeMouseThougth(self):
-        self.setMouseThought(False)
+        self.setMouseThroughState(False)
 
     def initActions(self):
         actions = [
@@ -109,18 +109,33 @@ class MainWindow(QDragWindow):
 
     def swtichShow(self):
         self.canvasEditor.setEditorEnabled(False)
-        self.setMouseThought(True)
-
-    def setMouseThought(self, isThought:bool):
-        self.setWindowFlag(Qt.WindowTransparentForInput, isThought)
-        self.show()
+        self.setMouseThroughState(True)
 
     def startDraw(self):
         self.canvasEditor.setEditorEnabled(True)
-        self.setMouseThought(False)
+        self.setMouseThroughState(False)
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.canvasEditor.switchDrawTool(drawActionEnum)
+
+    def setVisible(self, visible: bool) -> None:
+        # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
+        setMouseThroughing = False
+        if hasattr(self, "setMouseThroughing"):
+            setMouseThroughing = self.setMouseThroughing
+
+        if setMouseThroughing:
+            return
+        return super().setVisible(visible)
+
+    def setMouseThroughState(self, isThrough:bool):
+        self.setMouseThroughing = True
+        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, isThrough)
+        self.setMouseThroughing = False
+        self.show()
+
+    def isMouseThrough(self):
+        return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
 
     def initUI(self):
         self.contentLayout = QVBoxLayout(self)

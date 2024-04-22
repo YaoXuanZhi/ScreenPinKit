@@ -73,11 +73,11 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
 
     def swtichShow(self):
         self.canvasEditor.drawWidget.setEditorEnabled(False)
-        self.setMouseThought(True)
+        self.setMouseThroughState(True)
 
     def startDraw(self):
         self.canvasEditor.drawWidget.setEditorEnabled(True)
-        self.setMouseThought(False)
+        self.setMouseThroughState(False)
 
     def copyToClipboard(self):
         # self.pixmapWidget.copyToClipboard()
@@ -108,6 +108,21 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
             return dlg.GetPathName()  # 获取选择的文件名称
         return None
 
-    def setMouseThought(self, isThought:bool):
-        self.setWindowFlag(Qt.WindowTransparentForInput, isThought)
+    def setVisible(self, visible: bool) -> None:
+        # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
+        setMouseThroughing = False
+        if hasattr(self, "setMouseThroughing"):
+            setMouseThroughing = self.setMouseThroughing
+
+        if setMouseThroughing:
+            return
+        return super().setVisible(visible)
+
+    def setMouseThroughState(self, isThrough:bool):
+        self.setMouseThroughing = True
+        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, isThrough)
+        self.setMouseThroughing = False
         self.show()
+
+    def isMouseThrough(self):
+        return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()

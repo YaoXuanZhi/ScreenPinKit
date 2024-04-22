@@ -37,9 +37,9 @@ class FreezerWindow(QDragWindow):  # 固定图片类
 
     def defaultFlag(self):
         self.setMouseTracking(True)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 
     def initActions(self):
         actions = [
@@ -77,21 +77,31 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             return dlg.GetPathName()  # 获取选择的文件名称
         return None
 
-    # https://zhangzc.blog.csdn.net/article/details/113916322
-    # 改变窗口穿透状态
-    def changeMouseThought(self):
-        if self.isMouseThought():
-            self.setMouseThought(False)
-        else:
-            self.setMouseThought(True)
+    def setVisible(self, visible: bool) -> None:
+        # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
+        setMouseThroughing = False
+        if hasattr(self, "setMouseThroughing"):
+            setMouseThroughing = self.setMouseThroughing
 
-    def setMouseThought(self, isThought:bool):
-        self.setWindowFlag(Qt.WindowTransparentForInput, isThought)
+        if setMouseThroughing:
+            return
+        return super().setVisible(visible)
+
+    def setMouseThroughState(self, isThrough:bool):
+        self.setMouseThroughing = True
+        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, isThrough)
+        self.setMouseThroughing = False
         self.show()
 
-    # 判断窗口的鼠标是否穿透了
-    def isMouseThought(self):
-        return (self.windowFlags() | Qt.WindowTransparentForInput) == self.windowFlags()
+    def isMouseThrough(self):
+        return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
+
+    # 切换鼠标穿透状态
+    def switchMouseThroughState(self):
+        if self.isMouseThrough():
+            self.setMouseThroughState(False)
+        else:
+            self.setMouseThroughState(True)
 
     def isAllowDrag(self):
         if self.painterWidget.drawWidget != None:

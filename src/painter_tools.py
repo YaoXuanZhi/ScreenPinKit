@@ -231,7 +231,7 @@ class QPainterWidget(QPixmapWidget):
         self.createCustomInfoBar(f"【撤销】待支持")
 
     def clickThrough(self):
-        self.parentWidget().setMouseThought(True)
+        self.parentWidget().setMouseThroughState(True)
 
     def redo(self):
         self.createCustomInfoBar(f"【重做】待支持")
