@@ -8,6 +8,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import (RoundMenu, Action, FluentIcon)
 from painter_tools import QDragWindow, QPainterWidget, DrawActionEnum
+from canvas_item.canvas_util import ZoomComponent
 
 class FreezerWindow(QDragWindow):  # 固定图片类
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
@@ -24,6 +25,9 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.painterWidget = QPainterWidget(self, physicalPixmap, self.xRadius, self.yRadius)
         self.contentLayout.addWidget(self.painterWidget)
 
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.signal.connect(self.zoomHandle)
+
         self.defaultFlag()
         self.initActions()
         self.initBlink()
@@ -34,6 +38,17 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.painter = QPainter()
         self.closeCallback = closeCallback
         self.show()
+
+    def zoomHandle(self, zoomFactor):
+        finalValue = self.windowOpacity()
+        if zoomFactor > 1:
+            finalValue = finalValue + 0.1
+        else:
+            finalValue = finalValue - 0.1
+
+        finalValue = min(max(0.2, finalValue), 1)
+
+        self.setWindowOpacity(finalValue)
 
     def defaultFlag(self):
         self.setMouseTracking(True)
@@ -108,6 +123,9 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             return not self.painterWidget.drawWidget.isEditorEnabled()
         return True
 
+    def isAllowModifyOpactity(self):
+        return self.isAllowDrag()
+
     def mousePressEvent(self, event):
         self.isPresse = True
         return super().mousePressEvent(event)
@@ -120,6 +138,13 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             if self.isAllowDrag():
                 self.close()
+
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        if self.isAllowModifyOpactity():
+            self.zoomComponent.TriggerEvent(event.angleDelta().y())
+            return
+        else:
+            return super().wheelEvent(event)
 
     def initBlink(self):
         self.blinkColors = [Qt.GlobalColor.red, Qt.GlobalColor.yellow, Qt.GlobalColor.green]

@@ -61,6 +61,20 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
         self.contentLayout.addWidget(self.canvasEditor)
         self.canvasEditor.showCommandBar()
 
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.signal.connect(self.zoomHandle)
+
+    def zoomHandle(self, zoomFactor):
+        finalValue = self.windowOpacity()
+        if zoomFactor > 1:
+            finalValue = finalValue + 0.1
+        else:
+            finalValue = finalValue - 0.1
+
+        finalValue = min(max(0.2, finalValue), 1)
+
+        self.setWindowOpacity(finalValue)
+
     def initActions(self):
         actions = [
             Action("复制贴图", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
@@ -126,3 +140,13 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
 
     def isMouseThrough(self):
         return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
+
+    def isAllowModifyOpactity(self):
+        return not self.canvasEditor.drawWidget.isEditorEnabled()
+
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        if self.isAllowModifyOpactity():
+            self.zoomComponent.TriggerEvent(event.angleDelta().y())
+            return
+        else:
+            return super().wheelEvent(event)
