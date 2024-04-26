@@ -110,7 +110,6 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             polygon = QPolygonF()
             for tuple in box:
                 finalPosition = self.painterWidget.drawWidget.view.mapToScene(QPointF(tuple[0][0], tuple[0][1]).toPoint())
-                # polygon.append(finalPosition - QPoint(imageSize.width() / 2, imageSize.height() / 2))
                 polygon.append(finalPosition)
 
             textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
@@ -131,7 +130,12 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         QApplication.clipboard().setPixmap(finalPixmap)
 
     def saveToDisk(self):
-        savePath = self.save_file_dialog()
+        # 获取当前时间，并格式化
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+        fileName = f"Snipaste_{now_str}.png"
+        savePath, _ = QFileDialog.getSaveFileName(self, "Save File", f"./{fileName}", "PNG(*.png)")
+        # 检查用户是否点击了“取消”
         if savePath != None:
             # 保存的截图无阴影
             # finalPixmap = self.pixmapWidget.getFinalPixmap()
@@ -139,20 +143,6 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             # 保存带阴影的截图
             finalPixmap = self.grab()
             finalPixmap.save(savePath, "png")
-
-    def save_file_dialog(self):
-        openFlags = win32con.OFN_OVERWRITEPROMPT|win32con.OFN_EXPLORER
-        fspec = "PNG(*.png)"
-        # 获取当前时间，并格式化
-        now = datetime.now()
-        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        fileName = f"Snipaste_{now_str}.png"
-        dlg = win32ui.CreateFileDialog(0, None, fileName, openFlags, fspec)  # 0表示保存文件对话框
-        dlg.SetOFNInitialDir('C:\\')  # 设置保存文件对话框中的初始显示目录
-        isOk = dlg.DoModal()
-        if isOk == 1:
-            return dlg.GetPathName()  # 获取选择的文件名称
-        return None
 
     def setVisible(self, visible: bool) -> None:
         # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
