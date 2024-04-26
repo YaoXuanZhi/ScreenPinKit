@@ -247,7 +247,8 @@ class QPainterWidget(QPixmapWidget):
         basePixmap = self.physicalPixmap.copy()
         painter = QPainter()
         painter.begin(basePixmap)
-        painter.drawPixmap(self.drawWidget.geometry(), self.drawWidget.grab())
+        if self.drawWidget != None:
+            painter.drawPixmap(self.drawWidget.geometry(), self.drawWidget.grab())
         painter.end()
         return basePixmap
         

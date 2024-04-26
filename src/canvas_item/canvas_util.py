@@ -453,6 +453,30 @@ class CanvasUtil:
 
         return [B, F, A, J, E, I, D, H, C, G]
 
+    @staticmethod
+    def adjustFontSizeToFit(text, font:QFont, rect:QRectF, minFontSize = 1, maxFontSize = 50):
+        '''调整字体适应大小'''
+
+        # 计算给定字体大小下的文本宽度和高度
+        def calcFontSize(targetFont):
+            font_metrics = QFontMetricsF(targetFont)
+            return font_metrics.size(0, text)
+
+        finalFontSize = minFontSize
+        offset = 0
+        while finalFontSize >= minFontSize and finalFontSize < maxFontSize:
+            # 获取当前字体大小下的文本尺寸
+            size = calcFontSize(QFont(font.family(), finalFontSize))
+            # if size.width() <= rect.width() + offset and size.height() <= rect.height() + offset:
+            if size.width() <= rect.width() + offset:
+                # 如果文本可以放入矩形区域内，尝试使用更大的字体大小
+                finalFontSize += 1
+            else:
+                # 文本太大，无法放入矩形区域，跳出循环
+                break
+
+            font.setPointSize(finalFontSize)
+
 class CanvasROI(QGraphicsEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)

@@ -54,7 +54,7 @@ class DrawingView(QGraphicsView):
                         "vertical_resize.svg",
                         "zsh.svg",
                     ]
-                    svgName = svgNames[random.randint(0, 4)]
+                    svgName = svgNames[random.randint(0, len(svgNames) - 1)]
                     svgPath = os.path.join(os.path.dirname(__file__), "resources", svgName)
                     if random.randint(0, 9) % 2 == 0:
                         self.currentItem = CanvasSvgItem(QRectF(), svgPath)

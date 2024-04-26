@@ -1,6 +1,6 @@
 # coding=utf-8
 import win32ui, win32con
-import typing
+import typing, os, threading
 from datetime import datetime
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import *
@@ -9,8 +9,12 @@ from PyQt5.QtWidgets import *
 from qfluentwidgets import (RoundMenu, Action, FluentIcon)
 from painter_tools import QDragWindow, QPainterWidget, DrawActionEnum
 from canvas_item.canvas_util import ZoomComponent
+from canvas_item import *
+from ocr_service import *
 
 class FreezerWindow(QDragWindow):  # 固定图片类
+    ocrStartSignal = pyqtSignal()
+    ocrEndSignal = pyqtSignal(list, list, list)
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent)
         self.contentLayout = QVBoxLayout(self)
@@ -37,6 +41,8 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.focused = False
         self.painter = QPainter()
         self.closeCallback = closeCallback
+        self.painterWidget.initDrawLayer()
+        self.painterWidget.drawWidget.setEditorEnabled(False)
         self.show()
 
     def zoomHandle(self, zoomFactor):
@@ -60,10 +66,66 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         actions = [
             Action("复制贴图", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
             Action("保存贴图", self, triggered=self.saveToDisk, shortcut="ctrl+s"),
+            Action("开始OCR", self, triggered=self.startOcr, shortcut="ctrl+a"),
         ]
         self.addActions(actions)
 
+        self.ocrStartSignal.connect(self.onBeginCallBack)
+        self.ocrEndSignal.connect(self.onEndCallBack)
+
+    def startOcr(self):
+        '''使用独立线程进行OCR识别'''
+        if hasattr(self, "ocrState"):
+            return
+        self.ocrState = 0
+        self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
+        self.ocrThread.start()
+
+    def startOcr2(self):
+        '''当前线程下进行OCR识别，会卡着界面'''
+        if hasattr(self, "ocrState"):
+            return
+        self.ocrState = 0
+        self.onExecuteOcr(self.physicalPixmap)
+
+    def onExecuteOcr(self, pixmap:QPixmap):
+        print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
+        ocrService = OcrService()
+        self.ocrStartSignal.emit()
+        boxes, txts, scores = ocrService.ocr(pixmap)
+        self.ocrEndSignal.emit(boxes, txts, scores)
+        self.ocrState = 1
+
+    def onBeginCallBack(self):
+        pass
+
+    def onEndCallBack(self, boxes, txts, scores):
+        drop_score = 0.5
+        for idx, (box, txt) in enumerate(zip(boxes, txts)):
+            if scores is not None and scores[idx] < drop_score:
+                continue
+            
+            box = np.reshape(np.array(box), [-1, 1, 2]).astype(np.int64)
+
+            polygon = QPolygonF()
+            for tuple in box:
+                finalPosition = self.painterWidget.drawWidget.view.mapToScene(QPointF(tuple[0][0], tuple[0][1]).toPoint())
+                # polygon.append(finalPosition - QPoint(imageSize.width() / 2, imageSize.height() / 2))
+                polygon.append(finalPosition)
+
+            textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
+            self.painterWidget.drawWidget.scene.addItem(textItem)
+            self.painterWidget.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+
     def copyToClipboard(self):
+        # 因为Windows下剪贴板不支持透明度，其会将Image里的alpha值用255直接进行填充，相关讨论可以看下面这两个链接
+        # https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency/46424800#46424800
+        # https://stackoverflow.com/questions/44287407/text-erased-from-screenshot-after-using-clipboard-getimage-on-windows-10/46400011#46400011
+
         # self.pixmapWidget.copyToClipboard()
         finalPixmap = self.grab()
         QApplication.clipboard().setPixmap(finalPixmap)
