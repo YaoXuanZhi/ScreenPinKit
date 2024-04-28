@@ -59,10 +59,14 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
 
         self.canvasEditor = QScreenPainterWidget(self)
         self.contentLayout.addWidget(self.canvasEditor)
-        self.canvasEditor.showCommandBar()
 
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.signal.connect(self.zoomHandle)
+
+    def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        # self.canvasEditor.showCommandBar()
+        self.canvasEditor.showComplexFlyout()
+        pass
 
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()

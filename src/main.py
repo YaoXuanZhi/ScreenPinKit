@@ -22,7 +22,7 @@ class MainWindow(QWidget):
         self.screenShotWindow = ScreenShotWindow()
 
         keyObj = KeyboardEx()
-        keyObj.addHotKey("f6", lambda: self.screenPaint())
+        keyObj.addHotKey("f4", lambda: self.screenPaint())
         keyObj.addHotKey("f7", self.screenShot)
         keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.switchMouseThroughState())
 
