@@ -22,6 +22,7 @@ class MainWindow(QWidget):
         self.screenShotWindow = ScreenShotWindow()
 
         keyObj = KeyboardEx()
+        keyObj.addHotKey("f10", self.pasteScreen)
         keyObj.addHotKey("f4", lambda: self.screenPaint())
         keyObj.addHotKey("f7", self.screenShot)
         keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.switchMouseThroughState())
@@ -37,6 +38,9 @@ class MainWindow(QWidget):
         ]
         self.systemTrayIcon = SystemTrayIcon(self, "截图工具", self.windowIcon(), trayMenuActions, self.screenShot)
         self.systemTrayIcon.show()
+
+    def pasteScreen(self):
+        '''贴图'''
 
     def screenShot(self):
         '''屏幕截图'''

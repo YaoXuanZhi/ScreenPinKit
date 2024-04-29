@@ -10,13 +10,14 @@ from qfluentwidgets import (RoundMenu, Action, FluentIcon, TeachingTipTailPositi
 from icon import ScreenShotIcon
 from painter_tools import QPainterWidget, DrawActionEnum
 from canvas_item import *
+from extend_widgets import *
 
 class QScreenPainterWidget(QPainterWidget):
     def __init__(self, parent=None):
         super().__init__(parent, None, 0, 0)
 
     def getCommandBarPosition(self) -> TeachingTipTailPosition:
-        return TeachingTipTailPosition.LEFT_BOTTOM
+        return BubbleTipTailPosition.TOP
 
     def contextMenuEvent(self, event:QtGui.QContextMenuEvent):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
@@ -64,9 +65,8 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
         self.zoomComponent.signal.connect(self.zoomHandle)
 
     def showEvent(self, a0: QtGui.QShowEvent) -> None:
-        # self.canvasEditor.showCommandBar()
-        self.canvasEditor.showComplexFlyout()
-        pass
+        self.canvasEditor.initDrawLayer()
+        self.canvasEditor.showCommandBar()
 
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()
