@@ -1,8 +1,9 @@
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
+from PyQt5.QtGui import QIcon
 from qframelesswindow import FramelessWindow
 from PyQt5.QtSvg import QSvgWidget
-from qfluentwidgets import PrimaryPushButton, SplitTitleBar
+from qfluentwidgets import PrimaryPushButton, SplitTitleBar, PushButton
 
 class SvgImageViewer(FramelessWindow, QWidget):
     def __init__(self, folder_path):
@@ -26,6 +27,11 @@ class SvgImageViewer(FramelessWindow, QWidget):
         layout.addWidget(self.next_button)
         layout.addWidget(self.prev_button)
 
+
+        self.iconButton = PushButton('图标')
+        self.iconButton.resize(200, 200)
+        layout.addWidget(self.iconButton)
+
         self.setLayout(layout)
         self.show_current_image()
 
@@ -39,6 +45,8 @@ class SvgImageViewer(FramelessWindow, QWidget):
     def show_current_image(self):
         image_path = self.image_list[self.current_index]
         self.image_label.load(image_path)
+
+        self.iconButton.setIcon(QIcon(image_path))
 
     def show_next_image(self):
         self.current_index = (self.current_index + 1) % len(self.image_list)

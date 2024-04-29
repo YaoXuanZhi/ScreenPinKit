@@ -1,7 +1,3 @@
-import sys, math
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from .canvas_util import *
 
 class CanvasStarItem(CanvasCommonPathItem):
@@ -19,7 +15,7 @@ class CanvasStarItem(CanvasCommonPathItem):
     def __initStyle(self):
         self.defaultPenWidth = 3
         styleMap = {
-            "brush" : QBrush(QColor(255, 0, 0, 100)),
+            "brush" : QBrush(QColor(255, 0, 0, 255)),
             "pen" : QPen(QColor(255, 0, 0), self.defaultPenWidth, Qt.SolidLine),
         }
         self.styleAttribute = CanvasAttribute()

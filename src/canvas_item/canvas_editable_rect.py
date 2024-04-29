@@ -7,8 +7,6 @@ from collections import OrderedDict, deque
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import win32api, win32con, win32gui, ctypes, win32ui
-from PyQt5.QtWinExtras import QtWin
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 from .canvas_util import CanvasUtil
 

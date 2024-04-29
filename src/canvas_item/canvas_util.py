@@ -2,8 +2,9 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import math, typing
+import math, typing, os
 from enum import Enum
+from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -95,11 +96,41 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         self.setPen(pen)
         self.setBrush(QBrush(Qt.NoBrush))
         # self.setBrush(Qt.blue)
+
+    def setSvgCursor(self) -> QCursor:
+        parentItem = self.parentItem()
+        if self.posType == EnumPosType.ControllerPosTT:
+            self.setCursor(self.interfaceCursor)
+            return
+        else:
+            # svgPath = os.path.join(os.path.dirname(__file__), "demos/resources", "horizontal-resize.svg")
+            svgPath = os.path.join(os.path.dirname(__file__), "demos/resources", "horizontal_resize.svg")
+            svgRender = QSvgRenderer(svgPath)
+            # svgRender = QSvgRenderer("../test/resources/diagonal resize 2.svg")
+            pixmap = QPixmap(128, 128)
+            pixmap.fill(Qt.GlobalColor.transparent)
+            painter = QPainter()
+            painter.begin(pixmap)
+            svgRender.render(painter)
+            painter.end()
+
+            # pixmap = pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            # pixmap = pixmap.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            # pixmap = pixmap.scaled(28, 28, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            icon = QIcon(svgPath)
+            pixmap = icon.pixmap(QSize(36, 36))
+
+        transform = parentItem.transform()
+        transform.rotate(parentItem.rotation())
+        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+        newFinal = QCursor(finalPixmap, -1, -1)
+        self.setCursor(newFinal)
+
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        self.setCursor(self.interfaceCursor)
-
+        # self.setCursor(self.interfaceCursor)
+        self.setSvgCursor()
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:

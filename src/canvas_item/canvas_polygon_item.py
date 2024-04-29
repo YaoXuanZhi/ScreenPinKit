@@ -1,7 +1,3 @@
-import sys, math
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 from .canvas_util import *
 
 class CanvasPolygonItem(CanvasCommonPathItem):
@@ -21,7 +17,7 @@ class CanvasPolygonItem(CanvasCommonPathItem):
 
     def __initStyle(self):
         initPen = QPen(QColor(255, 255, 0, 100))
-        initPen.setWidth(32)
+        initPen.setWidth(8)
         initPen.setCosmetic(True)
         initPen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         initPen.setCapStyle(Qt.PenCapStyle.RoundCap)
