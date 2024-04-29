@@ -191,8 +191,12 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             if self.isAllowDrag():
                 self.close()
 
+    # def showEvent(self, event: QShowEvent):
+    #     self.startOcr()
+    #     return super().showEvent(event)
+
     def wheelEvent(self, event: QWheelEvent) -> None:
-        if self.isAllowModifyOpactity():
+        if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:
             self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         else:
