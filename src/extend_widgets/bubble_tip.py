@@ -1,4 +1,5 @@
 # coding:utf-8
+# @note 基于teaching_tip.py改造而来
 from enum import Enum
 from typing import Union
 
@@ -24,69 +25,19 @@ class BubbleTipTailPosition(Enum):
     RIGHT_BOTTOM = 11
     NONE = 12
 
+class BubbleTipContent(QWidget):
+    """ Bubble tip content """
 
-class ImagePosition(Enum):
-    TOP = 0
-    BOTTOM = 1
-    LEFT = 2
-    RIGHT = 3
+    PopupStyle = 1 << 0 # 弹出样式
+    ShowOrientStyle = 1 << 1 # 显示方向标记样式
 
-
-class BubbleTipView(FlyoutView):
-    """ Bubble tip view """
-
-    def __init__(self, title: str, content: str, icon: Union[FluentIconBase, QIcon, str] = None,
-                 image: Union[str, QPixmap, QImage] = None, isClosable=True, tailPosition=BubbleTipTailPosition.BOTTOM,
-                 parent=None):
-        self.manager = BubbleTipManager.make(tailPosition)
-        self.hBoxLayout = QHBoxLayout()
-        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-        super().__init__(title, content, icon, image, isClosable, parent)
-
-    def _adjustImage(self):
-        if self.manager.imagePosition() in [ImagePosition.TOP, ImagePosition.BOTTOM]:
-            return super()._adjustImage()
-
-        h = self.vBoxLayout.sizeHint().height() - 2
-        self.imageLabel.scaledToHeight(h)
-
-    def _addImageToLayout(self):
-        self.imageLabel.setHidden(self.imageLabel.isNull())
-        pos = self.manager.imagePosition()
-
-        if pos == ImagePosition.TOP:
-            self.imageLabel.setBorderRadius(8, 8, 0, 0)
-            self.vBoxLayout.insertWidget(0, self.imageLabel)
-        elif pos == ImagePosition.BOTTOM:
-            self.imageLabel.setBorderRadius(0, 0, 8, 8)
-            self.vBoxLayout.addWidget(self.imageLabel)
-        elif pos == ImagePosition.LEFT:
-            self.vBoxLayout.removeItem(self.vBoxLayout.itemAt(0))
-            self.hBoxLayout.addLayout(self.viewLayout)
-            self.vBoxLayout.addLayout(self.hBoxLayout)
-
-            self.imageLabel.setBorderRadius(8, 0, 8, 0)
-            self.hBoxLayout.insertWidget(0, self.imageLabel)
-        elif pos == ImagePosition.RIGHT:
-            self.vBoxLayout.removeItem(self.vBoxLayout.itemAt(0))
-            self.hBoxLayout.addLayout(self.viewLayout)
-            self.vBoxLayout.addLayout(self.hBoxLayout)
-
-            self.imageLabel.setBorderRadius(0, 8, 0, 8)
-            self.hBoxLayout.addWidget(self.imageLabel)
-
-    def paintEvent(self, e):
-        pass
-
-
-class TeachTipBubble(QWidget):
-    """ Bubble tip bubble """
-
-    def __init__(self, view: FlyoutViewBase, tailPosition=BubbleTipTailPosition.BOTTOM, parent=None):
+    def __init__(self, view: FlyoutViewBase, tailPosition=BubbleTipTailPosition.BOTTOM, showStyle:int = 0, orientLength:int = 8, parent=None):
         super().__init__(parent=parent)
-        self.manager = BubbleTipManager.make(tailPosition)
+        self.manager:BubbleTipManager = BubbleTipManager.make(tailPosition)
         self.hBoxLayout = QHBoxLayout(self)
         self.view = view
+        self.showStyle = showStyle
+        self.orientLength = orientLength
 
         self.manager.doLayout(self)
         self.hBoxLayout.addWidget(self.view)
@@ -106,14 +57,20 @@ class TeachTipBubble(QWidget):
         painter.setPen(
             QColor(23, 23, 23) if isDarkTheme() else QColor(195, 195, 195))
 
-        self.manager.draw(self, painter)
+        if self.isShowOrientStyle():
+            self.manager.draw(self, painter)
 
+    def isPopupStyle(self) -> bool:
+        return self.showStyle | BubbleTipContent.PopupStyle == self.showStyle
+
+    def isShowOrientStyle(self) -> bool:
+        return self.showStyle | BubbleTipContent.ShowOrientStyle == self.showStyle
 
 class BubbleTip(QWidget):
     """ Bubble tip """
 
     def __init__(self, view: FlyoutViewBase, target: QWidget, duration=1000,
-                 tailPosition=BubbleTipTailPosition.BOTTOM, parent=None):
+                 tailPosition=BubbleTipTailPosition.BOTTOM, showStyle:int = 0, orientLength:int = 8, parent=None):
         """
         Parameters
         ----------
@@ -136,12 +93,11 @@ class BubbleTip(QWidget):
         super().__init__(parent=parent)
         self.target = target
         self.duration = duration
-        self.manager = BubbleTipManager.make(tailPosition)
+        self.manager:BubbleTipManager = BubbleTipManager.make(tailPosition)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.opacityAni = QPropertyAnimation(self, b'windowOpacity', self)
-
-        self.bubble = TeachTipBubble(view, tailPosition, self)
+        self.bubble = BubbleTipContent(view, tailPosition, showStyle, orientLength, self)
 
         self.hBoxLayout.setContentsMargins(15, 8, 15, 20)
         self.hBoxLayout.addWidget(self.bubble)
@@ -149,7 +105,11 @@ class BubbleTip(QWidget):
 
         # set style
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+
+        if self.bubble.isPopupStyle():
+            self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
+        else:
+            self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
 
         if parent and parent.window():
             parent.window().installEventFilter(self)
@@ -203,7 +163,7 @@ class BubbleTip(QWidget):
         self.bubble.setView(view)
 
     @classmethod
-    def make(cls, view: FlyoutViewBase, target: QWidget, duration=1000, tailPosition=BubbleTipTailPosition.BOTTOM,
+    def make(cls, view: FlyoutViewBase, target: QWidget, duration=1000, tailPosition=BubbleTipTailPosition.BOTTOM, showStyle:int = 0, orientLength = 8,
              parent=None):
         """
         Parameters
@@ -224,56 +184,8 @@ class BubbleTip(QWidget):
         parent: QWidget
             parent widget
         """
-        w = cls(view, target, duration, tailPosition, parent)
+        w = cls(view, target, duration, tailPosition, showStyle, orientLength, parent)
         w.show()
-        return w
-
-    @classmethod
-    def create(cls, target: QWidget, title: str, content: str, icon: Union[FluentIconBase, QIcon, str] = None,
-               image: Union[str, QPixmap, QImage] = None, isClosable=True, duration=1000,
-               tailPosition=BubbleTipTailPosition.BOTTOM, parent=None):
-        """
-        Parameters
-        ----------
-        target: QWidget
-            the target widget to show tip
-
-        title: str
-            the title of teaching tip
-
-        content: str
-            the content of teaching tip
-
-        icon: InfoBarIcon | FluentIconBase | QIcon | str
-            the icon of teaching tip
-
-        image: str | QPixmap | QImage
-            the image of teaching tip
-
-        isClosable: bool
-            whether to show the close button
-
-        duraction: int
-            the time for teaching tip to display in milliseconds. If duration is less than zero,
-            teaching tip will never disappear.
-
-        parent: QWidget
-            parent widget
-        """
-        view = BubbleTipView(title, content, icon, image, isClosable, tailPosition)
-        w = cls.make(view, target, duration, tailPosition, parent)
-        view.closed.connect(w.close)
-        return w
-
-
-class PopupBubbleTip(BubbleTip):
-    """ Pop up teaching tip """
-
-    def __init__(self, view: FlyoutViewBase, target: QWidget, duration=1000,
-                 tailPosition=BubbleTipTailPosition.BOTTOM, parent=None):
-        super().__init__(view, target, duration, tailPosition, parent)
-        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
-
 
 class BubbleTipManager(QObject):
     """ Bubble tip manager """
@@ -281,12 +193,9 @@ class BubbleTipManager(QObject):
     def __init__(self):
         super().__init__()
 
-    def doLayout(self, tip: TeachTipBubble):
+    def doLayout(self, tip: BubbleTipContent):
         """ manage the layout of tip """
         tip.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-
-    def imagePosition(self):
-        return ImagePosition.TOP
 
     def position(self, tip: BubbleTip) -> QPoint:
         pos = self._pos(tip)
@@ -299,7 +208,7 @@ class BubbleTipManager(QObject):
 
         return QPoint(x, y)
 
-    def draw(self, tip: TeachTipBubble, painter: QPainter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         """ draw the shape of bubble """
         rect = tip.rect().adjusted(1, 1, -1, -1)
         painter.drawRoundedRect(rect, 8, 8)
@@ -337,13 +246,10 @@ class BubbleTipManager(QObject):
 class TopTailBubbleTipManager(BubbleTipManager):
     """ Top tail teaching tip manager """
 
-    def doLayout(self, tip):
-        tip.hBoxLayout.setContentsMargins(0, 8, 0, 0)
+    def doLayout(self, tip: BubbleTipContent):
+        tip.hBoxLayout.setContentsMargins(0, tip.orientLength, 0, 0)
 
-    def imagePosition(self):
-        return ImagePosition.BOTTOM
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter):
         w, h = tip.width(), tip.height()
         pt = tip.hBoxLayout.contentsMargins().top()
 
@@ -365,10 +271,10 @@ class TopTailBubbleTipManager(BubbleTipManager):
 class BottomTailBubbleTipManager(BubbleTipManager):
     """ Bottom tail teaching tip manager """
 
-    def doLayout(self, tip):
-        tip.hBoxLayout.setContentsMargins(0, 0, 0, 8)
+    def doLayout(self, tip: BubbleTipContent):
+        tip.hBoxLayout.setContentsMargins(0, 0, 0, tip.orientLength)
 
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter):
         w, h = tip.width(), tip.height()
         pb = tip.hBoxLayout.contentsMargins().bottom()
 
@@ -390,13 +296,10 @@ class BottomTailBubbleTipManager(BubbleTipManager):
 class LeftTailBubbleTipManager(BubbleTipManager):
     """ Left tail teaching tip manager """
 
-    def doLayout(self, tip):
-        tip.hBoxLayout.setContentsMargins(8, 0, 0, 0)
+    def doLayout(self, tip: BubbleTipContent):
+        tip.hBoxLayout.setContentsMargins(tip.orientLength, 0, 0, 0)
 
-    def imagePosition(self):
-        return ImagePosition.RIGHT
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter):
         w, h = tip.width(), tip.height()
         pl = 8
 
@@ -419,13 +322,10 @@ class LeftTailBubbleTipManager(BubbleTipManager):
 class RightTailBubbleTipManager(BubbleTipManager):
     """ Left tail teaching tip manager """
 
-    def doLayout(self, tip):
-        tip.hBoxLayout.setContentsMargins(0, 0, 8, 0)
+    def doLayout(self, tip: BubbleTipContent):
+        tip.hBoxLayout.setContentsMargins(0, 0, tip.orientLength, 0)
 
-    def imagePosition(self):
-        return ImagePosition.LEFT
-
-    def draw(self, tip, painter):
+    def draw(self, tip:BubbleTipContent, painter:QPainter):
         w, h = tip.width(), tip.height()
         pr = 8
 
@@ -448,7 +348,7 @@ class RightTailBubbleTipManager(BubbleTipManager):
 class TopLeftTailBubbleTipManager(TopTailBubbleTipManager):
     """ Top left tail teaching tip manager """
 
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter:QPainter):
         w, h = tip.width(), tip.height()
         pt = tip.hBoxLayout.contentsMargins().top()
 
@@ -470,7 +370,7 @@ class TopLeftTailBubbleTipManager(TopTailBubbleTipManager):
 class TopRightTailBubbleTipManager(TopTailBubbleTipManager):
     """ Top right tail teaching tip manager """
 
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pt = tip.hBoxLayout.contentsMargins().top()
 
@@ -492,7 +392,7 @@ class TopRightTailBubbleTipManager(TopTailBubbleTipManager):
 class BottomLeftTailBubbleTipManager(BottomTailBubbleTipManager):
     """ Bottom left tail teaching tip manager """
 
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pb = tip.hBoxLayout.contentsMargins().bottom()
 
@@ -514,7 +414,7 @@ class BottomLeftTailBubbleTipManager(BottomTailBubbleTipManager):
 class BottomRightTailBubbleTipManager(BottomTailBubbleTipManager):
     """ Bottom right tail teaching tip manager """
 
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pb = tip.hBoxLayout.contentsMargins().bottom()
 
@@ -536,10 +436,7 @@ class BottomRightTailBubbleTipManager(BottomTailBubbleTipManager):
 class LeftTopTailBubbleTipManager(LeftTailBubbleTipManager):
     """ Left top tail teaching tip manager """
 
-    def imagePosition(self):
-        return ImagePosition.BOTTOM
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pl = 8
 
@@ -562,10 +459,7 @@ class LeftTopTailBubbleTipManager(LeftTailBubbleTipManager):
 class LeftBottomTailBubbleTipManager(LeftTailBubbleTipManager):
     """ Left bottom tail teaching tip manager """
 
-    def imagePosition(self):
-        return ImagePosition.TOP
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pl = 9
 
@@ -588,10 +482,7 @@ class LeftBottomTailBubbleTipManager(LeftTailBubbleTipManager):
 class RightTopTailBubbleTipManager(RightTailBubbleTipManager):
     """ Right top tail teaching tip manager """
 
-    def imagePosition(self):
-        return ImagePosition.BOTTOM
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
         w, h = tip.width(), tip.height()
         pr = 8
 
@@ -614,10 +505,7 @@ class RightTopTailBubbleTipManager(RightTailBubbleTipManager):
 class RightBottomTailBubbleTipManager(RightTailBubbleTipManager):
     """ Right bottom tail teaching tip manager """
 
-    def imagePosition(self):
-        return ImagePosition.TOP
-
-    def draw(self, tip, painter):
+    def draw(self, tip: BubbleTipContent, painter:QPainter):
         w, h = tip.width(), tip.height()
         pr = 8
 
