@@ -1,133 +1,215 @@
+from PyQt5.QtGui import QShowEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
+from icon import ScreenShotIcon
+from .color_picker_button_plus import *
+from .font_picker_button_plus import *
+from canvas_editor import CanvasEditor, DrawActionEnum
 
-class PainterToolbar(FlyoutViewBase):
-    """ 绘图工具栏 """
-
-    closed = pyqtSignal()
-
+class TextEditToolbar(CommandBarView):
     def __init__(self, title: str, content: str, icon: QIcon = None,
                 image: QImage = None, isClosable=False, parent=None):
         super().__init__(parent=parent)
-        self.icon = icon
-        self.title = title
-        self.image = image
-        self.content = content
-        self.isClosable = isClosable
+        self.initUI()
 
-        self.vBoxLayout = QVBoxLayout(self)
-        self.viewLayout = QHBoxLayout()
-        self.widgetLayout = QVBoxLayout()
+    def initUI(self):
+        fillModeActions = [
+            Action(ScreenShotIcon.ARROW, '加粗', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
+            Action(ScreenShotIcon.STAR, '斜体', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+            Action(ScreenShotIcon.STAR, '阴影', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+        ]
+        for action in fillModeActions:
+            self.addAction(action)
+        self.addSeparator()
 
-        self.titleLabel = QLabel(title, self)
-        self.contentLabel = QLabel(content, self)
-        # self.iconWidget = IconWidget(icon, self)
-        # self.imageLabel = ImageLabel(self)
-        # self.closeButton = TransparentToolButton(FluentIcon.CLOSE, self)
+        # 字体选择
+        self.fontPickerButton = FontPickerButtonPlus(self.font(), '字体风格', self)
+        self.fontPickerButton.setToolTip("字体选择")
+        self.addWidget(self.fontPickerButton)
 
-        self.__initWidgets()
+        # 文本颜色选择
+        self.textColorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Text Color', self, enableAlpha=True)
+        self.textColorPickerButton.setToolTip("文本颜色")
+        self.textColorPickerButton.setFixedSize(30, 30)
+        self.addWidget(self.textColorPickerButton)
 
-    def __initWidgets(self):
-        # self.imageLabel.setImage(self.image)
+    def createLineMenu(self, button:PrimarySplitPushButton):
+        menu = RoundMenu(parent=self)
+        menu.setFixedWidth(20)
+        menu.addActions([
+            Action(ScreenShotIcon.POLYGONAL_LINE, "虚线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.POLYGONAL_LINE)),
+            Action(ScreenShotIcon.ARROW, "实线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.ARROW)),
+        ])
+        return menu
 
-        # self.closeButton.setFixedSize(32, 32)
-        # self.closeButton.setIconSize(QSize(12, 12))
-        # self.closeButton.setVisible(self.isClosable)
-        self.titleLabel.setVisible(bool(self.title))
-        self.contentLabel.setVisible(bool(self.content))
-        # self.iconWidget.setHidden(self.icon is None)
+    def onMenuClicked(self, c, button:PrimarySplitPushButton, icon):
+        button.setIcon(icon)
 
-        # self.closeButton.clicked.connect(self.closed)
-
-        self.titleLabel.setObjectName('titleLabel')
-        self.contentLabel.setObjectName('contentLabel')
-        # FluentStyleSheet.TEACHING_TIP.apply(self)
-
-        self.__initLayout()
-
-    def __initLayout(self):
-        self.vBoxLayout.setContentsMargins(1, 1, 1, 1)
-        self.widgetLayout.setContentsMargins(0, 8, 0, 8)
-        self.viewLayout.setSpacing(4)
-        self.widgetLayout.setSpacing(0)
-        self.vBoxLayout.setSpacing(0)
-
-        # # add icon widget
-        # if not self.title or not self.content:
-        #     self.iconWidget.setFixedHeight(36)
-
-        self.vBoxLayout.addLayout(self.viewLayout)
-        # self.viewLayout.addWidget(self.iconWidget, 0, Qt.AlignTop)
-
-        # add text
-        self._adjustText()
-        self.widgetLayout.addWidget(self.titleLabel)
-        self.widgetLayout.addWidget(self.contentLabel)
-        self.viewLayout.addLayout(self.widgetLayout)
-
-        # add close button
-        # self.closeButton.setVisible(self.isClosable)
-        # self.viewLayout.addWidget(
-        #     self.closeButton, 0, Qt.AlignRight | Qt.AlignTop)
-
-        # adjust content margins
-        margins = QMargins(6, 5, 6, 5)
-        margins.setLeft(20 if not self.icon else 5)
-        margins.setRight(20 if not self.isClosable else 6)
-        self.viewLayout.setContentsMargins(margins)
-
-        # add image
-        self._adjustImage()
-        self._addImageToLayout()
-
-    def addWidget(self, widget: QWidget, stretch=0, align=Qt.AlignLeft):
-        """ add widget to view """
-        self.widgetLayout.addSpacing(8)
-        self.widgetLayout.addWidget(widget, stretch, align)
-
-    def _addImageToLayout(self):
-        # self.imageLabel.setBorderRadius(8, 8, 0, 0)
-        # self.imageLabel.setHidden(self.imageLabel.isNull())
-        # self.vBoxLayout.insertWidget(0, self.imageLabel)
-
-        radioWidget = QWidget()
-        radioLayout = QHBoxLayout(radioWidget)
-        radioLayout.setContentsMargins(2, 0, 0, 0)
-        radioLayout.setSpacing(15)
-        radioButton1 = RadioButton(self.tr('Star Platinum'), radioWidget)
-        radioButton2 = RadioButton(self.tr('Crazy Diamond'), radioWidget)
-        radioButton3 = RadioButton(self.tr('Soft and Wet'), radioWidget)
-        buttonGroup = QButtonGroup(radioWidget)
-        buttonGroup.addButton(radioButton1)
-        buttonGroup.addButton(radioButton2)
-        buttonGroup.addButton(radioButton3)
-        radioLayout.addWidget(radioButton1)
-        radioLayout.addWidget(radioButton2)
-        radioLayout.addWidget(radioButton3)
-        radioButton1.click()
-        # self.vBoxLayout.insertWidget(0, radioWidget)
-        self.viewLayout.addWidget(radioWidget)
-        pass
-
-    def _adjustText(self):
-        w = min(900, QApplication.screenAt(
-            QCursor.pos()).geometry().width() - 200)
-
-        # adjust title
-        chars = max(min(w / 10, 120), 30)
-        self.titleLabel.setText(self.title)
-
-        # adjust content
-        chars = max(min(w / 9, 120), 30)
-        self.contentLabel.setText(self.content)
-
-    def _adjustImage(self):
-        w = self.vBoxLayout.sizeHint().width() - 2
-        # self.imageLabel.scaledToWidth(w)
-
-    def showEvent(self, e):
-        super().showEvent(e)
-        self._adjustImage()
+    def showEvent(self, a0: QShowEvent) -> None:
+        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
+        self.setIconSize(QSize(20, 20))
+        self.resizeToSuitableWidth()
         self.adjustSize()
+        return super().showEvent(a0)
+
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.CrossCursor):
+        print(f"=======> {drawActionEnum}")
+
+class PolygonLineToolbar(CommandBarView):
+    def __init__(self, title: str, content: str, icon: QIcon = None,
+                image: QImage = None, isClosable=False, parent=None):
+        super().__init__(parent=parent)
+        self.initUI()
+
+    def initUI(self):
+        defaultAction = Action(ScreenShotIcon.STAR, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar))
+        self.addAction(defaultAction)
+        self.addSeparator()
+
+        # 线段选择
+        lineDropdown = TransparentDropDownToolButton(ScreenShotIcon.POLYGONAL_LINE, self)
+        lineDropdown.setIconSize(QSize(20, 20))
+        lineDropdown.setMenu(self.createLineMenu(lineDropdown))
+        self.addWidget(lineDropdown)
+
+        self.addSeparator()
+
+        # 边缘颜色选择
+        self.penColorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Edge Background Color', self, enableAlpha=True)
+        self.penColorPickerButton.setToolTip("边缘颜色")
+        self.penColorPickerButton.setFixedSize(30, 30)
+        self.addWidget(self.penColorPickerButton)
+
+        # 内容颜色选择
+        self.brushColorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Content Background Color', self, enableAlpha=True)
+        self.brushColorPickerButton.setToolTip("填充颜色")
+        self.brushColorPickerButton.setFixedSize(30, 30)
+        self.addWidget(self.brushColorPickerButton)
+
+    def createLineMenu(self, button:PrimarySplitPushButton):
+        menu = RoundMenu(parent=self)
+        menu.setFixedWidth(20)
+        menu.addActions([
+            Action(ScreenShotIcon.POLYGONAL_LINE, "虚线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.POLYGONAL_LINE)),
+            Action(ScreenShotIcon.ARROW, "实线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.ARROW)),
+        ])
+        return menu
+
+    def onMenuClicked(self, c, button:PrimarySplitPushButton, icon):
+        button.setIcon(icon)
+
+    def showEvent(self, a0: QShowEvent) -> None:
+        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
+        self.setIconSize(QSize(20, 20))
+        self.resizeToSuitableWidth()
+        self.adjustSize()
+        return super().showEvent(a0)
+
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.CrossCursor):
+        print(f"=======> {drawActionEnum}")
+
+class PenToolbar(CommandBarView):
+    def __init__(self, title: str, content: str, icon: QIcon = None,
+                image: QImage = None, isClosable=False, parent=None):
+        super().__init__(parent=parent)
+        self.initUI()
+
+    def initUI(self):
+        defaultAction = Action(ScreenShotIcon.STAR, '五角星', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar))
+        self.addAction(defaultAction)
+        self.addSeparator()
+
+        # 铅笔选择
+        penDropdown = TransparentDropDownToolButton(ScreenShotIcon.POLYGONAL_LINE, self)
+        penDropdown.setIconSize(QSize(20, 20))
+        penDropdown.setMenu(self.createPenMenu(penDropdown))
+        self.addWidget(penDropdown)
+
+        self.addSeparator()
+
+        # 颜色选择
+        self.colorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Background Color', self, enableAlpha=True)
+        self.colorPickerButton.setFixedSize(30, 30)
+        self.addWidget(self.colorPickerButton)
+
+    def createPenMenu(self, button:PrimarySplitPushButton):
+        menu = RoundMenu(parent=self)
+        menu.setFixedWidth(20)
+        menu.addActions([
+            Action(ScreenShotIcon.POLYGONAL_LINE, "虚线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.POLYGONAL_LINE)),
+            Action(ScreenShotIcon.ARROW, "实线", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.ARROW)),
+        ])
+        return menu
+
+    def onMenuClicked(self, c, button:PrimarySplitPushButton, icon):
+        button.setIcon(icon)
+
+    def showEvent(self, a0: QShowEvent) -> None:
+        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
+        self.setIconSize(QSize(20, 20))
+        self.resizeToSuitableWidth()
+        self.adjustSize()
+        return super().showEvent(a0)
+
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.CrossCursor):
+        print(f"=======> {drawActionEnum}")
+
+class ShapeToolbar(CommandBarView):
+    def __init__(self, title: str, content: str, icon: QIcon = None,
+                image: QImage = None, isClosable=False, parent=None):
+        super().__init__(parent=parent)
+        self.initUI()
+
+    def initUI(self):
+        fillModeActions = [
+            Action(ScreenShotIcon.ARROW, '点', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
+            Action(ScreenShotIcon.STAR, '面', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+        ]
+
+        self.actionGroup = QActionGroup(self)
+        for action in fillModeActions:
+            action.setCheckable(True)
+            self.actionGroup.addAction(action)
+
+        self.addActions(fillModeActions)
+        self.addSeparator()
+
+        # 多边形选择
+        shapeDropdown = TransparentDropDownToolButton(ScreenShotIcon.RECTANGLE, self)
+        shapeDropdown.setIconSize(QSize(20, 20))
+        # shapeDropdown.setFlyout(self.createShapeMenu(shapeDropdown))
+        shapeDropdown.setMenu(self.createShapeMenu(shapeDropdown))
+        self.addWidget(shapeDropdown)
+
+        self.addSeparator()
+
+        # 颜色选择
+        self.colorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Background Color', self, enableAlpha=True)
+        self.colorPickerButton.setFixedSize(30, 30)
+        self.addWidget(self.colorPickerButton)
+
+    def createShapeMenu(self, button:PrimarySplitPushButton):
+        menu = RoundMenu(parent=self)
+        menu.setFixedWidth(20)
+        menu.addActions([
+            Action(ScreenShotIcon.RECTANGLE, "矩形", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.RECTANGLE)),
+            Action(ScreenShotIcon.BRUSH, "圆形", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.BRUSH)),
+            Action(ScreenShotIcon.STAR, "五角星", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.STAR)),
+            Action(ScreenShotIcon.ARROW, "箭头", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.ARROW)),
+        ])
+        return menu
+
+    def onMenuClicked(self, c, button:PrimarySplitPushButton, icon):
+        button.setIcon(icon)
+
+    def showEvent(self, a0: QShowEvent) -> None:
+        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
+        self.setIconSize(QSize(20, 20))
+        self.resizeToSuitableWidth()
+        self.adjustSize()
+        return super().showEvent(a0)
+
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.CrossCursor):
+        print(f"=======> {drawActionEnum}")

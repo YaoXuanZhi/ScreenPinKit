@@ -120,21 +120,15 @@ class QPainterWidget(QPixmapWidget):
         return BubbleTipTailPosition.TOP_RIGHT
 
     def showComplexFlyout(self, targetWidget:QWidget = None):
-        view = PainterToolbar(
+        view = TextEditToolbar(
+        # view = LineToolbar(
+        # view = PenToolbar(
+        # view = ShapeToolbar(
+        # view = PainterToolbar(
             title=self.tr('Julius·Zeppeli'),
             content=self.tr("测试文本"),
             image=':/gallery/images/SBR.jpg',
         )
-
-        # add button to view
-        button = PushButton('Action')
-        button.setFixedWidth(120)
-        view.addWidget(button, align=Qt.AlignRight)
-
-        # adjust layout (optional)
-        view.widgetLayout.insertSpacing(1, 5)
-        view.widgetLayout.insertSpacing(0, 5)
-        view.widgetLayout.addSpacing(5)
 
         if targetWidget == None:
             targetWidget = self.window()
@@ -189,12 +183,19 @@ class QPainterWidget(QPixmapWidget):
         view.setIconSize(QSize(20, 20))
 
         view.resizeToSuitableWidth()
+        # self.toolbar = TeachingTip.make(
+        #     target=self, 
+        #     view=view, 
+        #     duration=-1, 
+        #     tailPosition=TeachingTipTailPosition.TOP_RIGHT, 
+        #     parent=self)
+
         self.toolbar = BubbleTip.make(
             target=self,
             view=view,
             duration=-1,
             tailPosition=position,
-            parent=self
+            parent=self,
         )
 
         closeAction.triggered.connect(self.completeDraw)
