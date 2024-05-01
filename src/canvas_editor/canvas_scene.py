@@ -13,22 +13,33 @@ class DrawActionEnum(Enum):
     UseMarkerItem = "使用标记"
     PasteSvg = "粘贴图案"
 
+    DrawDiversity = "绘制多边形"
     DrawRectangle = "绘制矩形"
     DrawEllipse = "绘制椭圆"
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制折线"
+    Locked = "锁定"
+    SelectItem = "选择对象"
+    Mosaic = "马赛克"
 
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
         super().__init__(parent)
-
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
 
         self.pathItem = None
         self.bgBrush = backgroundBrush
 
         self.itemList:list = []
+
+        self.initStyle()
+
+    def initStyle(self):
+        self.scene_width, self.scene_height = 64000, 64000
+        if self.bgBrush != None:
+            self.scene_width, self.scene_height = self.bgBrush.texture().size().width(), self.bgBrush.texture().size().height()
+        self.setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))

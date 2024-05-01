@@ -24,8 +24,6 @@ class CanvasView(QGraphicsView):
     def initUI(self):
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.scene_width, self.scene_height = 64000, 64000
-        self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("background: transparent; border:0px;")
