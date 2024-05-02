@@ -94,6 +94,7 @@ class MainWindow(QDragWindow):
             QAction("退出", self, triggered=self.quitDraw, shortcut="esc"),
             QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="ctrl+w"),
             QAction("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
+            QAction("切换锁定状态", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SwitchLock), shortcut="alt+0"),
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
             QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen), shortcut="alt+3"),
@@ -146,8 +147,8 @@ class MainWindow(QDragWindow):
         self.physicalPixmap = QPixmap()
 
         # 截图标注模式
-        # imagePath = os.path.join(os.path.dirname(__file__), "screen 143-313.png")
-        # self.physicalPixmap = QPixmap(imagePath)
+        imagePath = os.path.join(os.path.dirname(__file__), "screen 150-214.png")
+        self.physicalPixmap = QPixmap(imagePath)
 
         finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
         if self.physicalPixmap.isNull():
@@ -167,9 +168,6 @@ class MainWindow(QDragWindow):
             sceneBrush = QBrush(self.physicalPixmap)
             transform = QtGui.QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
-            transform.translate(-self.physicalPixmap.size().width()/2, -self.physicalPixmap.size().height()/2)
-            sceneBrush.setTransform(transform)
-
         self.canvasEditor = CanvasEditor(None, sceneBrush)
         self.canvasEditor.initUI()
         self.contentLayout.addWidget(self.canvasEditor)

@@ -19,7 +19,7 @@ class DrawActionEnum(Enum):
     DrawArrow = "绘制箭头"
     DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制折线"
-    Locked = "锁定"
+    SwitchLock = "切换锁定"
     SelectItem = "选择对象"
     Mosaic = "马赛克"
 
@@ -33,19 +33,8 @@ class CanvasScene(QGraphicsScene):
 
         self.itemList:list = []
 
-        self.initStyle()
-
-    def initStyle(self):
-        self.scene_width, self.scene_height = 64000, 64000
-        if self.bgBrush != None:
-            self.scene_width, self.scene_height = self.bgBrush.texture().size().width(), self.bgBrush.texture().size().height()
-        self.setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
-
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
-        targetPoint = self.views()[0].rect().center()
-        targetRect.moveCenter(targetPoint/-2)
-
         arrowStyleMap = {
             "arrowLength" : 32.0,
             "arrowAngle" : 0.5,
@@ -75,7 +64,6 @@ class CanvasScene(QGraphicsScene):
         pathItem3.addPoint(QPointF(-30, -50), Qt.PointingHandCursor)
         pathItem3.addPoint(QPointF(-200, -280), Qt.SizeAllCursor)
         pathItem3.update()
-        pathItem3.setPos(targetPoint/-2)
         self.addItem(pathItem3)
 
     def setEditableState(self, isEditable:bool):
