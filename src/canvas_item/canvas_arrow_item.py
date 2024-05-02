@@ -32,6 +32,7 @@ class CanvasArrowItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False)
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
+        # self.setEditMode(CanvasCommonPathItem.RoiPreviewerMode, True)
 
     def zoomHandle(self, zoomFactor):
         oldArrowStyleMap = self.styleAttribute.getValue().value()

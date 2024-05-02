@@ -659,10 +659,11 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     该图元为PathItem新增了交互式编辑行为
     '''
 
-    RoiEditableMode = 1 << 0 # Roi点可编辑模式
-    BorderEditableMode = 1 << 1 # 边界可编辑模式
-    HitTestMode = 1 << 2 # 测试点击模式
-    AdvanceSelectMode = 1 << 3 # 高级选择模式
+    RoiPreviewerMode = 1 << 0 # 预览Roi点模式
+    RoiEditableMode = 1 << 1 # Roi点可编辑模式
+    BorderEditableMode = 1 << 2 # 边界可编辑模式
+    HitTestMode = 1 << 3 # 测试点击模式
+    AdvanceSelectMode = 1 << 4 # 高级选择模式
 
     def setEditMode(self, flag, isEnable:bool):
         if isEnable:
@@ -681,6 +682,9 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
     def isAdvanceSelectMode(self) -> bool:
         return self.editMode | CanvasCommonPathItem.AdvanceSelectMode == self.editMode
+
+    def isRoiPreviewerMode(self) -> bool:
+        return self.editMode | CanvasCommonPathItem.RoiPreviewerMode == self.editMode
 
     def __initEditMode(self):
         self.editMode = CanvasCommonPathItem.RoiEditableMode | CanvasCommonPathItem.BorderEditableMode | CanvasCommonPathItem.HitTestMode | CanvasCommonPathItem.AdvanceSelectMode
@@ -731,13 +735,13 @@ class CanvasCommonPathItem(QGraphicsPathItem):
             CanvasUtil.buildSegmentsPath(targetPath, targetPolygon, isClosePath)
 
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        if self.isPreview == 0:
+        if self.isPreview == 0 and self.isRoiPreviewerMode():
             self.isPreview = 1
             self.roiMgr.setShowState(True)
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
-        if self.isPreview == 1:
+        if self.isPreview == 1 and self.isRoiPreviewerMode():
             self.isPreview = 0
             self.roiMgr.setShowState(False)
         return super().hoverLeaveEvent(event)
