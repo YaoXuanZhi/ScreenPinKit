@@ -103,28 +103,25 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
             self.setCursor(self.interfaceCursor)
             return
         else:
-            # svgPath = os.path.join(os.path.dirname(__file__), "demos/resources", "horizontal-resize.svg")
-            svgPath = os.path.join(os.path.dirname(__file__), "demos/resources", "horizontal_resize.svg")
-            svgRender = QSvgRenderer(svgPath)
-            # svgRender = QSvgRenderer("../test/resources/diagonal resize 2.svg")
-            pixmap = QPixmap(128, 128)
-            pixmap.fill(Qt.GlobalColor.transparent)
-            painter = QPainter()
-            painter.begin(pixmap)
-            svgRender.render(painter)
-            painter.end()
+            svgName = "aero_nwse.svg"
+            if self.posType in [EnumPosType.ControllerPosTL, EnumPosType.ControllerPosBR]:
+                svgName = "aero_nwse.svg"
+            elif self.posType in [EnumPosType.ControllerPosTR, EnumPosType.ControllerPosBL]:
+                svgName = "aero_nesw.svg"
+            elif self.posType in [EnumPosType.ControllerPosTC, EnumPosType.ControllerPosBC]:
+                svgName = "aero_ns.svg"
+            elif self.posType in [EnumPosType.ControllerPosLC, EnumPosType.ControllerPosRC]:
+                svgName = "aero_ew.svg"
 
-            # pixmap = pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            # pixmap = pixmap.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            # pixmap = pixmap.scaled(28, 28, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            svgPath = os.path.join(os.path.dirname(__file__), "demos/resources", svgName)
             icon = QIcon(svgPath)
             pixmap = icon.pixmap(QSize(36, 36))
 
-        transform = parentItem.transform()
-        transform.rotate(parentItem.rotation())
-        finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
-        newFinal = QCursor(finalPixmap, -1, -1)
-        self.setCursor(newFinal)
+            transform = parentItem.transform()
+            transform.rotate(parentItem.rotation())
+            finalPixmap = pixmap.transformed(transform, Qt.SmoothTransformation)
+            newFinal = QCursor(finalPixmap, -1, -1)
+            self.setCursor(newFinal)
 
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
