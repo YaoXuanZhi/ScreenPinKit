@@ -36,6 +36,9 @@ class CanvasScene(QGraphicsScene):
 
         self.itemList:list = []
 
+        self.blurMgr = BlurManager()
+        self.blurMgr.saveBlurPixmap(self.bgBrush.texture())
+
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
         arrowStyleMap = {
@@ -92,6 +95,7 @@ class CanvasScene(QGraphicsScene):
             item.completeDraw()
             self.itemList.append(item)
             self.lastAddItem = item
+            self.saveBlurBgPixmap()
             item.setEditableState(True)
             item.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -101,6 +105,16 @@ class CanvasScene(QGraphicsScene):
                 self.lastAddItem.setEditableState(True)
 
         self.pathItem = None
+
+    def saveBlurBgPixmap(self):
+        basePixmap = self.bgBrush.texture().copy()
+        painter = QPainter()
+        painter.begin(basePixmap)
+        view = self.views()[0]
+        painter.drawPixmap(view.geometry(), view.grab())
+        painter.end()
+
+        self.blurMgr.saveBlurPixmap(basePixmap)
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
@@ -186,25 +200,19 @@ class CanvasScene(QGraphicsScene):
                     elif self.currentDrawActionEnum == DrawActionEnum.UseEraserRectItem:
                         if self.pathItem == None:
                             if self.bgBrush != None:
-                                eraseBrush = self.bgBrush
-                                erasePen = QPen(eraseBrush, 10)
-                            else:
-                                erasePen = QPen(Qt.GlobalColor.blue)
-                            self.pathItem = CanvasEraserRectItem(None, erasePen)
-                            self._startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                                self.pathItem = CanvasEraserRectItem(self.bgBrush.texture())
+                                self._startDraw(self.pathItem)
+                                self.pathItem.polygon.append(targetPos)
+                                self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.Blur:
                         if self.pathItem == None:
                             if self.bgBrush != None:
-                                eraseBrush = self.bgBrush
-                                erasePen = QPen(eraseBrush, 10)
-                            else:
-                                erasePen = QPen(Qt.GlobalColor.blue)
-                            self.pathItem = CanvasBlurRectItem(None, erasePen)
-                            self._startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                                blurPixmap = self.blurMgr.lastBlurPixmap.copy()
+                                sourcePixmap = self.bgBrush.texture().copy()
+                                self.pathItem = CanvasBlurRectItem(sourcePixmap, blurPixmap, None)
+                                self._startDraw(self.pathItem)
+                                self.pathItem.polygon.append(targetPos)
+                                self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                         if self.pathItem == None:
                             self.pathItem = CanvasArrowItem()
@@ -252,6 +260,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawRectangle, 
                 DrawActionEnum.DrawEllipse, 
                 DrawActionEnum.DrawStar,
+                DrawActionEnum.Blur,
                 ]:
                 self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                 self.pathItem.update()
@@ -280,6 +289,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawRectangle, 
                 DrawActionEnum.DrawEllipse, 
                 DrawActionEnum.DrawStar,
+                DrawActionEnum.Blur,
                 ]:
                 if event.button() == Qt.LeftButton:
                     isOk = False

@@ -71,13 +71,10 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
     '''
     绘图工具-橡皮擦矩形图元
     '''
-    def __init__(self, parent: QWidget = None, pen:QPen = QPen(QColor(0, 255, 0, 100))) -> None:
+    def __init__(self, bgPixmap:QPixmap, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
-        self.__initStyle(pen)
-
-    def __initStyle(self, pen:QPen):
-        self.initPen = pen
+        self.bgPixmap = bgPixmap
 
     def __initEditMode(self):
         # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
@@ -90,7 +87,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # bug:目前实现方式在该图元旋转时会出现bug，方案后续想好再处理
-        painter.drawPixmap(self.boundingRect(), self.initPen.brush().texture(), self.sceneBoundingRect())
+        painter.drawPixmap(self.boundingRect(), self.bgPixmap, self.sceneBoundingRect())
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()

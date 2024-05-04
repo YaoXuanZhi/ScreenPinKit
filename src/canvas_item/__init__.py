@@ -12,4 +12,5 @@ from .canvas_pencil_item import CanvasPencilItem
 from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem
 from .canvas_ocr_text_item import CanvasOcrTextItem
+from .blur_util import *
 from .canvas_blur_item import CanvasBlurRectItem
