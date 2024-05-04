@@ -186,6 +186,7 @@ class BubbleTip(QWidget):
         """
         w = cls(view, target, duration, tailPosition, showStyle, orientLength, parent)
         w.show()
+        return w
 
 class BubbleTipManager(QObject):
     """ Bubble tip manager """

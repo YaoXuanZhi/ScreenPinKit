@@ -134,13 +134,13 @@ class QPainterWidget(QPixmapWidget):
             targetWidget = self.window()
             targetWidget = self.parentWidget()
 
-        BubbleTip.make(
+        self.optionBar = BubbleTip.make(
             target=targetWidget,
             view=view,
             duration=-1,
             tailPosition=BubbleTipTailPosition.TOP_LEFT,
             orientLength=4,
-            parent=self
+            parent=targetWidget,
         )
 
     def showCommandBar(self):
@@ -221,7 +221,10 @@ class QPainterWidget(QPixmapWidget):
             self.clearDrawFlag()
             self.toolbar.close()
             self.toolbar.destroy()
+            self.optionBar.close()
+            self.optionBar.destroy()
             self.toolbar = None
+            self.optionBar = None
             self.drawWidget.quitDraw()
 
     def switchLocked(self):
