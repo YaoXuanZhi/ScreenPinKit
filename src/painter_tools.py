@@ -174,9 +174,17 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.MARKER_PEN, '记号笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
             Action(ScreenShotIcon.PENCIL, '铅笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
             Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
-            Action(ScreenShotIcon.ERASE, '橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-            Action(ScreenShotIcon.MOSAIC, '橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem)),
         ]
+
+        # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
+        if self.drawWidget.sceneBrush != None:
+            extendActions = [
+                Action(ScreenShotIcon.ERASE, '橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
+                Action(ScreenShotIcon.MOSAIC, '橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem)),
+                Action(ScreenShotIcon.FILL_REGION, '马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
+            ]
+            for action in extendActions:
+                drawActions.append(action)
 
         self.actionGroup = QActionGroup(self)
         for action in drawActions:

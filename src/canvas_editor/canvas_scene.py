@@ -21,7 +21,8 @@ class DrawActionEnum(Enum):
     DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制折线"
     SelectItem = "选择对象"
-    Mosaic = "马赛克"
+    Mosaic = "马赛克工具"
+    Blur = "模糊工具"
 
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
@@ -190,6 +191,17 @@ class CanvasScene(QGraphicsScene):
                             else:
                                 erasePen = QPen(Qt.GlobalColor.blue)
                             self.pathItem = CanvasEraserRectItem(None, erasePen)
+                            self._startDraw(self.pathItem)
+                            self.pathItem.polygon.append(targetPos)
+                            self.pathItem.polygon.append(targetPos)
+                    elif self.currentDrawActionEnum == DrawActionEnum.Blur:
+                        if self.pathItem == None:
+                            if self.bgBrush != None:
+                                eraseBrush = self.bgBrush
+                                erasePen = QPen(eraseBrush, 10)
+                            else:
+                                erasePen = QPen(Qt.GlobalColor.blue)
+                            self.pathItem = CanvasBlurRectItem(None, erasePen)
                             self._startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
