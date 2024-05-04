@@ -62,9 +62,7 @@ class CanvasPencilItem(CanvasCommonPathItem):
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         targetPath.addPolygon(targetPolygon)
 
-    def setEditableState(self, isEditable:bool):
-        '''设置可编辑状态'''
-        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
-        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
-        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
-        self.setAcceptHoverEvents(isEditable)
+    def setEditableState(self, isEditable: bool):
+        '''铅笔不允许绘制结束之后的重新编辑'''
+        # return super().setEditableState(isEditable)
+        pass

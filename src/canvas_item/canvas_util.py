@@ -762,6 +762,9 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect() + QMarginsF(self.radius, self.radius, self.radius, self.radius)
 
+    def excludeControllers(self) -> list:
+        return []
+
     def initControllers(self):
         if not self.isBorderEditableMode():
             return
@@ -785,6 +788,8 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
         if len(self.controllers) == 0:
             for info in posTypes:
+                if info[0] in self.excludeControllers():
+                    continue
                 controller = CanvasEllipseItem(info[-1], self)
                 controller.setRectWrapper(rect, info[0], self.radius, size)
                 self.controllers.append(controller)
