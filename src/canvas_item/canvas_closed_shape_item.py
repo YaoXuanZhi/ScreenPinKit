@@ -40,7 +40,7 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
-        # self.setEditMode(UICanvasCommonPathItem.BorderEditableMode, False)
+        # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False)
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)

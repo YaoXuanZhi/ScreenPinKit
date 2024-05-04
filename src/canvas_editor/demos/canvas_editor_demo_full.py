@@ -94,11 +94,13 @@ class MainWindow(QDragWindow):
             QAction("退出", self, triggered=self.quitDraw, shortcut="esc"),
             QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="ctrl+w"),
             QAction("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
-            QAction("切换锁定状态", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SwitchLock), shortcut="alt+0"),
+            QAction("切换锁定状态", self, triggered=lambda: self.canvasEditor.switchLockState(), shortcut="alt+0"),
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
-            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen), shortcut="alt+3"),
-            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+4"),
+            QAction("绘制矩形", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle), shortcut="alt+3"),
+            QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
+            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
+            QAction("切换到橡皮区域", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
         ]
         self.addActions(actions)
 

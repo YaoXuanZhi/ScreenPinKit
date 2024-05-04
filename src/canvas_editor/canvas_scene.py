@@ -86,12 +86,13 @@ class CanvasScene(QGraphicsScene):
             self.lastAddItem.setEditableState(False)
         self.addItem(item)
 
-    def _completeDraw(self, item:QGraphicsObject, isOk:bool = True):
+    def _completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
         if isOk:
             item.completeDraw()
             self.itemList.append(item)
             self.lastAddItem = item
             item.setEditableState(True)
+            item.setFocus(Qt.FocusReason.OtherFocusReason)
 
         if not isOk:
             self.removeItem(item)
@@ -122,7 +123,11 @@ class CanvasScene(QGraphicsScene):
         view:QGraphicsView = self.views()[0]
         targetPos = event.scenePos()
         item = self.itemAt(event.scenePos(), view.transform())
-        if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] or (item == self.lastAddItem and item != None):
+        if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
+            return super().mousePressEvent(event)
+        if item == self.lastAddItem and item != None:
+            return super().mousePressEvent(event)
+        if issubclass(type(item), CanvasROI) or issubclass(type(item), CanvasEllipseItem):
             return super().mousePressEvent(event)
         else:
             if event.button() == Qt.LeftButton:
@@ -143,16 +148,17 @@ class CanvasScene(QGraphicsScene):
                         self.pathItem.setPos(targetPos)
                         self._completeDraw(self.pathItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
-                        svgNames = [
-                            "diagonal_resize_1.svg",
-                            "diagonal_resize_2.svg",
-                            "horizontal_resize.svg",
-                            "vertical_resize.svg",
-                            "zsh.svg",
-                        ]
-                        svgName = svgNames[random.randint(0, 4)]
-                        svgPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources", svgName)
-                        if random.randint(0, 9) % 2 == 0:
+                        folderPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources")
+                        def getSvgFiles(folderPath):
+                            result = []
+                            for filePath in os.listdir(folderPath):
+                                if filePath.endswith(".svg"):
+                                    result.append(os.path.join(folderPath, filePath))
+                            return result
+                        svgPaths = getSvgFiles(folderPath)
+                        index = random.randint(0, len(svgPaths) - 1)
+                        svgPath = svgPaths[index]
+                        if index % 2 == 0:
                             self.pathItem = CanvasSvgItem(QRectF(), svgPath)
                         else:
                             self.pathItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)
