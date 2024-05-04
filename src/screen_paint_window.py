@@ -16,8 +16,8 @@ class QScreenPainterWidget(QPainterWidget):
     def __init__(self, parent=None):
         super().__init__(parent, None, 0, 0)
 
-    def getCommandBarPosition(self) -> TeachingTipTailPosition:
-        return BubbleTipTailPosition.TOP
+    def getCommandBarPosition(self) -> BubbleTipTailPosition:
+        return BubbleTipTailPosition.BOTTOM
 
     def contextMenuEvent(self, event:QtGui.QContextMenuEvent):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:

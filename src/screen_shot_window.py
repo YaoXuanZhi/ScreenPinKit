@@ -529,7 +529,7 @@ class ScreenShotWindow(QWidget):
         filePaths = glob.glob('*.png')
         for filePath in filePaths:
             matchResult = re.match(self.getImageNamePattern(), filePath)
-            if len(matchResult.groups()) > 0:
+            if matchResult != None and len(matchResult.groups()) > 0:
                 os.remove(filePath)
 
     def getScreenImageName(self, screenPoint:QPoint):

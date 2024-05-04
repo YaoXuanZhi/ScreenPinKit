@@ -37,7 +37,7 @@ class CanvasScene(QGraphicsScene):
         self.itemList:list = []
 
         self.blurMgr = BlurManager()
-        self.blurMgr.saveBlurPixmap(self.bgBrush.texture())
+        self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
