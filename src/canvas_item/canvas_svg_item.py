@@ -53,3 +53,10 @@ class CanvasSvgItem(QGraphicsRectItem):
         option.state = option.state & ~QStyle.StateFlag.State_Selected
         # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         return super().paint(painter, option, widget)
+
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)

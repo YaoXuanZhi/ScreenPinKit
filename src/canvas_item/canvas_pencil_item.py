@@ -61,3 +61,6 @@ class CanvasPencilItem(CanvasCommonPathItem):
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         targetPath.addPolygon(targetPolygon)
+
+    def setEditableState(self, isEditable:bool):
+        pass

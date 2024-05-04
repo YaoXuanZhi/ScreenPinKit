@@ -147,7 +147,7 @@ class MainWindow(QDragWindow):
         self.physicalPixmap = QPixmap()
 
         # 截图标注模式
-        imagePath = os.path.join(os.path.dirname(__file__), "screen 150-214.png")
+        imagePath = os.path.join(os.path.dirname(__file__), "screen 1027-345.png")
         self.physicalPixmap = QPixmap(imagePath)
 
         finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
@@ -168,6 +168,7 @@ class MainWindow(QDragWindow):
             sceneBrush = QBrush(self.physicalPixmap)
             transform = QtGui.QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
+            sceneBrush.setTransform(transform)
         self.canvasEditor = CanvasEditor(None, sceneBrush)
         self.canvasEditor.initUI()
         self.contentLayout.addWidget(self.canvasEditor)

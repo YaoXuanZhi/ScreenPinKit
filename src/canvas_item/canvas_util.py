@@ -992,6 +992,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     def completeDraw(self):
         if self.isRoiEditableMode():
             self.roiMgr.initRoiItems(self.polygon)
+        self.setEditableState(True)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         return super().wheelEvent(event)

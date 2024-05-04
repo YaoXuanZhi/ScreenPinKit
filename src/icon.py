@@ -33,9 +33,19 @@ class ScreenShotIcon(FluentIconBase, Enum):
     ARROW = "箭头"
     MARKER_PEN = "记号笔"
     STAR = "星"
-    RECTANGLE = "方形边框"
+    # RECTANGLE = "方形边框"
+    RECTANGLE = "矩形"
     POLYGONAL_LINE = "折线"
     POLYGON = "多边形"
+    SELECT_ITEM = "选择工具"
+    MOSAIC = "马赛克"
+    LOCKED = "锁定"
+    UNLOCKED = "解锁"
+
+    CIRCLE = "圆形3"
+    SHAPE = "diversity"
+    FILL_REGION = "fill-region"
 
     def path(self, theme=Theme.AUTO):
-        return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")
+        # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")
+        return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.svg")

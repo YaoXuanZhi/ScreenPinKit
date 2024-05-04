@@ -111,3 +111,10 @@ class CanvasTextItem(QGraphicsTextItem):
         if event.key() == Qt.Key_Escape:
             self.clearFocus()
         return super().keyPressEvent(event)
+
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)

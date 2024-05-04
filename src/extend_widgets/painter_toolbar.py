@@ -7,11 +7,12 @@ from icon import ScreenShotIcon
 from .color_picker_button_plus import *
 from .font_picker_button_plus import *
 from canvas_editor import CanvasEditor, DrawActionEnum
+from canvas_item import *
 
 class TextEditToolbar(CommandBarView):
-    def __init__(self, title: str, content: str, icon: QIcon = None,
-                image: QImage = None, isClosable=False, parent=None):
+    def __init__(self, canvasItem:QGraphicsItem = None, parent=None):
         super().__init__(parent=parent)
+        self.canvasItem:CanvasTextItem = canvasItem
         self.initUI()
 
     def initUI(self):
@@ -58,9 +59,9 @@ class TextEditToolbar(CommandBarView):
         print(f"=======> {drawActionEnum}")
 
 class PolygonLineToolbar(CommandBarView):
-    def __init__(self, title: str, content: str, icon: QIcon = None,
-                image: QImage = None, isClosable=False, parent=None):
+    def __init__(self, canvasItem:QGraphicsItem = None, parent=None):
         super().__init__(parent=parent)
+        self.canvasItem:CanvasPolygonItem = canvasItem
         self.initUI()
 
     def initUI(self):
@@ -111,9 +112,9 @@ class PolygonLineToolbar(CommandBarView):
         print(f"=======> {drawActionEnum}")
 
 class PenToolbar(CommandBarView):
-    def __init__(self, title: str, content: str, icon: QIcon = None,
-                image: QImage = None, isClosable=False, parent=None):
+    def __init__(self, canvasItem:QGraphicsItem = None, parent=None):
         super().__init__(parent=parent)
+        self.canvasItem:CanvasPencilItem = canvasItem
         self.initUI()
 
     def initUI(self):
@@ -157,47 +158,74 @@ class PenToolbar(CommandBarView):
         print(f"=======> {drawActionEnum}")
 
 class ShapeToolbar(CommandBarView):
-    def __init__(self, title: str, content: str, icon: QIcon = None,
-                image: QImage = None, isClosable=False, parent=None):
+    def __init__(self, canvasItem:QGraphicsItem = None, parent=None):
         super().__init__(parent=parent)
+        self.canvasItem:CanvasClosedShapeItem = canvasItem
         self.initUI()
 
     def initUI(self):
+        self.initShapeStyleOptionUI()
+        self.addSeparator()
+        self.initShapeOptionUI()
+        self.addSeparator()
+        self.initBackgroundColorOptionUI("描边")
+        self.initBackgroundColorOptionUI("背景")
+        self.addSeparator()
+        self.initOpacityOptionUI("不透明度")
+
+    def initShapeStyleOptionUI(self):
         fillModeActions = [
-            Action(ScreenShotIcon.ARROW, '点', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            Action(ScreenShotIcon.STAR, '面', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+            Action(ScreenShotIcon.RECTANGLE, '线框', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
+            Action(ScreenShotIcon.FILL_REGION, '填充', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
         ]
 
-        self.actionGroup = QActionGroup(self)
+        actionGroup = QActionGroup(self)
         for action in fillModeActions:
             action.setCheckable(True)
-            self.actionGroup.addAction(action)
-
+            actionGroup.addAction(action)
         self.addActions(fillModeActions)
-        self.addSeparator()
 
-        # 多边形选择
+    def initShapeOptionUI(self):
+        '''多边形选择'''
         shapeDropdown = TransparentDropDownToolButton(ScreenShotIcon.RECTANGLE, self)
         shapeDropdown.setIconSize(QSize(20, 20))
         # shapeDropdown.setFlyout(self.createShapeMenu(shapeDropdown))
         shapeDropdown.setMenu(self.createShapeMenu(shapeDropdown))
         self.addWidget(shapeDropdown)
+        return shapeDropdown
 
-        self.addSeparator()
+    def initBackgroundColorOptionUI(self, optionName:str):
+        '''颜色选项'''
+        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, 'Background Color', self, enableAlpha=True)
+        colorPickerButton.setCheckable(True)
+        colorPickerButton.setFixedSize(30, 30)
 
-        # 颜色选择
-        self.colorPickerButton = ColorPickerButtonPlus(Qt.GlobalColor.yellow, 'Background Color', self, enableAlpha=True)
-        self.colorPickerButton.setFixedSize(30, 30)
-        self.addWidget(self.colorPickerButton)
+        return self.initTemplateOptionUI(optionName, colorPickerButton)
+
+    def initOpacityOptionUI(self, optionName:str):
+        '''不透明度选项'''
+        opacitySlider = Slider(Qt.Horizontal)
+        opacitySlider.setRange(10, 100)
+        opacitySlider.setValue(30)
+        return self.initTemplateOptionUI(optionName, opacitySlider)
+
+    def initTemplateOptionUI(self, optionName:str, optionWidget:QWidget):
+        '''模板选项'''
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionView.setLayout(optionLayout)
+        optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(optionWidget)
+        self.addWidget(optionView)
+        return optionWidget
 
     def createShapeMenu(self, button:PrimarySplitPushButton):
         menu = RoundMenu(parent=self)
         menu.setFixedWidth(20)
         menu.addActions([
             Action(ScreenShotIcon.RECTANGLE, "矩形", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.RECTANGLE)),
-            Action(ScreenShotIcon.BRUSH, "圆形", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.BRUSH)),
+            Action(ScreenShotIcon.CIRCLE, "圆形", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.CIRCLE)),
             Action(ScreenShotIcon.STAR, "五角星", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.STAR)),
-            Action(ScreenShotIcon.ARROW, "箭头", triggered=lambda c, b=button: self.onMenuClicked(c, b, ScreenShotIcon.ARROW)),
         ])
         return menu
 

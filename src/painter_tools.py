@@ -113,21 +113,21 @@ class QPainterWidget(QPixmapWidget):
             screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
             transform = QtGui.QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
-            transform.translate(-basePixmap.size().width()/2, -basePixmap.size().height()/2)
             self.sceneBrush.setTransform(transform)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.TOP_RIGHT
 
-    def showComplexFlyout(self, targetWidget:QWidget = None):
-        view = TextEditToolbar(
-        # view = LineToolbar(
+    def showToolBar(self, targetWidget:QWidget = None):
+        # view = TextEditToolbar(
+        # view = PolygonLineToolbar(
         # view = PenToolbar(
-        # view = ShapeToolbar(
+        view = ShapeToolbar(
         # view = PainterToolbar(
-            title=self.tr('Julius·Zeppeli'),
-            content=self.tr("测试文本"),
-            image=':/gallery/images/SBR.jpg',
+            # title=self.tr('Julius·Zeppeli'),
+            # content=self.tr("测试文本"),
+            # image=':/gallery/images/SBR.jpg',
+            parent=self.drawWidget,
         )
 
         if targetWidget == None:
@@ -139,6 +139,7 @@ class QPainterWidget(QPixmapWidget):
             view=view,
             duration=-1,
             tailPosition=BubbleTipTailPosition.TOP_LEFT,
+            orientLength=4,
             parent=self
         )
 
@@ -152,8 +153,20 @@ class QPainterWidget(QPixmapWidget):
         view = CommandBarView(self)
         closeAction = Action(ScreenShotIcon.FINISHED, '完成绘画')
 
+        # 增加锁定机制
+        if self.drawWidget.getLockState():
+            switchLockAction = Action(ScreenShotIcon.LOCKED, '锁定', triggered=self.switchLocked)
+        else:
+            switchLockAction = Action(ScreenShotIcon.UNLOCKED, '解锁', triggered=self.switchLocked)
+
+        switchLockAction.setCheckable(True)
+        self.switchLockButton = view.addAction(switchLockAction)
+        view.addSeparator()
+
+        # 初始化绘制工具栏
         drawActions = [
-            Action(ScreenShotIcon.RECTANGLE, '矩形', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle)),
+            Action(ScreenShotIcon.SELECT_ITEM, '选择', triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem)),
+            Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle)),
             Action(ScreenShotIcon.POLYGONAL_LINE, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
             Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
@@ -163,6 +176,7 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.PENCIL, '铅笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
             Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
             Action(ScreenShotIcon.ERASE, '橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
+            Action(ScreenShotIcon.MOSAIC, '橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem)),
         ]
 
         self.actionGroup = QActionGroup(self)
@@ -183,12 +197,6 @@ class QPainterWidget(QPixmapWidget):
         view.setIconSize(QSize(20, 20))
 
         view.resizeToSuitableWidth()
-        # self.toolbar = TeachingTip.make(
-        #     target=self, 
-        #     view=view, 
-        #     duration=-1, 
-        #     tailPosition=TeachingTipTailPosition.TOP_RIGHT, 
-        #     parent=self)
 
         self.toolbar = BubbleTip.make(
             target=self,
@@ -201,7 +209,7 @@ class QPainterWidget(QPixmapWidget):
         closeAction.triggered.connect(self.completeDraw)
 
         self.initDrawLayer()
-        self.showComplexFlyout(view)
+        self.showToolBar(view)
 
     def initDrawLayer(self):
         if self.drawWidget != None: 
@@ -218,6 +226,19 @@ class QPainterWidget(QPixmapWidget):
             self.toolbar.destroy()
             self.toolbar = None
             self.drawWidget.quitDraw()
+
+    def switchLocked(self):
+        self.drawWidget.switchLockState()
+        finalIcon = None
+        tip = ""
+        if self.drawWidget.getLockState():
+            finalIcon = ScreenShotIcon.LOCKED
+            tip = "锁定"
+        else:
+            finalIcon = ScreenShotIcon.UNLOCKED
+            tip = "解锁"
+        self.switchLockButton.setIcon(finalIcon)
+        self.switchLockButton.setToolTip(tip)
 
     def closeEvent(self, event):
         super().closeEvent(event)

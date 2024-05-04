@@ -42,8 +42,16 @@ class CanvasEditor(QWidget):
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.scene.currentDrawActionEnum = drawActionEnum
+        if self.scene.pathItem != None:
+            self.scene.pathItem.completeDraw()
         self.scene.pathItem = None
         self.setEditorEnabled(drawActionEnum != DrawActionEnum.DrawNone)
+
+    def switchLockState(self):
+        self.scene.switchLockState()
+
+    def getLockState(self):
+        return self.scene.isLockedTool
 
     def isEditorEnabled(self):
         return self.view.isEnabled()
