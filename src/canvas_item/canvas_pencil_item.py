@@ -63,4 +63,8 @@ class CanvasPencilItem(CanvasCommonPathItem):
         targetPath.addPolygon(targetPolygon)
 
     def setEditableState(self, isEditable:bool):
-        pass
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)

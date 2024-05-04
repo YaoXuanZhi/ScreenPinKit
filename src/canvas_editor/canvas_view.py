@@ -51,3 +51,11 @@ class CanvasView(QGraphicsView):
             # self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         return super().wheelEvent(event)
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        clickedItem:CanvasCommonPathItem = self.itemAt(event.pos())
+        acceptHover = False
+        if clickedItem != None:
+            acceptHover = clickedItem.acceptHoverEvents()
+
+        return super().mousePressEvent(event)

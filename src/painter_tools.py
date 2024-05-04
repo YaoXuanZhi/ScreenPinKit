@@ -151,7 +151,6 @@ class QPainterWidget(QPixmapWidget):
 
         position = self.getCommandBarPosition()
         view = CommandBarView(self)
-        closeAction = Action(ScreenShotIcon.FINISHED, '完成绘画')
 
         # 增加锁定机制
         if self.drawWidget.getLockState():
@@ -190,7 +189,7 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.DELETE_ALL, '清除绘画', triggered=self.clearDraw),
             # Action(ScreenShotIcon.UNDO2, '撤销', triggered=self.undo),
             # Action(ScreenShotIcon.REDO2, '重做', triggered=self.redo),
-            closeAction,
+            Action(ScreenShotIcon.FINISHED, '完成绘画', triggered=self.completeDraw),
         ])
 
         view.hBoxLayout.setContentsMargins(1, 1, 1, 1)
@@ -205,8 +204,6 @@ class QPainterWidget(QPixmapWidget):
             tailPosition=position,
             parent=self,
         )
-
-        closeAction.triggered.connect(self.completeDraw)
 
         self.initDrawLayer()
         self.showToolBar(view)

@@ -60,3 +60,13 @@ class CanvasMarkderItem(QGraphicsRectItem):
     #         raise NotImplementedError("子类需要重写该函数")
     #         return
     #     return super().mouseDoubleClickEvent(event)
+
+    def setEditableState(self, isEditable:bool):
+        '''设置可编辑状态'''
+        self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
+        self.setAcceptHoverEvents(isEditable)
+
+    def completeDraw(self):
+        pass

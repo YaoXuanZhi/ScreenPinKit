@@ -118,3 +118,6 @@ class CanvasTextItem(QGraphicsTextItem):
         self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
         self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
         self.setAcceptHoverEvents(isEditable)
+
+    def completeDraw(self):
+        pass
