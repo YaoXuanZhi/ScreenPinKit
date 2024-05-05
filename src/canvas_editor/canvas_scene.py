@@ -36,8 +36,8 @@ class CanvasScene(QGraphicsScene):
 
         self.itemList:list = []
 
-        self.blurMgr = BlurManager()
-        self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
+        # self.blurMgr = BlurManager()
+        # self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
@@ -95,7 +95,7 @@ class CanvasScene(QGraphicsScene):
             item.completeDraw()
             self.itemList.append(item)
             self.lastAddItem = item
-            self.saveBlurBgPixmap()
+            # self.saveAfterEffectPixmap()
             item.setEditableState(True)
             item.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -106,7 +106,10 @@ class CanvasScene(QGraphicsScene):
 
         self.pathItem = None
 
-    def saveBlurBgPixmap(self):
+    def saveAfterEffectPixmap(self):
+        '''
+        缓存机制：开启多线程缓存上次操作的快照后处理结果
+        '''
         basePixmap = self.bgBrush.texture().copy()
         painter = QPainter()
         painter.begin(basePixmap)
@@ -114,7 +117,7 @@ class CanvasScene(QGraphicsScene):
         painter.drawPixmap(view.geometry(), view.grab())
         painter.end()
 
-        self.blurMgr.saveBlurPixmap(basePixmap)
+        # self.blurMgr.saveBlurPixmap(basePixmap)
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
@@ -207,7 +210,8 @@ class CanvasScene(QGraphicsScene):
                     elif self.currentDrawActionEnum == DrawActionEnum.Blur:
                         if self.pathItem == None:
                             if self.bgBrush != None:
-                                blurPixmap = self.blurMgr.lastBlurPixmap.copy()
+                                # blurPixmap = self.blurMgr.lastBlurPixmap.copy()
+                                blurPixmap = None
                                 sourcePixmap = self.bgBrush.texture().copy()
                                 self.pathItem = CanvasBlurRectItem(sourcePixmap, blurPixmap, None)
                                 self._startDraw(self.pathItem)

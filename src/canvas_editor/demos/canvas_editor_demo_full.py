@@ -101,6 +101,7 @@ class MainWindow(QDragWindow):
             QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
             QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
             QAction("切换到橡皮区域", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
+            QAction("切换到模糊工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
         ]
         self.addActions(actions)
 
