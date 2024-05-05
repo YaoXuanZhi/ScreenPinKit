@@ -1,1 +1,0 @@
-该模块从[PyECS](https://github.com/dcarlus/PyECS)上提取出来的，主要是基于它搞了个基础版本的ECS机制支持

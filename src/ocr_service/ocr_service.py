@@ -86,6 +86,11 @@ class OcrService(QObject):
                 scores = json.loads(ocrResult["scores"])
                 f.close()
 
+        if os.path.exists(imagePath):
+            os.remove(imagePath)
+        if os.path.exists(ocrResultPath):
+            os.remove(ocrResultPath)
+
         return boxes, txts, scores
 
     @staticmethod

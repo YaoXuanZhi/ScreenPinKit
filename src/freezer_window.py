@@ -81,13 +81,6 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
         self.ocrThread.start()
 
-    def startOcr2(self):
-        '''当前线程下进行OCR识别，会卡着界面'''
-        if hasattr(self, "ocrState"):
-            return
-        self.ocrState = 0
-        self.onExecuteOcr(self.physicalPixmap)
-
     def onExecuteOcr(self, pixmap:QPixmap):
         print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         ocrService = OcrService()
