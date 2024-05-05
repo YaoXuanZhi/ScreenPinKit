@@ -1,4 +1,5 @@
 import os, random
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -313,3 +314,19 @@ class CanvasScene(QGraphicsScene):
                         isOk = True
                     self._completeDraw(self.pathItem, isOk)
         super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
+            for item in self.selectedItems():
+                finalItem = item
+                # 需要兼容边缘操作点和ROI操作点
+                while not hasattr(finalItem, "completeDraw") and finalItem.parentItem() != None:
+                    finalItem = finalItem.parentItem()
+
+                if hasattr(finalItem, "completeDraw"):
+                    if not isinstance(finalItem, CanvasTextItem) or not finalItem.isCanEditable():
+                        self.itemList.remove(finalItem)
+                        self.removeItem(finalItem)
+                        break
+
+        return super().keyPressEvent(event)

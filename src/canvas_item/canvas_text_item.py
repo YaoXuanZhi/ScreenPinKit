@@ -26,7 +26,7 @@ class CanvasTextItem(QGraphicsTextItem):
         self.setTextCursor(cursor)
 
     def isCanEditable(self):
-        '''判断窗口的鼠标是否穿透了'''
+        '''是否可编辑'''
         return (self.textInteractionFlags() | Qt.TextEditorInteraction) == self.textInteractionFlags()
 
     def switchEditableBox(self, event: QGraphicsSceneMouseEvent = None):

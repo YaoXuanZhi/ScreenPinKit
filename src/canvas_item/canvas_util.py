@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 import math, typing, os
 from enum import Enum
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
+from PyQt5.QtWidgets import QGraphicsSceneWheelEvent
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -205,6 +206,12 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         else:
             parentItem.endResize(event.pos())
         return super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        parentItem = self.parentItem()
+        if parentItem != None:
+            parentItem.wheelEvent(event)
+        return super().wheelEvent(event)
 
 class CanvasUtil:
     @staticmethod
@@ -552,6 +559,12 @@ class CanvasROI(QGraphicsEllipseItem):
             parentItem:CanvasCommonPathItem = self.parentItem()
             parentItem.roiMgr.removePoint(self)
         return super().mouseDoubleClickEvent(event)
+
+    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        parentItem = self.parentItem()
+        if parentItem != None:
+            parentItem.wheelEvent(event)
+        return super().wheelEvent(event)
 
 class CanvasROIManager(QObject):
     removeROIAfterSignal = pyqtSignal(int)
