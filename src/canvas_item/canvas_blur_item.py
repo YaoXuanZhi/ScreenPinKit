@@ -29,13 +29,30 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         if partRect.width() < self.minSize.width() or partRect.height() < self.minSize.height():
             return
 
+        # self.customPaintByClip(painter, targetPath)
+        # self.customPaintByCopy(painter, targetPath)
+        # return
+
         # 性能损耗大，使用opencv实现版本在遇到较大区域的时候会出现程序闪退
         tempPixmap = self.sourcePixmap.copy(partRect)
         finalPixmap = AfterEffectUtilByPIL.gaussianBlur(tempPixmap, 5)
         # finalPixmap = AfterEffectUtilByPIL.mosaic(tempPixmap, 5, 1)
         painter.drawPixmap(self.boundingRect().topLeft(), finalPixmap)
 
-        # painter.drawPixmap(self.boundingRect(), self.blurPixmap, self.sceneBoundingRect())
+
+    def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        painter.drawPixmap(self.boundingRect(), self.blurPixmap, self.sceneBoundingRect())
+
+    def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
+
+        # 裁剪出当前区域
+        painter.setClipPath(targetPath)
+        sourceRect = QRectF(QRect(QPoint(0, 0), self.blurPixmap.size()))
+        targetRect = self.mapRectFromScene(sourceRect)
+
+        # 始终将背景贴到整个view上
+        painter.drawPixmap(targetRect, self.blurPixmap, sourceRect)
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()

@@ -85,9 +85,25 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
     def excludeControllers(self) -> list:
         return [EnumPosType.ControllerPosTT]
 
+
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        # bug:目前实现方式在该图元旋转时会出现bug，方案后续想好再处理
+        # return self.customPaintByClip(painter, targetPath)
+        # bug:目前实现方式在该图元旋转时会出现bug，采取思路
+        self.customPaintByCopy(painter, targetPath)
+
+    def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
         painter.drawPixmap(self.boundingRect(), self.bgPixmap, self.sceneBoundingRect())
+
+    def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
+
+        # 裁剪出当前区域
+        painter.setClipPath(targetPath)
+        sourceRect = QRectF(QRect(QPoint(0, 0), self.bgPixmap.size()))
+        targetRect = self.mapRectFromScene(sourceRect)
+
+        # 始终将背景贴到整个view上
+        painter.drawPixmap(targetRect, self.bgPixmap, sourceRect)
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()
