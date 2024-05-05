@@ -12,7 +12,7 @@ from qfluentwidgets import (RoundMenu, Action, FluentIcon, InfoBar, InfoBarPosit
 from icon import ScreenShotIcon
 from qfluentwidgets import *
 
-from canvas_editor import CanvasEditor, DrawActionEnum
+from canvas_editor import CanvasEditor, DrawActionEnum, DrawNotifyEnum
 from canvas_item import *
 from extend_widgets import *
 
@@ -162,9 +162,14 @@ class QPainterWidget(QPixmapWidget):
         self.switchLockButton = view.addAction(switchLockAction)
         view.addSeparator()
 
+        selectItemAction = Action(ScreenShotIcon.SELECT_ITEM, '选择', triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem))
+        finalDrawActions = [
+            selectItemAction
+        ]
+        self.selectItemAction = selectItemAction
+
         # 初始化绘制工具栏
         drawActions = [
-            Action(ScreenShotIcon.SELECT_ITEM, '选择', triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem)),
             Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle)),
             Action(ScreenShotIcon.POLYGONAL_LINE, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
@@ -176,6 +181,9 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
         ]
 
+        for action in drawActions:
+            finalDrawActions.append(action)
+
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if self.drawWidget.sceneBrush != None:
             extendActions = [
@@ -184,14 +192,14 @@ class QPainterWidget(QPixmapWidget):
                 Action(ScreenShotIcon.FILL_REGION, '马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
             ]
             for action in extendActions:
-                drawActions.append(action)
+                finalDrawActions.append(action)
 
         self.actionGroup = QActionGroup(self)
-        for action in drawActions:
+        for action in finalDrawActions:
             action.setCheckable(True)
             self.actionGroup.addAction(action)
 
-        view.addActions(drawActions)
+        view.addActions(finalDrawActions)
         view.addSeparator()
         view.addActions([
             Action(ScreenShotIcon.DELETE_ALL, '清除绘画', triggered=self.clearDraw),
@@ -222,7 +230,14 @@ class QPainterWidget(QPixmapWidget):
 
         self.drawWidget = CanvasEditor(self, self.sceneBrush)
         self.drawWidget.initUI()
+        self.drawWidget.setNofityEvent(self.drawNotifyHandler)
         self.contentLayout.addWidget(self.drawWidget)
+
+    def drawNotifyHandler(self, drawNotifyEnum:DrawNotifyEnum, item:QGraphicsItem):
+        if drawNotifyEnum == DrawNotifyEnum.EndDraw and not self.drawWidget.getLockState():
+            if item != None:
+                item.setFocus(Qt.FocusReason.OtherFocusReason)
+            self.selectItemAction.setChecked(True)
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)
@@ -280,16 +295,10 @@ class QPainterWidget(QPixmapWidget):
     def checkDrawActionChange(self):
         # 如果中途切换了绘图工具，则关闭上一个绘图工具的编辑状态
         if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum != self.currentDrawActionEnum:
-            self.setDrawActionEditable(self.drawActions[-1].actionEnum, False)
             self.createCustomInfoBar(f"绘图工具切换到 【{self.currentDrawActionEnum.value}】")
 
     def addDrawAction(self, drawAction:DrawAction):
         self.drawActions.append(drawAction)
-
-    def setDrawActionEditable(self, drawFlag:DrawActionEnum, isEdit:bool):
-        for action in self.drawActions:
-            if action.actionEnum == drawFlag:
-                action.switchEditState(isEdit)
 
     def undo(self):
         self.createCustomInfoBar(f"【撤销】待支持")
@@ -334,10 +343,7 @@ class QPainterWidget(QPixmapWidget):
     def clearDraw(self, isInit:bool=False):
         if not isInit:
             if hasattr(self, "drawWidget"):
-                self.drawWidget.close()
-                self.drawWidget.destroy()
-                self.drawWidget = None
-                self.initDrawLayer()
+                self.drawWidget.clearDraw()
 
         self.drawActions: list[DrawAction] = []
         self.clearDrawFlag()

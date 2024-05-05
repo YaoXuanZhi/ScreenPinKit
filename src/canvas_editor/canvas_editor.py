@@ -31,6 +31,12 @@ class CanvasEditor(QWidget):
         self.contentLayout.addWidget(self.view)
         self.setEditorEnabled(True)
 
+    def setNofityEvent(self, callBack:callable = None):
+        self.scene.setNofityEvent(callBack)
+
+    def clearDraw(self):
+        self.scene.clearDraw()
+
     def quitDraw(self):
         self.setEditorEnabled(False)
         for item in self.view.scene().items():
