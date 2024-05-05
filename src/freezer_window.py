@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from qfluentwidgets import (RoundMenu, Action, FluentIcon)
+from qfluentwidgets import (RoundMenu, Action, FluentIcon, StateToolTip)
 from painter_tools import QDragWindow, QPainterWidget, DrawActionEnum
 from canvas_item.canvas_util import ZoomComponent
 from canvas_item import *
@@ -92,14 +92,23 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         ocrService = OcrService()
         self.ocrStartSignal.emit()
-        boxes, txts, scores = ocrService.ocr(pixmap)
+        # boxes, txts, scores = ocrService.ocr(pixmap)
+        boxes, txts, scores = ocrService.ocrWithProcess(pixmap)
         self.ocrEndSignal.emit(boxes, txts, scores)
         self.ocrState = 1
 
     def onBeginCallBack(self):
-        pass
+        if not hasattr(self, "stateTooltip") or self.stateTooltip == None:
+            self.stateTooltip = StateToolTip('正在OCR识别', '客官请耐心等待哦~~', self)
+            self.stateTooltip.setStyleSheet("background: transparent; border:0px;")
+            self.stateTooltip.move(self.painterWidget.frameRect().topRight() + QPoint(-self.stateTooltip.frameSize().width(), self.stateTooltip.frameSize().height()))
+            self.stateTooltip.show()
 
     def onEndCallBack(self, boxes, txts, scores):
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
         drop_score = 0.5
         for idx, (box, txt) in enumerate(zip(boxes, txts)):
             if scores is not None and scores[idx] < drop_score:
