@@ -225,6 +225,7 @@ class QPainterWidget(QPixmapWidget):
         self.contentLayout.addWidget(self.drawWidget)
 
     def completeDraw(self):
+        self.switchDrawTool(DrawActionEnum.DrawNone)
         if self.toolbar != None:
             self.clearDrawFlag()
             self.toolbar.close()
@@ -319,7 +320,7 @@ class QPainterWidget(QPixmapWidget):
         finalPixmap = self.getFinalPixmap()
         QApplication.clipboard().setPixmap(finalPixmap)
 
-    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.CrossCursor):
+    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
         self.checkDrawActionChange()

@@ -85,10 +85,9 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
     def excludeControllers(self) -> list:
         return [EnumPosType.ControllerPosTT]
 
-
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        # bug:目前实现方式在该图元旋转时会出现bug
         # return self.customPaintByClip(painter, targetPath)
-        # bug:目前实现方式在该图元旋转时会出现bug，采取思路
         self.customPaintByCopy(painter, targetPath)
 
     def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:

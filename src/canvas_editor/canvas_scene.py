@@ -90,6 +90,18 @@ class CanvasScene(QGraphicsScene):
             self.lastAddItem.setEditableState(False)
         self.addItem(item)
 
+    def forceCompleteDraw(self):
+        if self.pathItem != None:
+            isOk = True
+            # 由于线段控件强制退出时，需要回收一个预览操作点，需要额外处理
+            if isinstance(self.pathItem, CanvasPolygonItem):
+                if self.pathItem.polygon.count() > 2:
+                    self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
+                else:
+                    isOk = False
+            self._completeDraw(self.pathItem, isOk)
+        self.lastAddItem = None
+
     def _completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
         if isOk:
             item.completeDraw()
