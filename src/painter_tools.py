@@ -152,14 +152,17 @@ class QPainterWidget(QPixmapWidget):
         position = self.getCommandBarPosition()
         view = CommandBarView(self)
 
-        # 增加锁定机制
-        if self.drawWidget.getLockState():
+        # 锁定机制-绘制工具
+        lockState = self.drawWidget.getLockState()
+        if lockState:
             switchLockAction = Action(ScreenShotIcon.LOCKED, '锁定', triggered=self.switchLocked)
         else:
             switchLockAction = Action(ScreenShotIcon.UNLOCKED, '解锁', triggered=self.switchLocked)
 
         switchLockAction.setCheckable(True)
         self.switchLockButton = view.addAction(switchLockAction)
+        switchLockAction.setChecked(lockState)
+
         view.addSeparator()
 
         selectItemAction = Action(ScreenShotIcon.SELECT_ITEM, '选择', triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem))
@@ -238,6 +241,7 @@ class QPainterWidget(QPixmapWidget):
             if item != None:
                 item.setFocus(Qt.FocusReason.OtherFocusReason)
             self.selectItemAction.setChecked(True)
+            self.selectItemAction.triggered.emit()
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)

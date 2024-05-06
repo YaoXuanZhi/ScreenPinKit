@@ -33,7 +33,7 @@ class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
         super().__init__(parent)
         self._currentDrawActionEnum = DrawActionEnum.DrawNone
-        self._isLockedTool = False
+        self._isLockedTool = True
 
         self.pathItem = None
         self.lastAddItem = None
