@@ -512,6 +512,56 @@ class CanvasUtil:
 
             font.setPointSize(finalFontSize)
 
+    @staticmethod
+    def polygon2BeizerPath(targetPath:QPainterPath, targetPolygon:QPolygonF, minDistance:int = 4):
+        '''
+        将折线转化为贝塞尔曲线(相邻两点之间不要隔得太近，否则平滑效果不明显)
+        参考自：https://blog.csdn.net/Larry_Yanan/article/details/125935157
+        '''
+        validPoints = []
+        distanceRuler = QLineF()
+
+        # 过滤掉相距太近的点
+        lastPoint = None
+        for i in range(0, targetPolygon.count()):
+            currentPoint = targetPolygon.at(i)
+            if i == 0:
+                validPoints.append(currentPoint)
+            else:
+                distanceRuler.setP1(lastPoint)
+                distanceRuler.setP2(currentPoint)
+                if distanceRuler.length() > minDistance:
+                    validPoints.append(currentPoint)
+            lastPoint = currentPoint
+
+        # 最终生成的点队列
+        finalPoints = []
+
+        # 遍历添加中点，将实际点当做控制点
+        if len(validPoints) > 2:
+            finalPoints.append(validPoints[0])
+            finalPoints.append(validPoints[1])  # 根据算法，第一个和第二个点间不添加中点
+            for i in range(2, len(validPoints)):
+                finalPoints.append((validPoints[i] + validPoints[i - 1]) / 2)
+                finalPoints.append(validPoints[i])
+
+        if len(validPoints) > 2:
+            i = 0
+            while i < len(finalPoints):
+                if i + 3 <= len(finalPoints):  # 按照顺序进行贝塞尔曲线处理，并添加到绘图路径中
+                    path = QPainterPath()
+                    path.moveTo(finalPoints[i])
+                    path.quadTo(finalPoints[i + 1], finalPoints[i + 2])
+                    targetPath.addPath(path)
+                else:
+                    a = i
+                    polygon = QPolygonF()
+                    while a < len(finalPoints):
+                        polygon.append(finalPoints[a].toPoint())
+                        a += 1
+                    targetPath.addPolygon(polygon)
+                i += 2
+
 class CanvasROI(QGraphicsEllipseItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)

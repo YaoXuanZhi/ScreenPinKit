@@ -1,3 +1,4 @@
+# 优化思路：https://blog.csdn.net/Larry_Yanan/article/details/125935157
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -9,7 +10,6 @@ from canvas_item import *
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super(DrawingScene, self).__init__(parent)
-
         self.pathItem = None
 
     def mousePressEvent(self, event):

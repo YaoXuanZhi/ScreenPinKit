@@ -4,10 +4,11 @@ class CanvasPencilItem(CanvasCommonPathItem):
     '''
     绘图工具-铅笔图元
     '''
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, isSmoothCurve:bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
         self.__initStyle()
+        self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self):
         initPen = QPen(QColor(0, 255, 0, 100))
@@ -60,7 +61,10 @@ class CanvasPencilItem(CanvasCommonPathItem):
         painter.drawPath(targetPath)
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
-        targetPath.addPolygon(targetPolygon)
+        if self.isSmoothCurve:
+            CanvasUtil.polygon2BeizerPath(targetPath, targetPolygon)
+        else:
+            targetPath.addPolygon(targetPolygon)
 
     def setEditableState(self, isEditable: bool):
         '''铅笔不允许绘制结束之后的重新编辑'''

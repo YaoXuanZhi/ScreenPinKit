@@ -4,10 +4,11 @@ class CanvasEraserItem(CanvasCommonPathItem):
     '''
     绘图工具-橡皮擦图元
     '''
-    def __init__(self, parent: QWidget = None, pen:QPen = QPen(QColor(0, 255, 0, 100))) -> None:
+    def __init__(self, pen:QPen = QPen(QColor(0, 255, 0, 100)), isSmoothCurve:bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
         self.__initStyle(pen)
+        self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self, pen:QPen):
         initPen = pen
@@ -60,7 +61,10 @@ class CanvasEraserItem(CanvasCommonPathItem):
         painter.drawPath(targetPath)
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
-        targetPath.addPolygon(targetPolygon)
+        if self.isSmoothCurve:
+            CanvasUtil.polygon2BeizerPath(targetPath, targetPolygon)
+        else:
+            targetPath.addPolygon(targetPolygon)
 
     def setEditableState(self, isEditable: bool):
         '''橡皮擦不允许绘制结束之后的重新编辑'''
@@ -71,10 +75,11 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
     '''
     绘图工具-橡皮擦矩形图元
     '''
-    def __init__(self, bgPixmap:QPixmap, parent: QWidget = None) -> None:
+    def __init__(self, bgBrush:QBrush, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
-        self.bgPixmap = bgPixmap
+        self.bgBrush = bgBrush
+        self.bgPixmap = self.bgBrush.texture()
 
     def __initEditMode(self):
         # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)

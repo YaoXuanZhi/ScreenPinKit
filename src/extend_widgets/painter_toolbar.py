@@ -1,4 +1,3 @@
-from PyQt5.QtGui import QShowEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -6,7 +5,7 @@ from qfluentwidgets import *
 from icon import ScreenShotIcon
 from .color_picker_button_plus import *
 from .font_picker_button_plus import *
-from canvas_editor import CanvasEditor, DrawActionEnum
+from canvas_editor import *
 from canvas_item import *
 
 class TextEditToolbar(CommandBarView):
@@ -158,56 +157,169 @@ class PenToolbar(CommandBarView):
         print(f"=======> {drawActionEnum}")
 
 class ShapeToolbar(CommandBarView):
-    def __init__(self, canvasItem:QGraphicsItem = None, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.canvasItem:CanvasClosedShapeItem = canvasItem
+        self.initDefaultStyle()
         self.initUI()
+        self.refreshStyleUI()
+        self.listenerEvent()
+        self.canvasItem = None
 
-    def initUI(self):
-        self.initShapeStyleOptionUI()
-        self.addSeparator()
-        self.initShapeOptionUI()
-        self.addSeparator()
-        self.initBackgroundColorOptionUI("描边")
-        self.initBackgroundColorOptionUI("背景")
-        self.addSeparator()
-        self.initOpacityOptionUI("不透明度")
+    def initDefaultStyle(self):
+        self.opacity:int = 100
+        self.styleMap = {
+            "brush" : QBrush(QColor(255, 0, 0, 100)),
+            "pen" : QPen(QColor(255, 0, 0), 2, Qt.PenStyle.SolidLine),
+            "shape" : CanvasClosedShapeEnum.Rectangle,
+        }
 
-    def initShapeStyleOptionUI(self):
-        fillModeActions = [
-            Action(ScreenShotIcon.RECTANGLE, '线框', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            Action(ScreenShotIcon.FILL_REGION, '填充', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+        self.outlineTypeInfos = [
+            ("实线", Qt.PenStyle.SolidLine),
+            ("虚线", Qt.PenStyle.DashLine),
         ]
 
-        actionGroup = QActionGroup(self)
-        for action in fillModeActions:
-            action.setCheckable(True)
-            actionGroup.addAction(action)
-        self.addActions(fillModeActions)
+        self.shapeTypeInfos = [
+            ("矩形", ScreenShotIcon.RECTANGLE, CanvasClosedShapeEnum.Rectangle),
+            ("圆形", ScreenShotIcon.CIRCLE, CanvasClosedShapeEnum.Ellipse),
+            ("五角星", ScreenShotIcon.STAR, CanvasClosedShapeEnum.Star),
+        ]
+
+    def bindCanvasItem(self, canvasItem:CanvasClosedShapeItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
+        '''
+        绑定操作图元
+        @note 存在多种情况
+
+              1. 在选择模式下，各个图元选中切换时，此时各选项采取该图元的实际值来刷新
+              2. 刚进入到绘图模式并且首次选择绘图工具，此时绑定图元为None，各选项按默认值初始化
+              3. 在选择模式下，操作完当前工具对应图元之后，打算继续绘制新同类图元时，将各选项赋值到新图元上
+        '''
+        if canvasItem != None:
+            self.canvasItem = canvasItem
+
+            if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectItemChangedEvent:
+                self.styleMap = self.canvasItem.styleAttribute.getValue().value()
+
+                # QGraphicsItem.opacity()数值范围是：[0, 1]，滑块数值范围设定为：[0, 100]，这里需要转换下
+                self.opacity = int(self.canvasItem.opacity() * 100)
+
+                # 更新形状选项
+                currentShape = self.styleMap["shape"]
+                currentIndex = 0
+                for _, _, shapeType in self.shapeTypeInfos:
+                    if shapeType == currentShape:
+                        break
+                    currentIndex = currentIndex + 1 
+                    
+                self.shapeComBox.setCurrentIndex(currentIndex)
+            elif sceneUserNotifyEnum == SceneUserNotifyEnum.StartDrawedEvent:
+                self.refreshAttachItem()
+        else:
+            self.opacity = 100
+
+        self.refreshStyleUI()
+
+    def refreshStyleUI(self):
+        pen:QPen = self.styleMap["pen"]
+        brush:QBrush = self.styleMap["brush"]
+        self.outlineColorPickerButton.setColor(pen.color())
+        self.backgroundColorPickerButton.setColor(brush.color())
+        self.opacitySlider.setValue(self.opacity)
+
+    def initUI(self):
+        self.shapeComBox = self.initShapeOptionUI()
+        self.outlineTypeComBox, self.outlineColorPickerButton = self.initOutlineOptionUI()
+        self.addSeparator()
+        self.backgroundColorPickerButton = self.initColorOptionUI("背景")
+        self.addSeparator()
+        self.opacitySlider = self.initSliderOptionUI("不透明度")
+    
+    def outlineTypeComBoxHandle(self, index):
+        comBox:ComboBox = self.outlineTypeComBox
+        print(f"=====> {comBox.currentData()}")
+
+    def shapeTypeComBoxHandle(self, index):
+        comBox:ComboBox = self.shapeComBox
+        self.styleMap["shape"] = comBox.currentData()
+        self.refreshAttachItem()
+
+    def listenerEvent(self):
+        self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandler)
+        self.backgroundColorPickerButton.colorChanged.connect(self.backgroundColorChangedHandler)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+
+    def refreshAttachItem(self):
+        if self.canvasItem != None:
+            self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def outlineColorChangedHandler(self, color:QColor):
+        pen:QPen = self.styleMap["pen"]        
+        pen.setColor(color)
+
+        self.refreshAttachItem()
+
+    def backgroundColorChangedHandler(self, color:QColor):
+        brush:QBrush = self.styleMap["brush"]
+        brush.setColor(color)
+
+        self.refreshAttachItem()
+
+    def opacityValueChangedHandler(self, value:float):
+        self.opacity = value
+        if self.canvasItem != None:
+            self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
 
     def initShapeOptionUI(self):
-        '''多边形选择'''
-        shapeDropdown = TransparentDropDownToolButton(ScreenShotIcon.RECTANGLE, self)
-        shapeDropdown.setIconSize(QSize(20, 20))
-        # shapeDropdown.setFlyout(self.createShapeMenu(shapeDropdown))
-        shapeDropdown.setMenu(self.createShapeMenu(shapeDropdown))
-        self.addWidget(shapeDropdown)
-        return shapeDropdown
+        '''形状选项'''
+        shapeComBox = ComboBox(self)
+        for text, icon, enum in self.shapeTypeInfos:
+            shapeComBox.addItem(text=text, icon=icon, userData=enum)
+        shapeComBox.currentIndexChanged.connect(self.shapeTypeComBoxHandle)
+        self.initTemplateOptionUI("形状选项", shapeComBox)
+        return shapeComBox
+    
+    def initOutlineOptionUI(self):
+        '''描边选项'''
 
-    def initBackgroundColorOptionUI(self, optionName:str):
-        '''颜色选项'''
-        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, 'Background Color', self, enableAlpha=True)
+        optionName = "描边"
+
+        # 描边风格选项
+        outlineTypeComBox = ComboBox(self)
+        for text, enum in self.outlineTypeInfos:
+            outlineTypeComBox.addItem(text=text, userData=enum)
+        outlineTypeComBox.currentIndexChanged.connect(self.outlineTypeComBoxHandle)
+
+        # 颜色选项
+        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
         colorPickerButton.setCheckable(True)
         colorPickerButton.setFixedSize(30, 30)
 
-        return self.initTemplateOptionUI(optionName, colorPickerButton)
+        # 布局
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionView.setLayout(optionLayout)
+        optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(outlineTypeComBox)
+        optionLayout.addWidget(colorPickerButton)
+        self.addWidget(optionView)
 
-    def initOpacityOptionUI(self, optionName:str):
-        '''不透明度选项'''
+        return outlineTypeComBox, colorPickerButton
+
+    def initColorOptionUI(self, optionName:str):
+        '''颜色选项'''
+        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
+        colorPickerButton.setCheckable(True)
+        colorPickerButton.setFixedSize(30, 30)
+
+        self.initTemplateOptionUI(optionName, colorPickerButton)
+        return colorPickerButton
+
+    def initSliderOptionUI(self, optionName:str):
+        '''滑块选项'''
         opacitySlider = Slider(Qt.Horizontal)
         opacitySlider.setRange(10, 100)
-        opacitySlider.setValue(30)
-        return self.initTemplateOptionUI(optionName, opacitySlider)
+        opacitySlider.setValue(int(self.opacity * 100))
+        self.initTemplateOptionUI(optionName, opacitySlider)
+        return opacitySlider
 
     def initTemplateOptionUI(self, optionName:str, optionWidget:QWidget):
         '''模板选项'''
@@ -220,6 +332,9 @@ class ShapeToolbar(CommandBarView):
         return optionWidget
 
     def createShapeMenu(self, button:PrimarySplitPushButton):
+        '''
+        @todo 生成一个类似下拉列表的样式，当前实现比较丑陋，后续再改
+        '''
         menu = RoundMenu(parent=self)
         menu.setFixedWidth(20)
         menu.addActions([
@@ -230,7 +345,19 @@ class ShapeToolbar(CommandBarView):
         return menu
 
     def onMenuClicked(self, c, button:PrimarySplitPushButton, icon):
+        if icon == ScreenShotIcon.RECTANGLE:
+            shapeType = CanvasClosedShapeEnum.Rectangle
+        elif icon == ScreenShotIcon.CIRCLE:
+            shapeType = CanvasClosedShapeEnum.Ellipse
+        elif icon == ScreenShotIcon.STAR:
+            shapeType = CanvasClosedShapeEnum.Star
+        else:
+            shapeType = CanvasClosedShapeEnum.Rectangle
+
+        self.styleMap["shape"] = shapeType
+
         button.setIcon(icon)
+        self.refreshAttachItem()        
 
     def showEvent(self, a0: QShowEvent) -> None:
         self.hBoxLayout.setContentsMargins(1, 1, 1, 1)

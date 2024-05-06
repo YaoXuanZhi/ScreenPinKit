@@ -1,14 +1,15 @@
-import sys, math
+import sys, math, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from hotkey import KeyboardEx
 from icon import ScreenShotIcon
-from qfluentwidgets import Action
+from qfluentwidgets import Action, FluentTranslator
 from system_tray_icon import SystemTrayIcon
 from screen_shot_window import ScreenShotWindow
 from screen_paint_window import ScreenPaintWindow
+#from config import cfg, Language
 
 class SettingWindow(QWidget):
     def __init__(self):
@@ -69,12 +70,28 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     # enable dpi scale
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    #if cfg.get(cfg.dpiScale) == "Auto":
+    #    QApplication.setHighDpiScaleFactorRoundingPolicy(
+    #        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    #    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+    #else:
+    #    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    #    os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))    
+
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
+
+    # internationalization
+    #locale = cfg.get(cfg.language).value
+    #fluentTranslator = FluentTranslator(locale)
+    #settingTranslator = QTranslator()
+    #settingTranslator.load(locale, "settings", ".", "resource/i18n")
+
+    #app.installTranslator(fluentTranslator)
+    #app.installTranslator(settingTranslator)
 
     wnd = MainWindow()
 

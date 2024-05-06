@@ -12,7 +12,7 @@ from qfluentwidgets import (RoundMenu, Action, FluentIcon, InfoBar, InfoBarPosit
 from icon import ScreenShotIcon
 from qfluentwidgets import *
 
-from canvas_editor import CanvasEditor, DrawActionEnum, DrawNotifyEnum
+from canvas_editor import CanvasEditor, DrawActionEnum, SceneUserNotifyEnum
 from canvas_item import *
 from extend_widgets import *
 
@@ -122,7 +122,7 @@ class QPainterWidget(QPixmapWidget):
         # view = TextEditToolbar(
         # view = PolygonLineToolbar(
         # view = PenToolbar(
-        view = ShapeToolbar(
+        self.canvasItemBar = ShapeToolbar(
         # view = PainterToolbar(
             # title=self.tr('Julius·Zeppeli'),
             # content=self.tr("测试文本"),
@@ -136,7 +136,7 @@ class QPainterWidget(QPixmapWidget):
 
         self.optionBar = BubbleTip.make(
             target=targetWidget,
-            view=view,
+            view=self.canvasItemBar,
             duration=-1,
             tailPosition=BubbleTipTailPosition.TOP_LEFT,
             orientLength=4,
@@ -233,15 +233,30 @@ class QPainterWidget(QPixmapWidget):
 
         self.drawWidget = CanvasEditor(self, self.sceneBrush)
         self.drawWidget.initUI()
-        self.drawWidget.setNofityEvent(self.drawNotifyHandler)
+        self.drawWidget.setNofityEvent(self.sceneUserNotifyHandler)
         self.contentLayout.addWidget(self.drawWidget)
 
-    def drawNotifyHandler(self, drawNotifyEnum:DrawNotifyEnum, item:QGraphicsItem):
-        if drawNotifyEnum == DrawNotifyEnum.EndDraw and not self.drawWidget.getLockState():
+    def sceneUserNotifyHandler(self, sceneUserNotifyEnum:SceneUserNotifyEnum, item:QGraphicsItem):
+        if sceneUserNotifyEnum == SceneUserNotifyEnum.EndDrawedEvent and not self.drawWidget.getLockState():
             if item != None:
                 item.setFocus(Qt.FocusReason.OtherFocusReason)
+                item.setSelected(True)
             self.selectItemAction.setChecked(True)
             self.selectItemAction.triggered.emit()
+
+        if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent]:
+            self.updateCanvasItemBar(item, sceneUserNotifyEnum)
+
+    def updateCanvasItemBar(self, item:QGraphicsItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
+        if isinstance(item, CanvasClosedShapeItem):
+            if isinstance(self.canvasItemBar, ShapeToolbar):
+                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
+            else:
+                # 销毁旧版的工具栏
+                self.optionBar.close()
+                self.optionBar.destroy()
+                self.optionBar = None
+                self.canvasItemBar = None
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)

@@ -25,9 +25,10 @@ class DrawActionEnum(Enum):
     Mosaic = "马赛克工具"
     Blur = "模糊工具"
 
-class DrawNotifyEnum(Enum):
-    StartDraw = "开始绘制"
-    EndDraw = "结束绘制"
+class SceneUserNotifyEnum(Enum):
+    StartDrawedEvent = "已开始绘制"
+    EndDrawedEvent = "已结束绘制"
+    SelectItemChangedEvent = "选中图元已改变"
 
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
@@ -41,9 +42,21 @@ class CanvasScene(QGraphicsScene):
 
         self.itemList:list = []
         self._itemNotifyCallBack = None
+        self._lastSelectedItem = None
+
+        self.selectionChanged.connect(self.selectionChangedHandler)
+        # self.setBackgroundBrush(self.bgBrush)
 
         # self.blurMgr = BlurManager()
         # self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
+
+    def selectionChangedHandler(self):
+        selectItem = None
+        if len(self.selectedItems()) > 0:
+            selectItem = self.selectedItems()[0]
+        if self._itemNotifyCallBack != None:
+            self._itemNotifyCallBack(SceneUserNotifyEnum.SelectItemChangedEvent, selectItem)
+        self._lastSelectedItem = selectItem
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
@@ -99,7 +112,7 @@ class CanvasScene(QGraphicsScene):
             self.lastAddItem.setEditableState(False)
         self.addItem(item)
         if self._itemNotifyCallBack != None:
-            self._itemNotifyCallBack(DrawNotifyEnum.StartDraw, item)
+            self._itemNotifyCallBack(SceneUserNotifyEnum.StartDrawedEvent, item)
 
     def forceCompleteDraw(self):
         if self.pathItem != None:
@@ -132,9 +145,9 @@ class CanvasScene(QGraphicsScene):
 
         if self._itemNotifyCallBack != None:
             if isOk:
-                self._itemNotifyCallBack(DrawNotifyEnum.EndDraw, item)
+                self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, item)
             else:
-                self._itemNotifyCallBack(DrawNotifyEnum.EndDraw, None)
+                self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, None)
 
     def clearDraw(self):
         self.clear()
@@ -237,13 +250,13 @@ class CanvasScene(QGraphicsScene):
                                 erasePen = QPen(eraseBrush, 10)
                             else:
                                 erasePen = QPen(Qt.GlobalColor.blue)
-                            self.pathItem = CanvasEraserItem(None, erasePen)
+                            self.pathItem = CanvasEraserItem(erasePen)
                             self.__startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseEraserRectItem:
                         if self.pathItem == None:
                             if self.bgBrush != None:
-                                self.pathItem = CanvasEraserRectItem(self.bgBrush.texture())
+                                self.pathItem = CanvasEraserRectItem(self.bgBrush)
                                 self.__startDraw(self.pathItem)
                                 self.pathItem.polygon.append(targetPos)
                                 self.pathItem.polygon.append(targetPos)

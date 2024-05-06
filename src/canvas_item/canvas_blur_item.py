@@ -35,8 +35,8 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
 
         # 性能损耗大，使用opencv实现版本在遇到较大区域的时候会出现程序闪退
         tempPixmap = self.sourcePixmap.copy(partRect)
-        finalPixmap = AfterEffectUtilByPIL.gaussianBlur(tempPixmap, 5)
-        # finalPixmap = AfterEffectUtilByPIL.mosaic(tempPixmap, 5, 1)
+        # finalPixmap = AfterEffectUtilByPIL.gaussianBlur(tempPixmap, 5)
+        finalPixmap = AfterEffectUtilByPIL.mosaic(tempPixmap, 5, 1)
         painter.drawPixmap(self.boundingRect().topLeft(), finalPixmap)
 
 
