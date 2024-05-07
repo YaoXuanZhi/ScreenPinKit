@@ -39,16 +39,6 @@ class TextEditToolbar(CanvasItemToolBar):
 
         self.refreshAttachItem()
 
-    # def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
-    #     # 更新形状选项
-    #     font = self.styleMap["font"]
-    #     currentIndex = 0
-    #     for _, _, shapeType in self.shapeTypeInfos:
-    #         if shapeType == currentShape:
-    #             break
-    #         currentIndex = currentIndex + 1 
-    #     self.shapeComBox.setCurrentIndex(currentIndex)
-
     def refreshStyleUI(self):
         font:QFont = self.styleMap["font"]
         textColor:QColor = self.styleMap["textColor"]
@@ -78,4 +68,5 @@ class TextEditToolbar(CanvasItemToolBar):
 
     def refreshAttachItem(self):
         if self.canvasItem != None:
+            self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())

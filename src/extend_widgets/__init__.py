@@ -5,4 +5,5 @@ from .bubble_tip import *
 from .painter_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
+from .pen_toolbar import *
 from .canvas_item_toolbar import *

@@ -119,11 +119,11 @@ class QPainterWidget(QPixmapWidget):
         return BubbleTipTailPosition.TOP_RIGHT
 
     def showToolBar(self, targetWidget:QWidget = None):
-        self.canvasItemBar = TextEditToolbar(
+        # self.canvasItemBar = TextEditToolbar(
         # view = PolygonLineToolbar(
         # view = PenToolbar(
         # self.canvasItemBar = ShapeToolbar(
-        # view = PainterToolbar(
+        self.canvasItemBar = PenToolbar(
             # title=self.tr('Julius·Zeppeli'),
             # content=self.tr("测试文本"),
             # image=':/gallery/images/SBR.jpg',
@@ -260,6 +260,16 @@ class QPainterWidget(QPixmapWidget):
 
         if isinstance(item, CanvasTextItem):
             if isinstance(self.canvasItemBar, TextEditToolbar):
+                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
+            else:
+                # 销毁旧版的工具栏
+                self.optionBar.close()
+                self.optionBar.destroy()
+                self.optionBar = None
+                self.canvasItemBar = None
+
+        if isinstance(item, CanvasPencilItem):
+            if isinstance(self.canvasItemBar, PenToolbar):
                 self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
             else:
                 # 销毁旧版的工具栏

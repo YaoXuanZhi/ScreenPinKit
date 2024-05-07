@@ -114,10 +114,10 @@ class CanvasTextItem(QGraphicsTextItem):
         self.setFont(finalFont)
         self.update()
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
-        # option.state = option.state & ~QStyle.StateFlag.State_Selected
-        # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
-        return super().paint(painter, option, widget)
+    # def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+    #     option.state = option.state & ~QStyle.StateFlag.State_Selected
+    #     option.state = option.state & ~QStyle.StateFlag.State_HasFocus
+    #     return super().paint(painter, option, widget)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:

@@ -11,25 +11,30 @@ class CanvasPencilItem(CanvasCommonPathItem):
         self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self):
-        initPen = QPen(QColor(0, 255, 0, 100))
-        initPen.setWidth(5)
-        initPen.setCosmetic(True)
-        initPen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-        initPen.setCapStyle(Qt.PenCapStyle.RoundCap)
-        arrowStyleMap = {
-            "pen" : initPen,
+        styleMap = {
+            "color" : QColor(0, 255, 0, 100),
+            "width" : 5,
         }
-        self.styleAttribute = CanvasAttribute()
-        self.styleAttribute.setValue(QVariant(arrowStyleMap))
-        self.updatePen()
-        self.styleAttribute.valueChangedSignal.connect(self.updatePen)
 
-    def updatePen(self) -> None:
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldArrowStyleMap["pen"]
-        self.m_penDefault = finalPen
-        self.m_penSelected = finalPen
+        self.usePen = QPen(styleMap["color"])
+        self.usePen.setWidth(styleMap["width"])
+        self.usePen.setCosmetic(True)
+        self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        self.styleAttribute = CanvasAttribute()
+        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
+
+    def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        color = styleMap["color"]
+        width = styleMap["width"]
+        self.usePen.setColor(color)
+        self.usePen.setWidth(width)
         self.update()
+
+    def resetStyle(self, styleMap):
+        self.styleAttribute.setValue(QVariant(styleMap))
 
     def __initEditMode(self):
         self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
@@ -38,26 +43,22 @@ class CanvasPencilItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldArrowStyleMap["pen"]
+        finalStyleMap = self.styleAttribute.getValue().value()
+        finalWidth = finalStyleMap["width"]
 
         # 计算缩放比例
         if event.delta() > 0:
-            newPenWidth = finalPen.width() + 1
+            finalWidth = finalWidth + 1
         else:
-            newPenWidth = max(1, finalPen.width() - 1)
+            finalWidth = max(1, finalWidth - 1)
 
-        finalPen.setWidth(newPenWidth)
+        finalStyleMap["width"] = finalWidth
+        self.usePen.setWidth(finalWidth)
 
-        styleMap = {
-            "pen" : finalPen,
-        }
-
-        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.setValue(finalStyleMap)
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        styleMap = self.styleAttribute.getValue().value()
-        painter.setPen(styleMap["pen"])
+        painter.setPen(self.usePen)
         painter.drawPath(targetPath)
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):

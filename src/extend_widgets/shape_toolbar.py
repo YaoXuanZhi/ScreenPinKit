@@ -55,7 +55,7 @@ class ShapeToolbar(CanvasItemToolBar):
         self.addSeparator()
         self.outlineTypeComBox, self.outlineColorPickerButton = self.initOutlineOptionUI()
         self.addSeparator()
-        self.backgroundColorPickerButton = self.initColorOptionUI("背景")
+        self.backgroundColorPickerButton = self.initColorOptionUI("背景", Qt.GlobalColor.red)
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI("不透明度")
     
@@ -75,6 +75,7 @@ class ShapeToolbar(CanvasItemToolBar):
 
     def refreshAttachItem(self):
         if self.canvasItem != None:
+            self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
 
     def outlineColorChangedHandler(self, color:QColor):
