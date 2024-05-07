@@ -25,8 +25,8 @@ class TextEditToolbar(CanvasItemToolBar):
         self.boldButton.setCheckable(True)
         self.italicButton = self.addAction(Action(ScreenShotIcon.ARROW, '斜体', triggered=self.fontExtStyleChangedHandler))
         self.italicButton.setCheckable(True)
-        self.textColorPickerButton = self.initColorOptionUI("文本颜色", self.styleMap["textColor"])
-        self.fontPickerButton = self.initFontOptionUI("字体选择", self.styleMap["font"])
+        self.textColorPickerButton = self.initColorOptionUI("颜色", self.styleMap["textColor"])
+        self.fontPickerButton = self.initFontOptionUI("字体", self.styleMap["font"])
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI("不透明度")
 

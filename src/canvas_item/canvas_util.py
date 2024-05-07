@@ -498,19 +498,20 @@ class CanvasUtil:
             return font_metrics.size(0, text)
 
         finalFontSize = minFontSize
-        offset = 0
         while finalFontSize >= minFontSize and finalFontSize < maxFontSize:
             # 获取当前字体大小下的文本尺寸
-            size = calcFontSize(QFont(font.family(), finalFontSize))
-            # if size.width() <= rect.width() + offset and size.height() <= rect.height() + offset:
-            if size.width() <= rect.width() + offset:
+            tempFont = QFont(font)
+            tempFont.setPointSizeF(finalFontSize)
+            size = calcFontSize(tempFont)
+            if size.width() <= rect.width() and size.height() <= rect.height():
+            # if size.width() <= rect.width() + offset:
                 # 如果文本可以放入矩形区域内，尝试使用更大的字体大小
-                finalFontSize += 1
+                finalFontSize += 0.1
             else:
                 # 文本太大，无法放入矩形区域，跳出循环
                 break
 
-            font.setPointSize(finalFontSize)
+        font.setPointSizeF(finalFontSize)
 
     @staticmethod
     def polygon2BeizerPath(targetPath:QPainterPath, targetPolygon:QPolygonF, minDistance:int = 4):

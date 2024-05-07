@@ -29,6 +29,8 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         if partRect.width() < self.minSize.width() or partRect.height() < self.minSize.height():
             return
 
+        # 计算两个矩形的重合区域
+
         # self.customPaintByClip(painter, targetPath)
         # self.customPaintByCopy(painter, targetPath)
         # return

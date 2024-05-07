@@ -79,8 +79,8 @@ class CanvasItemToolBar(CommandBarView):
 
     def initFontOptionUI(self, optionName:str, defaultFont:QFont):
         '''字体选项'''
-        fontPickerButton = FontPickerButtonPlus(defaultFont, '字体风格', self)
-        fontPickerButton.setToolTip("字体选择")
+        fontPickerButton = FontPickerButtonPlus(defaultFont, optionName, self)
+        fontPickerButton.setToolTip("更改字体")
 
         self.initTemplateOptionUI(optionName, fontPickerButton)
         return fontPickerButton
