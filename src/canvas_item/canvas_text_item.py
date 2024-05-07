@@ -1,16 +1,28 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from .canvas_util import *
 
 class CanvasTextItem(QGraphicsTextItem):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        font = QFont()
-        font.setPointSize(20)
-        self.setFont(font)
+        self.__initStyle()
 
-        self.setDefaultFlag()
-        self.setDefaultTextColor(Qt.white)
+    def __initStyle(self):
+        styleMap = {
+            "font" : QFont(),
+            "textColor" : Qt.GlobalColor.red,
+        }
+        self.styleAttribute = CanvasAttribute()
+        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
+
+    def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        font = styleMap["font"]
+        textColor = styleMap["textColor"]
+        self.setFont(font)
+        self.setDefaultTextColor(textColor)
+
+    def resetStyle(self, styleMap):
+        self.styleAttribute.setValue(QVariant(styleMap))
 
     # 设置默认模式
     def setDefaultFlag(self):

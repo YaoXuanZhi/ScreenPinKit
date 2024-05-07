@@ -3,3 +3,6 @@ from .font_picker_button_plus import *
 from .flyout_view2 import *
 from .bubble_tip import *
 from .painter_toolbar import *
+from .shape_toolbar import *
+from .text_edit_toolbar import *
+from .canvas_item_toolbar import *

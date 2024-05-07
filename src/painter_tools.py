@@ -119,10 +119,10 @@ class QPainterWidget(QPixmapWidget):
         return BubbleTipTailPosition.TOP_RIGHT
 
     def showToolBar(self, targetWidget:QWidget = None):
-        # view = TextEditToolbar(
+        self.canvasItemBar = TextEditToolbar(
         # view = PolygonLineToolbar(
         # view = PenToolbar(
-        self.canvasItemBar = ShapeToolbar(
+        # self.canvasItemBar = ShapeToolbar(
         # view = PainterToolbar(
             # title=self.tr('Julius·Zeppeli'),
             # content=self.tr("测试文本"),
@@ -178,7 +178,7 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
             Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, '箭头', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            Action(ScreenShotIcon.STAR, '五角星', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
+            # Action(ScreenShotIcon.STAR, '五角星', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
             Action(ScreenShotIcon.MARKER_PEN, '记号笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
             Action(ScreenShotIcon.PENCIL, '铅笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
             Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
@@ -250,6 +250,16 @@ class QPainterWidget(QPixmapWidget):
     def updateCanvasItemBar(self, item:QGraphicsItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
         if isinstance(item, CanvasClosedShapeItem):
             if isinstance(self.canvasItemBar, ShapeToolbar):
+                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
+            else:
+                # 销毁旧版的工具栏
+                self.optionBar.close()
+                self.optionBar.destroy()
+                self.optionBar = None
+                self.canvasItemBar = None
+
+        if isinstance(item, CanvasTextItem):
+            if isinstance(self.canvasItemBar, TextEditToolbar):
                 self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
             else:
                 # 销毁旧版的工具栏
