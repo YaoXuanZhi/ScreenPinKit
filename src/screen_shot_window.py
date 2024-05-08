@@ -45,7 +45,6 @@ class ScreenShotWindow(QWidget):
         '''将剪贴板上的图像数据作为冻结窗口'''
         clipboard = QApplication.clipboard()
         mimeData = clipboard.mimeData()
-        print(f"=====> {mimeData.hasImage()} {QCursor().pos()}")
         if mimeData.hasImage():
             image = clipboard.image()
             pixmap = QPixmap.fromImage(image)
