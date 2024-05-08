@@ -123,7 +123,8 @@ class QPainterWidget(QPixmapWidget):
         # view = PolygonLineToolbar(
         # view = PenToolbar(
         # self.canvasItemBar = ShapeToolbar(
-        self.canvasItemBar = PenToolbar(
+        # self.canvasItemBar = PenToolbar(
+        self.canvasItemBar = MarkerItemToolbar(
             # title=self.tr('Julius·Zeppeli'),
             # content=self.tr("测试文本"),
             # image=':/gallery/images/SBR.jpg',
@@ -176,7 +177,7 @@ class QPainterWidget(QPixmapWidget):
             Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle)),
             Action(ScreenShotIcon.POLYGONAL_LINE, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
-            Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
+            # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, '箭头', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
             # Action(ScreenShotIcon.STAR, '五角星', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
             Action(ScreenShotIcon.MARKER_PEN, '记号笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
@@ -277,6 +278,17 @@ class QPainterWidget(QPixmapWidget):
                 self.optionBar.destroy()
                 self.optionBar = None
                 self.canvasItemBar = None
+
+        if isinstance(item, CanvasMarkderItem):
+            if isinstance(self.canvasItemBar, MarkerItemToolbar):
+                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
+            else:
+                # 销毁旧版的工具栏
+                self.optionBar.close()
+                self.optionBar.destroy()
+                self.optionBar = None
+                self.canvasItemBar = None
+
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)
