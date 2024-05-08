@@ -23,7 +23,7 @@ class MainWindow(QWidget):
         self.screenShotWindow = ScreenShotWindow()
 
         keyObj = KeyboardEx()
-        keyObj.addHotKey("f10", self.pasteScreen)
+        keyObj.addHotKey("f2", self.pasteScreen)
         keyObj.addHotKey("f4", lambda: self.screenPaint())
         keyObj.addHotKey("f7", self.screenShot)
         keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.switchMouseThroughState())
@@ -42,6 +42,7 @@ class MainWindow(QWidget):
 
     def pasteScreen(self):
         '''贴图'''
+        self.screenShotWindow.addFreezeImgFromClipboard()
 
     def screenShot(self):
         '''屏幕截图'''

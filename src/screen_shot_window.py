@@ -25,8 +25,7 @@ class ScreenShotWindow(QWidget):
         startupImagePath, screenX, screenY = self.findScreenImagePath()
         if startupImagePath != None and os.path.exists(startupImagePath):
             imgpix = QPixmap(startupImagePath)
-            imgpix.setDevicePixelRatio(self.screenDevicePixelRatio)
-            realSize = imgpix.size() / self.screenDevicePixelRatio
+            realSize = self.autoFitScreenPixelRatioForPixmap(imgpix)
             self.addFreezeImg(QPoint(screenX, screenY), realSize,  imgpix)
 
         actions = [
@@ -38,11 +37,30 @@ class ScreenShotWindow(QWidget):
     def tryFreezeImg(self):
         self.freezeImg(self.addFreezeImg)
 
-    def addFreezeImg(self, screenPoint, cropRect, freezePixmap):
+    def addFreezeImg(self, screenPoint:QPoint, realSize:QSize, freezePixmap:QPixmap):
         index = len(self.freeze_imgs)
-        self.freeze_imgs.append(FreezerWindow(None, screenPoint, cropRect, freezePixmap, lambda: self.handleFreezeImgClose(index)))
+        self.freeze_imgs.append(FreezerWindow(None, screenPoint, realSize, freezePixmap, lambda: self.handleFreezeImgClose(index)))
+
+    def addFreezeImgFromClipboard(self):
+        '''将剪贴板上的图像数据作为冻结窗口'''
+        clipboard = QApplication.clipboard()
+        mimeData = clipboard.mimeData()
+        print(f"=====> {mimeData.hasImage()} {QCursor().pos()}")
+        if mimeData.hasImage():
+            image = clipboard.image()
+            pixmap = QPixmap.fromImage(image)
+            realSize = self.autoFitScreenPixelRatioForPixmap(pixmap)
+            screenPoint = QCursor().pos() - QPoint(realSize.width() / 2, realSize.height() / 2)
+            self.addFreezeImg(screenPoint, realSize, pixmap)
+
+    def autoFitScreenPixelRatioForPixmap(self, pixmap:QPixmap) -> QSize:
+        '''自动适配屏幕缩放比例'''
+        screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+        pixmap.setDevicePixelRatio(screenDevicePixelRatio)
+        realSize = pixmap.size() / screenDevicePixelRatio
+        return realSize
     
-    def handleFreezeImgClose(self, index):
+    def handleFreezeImgClose(self, index:int):
         widget:QWidget = self.freeze_imgs[index]
         widget.destroy()
         self.freeze_imgs[index] = None
