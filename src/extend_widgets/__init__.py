@@ -9,3 +9,4 @@ from .erase_toolbar import *
 from .pen_toolbar import *
 from .marker_item_toolbar import *
 from .canvas_item_toolbar import *
+from .painter_toolbar_manager import *

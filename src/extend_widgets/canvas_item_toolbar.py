@@ -85,11 +85,11 @@ class CanvasItemToolBar(CommandBarView):
         self.initTemplateOptionUI(optionName, fontPickerButton)
         return fontPickerButton
 
-    def initSliderOptionUI(self, optionName:str):
+    def initSliderOptionUI(self, optionName:str, defaultValue:int = 0, minValue:int = 0, maxValue:int = 100):
         '''滑块选项'''
         opacitySlider = Slider(Qt.Horizontal)
-        opacitySlider.setRange(10, 100)
-        opacitySlider.setValue(int(self.opacity * 100))
+        opacitySlider.setRange(minValue, maxValue)
+        opacitySlider.setValue(defaultValue)
         self.initTemplateOptionUI(optionName, opacitySlider)
         return opacitySlider
 

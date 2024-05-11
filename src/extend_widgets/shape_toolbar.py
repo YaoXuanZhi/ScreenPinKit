@@ -57,7 +57,7 @@ class ShapeToolbar(CanvasItemToolBar):
         self.addSeparator()
         self.backgroundColorPickerButton = self.initColorOptionUI("背景", Qt.GlobalColor.red)
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度")
+        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
     
     def outlineTypeComBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComBox

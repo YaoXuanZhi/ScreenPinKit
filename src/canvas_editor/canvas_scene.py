@@ -29,6 +29,7 @@ class SceneUserNotifyEnum(Enum):
     StartDrawedEvent = "已开始绘制"
     EndDrawedEvent = "已结束绘制"
     SelectItemChangedEvent = "选中图元已改变"
+    SelectNothing = "啥也没选中"
 
 class CanvasScene(QGraphicsScene):
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
@@ -53,9 +54,13 @@ class CanvasScene(QGraphicsScene):
     def selectionChangedHandler(self):
         selectItem = None
         if len(self.selectedItems()) > 0:
-            selectItem = self.selectedItems()[0]
+            if hasattr(self.selectedItems()[0], "completeDraw"):
+                selectItem = self.selectedItems()[0]
         if self._itemNotifyCallBack != None:
-            self._itemNotifyCallBack(SceneUserNotifyEnum.SelectItemChangedEvent, selectItem)
+            if self.currentDrawActionEnum == DrawActionEnum.SelectItem and selectItem == None:
+                self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, selectItem)
+            else:
+                self._itemNotifyCallBack(SceneUserNotifyEnum.SelectItemChangedEvent, selectItem)
         self._lastSelectedItem = selectItem
 
     def initNodes(self):
@@ -367,6 +372,10 @@ class CanvasScene(QGraphicsScene):
                     if not isinstance(finalItem, CanvasTextItem) or not finalItem.isCanEditable():
                         self.itemList.remove(finalItem)
                         self.removeItem(finalItem)
+
+                        if self._itemNotifyCallBack != None:
+                            self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, None)
+
                         break
 
         return super().keyPressEvent(event)

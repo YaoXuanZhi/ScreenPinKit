@@ -98,6 +98,7 @@ class QPainterWidget(QPixmapWidget):
         self.actionGroup:QActionGroup = None
         self.drawWidget:CanvasEditor = None
         self.sceneBrush:QBrush = None
+        self.painterToolBarMgr = None
         self.clearDraw(True)
         self.initLayout()
 
@@ -117,32 +118,6 @@ class QPainterWidget(QPixmapWidget):
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.TOP_RIGHT
-
-    def showToolBar(self, targetWidget:QWidget = None):
-        # self.canvasItemBar = TextEditToolbar(
-        # view = PolygonLineToolbar(
-        # view = PenToolbar(
-        # self.canvasItemBar = ShapeToolbar(
-        # self.canvasItemBar = PenToolbar(
-        self.canvasItemBar = MarkerItemToolbar(
-            # title=self.tr('Julius·Zeppeli'),
-            # content=self.tr("测试文本"),
-            # image=':/gallery/images/SBR.jpg',
-            parent=self.drawWidget,
-        )
-
-        if targetWidget == None:
-            targetWidget = self.window()
-            targetWidget = self.parentWidget()
-
-        self.optionBar = BubbleTip.make(
-            target=targetWidget,
-            view=self.canvasItemBar,
-            duration=-1,
-            tailPosition=BubbleTipTailPosition.TOP_LEFT,
-            orientLength=4,
-            parent=targetWidget,
-        )
 
     def showCommandBar(self):
         if self.toolbar != None:
@@ -226,7 +201,7 @@ class QPainterWidget(QPixmapWidget):
         )
 
         self.initDrawLayer()
-        self.showToolBar(view)
+        self.painterToolBarMgr = PainterToolBarManager(view)
 
     def initDrawLayer(self):
         if self.drawWidget != None: 
@@ -245,50 +220,8 @@ class QPainterWidget(QPixmapWidget):
             self.selectItemAction.setChecked(True)
             self.selectItemAction.triggered.emit()
 
-        if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent]:
-            self.updateCanvasItemBar(item, sceneUserNotifyEnum)
-
-    def updateCanvasItemBar(self, item:QGraphicsItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
-        if isinstance(item, CanvasClosedShapeItem):
-            if isinstance(self.canvasItemBar, ShapeToolbar):
-                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
-            else:
-                # 销毁旧版的工具栏
-                self.optionBar.close()
-                self.optionBar.destroy()
-                self.optionBar = None
-                self.canvasItemBar = None
-
-        if isinstance(item, CanvasTextItem):
-            if isinstance(self.canvasItemBar, TextEditToolbar):
-                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
-            else:
-                # 销毁旧版的工具栏
-                self.optionBar.close()
-                self.optionBar.destroy()
-                self.optionBar = None
-                self.canvasItemBar = None
-
-        if isinstance(item, CanvasPencilItem):
-            if isinstance(self.canvasItemBar, PenToolbar):
-                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
-            else:
-                # 销毁旧版的工具栏
-                self.optionBar.close()
-                self.optionBar.destroy()
-                self.optionBar = None
-                self.canvasItemBar = None
-
-        if isinstance(item, CanvasMarkderItem):
-            if isinstance(self.canvasItemBar, MarkerItemToolbar):
-                self.canvasItemBar.bindCanvasItem(item, sceneUserNotifyEnum)
-            else:
-                # 销毁旧版的工具栏
-                self.optionBar.close()
-                self.optionBar.destroy()
-                self.optionBar = None
-                self.canvasItemBar = None
-
+        if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent, SceneUserNotifyEnum.SelectNothing]:
+            self.painterToolBarMgr.switchSelectItemToolBar(item, sceneUserNotifyEnum)
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)
@@ -296,10 +229,9 @@ class QPainterWidget(QPixmapWidget):
             self.clearDrawFlag()
             self.toolbar.close()
             self.toolbar.destroy()
-            self.optionBar.close()
-            self.optionBar.destroy()
             self.toolbar = None
-            self.optionBar = None
+            self.painterToolBarMgr.close()
+            self.painterToolBarMgr = None
             self.drawWidget.quitDraw()
 
     def switchLocked(self):
@@ -383,6 +315,7 @@ class QPainterWidget(QPixmapWidget):
     def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
+        self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.checkDrawActionChange()
         self.setCursor(cursor)
         if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:

@@ -28,7 +28,7 @@ class TextEditToolbar(CanvasItemToolBar):
         self.textColorPickerButton = self.initColorOptionUI("颜色", self.styleMap["textColor"])
         self.fontPickerButton = self.initFontOptionUI("字体", self.styleMap["font"])
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度")
+        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
 
     def fontExtStyleChangedHandler(self):
         font:QFont = self.styleMap["font"]

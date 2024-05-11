@@ -82,7 +82,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         self.bgPixmap = self.bgBrush.texture()
 
     def __initEditMode(self):
-        # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
+        self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可

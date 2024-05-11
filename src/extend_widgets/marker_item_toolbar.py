@@ -31,7 +31,7 @@ class MarkerItemToolbar(CanvasItemToolBar):
         self.addSeparator()
         self.backgroundColorPickerButton = self.initColorOptionUI("背景颜色", self.styleMap["backgroundColor"])
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度")
+        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
 
     def fontExtStyleChangedHandler(self):
         font:QFont = self.styleMap["font"]

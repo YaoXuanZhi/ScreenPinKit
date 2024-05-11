@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,9 +11,15 @@ from canvas_item import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
 from .bubble_tip import *
+from .erase_toolbar import *
+from .marker_item_toolbar import *
+from .pen_toolbar import *
+from .blur_toolbar import *
 
-class PainterToolBarManager:
-    def __init__(self, targetWidget:QWidget) -> None:
+class PainterToolBarManager(QObject):
+    providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
+    def __init__(self, targetWidget:QWidget, parent: QObject = None) -> None:
+        super().__init__(parent)
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
         self.targetWidget = targetWidget
         self.canvasItemBar:CommandBarView = None
@@ -22,13 +29,18 @@ class PainterToolBarManager:
             type(TextEditToolbar) : [DrawActionEnum.EditText],
         }
 
-    def closeToolBar(self):
+    def close(self):
         if self.optionBar == None:
             return
-        self.optionBar.close()
-        self.optionBar.destroy()
-        self.optionBar = None
-        self.canvasItemBar = None
+
+        if self.canvasItemBar != None:
+            self.canvasItemBar.destroy()
+            self.canvasItemBar = None
+        
+        if self.optionBar != None:
+            self.optionBar.close()
+            self.optionBar.destroy()
+            self.optionBar = None
 
     def switchSelectItemToolBar(self, canvasItem:QGraphicsItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
         '''
@@ -37,6 +49,10 @@ class PainterToolBarManager:
         1. 如果类型相同，则直接进行重新绑定
         2. 如果类型不同，则更换工具栏
         '''
+        if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectNothing:
+            self.close()
+            return
+
         if canvasItem == None:
             return
 
@@ -63,11 +79,11 @@ class PainterToolBarManager:
             return
 
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.currentDrawActionEnum != drawActionEnum:
-            self.closeToolBar()
+            self.close()
 
         self.currentDrawActionEnum = drawActionEnum
         if drawActionEnum == DrawActionEnum.SelectItem:
-            self.closeToolBar()
+            self.close()
             return
 
         if self.canvasItemBar == None:
@@ -75,6 +91,13 @@ class PainterToolBarManager:
                 self.canvasItemBar = TextEditToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawRectangle:
                 self.canvasItemBar = ShapeToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UseEraser:
+                self.canvasItemBar = EraseToolbar(parent=self.targetWidget)
+                self.canvasItemBar.eraseTypeChangedSignal = self.providerChangeDrawActionSignal
+            elif drawActionEnum == DrawActionEnum.Blur:
+                self.canvasItemBar = BlurToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UsePencil:
+                self.canvasItemBar = PenToolbar(parent=self.targetWidget)
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,

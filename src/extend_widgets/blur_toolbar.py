@@ -8,74 +8,48 @@ from .font_picker_button_plus import *
 from canvas_item import *
 from .canvas_item_toolbar import *
 
-class BlurToolbar(CanvasItemToolBar):
+class BlurToolbar(CommandBarView):
+    blurTypeChangedSignal = pyqtSignal(DrawActionEnum)
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.listenerEvent()
-
-    def initDefaultStyle(self):
-        self.opacity:int = 100
-        self.styleMap = {
-            "color" : QFont(),
-            "textColor" : QColor(100, 200, 150),
-        }
+        self.initUI()
 
     def initUI(self):
-        self.boldButton = self.addAction(Action(ScreenShotIcon.RECTANGLE, '加粗', triggered=self.fontExtStyleChangedHandler))
-        self.boldButton.setCheckable(True)
-        self.italicButton = self.addAction(Action(ScreenShotIcon.ARROW, '斜体', triggered=self.fontExtStyleChangedHandler))
-        self.italicButton.setCheckable(True)
-        self.textColorPickerButton = self.initColorOptionUI("文本颜色", self.styleMap["textColor"])
-        self.fontPickerButton = self.initFontOptionUI("字体选择", self.styleMap["font"])
-        self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度")
+        eraseActions = [
+            Action(ScreenShotIcon.MOSAIC, '马赛克', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.Mosaic)),
+            Action(ScreenShotIcon.RECTANGLE, '模糊', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
+            ]
 
-    def fontExtStyleChangedHandler(self):
-        font:QFont = self.styleMap["font"]
-        font.setBold(self.boldButton.isChecked())
-        font.setItalic(self.italicButton.isChecked())
+        self.actionGroup = QActionGroup(self)
+        for action in eraseActions:
+            action.setCheckable(True)
+            self.actionGroup.addAction(action)
+        
+        self.addActions(eraseActions)
 
-        self.fontPickerButton.setTargetFont(font)
+        self.strengthSlider = self.initSliderOptionUI("强度", 50, 10, 100)
 
-        self.refreshAttachItem()
+    def initSliderOptionUI(self, optionName:str, defaultValue:int = 0, minValue:int = 0, maxValue:int = 100):
+        '''滑块选项'''
+        opacitySlider = Slider(Qt.Horizontal)
+        opacitySlider.setRange(minValue, maxValue)
+        opacitySlider.setValue(defaultValue)
+        self.initTemplateOptionUI(optionName, opacitySlider)
+        return opacitySlider
 
-    # def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
-    #     # 更新形状选项
-    #     font = self.styleMap["font"]
-    #     currentIndex = 0
-    #     for _, _, shapeType in self.shapeTypeInfos:
-    #         if shapeType == currentShape:
-    #             break
-    #         currentIndex = currentIndex + 1 
-    #     self.shapeComBox.setCurrentIndex(currentIndex)
+    def initTemplateOptionUI(self, optionName:str, optionWidget:QWidget):
+        '''模板选项'''
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionView.setLayout(optionLayout)
+        optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(optionWidget)
+        self.addWidget(optionView)
+        return optionWidget
 
-    def refreshStyleUI(self):
-        font:QFont = self.styleMap["font"]
-        textColor:QColor = self.styleMap["textColor"]
-        self.boldButton.setChecked(font.bold())
-        self.italicButton.setChecked(font.italic())
-        self.opacitySlider.setValue(self.opacity)
-        self.textColorPickerButton.setColor(textColor)
-        self.fontPickerButton.setTargetFont(font)
-
-    def textColorChangedHandler(self, color:QColor):
-        self.styleMap["textColor"] = color
-        self.refreshAttachItem()
-
-    def fontChangedHandler(self, font:QFont):
-        self.styleMap["font"] = font
-        self.refreshAttachItem()
-
-    def opacityValueChangedHandler(self, value:float):
-        self.opacity = value
-        if self.canvasItem != None:
-            self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
-
-    def listenerEvent(self):
-        self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandler)
-        self.fontPickerButton.fontChanged.connect(self.fontChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
-
-    def refreshAttachItem(self):
-        if self.canvasItem != None:
-            self.canvasItem.resetStyle(self.styleMap.copy())
+    def showEvent(self, a0: QShowEvent) -> None:
+        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
+        self.setIconSize(QSize(20, 20))
+        self.resizeToSuitableWidth()
+        self.adjustSize()
+        return super().showEvent(a0)
