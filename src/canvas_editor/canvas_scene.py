@@ -32,6 +32,10 @@ class SceneUserNotifyEnum(Enum):
     SelectNothing = "啥也没选中"
 
 class CanvasScene(QGraphicsScene):
+    itemMovedSignal = pyqtSignal(QGraphicsItem, QPointF, QPointF)
+    itemDeleteSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
+    itemAddSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
+
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
         super().__init__(parent)
         self._currentDrawActionEnum = DrawActionEnum.DrawNone
@@ -50,6 +54,10 @@ class CanvasScene(QGraphicsScene):
 
         # self.blurMgr = BlurManager()
         # self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
+
+        # 支持Undo机制
+        self.movingItem:QGraphicsItem = None
+        self.oldPos:QPointF = None
 
     def selectionChangedHandler(self):
         selectItem = None
@@ -134,7 +142,8 @@ class CanvasScene(QGraphicsScene):
     def __completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
         if isOk:
             item.completeDraw()
-            self.itemList.append(item)
+            # self.itemList.append(item)
+            self.itemAddSignal.emit(self, item)
             self.lastAddItem = item
             # self.saveAfterEffectPixmap()
             item.setEditableState(True)
@@ -159,6 +168,9 @@ class CanvasScene(QGraphicsScene):
         self.pathItem = None
         self.lastAddItem = None
         self.itemList = []
+
+    def canUndo(self):
+        return self.pathItem == None
 
     def saveAfterEffectPixmap(self):
         '''
@@ -195,6 +207,17 @@ class CanvasScene(QGraphicsScene):
         view:QGraphicsView = self.views()[0]
         targetPos = event.scenePos()
         item = self.itemAt(event.scenePos(), view.transform())
+
+        # item = None
+        # itemList = self.items(event.scenePos())
+        # if len(itemList) > 0:
+        #     item = itemList[0]
+
+        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and item != None:
+            self.movingItem = item
+            self.oldPos = self.movingItem.pos()
+            print("=========> 选中Item")
+
         isSkip = False
         if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
             isSkip = True
@@ -358,6 +381,11 @@ class CanvasScene(QGraphicsScene):
                     if self.pathItem.polygon.at(0) != self.pathItem.polygon.at(1):
                         isOk = True
                     self.__completeDraw(self.pathItem, isOk)
+
+        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and self.movingItem != None:
+            print(f"=========> 结束移动Item {self.movingItem} {self.oldPos} {self.movingItem.pos()}")
+            self.itemMovedSignal.emit(self.movingItem, self.oldPos, self.movingItem.pos())
+            self.movingItem = None
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -370,8 +398,9 @@ class CanvasScene(QGraphicsScene):
 
                 if hasattr(finalItem, "completeDraw"):
                     if not isinstance(finalItem, CanvasTextItem) or not finalItem.isCanEditable():
-                        self.itemList.remove(finalItem)
-                        self.removeItem(finalItem)
+                        # self.itemList.remove(finalItem)
+                        # self.removeItem(finalItem)
+                        self.itemDeleteSignal.emit(self, finalItem)
 
                         if self._itemNotifyCallBack != None:
                             self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, None)

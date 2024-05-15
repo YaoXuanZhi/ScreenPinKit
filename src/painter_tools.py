@@ -182,8 +182,8 @@ class QPainterWidget(QPixmapWidget):
         view.addSeparator()
         view.addActions([
             Action(ScreenShotIcon.DELETE_ALL, '清除绘画', triggered=self.clearDraw),
-            # Action(ScreenShotIcon.UNDO2, '撤销', triggered=self.undo),
-            # Action(ScreenShotIcon.REDO2, '重做', triggered=self.redo),
+            Action(ScreenShotIcon.UNDO2, '撤销', triggered=self.undo),
+            Action(ScreenShotIcon.REDO2, '重做', triggered=self.redo),
             Action(ScreenShotIcon.FINISHED, '完成绘画', triggered=self.completeDraw),
         ])
 
@@ -284,13 +284,13 @@ class QPainterWidget(QPixmapWidget):
         self.drawActions.append(drawAction)
 
     def undo(self):
-        self.createCustomInfoBar(f"【撤销】待支持")
+        self.drawWidget.undo()
+
+    def redo(self):
+        self.drawWidget.redo()
 
     def clickThrough(self):
         self.parentWidget().setMouseThroughState(True)
-
-    def redo(self):
-        self.createCustomInfoBar(f"【重做】待支持")
 
     def destroyImage(self):
         self.parentWidget().close()
@@ -315,7 +315,8 @@ class QPainterWidget(QPixmapWidget):
     def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
-        self.painterToolBarMgr.switchDrawTool(drawActionEnum)
+        if self.painterToolBarMgr != None:
+            self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.checkDrawActionChange()
         self.setCursor(cursor)
         if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:
