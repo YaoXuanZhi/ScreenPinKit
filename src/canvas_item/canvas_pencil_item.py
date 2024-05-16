@@ -25,6 +25,9 @@ class CanvasPencilItem(CanvasCommonPathItem):
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasPencilItem.value
+
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         color = styleMap["color"]

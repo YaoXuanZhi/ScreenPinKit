@@ -30,6 +30,9 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.update)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasClosedShapeItem.value
+
     def resetStyle(self, styleMap):
         self.styleAttribute.setValue(QVariant(styleMap))
 

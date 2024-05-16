@@ -213,18 +213,19 @@ class CanvasScene(QGraphicsScene):
         # if len(itemList) > 0:
         #     item = itemList[0]
 
-        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and item != None:
+        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and item != None and CanvasUtil.isCanvasItem(item):
             self.movingItem = item
             self.oldPos = self.movingItem.pos()
-            print("=========> 选中Item")
 
         isSkip = False
         if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
             isSkip = True
         if item == self.lastAddItem and item != None:
             isSkip = True
-        if issubclass(type(item), CanvasROI) or issubclass(type(item), CanvasEllipseItem):
+        if item != None and CanvasUtil.isRoiItem(item):
             isSkip = True
+        if isinstance(item, CanvasTextItem) and item.isSelected():
+            return super().mousePressEvent(event)
 
         if isSkip and not self.isLockedTool:
             return super().mousePressEvent(event)
@@ -383,7 +384,6 @@ class CanvasScene(QGraphicsScene):
                     self.__completeDraw(self.pathItem, isOk)
 
         if self.currentDrawActionEnum == DrawActionEnum.SelectItem and self.movingItem != None:
-            print(f"=========> 结束移动Item {self.movingItem} {self.oldPos} {self.movingItem.pos()}")
             self.itemMovedSignal.emit(self.movingItem, self.oldPos, self.movingItem.pos())
             self.movingItem = None
         super().mouseReleaseEvent(event)

@@ -23,6 +23,9 @@ class CanvasEraserItem(CanvasCommonPathItem):
         self.updatePen()
         self.styleAttribute.valueChangedSignal.connect(self.updatePen)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasEraserItem.value
+
     def updatePen(self) -> None:
         oldArrowStyleMap = self.styleAttribute.getValue().value()
         finalPen:QPen = oldArrowStyleMap["pen"]
@@ -86,6 +89,9 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasEraserRectItem.value
 
     def excludeControllers(self) -> list:
         return [EnumPosType.ControllerPosTT]

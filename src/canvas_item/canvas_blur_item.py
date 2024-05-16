@@ -21,6 +21,9 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasBlurItem.value
+
     def excludeControllers(self) -> list:
         return [EnumPosType.ControllerPosTT]
 

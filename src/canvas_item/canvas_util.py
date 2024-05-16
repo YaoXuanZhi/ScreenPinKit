@@ -7,6 +7,24 @@ from enum import Enum
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 from PyQt5.QtWidgets import QGraphicsSceneWheelEvent
 
+class EnumCanvasROIType(Enum):
+    EdgeRoi = QGraphicsItem.UserType + 1001
+    CanvasRoi = QGraphicsItem.UserType + 1002
+
+class EnumCanvasItemType(Enum):
+    CanvasTextItem = QGraphicsItem.UserType + 1
+    CanvasArrowItem = QGraphicsItem.UserType + 2
+    CanvasBlurItem = QGraphicsItem.UserType + 3
+    CanvasClosedShapeItem = QGraphicsItem.UserType + 4
+    CanvasEraserItem = QGraphicsItem.UserType + 5
+    CanvasEraserRectItem = QGraphicsItem.UserType + 6
+    CanvasMarkerItem = QGraphicsItem.UserType + 7
+    CanvasMarkerPen = QGraphicsItem.UserType + 8
+    CanvasPencilItem = QGraphicsItem.UserType + 9
+    canvasPolygonItem = QGraphicsItem.UserType + 10
+    CanvasStarItem = QGraphicsItem.UserType + 11
+    CanvasSvgItem = QGraphicsItem.UserType + 12
+
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
     ControllerPosTC = "顶部居中"
@@ -97,6 +115,9 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         self.setPen(pen)
         self.setBrush(QBrush(Qt.NoBrush))
         # self.setBrush(Qt.blue)
+
+    def type(self) -> int:
+        return EnumCanvasROIType.EdgeRoi.value
 
     def setSvgCursor(self) -> QCursor:
         parentItem = self.parentItem()
@@ -214,6 +235,20 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         return super().wheelEvent(event)
 
 class CanvasUtil:
+    @staticmethod
+    def isRoiItem(item:QGraphicsItem):
+        for roiType in EnumCanvasROIType:
+            if roiType.value == item.type():
+                return True
+        return False
+
+    @staticmethod
+    def isCanvasItem(item:QGraphicsItem):
+        for roiType in EnumCanvasItemType:
+            if roiType.value == item.type():
+                return True
+        return False
+
     @staticmethod
     def grabScreens():
         screens = QApplication.screens()
@@ -577,6 +612,9 @@ class CanvasROI(QGraphicsEllipseItem):
         self.mousePressCallback = None
         self.mouseReleaseCallback = None
         self.mouseMoveCallback = None
+
+    def type(self) -> int:
+        return EnumCanvasROIType.CanvasRoi.value
 
     def initUI(self):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable)

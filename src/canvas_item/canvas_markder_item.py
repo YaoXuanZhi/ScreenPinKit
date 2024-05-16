@@ -19,6 +19,9 @@ class CanvasMarkderItem(QGraphicsRectItem):
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasMarkerItem.value
+
     def styleAttributeChanged(self):
         self.update()
 

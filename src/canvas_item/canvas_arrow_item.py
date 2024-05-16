@@ -34,6 +34,9 @@ class CanvasArrowItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
         # self.setEditMode(CanvasCommonPathItem.RoiPreviewerMode, True)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasArrowItem.value
+
     def zoomHandle(self, zoomFactor):
         oldArrowStyleMap = self.styleAttribute.getValue().value()
         oldArrowStyleMap["arrowLength"] = oldArrowStyleMap["arrowLength"] * zoomFactor

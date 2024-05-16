@@ -28,6 +28,9 @@ class CanvasStarItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasStarItem.value
+
     def zoomHandle(self, zoomFactor):
         finalStyleMap = self.styleAttribute.getValue().value()
 

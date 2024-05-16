@@ -29,6 +29,9 @@ class CanvasPolygonItem(CanvasCommonPathItem):
         self.updatePen()
         self.styleAttribute.valueChangedSignal.connect(self.updatePen)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.canvasPolygonItem.value
+
     def updatePen(self) -> None:
         oldArrowStyleMap = self.styleAttribute.getValue().value()
         finalPen:QPen = oldArrowStyleMap["pen"]

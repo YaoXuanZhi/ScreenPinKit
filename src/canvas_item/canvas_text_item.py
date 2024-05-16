@@ -14,6 +14,9 @@ class CanvasTextItem(QGraphicsTextItem):
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasTextItem.value
+
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         font = styleMap["font"]
@@ -100,6 +103,9 @@ class CanvasTextItem(QGraphicsTextItem):
         super().mouseDoubleClickEvent(event)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        originPos = self.pos()
+        originSize = self.boundingRect().size()
+
         # 自定义滚轮事件的行为
         finalFont = self.font()
         finalFontSize = finalFont.pointSize()
@@ -112,12 +118,15 @@ class CanvasTextItem(QGraphicsTextItem):
             finalFontSize = max(1, finalFontSize - 1)
         finalFont.setPointSize(finalFontSize)
         self.setFont(finalFont)
-        self.update()
 
-    # def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
-    #     option.state = option.state & ~QStyle.StateFlag.State_Selected
-    #     option.state = option.state & ~QStyle.StateFlag.State_HasFocus
-    #     return super().paint(painter, option, widget)
+        finalSize = self.boundingRect().size()
+        finalPos = originPos + QPointF((originSize.width() - finalSize.width()) / 2, (originSize.height() - finalSize.height()) / 2)
+        self.setPos(finalPos)
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+        option.state = option.state & ~QStyle.StateFlag.State_Selected
+        option.state = option.state & ~QStyle.StateFlag.State_HasFocus
+        return super().paint(painter, option, widget)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:

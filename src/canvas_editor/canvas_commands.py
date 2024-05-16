@@ -23,6 +23,7 @@ class AddCommand(QUndoCommand):
         self.item = canvasItem
 
     def undo(self):
+        self.item.setSelected(False)
         self.scene.itemList.remove(self.item)
         self.scene.removeItem(self.item)
         self.scene.update()
@@ -41,6 +42,7 @@ class DeleteCommand(QUndoCommand):
         self.item = canvasItem
 
     def undo(self):
+        self.item.setSelected(False)
         self.scene.itemList.append(self.item)
         self.scene.addItem(self.item)
         self.scene.update()
