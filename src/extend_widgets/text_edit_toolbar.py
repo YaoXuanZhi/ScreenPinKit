@@ -70,3 +70,44 @@ class TextEditToolbar(CanvasItemToolBar):
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def wheelZoom(self, angleDelta:int):
+        finalFont:QFont = self.styleMap["font"]
+
+        # 自定义滚轮事件的行为
+        finalFontSize = finalFont.pointSize()
+        if angleDelta > 1:
+            # 放大
+            finalFontSize = finalFontSize + 1
+        else:
+            # 缩小
+            finalFontSize = max(1, finalFontSize - 1)
+        finalFont.setPointSize(finalFontSize)
+        self.styleMap["font"] = finalFont
+        self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def bindCanvasItem(self, canvasItem:CanvasTextItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
+        '''
+        绑定操作图元
+        @note 存在多种情况
+
+              1. 在选择模式下，各个图元选中切换时，此时各选项采取该图元的实际值来刷新
+              2. 刚进入到绘图模式并且首次选择绘图工具，此时绑定图元为None，各选项按默认值初始化
+              3. 在选择模式下，操作完当前工具对应图元之后，打算继续绘制新同类图元时，将各选项赋值到新图元上
+        '''
+        if canvasItem != None:
+            self.canvasItem = canvasItem
+            self.canvasItem.zoomComponent.signal.connect(self.wheelZoom)
+
+            if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectItemChangedEvent:
+                self.styleMap = self.canvasItem.styleAttribute.getValue().value()
+
+                # QGraphicsItem.opacity()数值范围是：[0, 1]，滑块数值范围设定为：[0, 100]，这里需要转换下
+                self.opacity = int(self.canvasItem.opacity() * 100)
+                self.selectItemChangedHandle(self.canvasItem)
+            elif sceneUserNotifyEnum == SceneUserNotifyEnum.StartDrawedEvent:
+                self.refreshAttachItem()
+        else:
+            self.opacity = 100
+
+        self.refreshStyleUI()

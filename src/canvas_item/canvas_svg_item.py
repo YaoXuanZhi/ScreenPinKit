@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
+from .canvas_util import *
 # 使用https://svgco.de/工具来将位图转换为矢量图
 # https://editor.method.ac/
 # https://svgedit.netlify.app/editor/index.html
@@ -34,6 +35,9 @@ class CanvasSvgItem(QGraphicsRectItem):
             self.adjustWidgetSizeToFit()
         else:
             self.adjustSvgSizeToFit()
+
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasSvgItem.value
 
     def adjustWidgetSizeToFit(self):
         '''控件尺寸适配svg图片'''

@@ -5,6 +5,9 @@ class CanvasTextItem(QGraphicsTextItem):
         super().__init__(parent)
         self.__initStyle()
 
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.zoomClamp = False
+
     def __initStyle(self):
         styleMap = {
             "font" : QFont(),
@@ -18,11 +21,18 @@ class CanvasTextItem(QGraphicsTextItem):
         return EnumCanvasItemType.CanvasTextItem.value
 
     def styleAttributeChanged(self):
+        originPos = self.pos()
+        originSize = self.boundingRect().size()
+
         styleMap = self.styleAttribute.getValue().value()
         font = styleMap["font"]
         textColor = styleMap["textColor"]
         self.setFont(font)
         self.setDefaultTextColor(textColor)
+
+        finalSize = self.boundingRect().size()
+        finalPos = originPos + QPointF((originSize.width() - finalSize.width()) / 2, (originSize.height() - finalSize.height()) / 2)
+        self.setPos(finalPos)
 
     def resetStyle(self, styleMap):
         self.styleAttribute.setValue(QVariant(styleMap))
@@ -103,25 +113,7 @@ class CanvasTextItem(QGraphicsTextItem):
         super().mouseDoubleClickEvent(event)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        originPos = self.pos()
-        originSize = self.boundingRect().size()
-
-        # 自定义滚轮事件的行为
-        finalFont = self.font()
-        finalFontSize = finalFont.pointSize()
-        # 例如，你可以改变文本的大小
-        if event.delta() > 0:
-            # 放大
-            finalFontSize = finalFontSize + 1
-        else:
-            # 缩小
-            finalFontSize = max(1, finalFontSize - 1)
-        finalFont.setPointSize(finalFontSize)
-        self.setFont(finalFont)
-
-        finalSize = self.boundingRect().size()
-        finalPos = originPos + QPointF((originSize.width() - finalSize.width()) / 2, (originSize.height() - finalSize.height()) / 2)
-        self.setPos(finalPos)
+        self.zoomComponent.TriggerEvent(event.delta())
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
         option.state = option.state & ~QStyle.StateFlag.State_Selected
