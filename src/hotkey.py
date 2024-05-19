@@ -1,11 +1,13 @@
 # coding:utf-8
 from PyQt5.QtCore import QObject , pyqtSignal
-import keyboard, time
+import time
+from system_hotkey import *
 
 class KeyboardEx(QObject):
     handleSignal = pyqtSignal(str)
     def __init__(self,parent=None):
         super().__init__(parent)
+        self.hk = SystemHotkey()
         self._pressedRecord = {}
         self.intervalTime = 400
         self.handleSignal.connect(self.handleKeyCallback)
@@ -15,12 +17,23 @@ class KeyboardEx(QObject):
         if key in self.map_callbacks:
             self.map_callbacks[key]()
 
-    def addHotKey(self, key, callback, suppress=False):
-        self.map_callbacks[key] = callback
-        keyboard.add_hotkey(key, callback=lambda: self.handleSignal.emit(key), suppress=suppress)
+    def reset(self):
+        self.hk.unregister()
 
-    def addHotKeyEx(self, key, times, callback):
-        keyboard.add_hotkey(key, callback=lambda: self.updatePressTime(key))
+    def __convertToHotkey(self, key:str) -> list:
+        result = []
+        for str in key.split("+"):
+            result.append(str.replace("ctrl", "control"))
+        return result
+
+    def addHotKey(self, key:str, callback, overwrite=False):
+        self.map_callbacks[key] = callback
+        hotkey = self.__convertToHotkey(key)
+        self.hk.register(hotkey, callback=lambda _: self.handleSignal.emit(key), overwrite=overwrite)
+
+    def addHotKeyEx(self, key:str, times, callback):
+        result = self.__convertToHotkey(key)
+        self.hk.register(result, callback=lambda _: self.updatePressTime(key))
 
         defaultValue = {
             "lastPressTime" : 0,
