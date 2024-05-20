@@ -11,6 +11,7 @@ from painter_tools import QDragWindow, QPainterWidget, DrawActionEnum
 from canvas_item.canvas_util import ZoomComponent
 from canvas_item import *
 from ocr_service import *
+from config import cfg
 
 class FreezerWindow(QDragWindow):  # 固定图片类
     ocrStartSignal = pyqtSignal()
@@ -60,7 +61,7 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
 
     def initActions(self):
         actions = [
@@ -136,7 +137,13 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
         fileName = f"Snipaste_{now_str}.png"
-        savePath, _ = QFileDialog.getSaveFileName(self, "Save File", f"./{fileName}", "PNG(*.png)")
+
+        tempFolder = cfg.get(cfg.tempFolder)
+        finalFolder = "./"
+        if os.path.exists(tempFolder):
+            finalFolder = tempFolder
+        finalPath = os.path.join(finalFolder, fileName)
+        savePath, _ = QFileDialog.getSaveFileName(self, "Save File", finalPath, "PNG(*.png)")
         # 检查用户是否点击了“取消”
         if savePath != None:
             # 保存的截图无阴影
@@ -145,32 +152,6 @@ class FreezerWindow(QDragWindow):  # 固定图片类
             # 保存带阴影的截图
             finalPixmap = self.grab()
             finalPixmap.save(savePath, "png")
-
-    def setVisible(self, visible: bool) -> None:
-        # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
-        setMouseThroughing = False
-        if hasattr(self, "setMouseThroughing"):
-            setMouseThroughing = self.setMouseThroughing
-
-        if setMouseThroughing:
-            return
-        return super().setVisible(visible)
-
-    def setMouseThroughState(self, isThrough:bool):
-        self.setMouseThroughing = True
-        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, isThrough)
-        self.setMouseThroughing = False
-        self.show()
-
-    def isMouseThrough(self):
-        return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
-
-    # 切换鼠标穿透状态
-    def switchMouseThroughState(self):
-        if self.isMouseThrough():
-            self.setMouseThroughState(False)
-        else:
-            self.setMouseThroughState(True)
 
     def isAllowDrag(self):
         if self.painterWidget.drawWidget != None:
@@ -192,10 +173,6 @@ class FreezerWindow(QDragWindow):  # 固定图片类
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             if self.isAllowDrag():
                 self.close()
-
-    # def showEvent(self, event: QShowEvent):
-    #     self.startOcr()
-    #     return super().showEvent(event)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:

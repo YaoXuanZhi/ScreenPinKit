@@ -99,7 +99,7 @@ class ColorPickerButtonEx(TransparentToggleToolButton):
         painter.drawRoundedRect(self.rect().adjusted(3, 3, -3, -3), 5, 5)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.RightButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.__showColorDialog()
             return
         return super().mousePressEvent(event)

@@ -78,10 +78,10 @@ class TextEditToolbar(CanvasItemToolBar):
         finalFontSize = finalFont.pointSize()
         if angleDelta > 1:
             # 放大
-            finalFontSize = finalFontSize + 1
+            finalFontSize = finalFontSize + 2
         else:
             # 缩小
-            finalFontSize = max(1, finalFontSize - 1)
+            finalFontSize = max(1, finalFontSize - 2)
         finalFont.setPointSize(finalFontSize)
         self.styleMap["font"] = finalFont
         self.canvasItem.resetStyle(self.styleMap.copy())
@@ -97,9 +97,9 @@ class TextEditToolbar(CanvasItemToolBar):
         '''
         if canvasItem != None:
             self.canvasItem = canvasItem
-            self.canvasItem.zoomComponent.signal.connect(self.wheelZoom)
 
             if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectItemChangedEvent:
+                self.canvasItem.zoomComponent.signal.connect(self.wheelZoom)
                 self.styleMap = self.canvasItem.styleAttribute.getValue().value()
 
                 # QGraphicsItem.opacity()数值范围是：[0, 1]，滑块数值范围设定为：[0, 100]，这里需要转换下

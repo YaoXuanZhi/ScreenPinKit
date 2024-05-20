@@ -58,7 +58,7 @@ class CanvasPencilItem(CanvasCommonPathItem):
         finalStyleMap["width"] = finalWidth
         self.usePen.setWidth(finalWidth)
 
-        self.styleAttribute.setValue(finalStyleMap)
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         painter.setPen(self.usePen)

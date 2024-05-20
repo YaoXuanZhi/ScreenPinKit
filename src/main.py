@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from hotkey import KeyboardEx
+from hotkey import *
 from icon import ScreenShotIcon
 from qfluentwidgets import Action, FluentTranslator
 from system_tray_icon import SystemTrayIcon
 from screen_shot_window import ScreenShotWindow
 from screen_paint_window import ScreenPaintWindow
-#from config import cfg, Language
+from config import cfg, Language
 
 class SettingWindow(QWidget):
     def __init__(self):
@@ -21,12 +21,14 @@ class MainWindow(QWidget):
 
         self.initSystemTrayMenu()
         self.screenShotWindow = ScreenShotWindow()
+        self.screenPaintWindow = None
 
         keyObj = KeyboardEx()
         keyObj.addHotKey("f2", self.pasteScreen)
-        keyObj.addHotKey("f4", lambda: self.screenPaint())
+        keyObj.addHotKey("f4", self.screenPaint)
         keyObj.addHotKey("f7", self.screenShot)
         keyObj.addHotKey("alt+f", lambda: self.screenShotWindow.switchMouseThroughState())
+        keyObj.addHotKey("alt+l", self.switchScreenPaintMode)
 
     def initSystemTrayMenu(self):
         self.setWindowIcon(ScreenShotIcon.icon(ScreenShotIcon.LOGO))
@@ -50,11 +52,21 @@ class MainWindow(QWidget):
 
     def screenPaint(self):
         '''屏幕绘图'''
-        if not hasattr(self, "screenPaintWindow"):
+        if self.screenPaintWindow == None:
             self.screenPaintWindow = ScreenPaintWindow()
             self.screenPaintWindow.show()
         else:
             self.screenPaintWindow.startDraw()
+
+    def switchScreenPaintMode(self):
+        if self.screenPaintWindow == None:
+            return
+
+        if self.screenPaintWindow.isVisible():
+            self.screenPaintWindow.canvasEditor.completeDraw()
+            self.screenPaintWindow.hide()
+        else:
+            self.screenPaintWindow.show()
 
     def exit(self):
         sys.exit(0)
@@ -71,13 +83,13 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     # enable dpi scale
-    #if cfg.get(cfg.dpiScale) == "Auto":
-    #    QApplication.setHighDpiScaleFactorRoundingPolicy(
-    #        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    #    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
-    #else:
-    #    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-    #    os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))    
+    if cfg.get(cfg.dpiScale) == "Auto":
+       QApplication.setHighDpiScaleFactorRoundingPolicy(
+           Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+       QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+    else:
+       os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+       os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))    
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
@@ -86,13 +98,15 @@ if __name__ == '__main__':
     app.setQuitOnLastWindowClosed(False)
 
     # internationalization
-    #locale = cfg.get(cfg.language).value
-    #fluentTranslator = FluentTranslator(locale)
-    #settingTranslator = QTranslator()
-    #settingTranslator.load(locale, "settings", ".", "resource/i18n")
+    locale = QLocale(QLocale.Chinese, QLocale.China)
+    # locale = cfg.get(cfg.language).value
+    fluentTranslator = FluentTranslator(locale)
+    settingTranslator = QTranslator()
+    i18nFolder = os.path.join(os.path.dirname(__file__), "src")
+    settingTranslator.load(locale, "settings", i18nFolder, "resource/i18n")
 
-    #app.installTranslator(fluentTranslator)
-    #app.installTranslator(settingTranslator)
+    app.installTranslator(fluentTranslator)
+    app.installTranslator(settingTranslator)
 
     wnd = MainWindow()
 

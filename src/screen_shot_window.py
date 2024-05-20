@@ -13,7 +13,7 @@ class ScreenShotWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setMouseTracking(True)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self._rt_center = QRectF()  # 中央截图区域
 
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
@@ -80,22 +80,22 @@ class ScreenShotWindow(QWidget):
 
     def initPainterTool(self):
         self.painter = QPainter()
-        self.color_transparent = QtCore.Qt.GlobalColor.transparent
+        self.color_transparent = Qt.GlobalColor.transparent
         self.color_black = QColor(0, 0, 0, 64)  # 黑色背景
-        self.color_lightBlue = QColor(30, 120, 255, 255)  # 浅蓝色。深蓝色QtCore.Qt.GlobalColor.blue
-        self.color_lightWhite = QColor(255, 255, 255, 255)  # 浅蓝色。深蓝色QtCore.Qt.GlobalColor.blue
+        self.color_lightBlue = QColor(30, 120, 255, 255)  # 浅蓝色。深蓝色Qt.GlobalColor.blue
+        self.color_lightWhite = QColor(255, 255, 255, 255)  # 浅蓝色。深蓝色Qt.GlobalColor.blue
         self.font_normal = QtGui.QFont('Times New Roman', 11, QtGui.QFont.Weight.Normal)
         self.font_textInput = QtGui.QFont('微软雅黑', 16, QtGui.QFont.Weight.Normal)  # 工具条文字工具默认字体
-        self.pen_transparent = QPen(QtCore.Qt.PenStyle.NoPen)  # 没有笔迹，画不出线条
-        self.pen_white = QPen(QtCore.Qt.GlobalColor.white)
+        self.pen_transparent = QPen(Qt.PenStyle.NoPen)  # 没有笔迹，画不出线条
+        self.pen_white = QPen(Qt.GlobalColor.white)
         self.pen_SolidLine_lightBlue = QPen(self.color_lightBlue)  # 实线，浅蓝色
-        self.pen_SolidLine_lightBlue.setStyle(QtCore.Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+        self.pen_SolidLine_lightBlue.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
         self.pen_SolidLine_lightBlue.setWidthF(4 / self.screenPixmap.devicePixelRatio())  # 0表示线宽为1
         self.pen_SolidLine_lightWhite = QPen(self.color_lightWhite)  # 实线，浅蓝色
-        self.pen_SolidLine_lightWhite.setStyle(QtCore.Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+        self.pen_SolidLine_lightWhite.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
         self.pen_SolidLine_lightWhite.setWidthF(2 / self.screenPixmap.devicePixelRatio())  # 0表示线宽为1
         self.pen_DashLine_lightBlue = QPen(self.color_lightBlue)  # 虚线，浅蓝色
-        self.pen_DashLine_lightBlue.setStyle(QtCore.Qt.PenStyle.DashLine)
+        self.pen_DashLine_lightBlue.setStyle(Qt.PenStyle.DashLine)
 
         self.initMagnifyingGlass()
 
@@ -108,7 +108,7 @@ class ScreenShotWindow(QWidget):
         self.setCenterArea(pos, pos)
         if isGotoScreeShot:
             self.update()
-            self.setCursor(QtCore.Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
+            self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
 
     def expandScreenShotArea(self, pos):
         '''根据所处的非截图区域的朝向，拓展已划定的截取区域'''
@@ -342,17 +342,17 @@ class ScreenShotWindow(QWidget):
     def getMouseShapeBy(self, pointf):
         '''根据鼠标位置返回对应的鼠标样式'''
         if self._rt_center.contains(pointf):
-            return QtCore.Qt.CursorShape.SizeAllCursor  # 十字有箭头
+            return Qt.CursorShape.SizeAllCursor  # 十字有箭头
         elif self._square_topLeft.contains(pointf) or self._square_bottomRight.contains(pointf):
-            return QtCore.Qt.CursorShape.SizeFDiagCursor  # ↖↘
+            return Qt.CursorShape.SizeFDiagCursor  # ↖↘
         elif self._square_topMid.contains(pointf) or self._square_bottomMid.contains(pointf):
-            return QtCore.Qt.CursorShape.SizeVerCursor  # ↑↓
+            return Qt.CursorShape.SizeVerCursor  # ↑↓
         elif self._square_topRight.contains(pointf) or self._square_bottomLeft.contains(pointf):
-            return QtCore.Qt.CursorShape.SizeBDiagCursor  # ↙↗
+            return Qt.CursorShape.SizeBDiagCursor  # ↙↗
         elif self._square_leftMid.contains(pointf) or self._square_rightMid.contains(pointf):
-            return QtCore.Qt.CursorShape.SizeHorCursor  # ←→
+            return Qt.CursorShape.SizeHorCursor  # ←→
         else:
-            return QtCore.Qt.CursorShape.CrossCursor  # 十字无箭头
+            return Qt.CursorShape.CrossCursor  # 十字无箭头
 
     def isMousePosInCenterRectF(self, pointf):
         return self._rt_center.contains(pointf)
@@ -465,7 +465,7 @@ class ScreenShotWindow(QWidget):
         self.painter.end()
 
     def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             pos = event.pos()
             if self.hasScreenShot:
                 if self.isMousePosInCenterRectF(pos):
@@ -481,7 +481,7 @@ class ScreenShotWindow(QWidget):
             else:
                 self.setCenterArea(pos, pos)
                 self.isCapturing = True  # 进入划定截图区域模式
-        if event.button() == QtCore.Qt.MouseButton.RightButton:
+        if event.button() == Qt.MouseButton.RightButton:
             self.cancelScreenShot()
 
     def cancelScreenShot(self):
@@ -491,7 +491,7 @@ class ScreenShotWindow(QWidget):
             self.close()
 
     def mouseReleaseEvent(self, event):
-        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.isCapturing = False
             self.isMoving = False
             self.isAdjusting = False
@@ -515,10 +515,10 @@ class ScreenShotWindow(QWidget):
         if self.hasScreenShot:
             self.setCursor(self.getMouseShapeBy(pos))
         else:
-            self.setCursor(QtCore.Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
+            self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if self.isMousePosInCenterRectF(event.pos()):
                 self.close()
 

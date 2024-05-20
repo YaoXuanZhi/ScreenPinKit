@@ -1,6 +1,4 @@
 # coding=utf-8
-import win32ui, win32con
-import typing
 from datetime import datetime
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import *
@@ -8,11 +6,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import (RoundMenu, Action, FluentIcon, TeachingTipTailPosition)
 from icon import ScreenShotIcon
-from painter_tools import QPainterWidget, DrawActionEnum
+from painter_tools import QPainterWidget, DrawActionEnum, QMouseThroughWindow
 from canvas_item import *
 from extend_widgets import *
 
 class QScreenPainterWidget(QPainterWidget):
+    completeDrawAfterSignal = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent, None, 0, 0)
 
@@ -20,25 +19,13 @@ class QScreenPainterWidget(QPainterWidget):
         return BubbleTipTailPosition.BOTTOM
 
     def contextMenuEvent(self, event:QtGui.QContextMenuEvent):
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
-            return
-        menu = RoundMenu(parent=self)
-        menu.addActions([
-            Action(ScreenShotIcon.WHITE_BOARD, '标注', triggered=self.showCommandBar),
-            Action(ScreenShotIcon.COPY, '复制', triggered=self.copyToClipboard),
-            Action(ScreenShotIcon.CLICK_THROUGH, '预览模式', triggered=self.switchPreviewMode),
-        ])
-        menu.view.setIconSize(QSize(20, 20))
-        menu.exec(event.globalPos())
-
-    def switchPreviewMode(self):
-        self.parentWidget().swtichShow()
-        pass
+        return
 
     def completeDraw(self):
         super().completeDraw()
+        self.completeDrawAfterSignal.emit()
 
-class ScreenPaintWindow(QWidget):  # 屏幕窗口
+class ScreenPaintWindow(QMouseThroughWindow):  # 屏幕窗口
     def __init__(self, parent = None):
         super().__init__(parent)
         self.defaultFlag()
@@ -49,7 +36,7 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
 
     def initUI(self):
         self.contentLayout = QVBoxLayout(self)
@@ -59,12 +46,18 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
         self.setGeometry(finalGeometry)
 
         self.canvasEditor = QScreenPainterWidget(self)
+        self.canvasEditor.completeDrawAfterSignal.connect(self.onCompleteDrawAfter)
         self.contentLayout.addWidget(self.canvasEditor)
 
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.signal.connect(self.zoomHandle)
 
+    def onCompleteDrawAfter(self):
+        self.setMouseThroughState(True)
+
     def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        if self.canvasEditor.drawWidget != None and not self.canvasEditor.drawWidget.isEditorEnabled():
+            return
         self.canvasEditor.initDrawLayer()
         self.canvasEditor.showCommandBar()
 
@@ -75,81 +68,30 @@ class ScreenPaintWindow(QWidget):  # 屏幕窗口
         else:
             finalValue = finalValue - 0.1
 
-        finalValue = min(max(0.2, finalValue), 1)
+        # 经测试，发现该数值小于0.5之后，透明部分会穿透，因此透明度范围设为[0.5, 1]
+        finalValue = min(max(0.5, finalValue), 1)
 
         self.setWindowOpacity(finalValue)
 
     def initActions(self):
         actions = [
-            Action("复制贴图", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
-            Action("保存贴图", self, triggered=self.saveToDisk, shortcut="ctrl+s"),
-            Action("隐藏标注", self, triggered=self.hide),
-            Action("切换到演示模式", self, triggered=self.swtichShow, shortcut="ctrl+w"),
-            # Action("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
+            Action("切换到演示模式", self, triggered=self.switchPreviewMode, shortcut="ctrl+w"),
         ]
         self.addActions(actions)
 
-    def swtichShow(self):
-        self.canvasEditor.drawWidget.setEditorEnabled(False)
-        self.setMouseThroughState(True)
+    def switchPreviewMode(self):
+        self.canvasEditor.completeDraw()
 
     def startDraw(self):
         self.canvasEditor.drawWidget.setEditorEnabled(True)
         self.setMouseThroughState(False)
 
-    def copyToClipboard(self):
-        # self.pixmapWidget.copyToClipboard()
-        finalPixmap = self.grab()
-        QApplication.clipboard().setPixmap(finalPixmap)
-
-    def saveToDisk(self):
-        savePath = self.save_file_dialog()
-        if savePath != None:
-            # 保存的截图无阴影
-            # finalPixmap = self.pixmapWidget.getFinalPixmap()
-
-            # 保存带阴影的截图
-            finalPixmap = self.grab()
-            finalPixmap.save(savePath, "png")
-
-    def save_file_dialog(self):
-        openFlags = win32con.OFN_OVERWRITEPROMPT|win32con.OFN_EXPLORER
-        fspec = "PNG(*.png)"
-        # 获取当前时间，并格式化
-        now = datetime.now()
-        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        fileName = f"Snipaste_{now_str}.png"
-        dlg = win32ui.CreateFileDialog(0, None, fileName, openFlags, fspec)  # 0表示保存文件对话框
-        dlg.SetOFNInitialDir('C:\\')  # 设置保存文件对话框中的初始显示目录
-        isOk = dlg.DoModal()
-        if isOk == 1:
-            return dlg.GetPathName()  # 获取选择的文件名称
-        return None
-
-    def setVisible(self, visible: bool) -> None:
-        # [Qt之使用setWindowFlags方法遇到的问题](https://blog.csdn.net/goforwardtostep/article/details/68938965/)
-        setMouseThroughing = False
-        if hasattr(self, "setMouseThroughing"):
-            setMouseThroughing = self.setMouseThroughing
-
-        if setMouseThroughing:
-            return
-        return super().setVisible(visible)
-
-    def setMouseThroughState(self, isThrough:bool):
-        self.setMouseThroughing = True
-        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, isThrough)
-        self.setMouseThroughing = False
-        self.show()
-
-    def isMouseThrough(self):
-        return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
-
     def isAllowModifyOpactity(self):
-        return not self.canvasEditor.drawWidget.isEditorEnabled()
+        # return not self.canvasEditor.drawWidget.isEditorEnabled()
+        return True
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        if self.isAllowModifyOpactity():
+        if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:
             self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         else:
