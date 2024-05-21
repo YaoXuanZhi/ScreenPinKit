@@ -64,6 +64,8 @@ class CanvasScene(QGraphicsScene):
         if len(self.selectedItems()) > 0:
             if hasattr(self.selectedItems()[0], "completeDraw"):
                 selectItem = self.selectedItems()[0]
+            else:
+                return
         if self._itemNotifyCallBack != None:
             if self.currentDrawActionEnum == DrawActionEnum.SelectItem and selectItem == None:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, selectItem)
