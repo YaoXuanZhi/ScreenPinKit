@@ -93,6 +93,26 @@ class CanvasItemToolBar(CommandBarView):
         self.initTemplateOptionUI(optionName, opacitySlider)
         return opacitySlider
 
+    def initComboBoxOptionUI(self, optionName:str, optionDatas:list, defaultValue:any):
+        '''
+        下拉列表选项
+
+        optionDatas:[(text, userData), ...]
+        '''
+        comboBox = ComboBox(self)
+        defaultIndex = -1
+        tempIndex = 0
+        for text, userData in optionDatas:
+            if defaultValue == userData:
+                defaultIndex = tempIndex
+            comboBox.addItem(text=text, userData=userData)
+            tempIndex = tempIndex + 1
+
+        comboBox.setCurrentIndex(defaultIndex)
+
+        self.initTemplateOptionUI(optionName, comboBox)
+        return comboBox
+
     def initTemplateOptionUI(self, optionName:str, optionWidget:QWidget):
         '''模板选项'''
         optionView = QWidget()

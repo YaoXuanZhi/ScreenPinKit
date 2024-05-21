@@ -14,18 +14,33 @@ class CanvasArrowItem(CanvasCommonPathItem):
         self.zoomComponent.signal.connect(self.zoomHandle)
 
     def __initStyle(self):
-        arrowStyleMap = {
+        internalStyleMap = {
             "arrowLength" : 32.0,
             "arrowAngle" : 0.5,
             "arrowBodyLength" : 18,
             "arrowBodyAngle" : 0.2,
-
-            "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
-            "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
         }
+        self.internalAttribute = CanvasAttribute()
+        self.internalAttribute.setValue(QVariant(internalStyleMap))
+        self.internalAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
+
+        styleMap = {
+            "brushColor" : QColor(255, 0, 0, 100),
+            "penColor" : QColor(255, 0, 0),
+            "penWidth" : 2,
+            "penStyle" : Qt.PenStyle.SolidLine,
+        }
+
+        self.usePen = QPen()
+        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setColor(styleMap["penColor"])
+        self.usePen.setStyle(styleMap["penStyle"])
+
+        self.useBrushColor = styleMap["brushColor"]
+
         self.styleAttribute = CanvasAttribute()
-        self.styleAttribute.setValue(QVariant(arrowStyleMap))
-        self.styleAttribute.valueChangedSignal.connect(self.update)
+        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
     def __initEditMode(self):
         '''仅保Roi操作点'''
@@ -34,25 +49,39 @@ class CanvasArrowItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
         # self.setEditMode(CanvasCommonPathItem.RoiPreviewerMode, True)
 
+    def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        penColor = styleMap["penColor"]
+        penWidth = styleMap["penWidth"]
+        penStyle = styleMap["penStyle"]
+        self.usePen.setColor(penColor)
+        self.usePen.setWidth(penWidth)
+        self.usePen.setStyle(penStyle)
+
+        self.useBrushColor = styleMap["brushColor"]
+
+        self.update()
+
+    def resetStyle(self, styleMap):
+        self.styleAttribute.setValue(QVariant(styleMap))
+
     def type(self) -> int:
         return EnumCanvasItemType.CanvasArrowItem.value
 
     def zoomHandle(self, zoomFactor):
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
+        oldArrowStyleMap = self.internalAttribute.getValue().value()
         oldArrowStyleMap["arrowLength"] = oldArrowStyleMap["arrowLength"] * zoomFactor
         oldArrowStyleMap["arrowBodyLength"] = oldArrowStyleMap["arrowBodyLength"] * zoomFactor
-        oldArrowStyleMap["arrowBrush"] = QBrush(QColor(255, 0, 0, int(100 * zoomFactor * 1.2)))
-        self.styleAttribute.setValue(QVariant(oldArrowStyleMap))
+        self.internalAttribute.setValue(QVariant(oldArrowStyleMap))
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        arrowStyleMap = self.styleAttribute.getValue().value()
-        painter.setBrush(arrowStyleMap["arrowBrush"])
-        painter.setPen(arrowStyleMap["arrowPen"])
+        painter.setBrush(self.useBrushColor)
+        painter.setPen(self.usePen)
         painter.drawPath(targetPath)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         self.zoomComponent.TriggerEvent(event.delta())
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
-        arrowStyleMap = self.styleAttribute.getValue().value()
+        arrowStyleMap = self.internalAttribute.getValue().value()
         CanvasUtil.buildArrowPath(targetPath, targetPolygon, arrowStyleMap)

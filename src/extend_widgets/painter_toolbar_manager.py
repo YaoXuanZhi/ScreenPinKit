@@ -17,6 +17,7 @@ from .pen_toolbar import *
 from .blur_toolbar import *
 from .common_path_toolbar import *
 from .polygonal_toolbar import *
+from .arrow_toolbar import *
 
 class PainterToolBarManager(QObject):
     providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
@@ -65,6 +66,8 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.DrawRectangle
         elif isinstance(self.canvasItemBar, MarkerItemToolbar):
             drawActionEnum = DrawActionEnum.UseMarkerItem
+        elif isinstance(self.canvasItemBar, ArrowToolbar):
+            drawActionEnum = DrawActionEnum.DrawArrow
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
@@ -75,6 +78,8 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(canvasItem, CanvasPolygonItem):
             matchDrawActionEnum = DrawActionEnum.DrawPolygonalLine
+        elif isinstance(canvasItem, CanvasArrowItem):
+            matchDrawActionEnum = DrawActionEnum.DrawArrow
 
         if drawActionEnum != matchDrawActionEnum:
             self.switchDrawTool(matchDrawActionEnum)
@@ -109,7 +114,7 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.DrawPolygonalLine:
                 self.canvasItemBar = PolygonalToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawArrow:
-                self.canvasItemBar = CommonPathToolbar(parent=self.targetWidget)
+                self.canvasItemBar = ArrowToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseMarkerItem:
                 self.canvasItemBar = MarkerItemToolbar(parent=self.targetWidget)
 
