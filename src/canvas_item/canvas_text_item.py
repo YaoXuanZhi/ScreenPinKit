@@ -11,7 +11,7 @@ class CanvasTextItem(QGraphicsTextItem):
     def __initStyle(self):
         styleMap = {
             "font" : QFont(),
-            "textColor" : Qt.GlobalColor.red,
+            "textColor" : QColor(Qt.GlobalColor.red),
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))

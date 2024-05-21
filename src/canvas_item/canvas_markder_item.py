@@ -12,8 +12,8 @@ class CanvasMarkderItem(QGraphicsRectItem):
     def __initStyle(self):
         styleMap = {
             "font" : QFont(),
-            "textColor" : Qt.GlobalColor.red,
-            "backgroundColor" : QColor(255, 255, 0, 50),
+            "textColor" : QColor(Qt.GlobalColor.red),
+            "backgroundColor" : QColor(0, 255, 0, 150),
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
@@ -44,8 +44,6 @@ class CanvasMarkderItem(QGraphicsRectItem):
         painter.drawEllipse(self.boundingRect())
 
         painter.setPen(textColor)
-
-        print(f"=======> {textColor} {Qt.GlobalColor.white} {Qt.GlobalColor.black} {Qt.GlobalColor.red}")
 
         offset = 5
         tempRect2 = self.boundingRect() - QMarginsF(offset, offset, offset, offset)

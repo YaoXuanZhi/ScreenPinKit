@@ -15,8 +15,10 @@ class TextEditToolbar(CanvasItemToolBar):
 
     def initDefaultStyle(self):
         self.opacity:int = 100
+        defaultFont = QFont()
+        defaultFont.setPointSize(16)
         self.styleMap = {
-            "font" : QFont(),
+            "font" : defaultFont,
             "textColor" : QColor(100, 200, 150),
         }
 

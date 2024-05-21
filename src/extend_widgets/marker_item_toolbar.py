@@ -17,8 +17,8 @@ class MarkerItemToolbar(CanvasItemToolBar):
         self.opacity:int = 100
         self.styleMap = {
             "font" : QFont(),
-            "textColor" : Qt.GlobalColor.white,
-            "backgroundColor" : QColor(255, 255, 0, 50),
+            "textColor" : QColor(Qt.GlobalColor.white),
+            "backgroundColor" : QColor(Qt.GlobalColor.gray),
         }
 
     def initUI(self):

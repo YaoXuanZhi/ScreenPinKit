@@ -63,12 +63,16 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.EditText
         elif isinstance(self.canvasItemBar, ShapeToolbar):
             drawActionEnum = DrawActionEnum.DrawRectangle
+        elif isinstance(self.canvasItemBar, MarkerItemToolbar):
+            drawActionEnum = DrawActionEnum.UseMarkerItem
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
             matchDrawActionEnum = DrawActionEnum.EditText
         elif isinstance(canvasItem, CanvasClosedShapeItem):
             matchDrawActionEnum = DrawActionEnum.DrawRectangle
+        elif isinstance(canvasItem, CanvasMarkderItem):
+            matchDrawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(canvasItem, CanvasPolygonItem):
             matchDrawActionEnum = DrawActionEnum.DrawPolygonalLine
 
@@ -106,6 +110,8 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar = PolygonalToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawArrow:
                 self.canvasItemBar = CommonPathToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UseMarkerItem:
+                self.canvasItemBar = MarkerItemToolbar(parent=self.targetWidget)
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
