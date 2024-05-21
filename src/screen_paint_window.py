@@ -25,6 +25,16 @@ class QScreenPainterWidget(QPainterWidget):
         super().completeDraw()
         self.completeDrawAfterSignal.emit()
 
+    def keyPressEvent(self, event) -> None:
+        # 监听ESC键，当按下ESC键时，逐步取消编辑状态
+        if event.key() == Qt.Key_Escape:
+            # 如果当前绘图工具不在绘制状态，则本次按下Esc键会关掉绘图工具条
+            if self.currentDrawActionEnum != DrawActionEnum.SelectItem:
+                self.selectItemAction.setChecked(True)
+                self.selectItemAction.triggered.emit()
+            elif self.toolbar != None and self.toolbar.isVisible():
+                self.completeDraw()
+
 class ScreenPaintWindow(QMouseThroughWindow):  # 屏幕窗口
     def __init__(self, parent = None):
         super().__init__(parent)
