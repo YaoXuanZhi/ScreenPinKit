@@ -17,7 +17,7 @@ class ShapeToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "brush" : QBrush(QColor(255, 0, 0, 100)),
+            "brush" : QBrush(QColor(255, 0, 0, 0)),
             "pen" : QPen(QColor(255, 0, 0), 2, Qt.PenStyle.SolidLine),
             "shape" : CanvasClosedShapeEnum.Rectangle,
         }
@@ -43,6 +43,15 @@ class ShapeToolbar(CanvasItemToolBar):
             currentIndex = currentIndex + 1 
         self.shapeComBox.setCurrentIndex(currentIndex)
 
+        currentIndex = 0
+        usePen:QPen = self.styleMap["pen"]
+        currentPenStyle = usePen.style()
+        for _, penStyle in self.outlineTypeInfos:
+            if penStyle == currentPenStyle:
+                break
+            currentIndex = currentIndex + 1 
+        self.outlineTypeComBox.setCurrentIndex(currentIndex)
+
     def refreshStyleUI(self):
         pen:QPen = self.styleMap["pen"]
         brush:QBrush = self.styleMap["brush"]
@@ -61,7 +70,10 @@ class ShapeToolbar(CanvasItemToolBar):
     
     def outlineTypeComBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComBox
-        print(f"=====> {comBox.currentData()}")
+        usePen:QPen = self.styleMap["pen"]
+        usePen.setStyle(comBox.currentData())
+        self.styleMap["pen"] = usePen
+        self.refreshAttachItem()
 
     def shapeTypeComBoxHandle(self, index):
         comBox:ComboBox = self.shapeComBox
