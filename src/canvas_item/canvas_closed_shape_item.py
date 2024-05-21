@@ -22,13 +22,24 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
     def __initStyle(self, shapeType:CanvasClosedShapeEnum):
         #todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
         styleMap = {
-            "brush" : QBrush(QColor(255, 10, 10, 100)),
-            "pen" : QPen(QColor(255, 100, 100), 2, Qt.SolidLine),
+            "brushColor" : QColor(255, 0, 0, 100),
+            "penColor" : QColor(255, 0, 0),
+            "penWidth" : 2,
+            "penStyle" : Qt.PenStyle.SolidLine,
             "shape" : shapeType,
         }
+
+        self.usePen = QPen()
+        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setColor(styleMap["penColor"])
+        self.usePen.setStyle(styleMap["penStyle"])
+
+        self.useBrushColor = styleMap["brushColor"]
+        self.useShape = styleMap["shape"]
+
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
-        self.styleAttribute.valueChangedSignal.connect(self.update)
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasClosedShapeItem.value
@@ -43,22 +54,34 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False)
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
 
+    def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        penColor = styleMap["penColor"]
+        penWidth = styleMap["penWidth"]
+        penStyle = styleMap["penStyle"]
+        self.usePen.setColor(penColor)
+        self.usePen.setWidth(penWidth)
+        self.usePen.setStyle(penStyle)
+
+        self.useBrushColor = styleMap["brushColor"]
+        self.useShape = styleMap["shape"]
+
+        self.update()
+
     def zoomHandle(self, zoomFactor):
-        oldStyleMap = self.styleAttribute.getValue().value()
-        pen:QPen = oldStyleMap["pen"]
-        finalWidth = pen.width()
+        finalStyleMap = self.styleAttribute.getValue().value()
+        finalWidth = finalStyleMap["penWidth"]
         if zoomFactor > 1:
             finalWidth = finalWidth + 1
         else:
             finalWidth = max(0, finalWidth - 1)
 
-        pen.setWidth(finalWidth)
-        self.styleAttribute.setValue(QVariant(oldStyleMap))
+        finalStyleMap["penWidth"] = finalWidth
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        styleMap = self.styleAttribute.getValue().value()
-        painter.setBrush(styleMap["brush"])
-        painter.setPen(styleMap["pen"])
+        painter.setBrush(self.useBrushColor)
+        painter.setPen(self.usePen)
         painter.drawPath(targetPath)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
@@ -68,8 +91,7 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
         return self.polygon.boundingRect()
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
-        styleMap = self.styleAttribute.getValue().value()
-        shapeType = styleMap["shape"]
+        shapeType = self.useShape
         if shapeType == CanvasClosedShapeEnum.Ellipse:
             CanvasUtil.buildEllipsePath(targetPath, targetPolygon)
         elif shapeType == CanvasClosedShapeEnum.Rectangle:

@@ -17,8 +17,10 @@ class ShapeToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "brush" : QBrush(QColor(255, 0, 0, 0)),
-            "pen" : QPen(QColor(255, 0, 0), 2, Qt.PenStyle.SolidLine),
+            "brushColor" : QColor(255, 0, 0, 100),
+            "penColor" : QColor(255, 0, 0),
+            "penWidth" : 2,
+            "penStyle" : Qt.PenStyle.SolidLine,
             "shape" : CanvasClosedShapeEnum.Rectangle,
         }
 
@@ -44,8 +46,7 @@ class ShapeToolbar(CanvasItemToolBar):
         self.shapeComBox.setCurrentIndex(currentIndex)
 
         currentIndex = 0
-        usePen:QPen = self.styleMap["pen"]
-        currentPenStyle = usePen.style()
+        currentPenStyle = self.styleMap["penStyle"]
         for _, penStyle in self.outlineTypeInfos:
             if penStyle == currentPenStyle:
                 break
@@ -53,10 +54,10 @@ class ShapeToolbar(CanvasItemToolBar):
         self.outlineTypeComBox.setCurrentIndex(currentIndex)
 
     def refreshStyleUI(self):
-        pen:QPen = self.styleMap["pen"]
-        brush:QBrush = self.styleMap["brush"]
-        self.outlineColorPickerButton.setColor(pen.color())
-        self.backgroundColorPickerButton.setColor(brush.color())
+        penColor:QColor = self.styleMap["penColor"]
+        brushColor:QColor = self.styleMap["brushColor"]
+        self.outlineColorPickerButton.setColor(penColor)
+        self.backgroundColorPickerButton.setColor(brushColor)
         self.opacitySlider.setValue(self.opacity)
 
     def initUI(self):
@@ -70,9 +71,7 @@ class ShapeToolbar(CanvasItemToolBar):
     
     def outlineTypeComBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComBox
-        usePen:QPen = self.styleMap["pen"]
-        usePen.setStyle(comBox.currentData())
-        self.styleMap["pen"] = usePen
+        self.styleMap["penStyle"] = comBox.currentData()        
         self.refreshAttachItem()
 
     def shapeTypeComBoxHandle(self, index):
@@ -91,15 +90,11 @@ class ShapeToolbar(CanvasItemToolBar):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
     def outlineColorChangedHandler(self, color:QColor):
-        pen:QPen = self.styleMap["pen"]        
-        pen.setColor(color)
-
+        self.styleMap["penColor"] = color
         self.refreshAttachItem()
 
     def backgroundColorChangedHandler(self, color:QColor):
-        brush:QBrush = self.styleMap["brush"]
-        brush.setColor(color)
-
+        self.styleMap["brushColor"] = color
         self.refreshAttachItem()
 
     def opacityValueChangedHandler(self, value:float):
