@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Union
 
-from PyQt5.QtCore import Qt, QPoint, QObject, QPointF, QTimer, QPropertyAnimation, QEvent
+from PyQt5.QtCore import Qt, QPoint, QObject, QPointF, QTimer, QPropertyAnimation, QEvent, QRect, QRectF
 from PyQt5.QtGui import QPainter, QColor, QPainterPath, QIcon, QCursor, QPolygonF, QPixmap, QImage
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QApplication, QGraphicsDropShadowEffect
 
@@ -24,6 +24,7 @@ class BubbleTipTailPosition(Enum):
     RIGHT_TOP = 10
     RIGHT_BOTTOM = 11
     NONE = 12
+    TOP_CENTER = 13
 
 class BubbleTipContent(QWidget):
     """ Bubble tip content """
@@ -198,6 +199,11 @@ class BubbleTipManager(QObject):
         """ manage the layout of tip """
         tip.hBoxLayout.setContentsMargins(0, 0, 0, 0)
 
+    def autoDpiRect(self, targetRect:QRectF):
+        screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+        realSize = targetRect.size() / screenDevicePixelRatio
+        targetRect.setSize(realSize)
+
     def position(self, tip: BubbleTip) -> QPoint:
         pos = self._pos(tip)
         x, y = pos.x(), pos.y()
@@ -234,6 +240,7 @@ class BubbleTipManager(QObject):
             BubbleTipTailPosition.LEFT_BOTTOM: LeftBottomTailBubbleTipManager,
             BubbleTipTailPosition.RIGHT_TOP: RightTopTailBubbleTipManager,
             BubbleTipTailPosition.RIGHT_BOTTOM: RightBottomTailBubbleTipManager,
+            BubbleTipTailPosition.TOP_CENTER: TopCenterTailBubbleTipManager,
             BubbleTipTailPosition.NONE: BubbleTipManager,
         }
 
@@ -293,6 +300,33 @@ class BottomTailBubbleTipManager(BubbleTipManager):
         y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom()
         return QPoint(x, y)
 
+
+class TopCenterTailBubbleTipManager(BubbleTipManager):
+    """ Bottom tail teaching tip manager """
+
+    def doLayout(self, tip: BubbleTipContent):
+        tip.hBoxLayout.setContentsMargins(0, 0, 0, tip.orientLength)
+
+    def draw(self, tip: BubbleTipContent, painter):
+        w, h = tip.width(), tip.height()
+        pb = tip.hBoxLayout.contentsMargins().bottom()
+
+        path = QPainterPath()
+        path.addRoundedRect(1, 1, w - 2, h - pb - 1, 8, 8)
+        path.addPolygon(
+            QPolygonF([QPointF(w/2 - 7, h - pb), QPointF(w/2, h - 1), QPointF(w/2 + 7, h - pb)]))
+
+        painter.drawPath(path.simplified())
+
+    def _pos(self, tip: BubbleTip):
+        target = tip.target
+        tipRect = tip.rect()
+
+        targetRect = target.rect()
+        self.autoDpiRect(targetRect)
+        topCenterPos = (targetRect.topLeft() + targetRect.topRight()) / 2
+        tipRect.moveCenter(topCenterPos)
+        return tipRect.topLeft()
 
 class LeftTailBubbleTipManager(BubbleTipManager):
     """ Left tail teaching tip manager """
