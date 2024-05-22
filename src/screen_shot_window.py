@@ -29,10 +29,19 @@ class ScreenShotWindow(QWidget):
             self.addFreezeImg(QPoint(screenX, screenY), realSize,  imgpix)
 
         actions = [
+            Action("复制", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
             Action("贴图", self, triggered=self.tryFreezeImg, shortcut="ctrl+t"),
             Action("取消截图", self, triggered=self.cancelScreenShot, shortcut="esc"),
         ]
         self.addActions(actions)
+
+    def copyToClipboard(self):
+        if self._rt_center.size().toSize() != QSize(0, 0):
+            cropRect = self.physicalRectF(self._rt_center).toRect()
+            freezePixmap = self.screenPixmap.copy(cropRect)
+            QApplication.clipboard().setPixmap(freezePixmap)
+        self.clearScreenShot(False)
+        self.close()
 
     def tryFreezeImg(self):
         self.freezeImg(self.addFreezeImg)
