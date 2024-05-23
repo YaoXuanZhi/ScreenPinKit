@@ -434,7 +434,7 @@ class ScreenShotWindow(QWidget):
         self.tool_width = 5
 
     def paintMagnifyingGlass(self):
-        self.painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+        self.painter.setPen(QPen(Qt.GlobalColor.white, 2, Qt.SolidLine))
         if self.mouse_posX > self.width() - 140:
             enlarge_box_x = self.mouse_posX - 140
         else:
@@ -445,16 +445,26 @@ class ScreenShotWindow(QWidget):
             enlarge_box_y = self.mouse_posY + 20
         enlarge_rect = QRect(enlarge_box_x, enlarge_box_y, 120, 120)
         self.painter.drawRect(enlarge_rect)
-        self.painter.drawText(enlarge_box_x, enlarge_box_y - 8,
-                            '({0}x{1})'.format(self.mouse_posX, self.mouse_posY))
         p = self.screenPixmap
         larger_pix = p.copy(self.mouse_posX - 60, self.mouse_posY - 60, 120, 120).scaled(
             120 + self.tool_width * 10, 120 + self.tool_width * 10)
         pix = larger_pix.copy(int(larger_pix.width() / 2 - 60), int(larger_pix.height() / 2 - 60), 120, 120)
         self.painter.drawPixmap(enlarge_box_x, enlarge_box_y, pix)
+
         self.painter.setPen(QPen(Qt.green, 1, Qt.SolidLine))
         self.painter.drawLine(enlarge_box_x, enlarge_box_y + 60, enlarge_box_x + 120, enlarge_box_y + 60)
         self.painter.drawLine(enlarge_box_x + 60, enlarge_box_y, enlarge_box_x + 60, enlarge_box_y + 120)
+
+        # 绘制坐标文本
+        self.painter.setPen(QPen(Qt.GlobalColor.white, 2, Qt.SolidLine))
+        textRect = QRect(enlarge_rect)
+        textRect.moveTopLeft(enlarge_rect.bottomLeft() + QPoint(-2, 2))
+        textRect.setHeight(textRect.height() / 2)
+        textRect.setWidth(textRect.width() + 4)
+        self.font_normal.setPointSize(12)
+        self.painter.setFont(self.font_normal)
+        self.painter.fillRect(textRect, QBrush(QColor(0, 0, 0, 220)))
+        self.painter.drawText(textRect - QMargins(0, 5, 0, 0), Qt.AlignmentFlag.AlignHCenter, f"({self.mouse_posX}/{self.mouse_posY})")
 
     def paintEvent(self, event):
         canvasPixmap = self.screenPixmap.copy()
