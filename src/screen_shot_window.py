@@ -464,7 +464,10 @@ class ScreenShotWindow(QWidget):
         self.font_normal.setPointSize(12)
         self.painter.setFont(self.font_normal)
         self.painter.fillRect(textRect, QBrush(QColor(0, 0, 0, 220)))
+        pixelColor = self.screenPixmap.toImage().pixelColor(self.mouse_posX, self.mouse_posY)
+        self.painter.fillRect(textRect - QMargins(25, 30, 25, 25), QBrush(pixelColor))
         self.painter.drawText(textRect - QMargins(0, 5, 0, 0), Qt.AlignmentFlag.AlignHCenter, f"({self.mouse_posX}/{self.mouse_posY})")
+        self.painter.drawText(textRect - QMargins(0, 5, 0, 0), Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter, f"{pixelColor.name()}")
 
     def paintEvent(self, event):
         canvasPixmap = self.screenPixmap.copy()
