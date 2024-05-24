@@ -8,6 +8,7 @@ class CanvasMarkderItem(QGraphicsRectItem):
         self.setDefaultFlag()
         CanvasMarkderItem.markderIndex = self.markderIndex + 1
         self.showText = f"{self.markderIndex}"
+        self.transformComponent = TransformComponent()
 
     def __initStyle(self):
         styleMap = {
@@ -61,6 +62,15 @@ class CanvasMarkderItem(QGraphicsRectItem):
         self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
         self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)
         self.setAcceptHoverEvents(isEditable)
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.oldPos = self.pos()
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        if self.pos() != self.oldPos:
+            self.transformComponent.movedSignal.emit(self, self.oldPos, self.pos())
+        return super().mouseReleaseEvent(event)
 
     def completeDraw(self):
         pass

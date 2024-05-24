@@ -49,7 +49,6 @@ class QDragWindow(QLabel):
                 self.move(event.x() + self.x() - self.posX, event.y() + self.y() - self.posY)
 
 class MainWindow(QDragWindow):
-# class MainWindow(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.defaultFlag()
@@ -90,21 +89,30 @@ class MainWindow(QDragWindow):
         self.setMouseThroughState(False)
 
     def initActions(self):
-        actions = [
+        finalDrawActions = [
             QAction("退出", self, triggered=self.quitDraw, shortcut="esc"),
             QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="ctrl+w"),
             QAction("切换到绘画模式", self, triggered=self.startDraw, shortcut="ctrl+t"),
             QAction("切换锁定状态", self, triggered=lambda: self.canvasEditor.switchLockState(), shortcut="alt+0"),
+
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
             QAction("绘制矩形", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle), shortcut="alt+3"),
             QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
-            QAction("切换到橡皮擦", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
-            QAction("切换到橡皮区域", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
-            QAction("切换到模糊工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
             QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+8"),
         ]
-        self.addActions(actions)
+
+        # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
+        if not self.physicalPixmap.isNull():
+            extendActions = [
+                QAction('橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
+                QAction('橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
+                QAction('马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
+            ]
+            for action in extendActions:
+                finalDrawActions.append(action)
+
+        self.addActions(finalDrawActions)
 
     def quitDraw(self):
         if self.canvasEditor.isEditorEnabled():

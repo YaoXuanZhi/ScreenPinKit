@@ -57,10 +57,6 @@ class CanvasScene(QGraphicsScene):
         # self.blurMgr = BlurManager()
         # self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
 
-        # 支持Undo机制
-        self.movingItem:QGraphicsItem = None
-        self.oldPos:QPointF = None
-
     def selectionChangedHandler(self):
         selectItem = None
         if len(self.selectedItems()) > 0:
@@ -164,11 +160,13 @@ class CanvasScene(QGraphicsScene):
         if self._itemNotifyCallBack != None:
             if isOk:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, item)
-                if hasattr(item, "transformComponent"):
-                    item.transformComponent.rotatedSignal.connect(self.itemRotatedSignal)
-                    item.transformComponent.resizedSignal.connect(self.itemResizedSignal)
             else:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, None)
+
+        if isOk and hasattr(item, "transformComponent"):
+            item.transformComponent.movedSignal.connect(self.itemMovedSignal)
+            item.transformComponent.rotatedSignal.connect(self.itemRotatedSignal)
+            item.transformComponent.resizedSignal.connect(self.itemResizedSignal)
 
     def clearDraw(self):
         self.clear()
@@ -219,10 +217,6 @@ class CanvasScene(QGraphicsScene):
         # itemList = self.items(event.scenePos())
         # if len(itemList) > 0:
         #     item = itemList[0]
-
-        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and item != None and CanvasUtil.isCanvasItem(item):
-            self.movingItem = item
-            self.oldPos = self.movingItem.pos()
 
         isSkip = False
         if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
@@ -390,9 +384,6 @@ class CanvasScene(QGraphicsScene):
                         isOk = True
                     self.__completeDraw(self.pathItem, isOk)
 
-        if self.currentDrawActionEnum == DrawActionEnum.SelectItem and self.movingItem != None:
-            self.itemMovedSignal.emit(self.movingItem, self.oldPos, self.movingItem.pos())
-            self.movingItem = None
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:

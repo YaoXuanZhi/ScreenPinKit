@@ -8,6 +8,8 @@ class CanvasTextItem(QGraphicsTextItem):
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.zoomClamp = False
 
+        self.transformComponent = TransformComponent()
+
     def __initStyle(self):
         styleMap = {
             "font" : QFont(),
@@ -102,6 +104,15 @@ class CanvasTextItem(QGraphicsTextItem):
             # 如果文本为空，则删除这个图元
             self.scene().removeItem(self)
         return super().focusOutEvent(event)
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.oldPos = self.pos()
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        if self.pos() != self.oldPos:
+            self.transformComponent.movedSignal.emit(self, self.oldPos, self.pos())
+        return super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if(event.button() == Qt.LeftButton):

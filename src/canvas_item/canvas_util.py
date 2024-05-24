@@ -859,6 +859,15 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         self.isPreview = 2
         return super().focusInEvent(event)
 
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.oldPos = self.pos()
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        if self.pos() != self.oldPos:
+            self.transformComponent.movedSignal.emit(self, self.oldPos, self.pos())
+        return super().mouseReleaseEvent(event)
+
     def mouseMoveRotateOperator(self, scenePos:QPointF, localPos:QPointF) -> None:
         p1 = QLineF(self.originPos, self.m_pressPos)
         p2 = QLineF(self.originPos, localPos)
