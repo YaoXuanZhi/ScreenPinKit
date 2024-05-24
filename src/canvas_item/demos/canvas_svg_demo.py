@@ -25,6 +25,16 @@ class DrawingView(QGraphicsView):
         # self.zoomComponent.zoomClamp = True
         self.zoomComponent.signal.connect(self.zoomHandle)
 
+        svgFolderPath = os.path.join(os.path.dirname(__file__), "resources")
+        self.filePaths = self.getSvgFiles(svgFolderPath)
+
+    def getSvgFiles(self, folderPath:str):
+        result = []
+        for fileName in os.listdir(folderPath):
+            if fileName.endswith(".svg"):
+                result.append(os.path.join(folderPath, fileName))
+        return result
+
     def zoomHandle(self, zoomFactor):
         self.scale(zoomFactor, zoomFactor)
 
@@ -47,16 +57,9 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
-                    svgNames = [
-                        "diagonal_resize_1.svg",
-                        "diagonal_resize_2.svg",
-                        "horizontal_resize.svg",
-                        "vertical_resize.svg",
-                        "zsh.svg",
-                    ]
-                    svgName = svgNames[random.randint(0, len(svgNames) - 1)]
-                    svgPath = os.path.join(os.path.dirname(__file__), "resources", svgName)
-                    if random.randint(0, 9) % 2 == 0:
+                    index = random.randint(0, len(self.filePaths) - 1)
+                    svgPath = self.filePaths[index]
+                    if random.randint(0, len(self.filePaths)) % 2 == 0:
                         self.currentItem = CanvasSvgItem(QRectF(), svgPath)
                     else:
                         self.currentItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)

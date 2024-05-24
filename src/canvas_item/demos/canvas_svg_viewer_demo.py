@@ -6,55 +6,54 @@ from PyQt5.QtSvg import QSvgWidget
 from qfluentwidgets import PrimaryPushButton, SplitTitleBar, PushButton
 
 class SvgImageViewer(FramelessWindow, QWidget):
-    def __init__(self, folder_path):
+    def __init__(self, folderPath):
         super().__init__()
         self.setTitleBar(SplitTitleBar(self))
         self.titleBar.raise_()
 
-        self.folder_path = folder_path
-        self.image_list = self.get_svg_files()
-        self.current_index = 0
+        self.folderPath = folderPath
+        self.imageList = self.getSvgFiles()
+        self.currentIndex = 0
 
-        self.image_label = QSvgWidget()
-        self.next_button = PrimaryPushButton("下一张")
-        self.prev_button = PrimaryPushButton("上一张")
+        self.imageLabel = QSvgWidget()
+        self.nextButton = PrimaryPushButton("下一张")
+        self.prevButton = PrimaryPushButton("上一张")
 
-        self.next_button.clicked.connect(self.show_next_image)
-        self.prev_button.clicked.connect(self.show_previous_image)
+        self.nextButton.clicked.connect(self.showNextImage)
+        self.prevButton.clicked.connect(self.showPreviousImage)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.image_label)
-        layout.addWidget(self.next_button)
-        layout.addWidget(self.prev_button)
-
+        layout.addWidget(self.imageLabel)
+        layout.addWidget(self.nextButton)
+        layout.addWidget(self.prevButton)
 
         self.iconButton = PushButton('图标')
         self.iconButton.resize(200, 200)
         layout.addWidget(self.iconButton)
 
         self.setLayout(layout)
-        self.show_current_image()
+        self.showCurrentImage()
 
-    def get_svg_files(self):
-        svg_files = []
-        for file_name in os.listdir(self.folder_path):
-            if file_name.endswith(".svg"):
-                svg_files.append(os.path.join(self.folder_path, file_name))
-        return svg_files
+    def getSvgFiles(self):
+        result = []
+        for fileName in os.listdir(self.folderPath):
+            if fileName.endswith(".svg"):
+                result.append(os.path.join(self.folderPath, fileName))
+        return result
 
-    def show_current_image(self):
-        image_path = self.image_list[self.current_index]
-        self.image_label.load(image_path)
+    def showCurrentImage(self):
+        imagePath = self.imageList[self.currentIndex]
+        self.imageLabel.load(imagePath)
 
-        self.iconButton.setIcon(QIcon(image_path))
+        self.iconButton.setIcon(QIcon(imagePath))
 
-    def show_next_image(self):
-        self.current_index = (self.current_index + 1) % len(self.image_list)
-        self.show_current_image()
+    def showNextImage(self):
+        self.currentIndex = (self.currentIndex + 1) % len(self.imageList)
+        self.showCurrentImage()
 
-    def show_previous_image(self):
-        self.current_index = (self.current_index - 1) % len(self.image_list)
-        self.show_current_image()
+    def showPreviousImage(self):
+        self.currentIndex = (self.currentIndex - 1) % len(self.imageList)
+        self.showCurrentImage()
 
 if __name__ == "__main__":
     app = QApplication([])
