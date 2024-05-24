@@ -94,6 +94,8 @@ class CanvasEditor(QWidget):
         self.scene.itemMovedSignal.connect(self.itemMoved)
         self.scene.itemDeleteSignal.connect(self.itemDelete)
         self.scene.itemAddSignal.connect(self.itemAdd)
+        self.scene.itemRotatedSignal.connect(self.itemRotated)
+        self.scene.itemResizedSignal.connect(self.itemResized)
 
     def redo(self):
         if not self.isEditorEnabled() or not self.scene.canUndo():
@@ -105,11 +107,17 @@ class CanvasEditor(QWidget):
             return
         self.undoStack.undo()
 
-    def itemMoved(self, canvasItem:QGraphicsItem, oldPos:QPointF, newPos:QPointF):
-        self.undoStack.push(MoveCommand(canvasItem, oldPos, newPos))
+    def itemMoved(self, canvasItem:QGraphicsItem, oldValue:QPointF, newValue:QPointF):
+        self.undoStack.push(MoveCommand(canvasItem, oldValue, newValue))
 
     def itemAdd(self, canvasScene:QGraphicsScene, canvasItem:QGraphicsItem):
         self.undoStack.push(AddCommand(canvasScene, canvasItem))
 
     def itemDelete(self, canvasScene:QGraphicsScene, canvasItem:QGraphicsItem):
         self.undoStack.push(DeleteCommand(canvasScene, canvasItem))
+
+    def itemRotated(self, canvasItem:QGraphicsItem, oldValue:float, newValue:float):
+        self.undoStack.push(RotateCommand(canvasItem, oldValue, newValue))
+
+    def itemResized(self, canvasItem:QGraphicsItem, oldValue:QPolygonF, newValue:QPolygonF):
+        self.undoStack.push(ResizeCommand(canvasItem, oldValue, newValue))

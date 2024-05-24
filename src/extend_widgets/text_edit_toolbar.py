@@ -19,7 +19,7 @@ class TextEditToolbar(CanvasItemToolBar):
         defaultFont.setPointSize(16)
         self.styleMap = {
             "font" : defaultFont,
-            "textColor" : QColor(100, 200, 150),
+            "textColor" : QColor(Qt.GlobalColor.red),
         }
 
     def initUI(self):

@@ -50,3 +50,37 @@ class DeleteCommand(QUndoCommand):
     def redo(self):
         self.scene.itemList.remove(self.item)
         self.scene.removeItem(self.item)
+
+class RotateCommand(QUndoCommand):
+    def __init__(self, canvasItem:QGraphicsItem, oldRotate:QPointF, newRotate:QPointF, parent=None):
+        super().__init__(parent)
+        self.attachItem = canvasItem
+        self.oldRotate = oldRotate
+        self.newRotate = newRotate
+
+    def undo(self):
+        self.attachItem.setRotation(self.oldRotate)
+
+    def redo(self):
+        self.attachItem.setRotation(self.newRotate)
+
+class ResizeCommand(QUndoCommand):
+    def __init__(self, canvasItem:CanvasCommonPathItem, oldValue:tuple, newValue:tuple, parent=None):
+        super().__init__(parent)
+        self.attachItem = canvasItem
+        (oldPolygon, oldRoiPosList) = oldValue
+        (newPolygon, newRoiPosList) = newValue
+        self.oldPolygon = oldPolygon
+        self.oldRoiPosList = oldRoiPosList
+        self.newPolygon = newPolygon
+        self.newRoiPosList = newRoiPosList
+
+    def undo(self):
+        self.attachItem.polygon = self.oldPolygon
+        self.attachItem.syncRoiItemsFromPolygon(self.oldRoiPosList)
+        self.attachItem.refreshTransformOriginPoint()
+
+    def redo(self):
+        self.attachItem.polygon = self.newPolygon
+        self.attachItem.syncRoiItemsFromPolygon(self.newRoiPosList)
+        self.attachItem.refreshTransformOriginPoint()

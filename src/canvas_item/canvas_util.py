@@ -672,6 +672,9 @@ class CanvasROIManager(QObject):
         if not self.attachParent.hasFocus():
             self.attachParent.setFocus(Qt.FocusReason.OtherFocusReason)
 
+        parentItem:CanvasCommonPathItem = self.attachParent
+        parentItem.startResize(event.pos())
+
     def mouseReleaseHandle(self, roiItem:CanvasROI, event: QGraphicsSceneMouseEvent):
         parentItem:CanvasCommonPathItem = self.attachParent
         parentItem.endResize(event.pos())
@@ -750,6 +753,12 @@ class CanvasROIManager(QObject):
                 self.addPoint(point)
             self.setShowState(False)
 
+    def syncRoiItemsFromPolygon(self, posList:list):
+        if len(posList) > 0:
+            for i in range(0, len(posList)):
+                point:QPoint = posList[i]
+                self.roiItemList[i].setPos(point)
+
 class CanvasCommonPathItem(QGraphicsPathItem):
     '''
     绘图工具-通用Path图元
@@ -811,6 +820,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         self.devicePixelRatio = 1
 
         self.isPreview = 0
+        self.transformComponent = TransformComponent()
 
     def removeROIAfterCallback(self, index:int):
         self.polygon.remove(index)
@@ -1056,16 +1066,29 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         self.originPos = self.boundingRect().center()
         self.setTransformOriginPoint(self.originPos)
         self.m_pressPos = localPos
+        self.oldRotate = self.rotation()
     
     def endRotate(self, localPos:QPointF) -> None:
-        pass
+        self.transformComponent.rotatedSignal.emit(self, self.oldRotate, self.rotation())
 
     def startResize(self, localPos:QPointF) -> None:
-        pass
+        self.oldPolygon = QPolygonF(self.polygon)
+        roiPosList = []
+        for value in self.roiMgr.roiItemList:
+            roiItem:CanvasROI = value
+            roiPosList.append(roiItem.pos())
+        self.oldRoiPosList = roiPosList
 
     def endResize(self, localPos:QPointF) -> None:
+        roiPosList = []
+        for value in self.roiMgr.roiItemList:
+            roiItem:CanvasROI = value
+            roiPosList.append(roiItem.pos())
+        self.transformComponent.resizedSignal.emit(self, (self.oldPolygon, self.oldRoiPosList), (QPolygonF(self.polygon), roiPosList))
+        self.refreshTransformOriginPoint()
+
+    def refreshTransformOriginPoint(self):
         self.prepareGeometryChange()
-        self.update()
 
         rect = self.attachPath.boundingRect()
         # 计算正常旋转角度（0度）下，中心的的坐标
@@ -1102,6 +1125,9 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         return super().wheelEvent(event)
+
+    def syncRoiItemsFromPolygon(self, posList:list):
+        self.roiMgr.syncRoiItemsFromPolygon(posList)
 
 class CanvasAttribute(QObject):
     valueChangedSignal = pyqtSignal(QVariant)
@@ -1176,3 +1202,14 @@ class ZoomComponent(QObject):
         # set scene scale
         if not clamped or self.zoomClamp is False:
             self.signal.emit(zoomFactor)
+
+class TransformComponent(QObject):
+    '''变换组件'''
+
+    ResizeAction = 2
+    MoveAction = 2
+    RotateAction = 3
+
+    movedSignal = pyqtSignal(QGraphicsItem, QPointF, QPointF)
+    resizedSignal = pyqtSignal(QGraphicsItem, tuple, tuple)
+    rotatedSignal = pyqtSignal(QGraphicsItem, float, float)

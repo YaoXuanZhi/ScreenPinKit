@@ -35,6 +35,8 @@ class CanvasScene(QGraphicsScene):
     itemMovedSignal = pyqtSignal(QGraphicsItem, QPointF, QPointF)
     itemDeleteSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
     itemAddSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
+    itemRotatedSignal = pyqtSignal(QGraphicsItem, float, float)
+    itemResizedSignal = pyqtSignal(QGraphicsItem, tuple, tuple)
 
     def __init__(self, parent=None, backgroundBrush:QBrush = None):
         super().__init__(parent)
@@ -162,6 +164,9 @@ class CanvasScene(QGraphicsScene):
         if self._itemNotifyCallBack != None:
             if isOk:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, item)
+                if hasattr(item, "transformComponent"):
+                    item.transformComponent.rotatedSignal.connect(self.itemRotatedSignal)
+                    item.transformComponent.resizedSignal.connect(self.itemResizedSignal)
             else:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.EndDrawedEvent, None)
 
