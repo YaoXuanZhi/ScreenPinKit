@@ -139,6 +139,10 @@
         <translation>贴图</translation>
     </message>
     <message>
+        <source>Snap</source>
+        <translation>截图</translation>
+    </message>
+    <message>
         <source>ScreenShot</source>
         <translation>屏幕截图</translation>
     </message>

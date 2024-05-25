@@ -113,7 +113,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         targetRect = self.mapRectFromScene(sourceRect)
 
         # 始终将背景贴到整个view上
-        painter.drawPixmap(targetRect, self.bgPixmap, sourceRect)
+        painter.drawPixmap(targetRect.topLeft().toPoint(), self.bgPixmap)
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()

@@ -265,8 +265,10 @@ class CanvasUtil:
             h = max(h, pix.height())
             screenPixs.append(pix)
 
+        devicePixelRatio = screens[0].devicePixelRatio()
+
         finalPixmap = QPixmap(w, h)
-        finalPixmap.setDevicePixelRatio(screens[0].devicePixelRatio())
+        finalPixmap.setDevicePixelRatio(devicePixelRatio)
         finalPixmap.fill(Qt.transparent)
         painter = QPainter(finalPixmap)
         for pix in screenPixs:
@@ -276,7 +278,7 @@ class CanvasUtil:
         # # 拿到最左侧屏幕的左上角坐标
         geometryTopLeft = screens[0].geometry().topLeft()
 
-        finalGeometry = QRect(geometryTopLeft, QSize(w, h))
+        finalGeometry = QRect(geometryTopLeft, QSize(w/devicePixelRatio, h/devicePixelRatio))
         return finalPixmap, finalGeometry
 
     @staticmethod

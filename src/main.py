@@ -12,12 +12,13 @@ class MainWindow(QWidget):
         super().__init__(parent)
         self.settingWindow = None
         self.keyObj = None
+        self.screenShotWindow = None
         self.initSystemTrayMenu()
         self.initHotKey()
 
     def initSystemTrayMenu(self):
         trayMenuActions = [
-            Action(ScreenShotIcon.LOGO, self.tr("ScreenShot"), triggered=self.screenShot),
+            Action(ScreenShotIcon.LOGO, self.tr("Snap"), triggered=self.screenShot),
             Action(ScreenShotIcon.SETTING, self.tr("Preferences"), triggered=self.showSettingWindow),
             Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
@@ -34,7 +35,9 @@ class MainWindow(QWidget):
         self.keyObj.addHotKey(cfg.get(cfg.switchScreenPaintModeHotKey), self.switchScreenPaintMode)
 
     def screenShot(self):
-        print(self.tr("ScreenShot"))
+        if self.screenShotWindow == None:
+            self.screenShotWindow = ScreenShotWindow()
+        self.screenShotWindow.reShow()
 
     def screenPaint(self):
         print(self.tr("ScreenPaint"))
