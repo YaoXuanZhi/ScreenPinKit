@@ -1,0 +1,17 @@
+{
+    "General": {
+        "DpiScale": "Auto",
+        "Language": "Auto",
+        "CacheFolder": "./cache"
+    },
+
+    "HotKey": {
+        "ScreenShot": "f7",
+        "ScreenPaint": "f4",
+        "MouseThough": "alt+f",
+        "ShowClipboard": "f2"
+    },
+    "Update": {
+        "CheckUpdateAtStartUp": true
+    }
+}
