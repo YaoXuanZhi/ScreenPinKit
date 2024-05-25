@@ -7,24 +7,6 @@ from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, Boo
                             ColorConfigItem, OptionsValidator, RangeConfigItem, RangeValidator,
                             FolderListValidator, EnumSerializer, ConfigValidator, FolderValidator, ConfigSerializer)
 
-# class HotKeyValidator(ConfigValidator):
-#     """ Options validator """
-
-#     def __init__(self, options):
-#         if not options:
-#             raise ValueError("The `options` can't be empty.")
-
-#         if isinstance(options, Enum):
-#             options = options._member_map_.values()
-
-#         self.options = list(options)
-
-#     def validate(self, value):
-#         return value in self.options
-
-#     def correct(self, value):
-#         return value if self.validate(value) else self.options[0]
-
 class Language(Enum):
     """ Language enumeration """
 
@@ -64,6 +46,8 @@ class Config(QConfig):
         "HotKey", "MouseThough", "", ConfigValidator())
     showClipboardHotKey = ConfigItem(
         "HotKey", "ShowClipboard", "", ConfigValidator())
+    switchScreenPaintModeHotKey = ConfigItem(
+        "HotKey", "SwitchScreenPaintMode", "", ConfigValidator())
 
     # Software Update
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())

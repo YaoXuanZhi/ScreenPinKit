@@ -154,5 +154,13 @@
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
+    <message>
+        <source>SwitchMouseThroughState</source>
+        <translation>切换鼠标穿透</translation>
+    </message>
+    <message>
+        <source>SwitchScreenPaintMode</source>
+        <translation>切换桌面绘图模式</translation>
+    </message>
 </context>
 </TS>
