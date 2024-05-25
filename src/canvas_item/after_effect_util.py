@@ -1,0 +1,214 @@
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PIL import ImageFilter, Image
+
+class AfterEffectUtilByPIL:
+    '''
+    基于PIL实现的图像后处理效果
+    '''
+    @staticmethod
+    def gaussianBlur(pixmap:QPixmap, blurRadius = 5):
+        '''高斯模糊'''
+        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.GaussianBlur(radius=blurRadius))
+
+    @staticmethod
+    def mosaic(pixmap:QPixmap, blockSize = 2, pixelateFactor = 1):
+        '''
+        马赛克效果
+        由于那种逐个像素遍历的处理太低效了，最终采取了网友分享的思路：
+        https://blog.csdn.net/qq_38563206/article/details/136030277
+        '''
+        width = pixmap.width()
+        height = pixmap.height()
+        tempImage = pixmap.toImage()
+        if tempImage.format() != QImage.Format.Format_RGB32:
+            tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+
+        image = Image.fromqimage(tempImage)
+    
+        # 计算图像的宽度和高度
+        width, height = image.size
+    
+        # 计算马赛克块的数量
+        num_blocks_width = max(width // blockSize, 1)
+        num_blocks_height = max(height // blockSize, 1)
+    
+        # 缩小图像，创建马赛克效果
+        blockSourceImage = image.resize((num_blocks_width, num_blocks_height))
+        # 放大图像，增加马赛克强度
+        finalImage = blockSourceImage.resize((width // pixelateFactor, height // pixelateFactor), Image.NEAREST)
+        finalImage = finalImage.resize((width, height), Image.NEAREST)
+        return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+
+    # @staticmethod
+    # def mosaic2(pixmap:QPixmap, blockSize = 16):
+    #     '''马赛克效果(效率太低，废弃)'''
+    #     width = pixmap.width()
+    #     height = pixmap.height()
+    #     tempImage = pixmap.toImage()
+    #     if tempImage.format() != QImage.Format.Format_RGB32:
+    #         tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+
+    #     image = Image.fromqimage(tempImage)
+
+    #     # finalImage = image.copy()
+    #     finalImage = Image.new("RGB", (width, height), (0, 0, 0))
+    #     # 在新的图片上绘制马赛克块
+    #     draw = ImageDraw.Draw(finalImage)
+    #     # 循环遍历图片中的每个块
+    #     for x in range(0, width, blockSize):
+    #         for y in range(0, height, blockSize):
+    #             # 截取当前块的区域
+    #             box = (x, y, x+blockSize, y+blockSize)
+    #             block = image.crop(box)
+    #             # 计算当前块的平均颜色
+    #             r, g, b = block.resize((1, 1)).getpixel((0, 0))
+    #             color = (r, g, b)
+    #             draw.rectangle(box, fill=color)
+
+    #     return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+
+    @staticmethod
+    def effectUtilByPIL(pixmap:QPixmap, effectFilter:ImageFilter.MultibandFilter):
+        '''
+        PIL图像处理
+        这篇博客介绍得比较完整：https://www.cnblogs.com/traditional/p/11111770.html
+        '''
+        width = pixmap.width()
+        height = pixmap.height()
+        tempImage = pixmap.toImage()
+        if tempImage.format() != QImage.Format.Format_RGB32:
+            tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+
+        image = Image.fromqimage(tempImage)
+
+        # 图像处理
+        finalImage =  image.filter(effectFilter)
+
+        return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+
+    @staticmethod
+    def effectDemos(pixmap:QPixmap):
+        # 图像模糊
+        # return ImageEffectUtil.effectUtilByPIL(pixmap, ImageFilter.BLUR)
+
+        # 图像突出
+        # return ImageEffectUtil.effectUtilByPIL(pixmap, ImageFilter.DETAIL)
+
+        # 边缘提取
+        # return ImageEffectUtil.effectUtilByPIL(pixmap, ImageFilter.FIND_EDGES)
+
+        # 轮廓提取
+        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
+
+# class AfterEffectUtilByCv:
+#     '''
+#     基于OpenCv实现的图像后处理效果，依赖重遂放弃
+#     '''
+#     @staticmethod
+#     def gaussianBlur(pixmap:QPixmap, blurRadius=5):
+#         return AfterEffectUtilByCv.gaussianBlurEffectByCv(pixmap, blurRadius)
+
+#     def mosaic(pixmap:QPixmap, blockSize=3):
+#         return AfterEffectUtilByCv.mosaicEffectByCv(pixmap, blockSize)
+
+#     @staticmethod
+#     def _mosaicEffectByCv(ndArray:np.ndarray, x, y, w, h, neighbor=2):
+#         import cv2
+#         fh, fw = ndArray.shape[0], ndArray.shape[1]
+#         if (y + h > fh) or (x + w > fw):
+#             return
+#         for i in range(0, h - neighbor, neighbor):  # 关键点0 减去neightbour 防止溢出
+#             for j in range(0, w - neighbor, neighbor):
+#                 rect = [j + x, i + y, neighbor, neighbor]
+#                 color = ndArray[i + y][j + x].tolist()  # 关键点1 tolist
+#                 left_up = (rect[0], rect[1])
+#                 right_down = (rect[0] + neighbor - 1, rect[1] + neighbor - 1)  # 关键点2 减去一个像素
+#                 cv2.rectangle(ndArray, left_up, right_down, color, -1)
+
+#     @staticmethod
+#     def mosaicEffectByCv(pixmap:QPixmap, blockSize = 3):
+#         '''马赛克效果'''
+#         tempImage = pixmap.toImage()
+#         if tempImage.format() != QImage.Format.Format_RGB32:
+#             tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+
+#         image = Image.fromqimage(tempImage)
+#         width, height = pixmap.width(), pixmap.height()
+#         ndArray = np.array(image)
+
+#         AfterEffectUtilByCv._mosaicEffectByCv(ndArray, 0, 0, width, height, blockSize)
+    
+#         return QPixmap.fromImage(QImage(ndArray, width, height, 3*width, QImage.Format.Format_RGB888))
+
+#     @staticmethod
+#     def gaussianBlurEffectByCv(pixmap:QPixmap, blurRadius=5):
+#         import cv2
+#         '''高斯模糊效果'''
+#         tempImage = pixmap.toImage()
+#         if tempImage.format() != QImage.Format.Format_RGB32:
+#             tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+
+#         image = Image.fromqimage(tempImage)
+#         width, height = pixmap.width(), pixmap.height()
+#         ndArray = np.array(image)
+
+#         blurred = cv2.GaussianBlur(ndArray, (blurRadius, blurRadius), 0)
+#         return QPixmap.fromImage(QImage(blurred.data, width, height, 3*width, QImage.Format.Format_RGB888))
+
+class BlurEffectThread(QThread):
+    """ 
+    Blur album cover thread
+    参考acrylic_label.py控件的实现，实现后处理缓存机制
+    """
+
+    blurFinished = pyqtSignal(QPixmap)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.pixmap = None
+        self.blurRadius = 7
+        self.maxSize = None
+
+    def run(self):
+        if not self.pixmap:
+            return
+
+        # pixmap = AfterEffectUtilByCv.gaussianBlur(
+        #     self.pixmap, self.blurRadius)
+
+        pixmap = AfterEffectUtilByPIL.gaussianBlur(
+            self.pixmap, self.blurRadius)
+        self.blurFinished.emit(pixmap)
+
+    def blur(self, pixmap: QPixmap, blurRadius=6, maxSize: tuple = None):
+        self.pixmap = pixmap
+        self.blurRadius = blurRadius
+        self.maxSize = maxSize or self.maxSize
+        self.start()
+
+class BlurManager(QObject):
+    """ Blur Manager """
+
+    _instance = None
+    _lastBlurPixmap:QPixmap = None
+
+    def __init__(self):
+        super().__init__()
+
+        self.blurRadius = 3
+        self.maxBlurSize = None
+        self.blurThread = BlurEffectThread()
+
+    def saveBlurPixmap(self, sourcePixmap):
+        self.blurThread.blurFinished.connect(self.__onBlurFinished)
+        self.blurThread.blur(sourcePixmap, self.blurRadius, self.maxBlurSize)
+
+    def __onBlurFinished(self, blurPixmap: QPixmap):
+        """ blur finished slot """
+        self._lastBlurPixmap:QPixmap = blurPixmap
+
+    @property
+    def lastBlurPixmap(self) -> QPixmap: return self._lastBlurPixmap
