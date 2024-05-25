@@ -164,30 +164,31 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
         return super().paint(painter, option, widget)
 
     def getControllerPosition(self, rect:QRectF, radius, posType:EnumPosType):
+        offsetPoint = QPointF(radius, radius)
         if posType == EnumPosType.ControllerPosTL:
             # 左上角
-            return rect.topLeft() - QPointF(radius, radius)
+            return rect.topLeft() - offsetPoint
         elif posType == EnumPosType.ControllerPosTC:
             # 顶端居中
-            return (rect.topLeft() + rect.topRight()) / 2 - QPointF(radius, radius)
+            return (rect.topLeft() + rect.topRight()) / 2 - offsetPoint
         elif posType == EnumPosType.ControllerPosTR:
             # 右上角
-            return rect.topRight() - QPointF(radius, radius)
+            return rect.topRight() - offsetPoint
         elif posType == EnumPosType.ControllerPosRC:
             # 右侧居中
-            return (rect.topRight() + rect.bottomRight()) / 2 - QPointF(radius, radius)
+            return (rect.topRight() + rect.bottomRight()) / 2 - offsetPoint
         elif posType == EnumPosType.ControllerPosBL:
             # 左下角
-            return rect.bottomLeft() - QPointF(radius, radius)
+            return rect.bottomLeft() - offsetPoint
         elif posType == EnumPosType.ControllerPosBC:
             # 底端居中
-            return (rect.bottomLeft() + rect.bottomRight()) / 2 - QPointF(radius, radius)
+            return (rect.bottomLeft() + rect.bottomRight()) / 2 - offsetPoint
         elif posType == EnumPosType.ControllerPosBR:
             # 右下角
-            return rect.bottomRight() - QPointF(radius, radius)
+            return rect.bottomRight() - offsetPoint
         elif posType == EnumPosType.ControllerPosLC:
             # 左侧居中
-            return (rect.topLeft() + rect.bottomLeft()) / 2 - QPointF(radius, radius)
+            return (rect.topLeft() + rect.bottomLeft()) / 2 - offsetPoint
         elif posType == EnumPosType.ControllerPosTT:
             # 顶部悬浮
             hoverDistance = 30
@@ -999,8 +1000,12 @@ class CanvasCommonPathItem(QGraphicsPathItem):
                 self.roiMgr.setShowState(False)
                 self.isPreview = 0
 
+    def getEdgeOffset(self) -> int:
+        return -self.radius
+
     def updateEdge(self, currentPosType, localPos:QPoint):
-        offset = -self.radius
+        # offset = -self.radius
+        offset = self.getEdgeOffset()
         lastRect = self.polygon.boundingRect().toRect()
         newRect = lastRect.adjusted(0, 0, 0, 0)
         if currentPosType == EnumPosType.ControllerPosTL:

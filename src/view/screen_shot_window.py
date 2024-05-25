@@ -22,6 +22,7 @@ class ScreenShotView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
 
 class ScreenShotScene(QGraphicsScene):
+    exitSignal = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
         self.sceneRectChanged.connect(self.onSceneRectChanged)
@@ -54,6 +55,10 @@ class ScreenShotScene(QGraphicsScene):
         super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        if event.button() == Qt.MouseButton.RightButton:
+            self.cancelScreenShot()
+            return
+
         item = None
         itemList = self.items(event.scenePos())
         if len(itemList) > 0:
@@ -68,8 +73,6 @@ class ScreenShotScene(QGraphicsScene):
             isSkip = True
 
         if isSkip:
-            if event.button() == Qt.MouseButton.RightButton:
-                self.cancelScreenShot()
             return super().mousePressEvent(event)
 
         if event.button() == Qt.LeftButton:
@@ -99,9 +102,11 @@ class ScreenShotScene(QGraphicsScene):
 
     def cancelScreenShot(self):
         if self.lastAddItem != None:  # 清空已划定的的截图区域
+            print("111111111111")
             self.reset()
         else:
-            self.close()
+            print("222222222222")
+            self.exitSignal.emit()
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QPixmap)
@@ -111,7 +116,7 @@ class ScreenShotWindow(QWidget):
         self.initUI()
         self.initActions()
         self.painter = QPainter()
-        self.snipedSignal.connect(self.onSnip)
+        self.registerListen()
 
     def onSnip(self, point:QPoint, pixmap:QPixmap):
         print(f"======> {point} / {pixmap.size()}")
@@ -128,6 +133,10 @@ class ScreenShotWindow(QWidget):
         self.contentLayout = QVBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
         self.contentLayout.addWidget(self.view)
+
+    def registerListen(self):
+        self.snipedSignal.connect(self.onSnip)
+        self.scene.exitSignal.connect(lambda: self.close())
 
     def initActions(self):
         actions = [
@@ -162,10 +171,7 @@ class ScreenShotWindow(QWidget):
         self.snipedSignal.emit(screenPoint, cropPixmap)
 
     def cancelScreenShot(self):
-        if self.scene.isCapturing():
-            self.scene.cancelScreenShot()
-        else:
-            self.close()
+        self.scene.cancelScreenShot()
 
     def reShow(self):
         if self.isActiveWindow():

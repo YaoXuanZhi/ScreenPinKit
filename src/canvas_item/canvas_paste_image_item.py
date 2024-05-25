@@ -8,14 +8,22 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
     def __init__(self, bgBrush:QBrush, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
+        self.radius = 5
         self.bgBrush = bgBrush
         self.bgPixmap = self.bgBrush.texture()
+        finalPixmap, finalGeometry = CanvasUtil.grabScreens()
+        self.limitRect = finalGeometry
+
+        self.edgeColor = QColor(30, 120, 255, 255)
+
+    def getEdgeOffset(self) -> int:
+        return 0
 
     def __initEditMode(self):
         # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
         # self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
-        # self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasEraserRectItem.value
@@ -47,6 +55,7 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
         painter.drawPixmap(targetRect.topLeft().toPoint(), self.bgPixmap)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        print(f"===========> {self.limitRect} {event.pos()}")
         return super().mouseMoveEvent(event)
 
     def getStretchableRect(self) -> QRect:
@@ -54,3 +63,34 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+        self.devicePixelRatio = painter.device().devicePixelRatioF()
+        painter.save()
+        self.customPaint(painter, self.attachPath)
+        painter.restore()
+
+        painter.save()
+        painter.setPen(QPen(self.edgeColor, 2, Qt.PenStyle.SolidLine))
+        rect = self.getStretchableRect()
+        painter.drawRect(rect)
+        painter.restore()
+
+        # 更新边框操作点位置
+        if self.isBorderEditableMode():
+            if self.hasFocusWrapper():
+                self.initControllers()
+            else:
+                self.hideControllers()
+
+    def initControllers(self):
+        super().initControllers()
+
+        if hasattr(self, "controllers"):
+            pen = QPen()
+            pen.setColor(Qt.GlobalColor.white)
+            pen.setWidth(1)
+            brush = QBrush(self.edgeColor)
+            for item in self.controllers:
+                item.setPen(pen)
+                item.setBrush(brush)
