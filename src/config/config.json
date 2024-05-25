@@ -4,14 +4,17 @@
         "Language": "Auto",
         "CacheFolder": "./cache"
     },
-
-    "HotKey": {
-        "ScreenShot": "f7",
-        "ScreenPaint": "f4",
-        "MouseThough": "alt+f",
-        "ShowClipboard": "f2"
-    },
     "Update": {
         "CheckUpdateAtStartUp": true
+    },
+    "HotKey": {
+        "MouseThough": "alt+f",
+        "ScreenPaint": "f4",
+        "ScreenShot": "f7",
+        "ShowClipboard": "f2"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Auto"
     }
 }

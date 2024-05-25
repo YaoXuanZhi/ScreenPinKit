@@ -10,26 +10,30 @@ from view import *
 class MainWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.settingWindow = None
         self.initUI()
-
-    def initUI(self):
         self.initSystemTrayMenu()
-
-        self.hBoxLayout = QHBoxLayout(self)
-        self.button = QPushButton("Hello World")
-        self.button.clicked.connect(self.printConfig)
-        self.hBoxLayout.addWidget(self.button)
-        
         self.show()
 
+    def initUI(self):
+        # self.setWindowIcon(ScreenShotIcon.icon(ScreenShotIcon.LOGO))
+        self.setWindowIcon(QIcon(":/qfluentwidgets/images/logo.png"))
+        self.setWindowTitle(APP_NAME)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.button = QPushButton(self.tr("Hello World"))
+        self.button.clicked.connect(self.printConfig)
+        self.hBoxLayout.addWidget(self.button)        
+
+        self.resize(280, 100)
+
     def initSystemTrayMenu(self):
-        self.setWindowIcon(ScreenShotIcon.icon(ScreenShotIcon.LOGO))
         trayMenuActions = [
-            Action(ScreenShotIcon.LOGO, '截图', triggered=self.screenShot),
-            Action(ScreenShotIcon.SETTING, '首选项', triggered=self.showSettingWindow),
-            Action(ScreenShotIcon.QUIT, '退出', triggered=self.exit),
+            Action(ScreenShotIcon.LOGO, self.tr("ScreenShot"), triggered=self.screenShot),
+            Action(ScreenShotIcon.SETTING, self.tr("Preferences"), triggered=self.showSettingWindow),
+            Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
-        self.systemTrayIcon = SystemTrayIcon(self, "ScreenPinKit", self.windowIcon(), trayMenuActions, self.screenShot)
+        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, self.windowIcon(), trayMenuActions, self.screenShot)
         self.systemTrayIcon.show()
 
     def printConfig(self):
@@ -42,14 +46,18 @@ class MainWindow(QWidget):
         print(f"{cfg.get(cfg.mouseThoughHotKey)}")
         print(f"{cfg.get(cfg.showClipboardHotKey)}")
 
+        self.showSettingWindow()
+
     def screenShot(self):
-        print("屏幕截图")
+        print(self.tr("ScreenShot"))
 
     def screenPaint(self):
-        print("屏幕绘图")
+        print(self.tr("ScreenPaint"))
 
     def showSettingWindow(self):
-        print("打开设置界面")
+        if self.settingWindow == None:
+            self.settingWindow = SettingWindow()
+        self.settingWindow.show()
 
     def exit(self):
         sys.exit(0)
@@ -66,8 +74,18 @@ if __name__ == '__main__':
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
+    # create application
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
+
+    # internationalization
+    locale = cfg.get(cfg.language).value
+    fluentTranslator = FluentTranslator(locale)
+    settingTranslator = QTranslator()
+    settingTranslator.load(locale, "settings", ".", "resource/i18n")
+
+    app.installTranslator(fluentTranslator)
+    app.installTranslator(settingTranslator)
 
     wnd = MainWindow()
 

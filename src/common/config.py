@@ -65,8 +65,12 @@ class Config(QConfig):
     showClipboardHotKey = ConfigItem(
         "HotKey", "ShowClipboard", "", ConfigValidator())
 
+    # Software Update
+    checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
+
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"
+APP_NAME = "ScreenPinKit"
 VERSION = "0.5"
 HELP_URL = "https://pyqt-fluent-widgets.readthedocs.io"
 FEEDBACK_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues"
