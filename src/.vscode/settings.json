@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "${workspaceRoot}/../run_dir/paddleocr_env/python.exe",
+    "terminal.integrated.automationShell.windows": "${workspaceRoot}/../run_ocr.bat"
+}
