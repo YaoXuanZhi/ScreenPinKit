@@ -21,9 +21,6 @@ class SettingInterface(ScrollArea):
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
-        # setting label
-        self.settingLabel = QLabel(self.tr("Preferences"), self)
-
         # music folders
         self.musicInThisPCGroup = SettingCardGroup(
             self.tr("General"), self.scrollWidget)
@@ -80,14 +77,6 @@ class SettingInterface(ScrollArea):
 
         # application
         self.aboutGroup = SettingCardGroup(self.tr('About'), self.scrollWidget)
-        self.helpCard = HyperlinkCard(
-            HELP_URL,
-            self.tr('Open help page'),
-            FIF.HELP,
-            self.tr('Help'),
-            self.tr('Discover new features and learn useful tips about PyQt-Fluent-Widgets'),
-            self.aboutGroup
-        )
         self.feedbackCard = PrimaryPushSettingCard(
             self.tr('Provide feedback'),
             FIF.FEEDBACK,
@@ -107,9 +96,10 @@ class SettingInterface(ScrollArea):
         self.__initWidget()
 
     def __initWidget(self):
-        self.resize(1000, 800)
+        self.resize(600, 800)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, 120, 0, 20)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, 30, 0, 20)
         self.setWidget(self.scrollWidget)
         self.setWidgetResizable(True)
 
@@ -121,8 +111,6 @@ class SettingInterface(ScrollArea):
         self.__connectSignalToSlot()
 
     def __initLayout(self):
-        self.settingLabel.move(60, 63)
-
         # add cards to group
         self.musicInThisPCGroup.addSettingCard(self.cacheFolderCard)
 
@@ -132,7 +120,6 @@ class SettingInterface(ScrollArea):
 
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
-        self.aboutGroup.addSettingCard(self.helpCard)
         self.aboutGroup.addSettingCard(self.feedbackCard)
         self.aboutGroup.addSettingCard(self.aboutCard)
 
@@ -147,7 +134,6 @@ class SettingInterface(ScrollArea):
     def __setQss(self):
         """ set style sheet """
         self.scrollWidget.setObjectName('scrollWidget')
-        self.settingLabel.setObjectName('settingLabel')
 
         theme = 'dark' if isDarkTheme() else 'light'
         with open(f'resource/qss/{theme}/setting_interface.qss', encoding='utf-8') as f:

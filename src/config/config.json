@@ -1,8 +1,8 @@
 {
     "General": {
+        "CacheFolder": "D:/OpenSource/ScreenPinKit/src/cache",
         "DpiScale": "Auto",
-        "Language": "Auto",
-        "CacheFolder": "./cache"
+        "Language": "Auto"
     },
     "Update": {
         "CheckUpdateAtStartUp": true

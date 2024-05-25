@@ -12,22 +12,8 @@ class MainWindow(QWidget):
         super().__init__(parent)
         self.settingWindow = None
         self.keyObj = None
-        self.initUI()
         self.initSystemTrayMenu()
         self.initHotKey()
-        self.show()
-
-    def initUI(self):
-        # self.setWindowIcon(ScreenShotIcon.icon(ScreenShotIcon.LOGO))
-        self.setWindowIcon(QIcon(":/qfluentwidgets/images/logo.png"))
-        self.setWindowTitle(APP_NAME)
-
-        self.hBoxLayout = QHBoxLayout(self)
-        self.button = QPushButton(self.tr("Hello World"))
-        self.button.clicked.connect(self.printConfig)
-        self.hBoxLayout.addWidget(self.button)        
-
-        self.resize(280, 100)
 
     def initSystemTrayMenu(self):
         trayMenuActions = [
@@ -35,7 +21,7 @@ class MainWindow(QWidget):
             Action(ScreenShotIcon.SETTING, self.tr("Preferences"), triggered=self.showSettingWindow),
             Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
-        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, self.windowIcon(), trayMenuActions, self.screenShot)
+        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, QIcon(":/qfluentwidgets/images/logo.png"), trayMenuActions, self.screenShot)
         self.systemTrayIcon.show()
 
     def initHotKey(self):
@@ -46,18 +32,6 @@ class MainWindow(QWidget):
         self.keyObj.addHotKey(cfg.get(cfg.screenShotHotKey), self.screenShot)
         self.keyObj.addHotKey(cfg.get(cfg.mouseThoughHotKey), self.switchMouseThroughState)
         self.keyObj.addHotKey(cfg.get(cfg.switchScreenPaintModeHotKey), self.switchScreenPaintMode)
-
-    def printConfig(self):
-        print(f"{cfg.get(cfg.dpiScale)}")
-        print(f"{cfg.get(cfg.language)}")
-        print(f"{cfg.get(cfg.cacheFolder)}")
-
-        print(f"{cfg.get(cfg.screenShotHotKey)}")
-        print(f"{cfg.get(cfg.screenPaintHotKey)}")
-        print(f"{cfg.get(cfg.mouseThoughHotKey)}")
-        print(f"{cfg.get(cfg.showClipboardHotKey)}")
-
-        self.showSettingWindow()
 
     def screenShot(self):
         print(self.tr("ScreenShot"))
