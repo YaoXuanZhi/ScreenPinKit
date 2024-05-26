@@ -1001,7 +1001,8 @@ class CanvasCommonPathItem(QGraphicsPathItem):
                 self.isPreview = 0
 
     def getEdgeOffset(self) -> int:
-        return -self.radius
+        # return -self.radius
+        return 0
 
     def updateEdge(self, currentPosType, localPos:QPoint):
         # offset = -self.radius

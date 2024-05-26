@@ -99,10 +99,16 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # bug:目前实现方式在该图元旋转时会出现bug
         # return self.customPaintByClip(painter, targetPath)
-        self.customPaintByCopy(painter, targetPath)
+        return self.customPaintByCopy(painter, targetPath)
 
+    def physicalRectF(self, rectf:QRectF):
+        pixelRatio = self.bgPixmap.devicePixelRatio()
+        return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
+                      rectf.width() * pixelRatio, rectf.height() * pixelRatio)
     def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        painter.drawPixmap(self.boundingRect(), self.bgPixmap, self.sceneBoundingRect())
+        # 注意，这里面pixmap被复制的区域是经过放大后的区域，因此需要将屏幕区域做一次转换
+        physicalRect = self.physicalRectF(self.sceneBoundingRect())
+        painter.drawPixmap(self.boundingRect(), self.bgPixmap, physicalRect)
 
     def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路

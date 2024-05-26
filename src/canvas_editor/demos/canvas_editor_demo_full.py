@@ -105,9 +105,9 @@ class MainWindow(QDragWindow):
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if not self.physicalPixmap.isNull():
             extendActions = [
-                QAction('橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
-                QAction('橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
-                QAction('马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
+                QAction('橡皮擦', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
+                QAction('橡皮擦2', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
+                QAction('马赛克', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
@@ -159,7 +159,7 @@ class MainWindow(QDragWindow):
         self.physicalPixmap = QPixmap()
 
         # 截图标注模式
-        imagePath = os.path.join(os.path.dirname(__file__), "screen 1027-345.png")
+        imagePath = os.path.join(os.path.dirname(__file__), "screen 451-180.png")
         self.physicalPixmap = QPixmap(imagePath)
 
         finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
