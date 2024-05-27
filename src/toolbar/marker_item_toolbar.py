@@ -3,8 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
 from common import ScreenShotIcon
-from .color_picker_button_plus import *
-from .font_picker_button_plus import *
+from extend_widgets import *
 from canvas_item import *
 from .canvas_item_toolbar import *
 

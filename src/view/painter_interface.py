@@ -10,7 +10,7 @@ from qfluentwidgets import *
 
 from canvas_editor import CanvasEditor, DrawActionEnum, SceneUserNotifyEnum
 from canvas_item import *
-from extend_widgets import *
+from toolbar import *
 
 # 绘制动作
 class DrawAction():

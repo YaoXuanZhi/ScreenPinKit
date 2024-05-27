@@ -3,21 +3,20 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
-from common import ScreenShotIcon
-from .color_picker_button_plus import *
-from .font_picker_button_plus import *
 from canvas_editor import *
 from canvas_item import *
+from extend_widgets import *
+from .painter_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
-from .bubble_tip import *
 from .erase_toolbar import *
-from .marker_item_toolbar import *
 from .pen_toolbar import *
-from .blur_toolbar import *
 from .common_path_toolbar import *
-from .polygonal_toolbar import *
 from .arrow_toolbar import *
+from .marker_item_toolbar import *
+from .polygonal_toolbar import *
+from .canvas_item_toolbar import *
+from .blur_toolbar import *
 
 class PainterToolBarManager(QObject):
     providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
