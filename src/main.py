@@ -14,6 +14,7 @@ class MainWindow(QWidget):
         self.settingWindow = None
         self.keyObj = None
         self.screenShotWindow = None
+        self.screenPaintWindow = None
         self.initSystemTrayMenu()
         self.initHotKey()
         self.initFreezeManager()
@@ -47,7 +48,11 @@ class MainWindow(QWidget):
         self.screenShotWindow.reShow()
 
     def screenPaint(self):
-        print(self.tr("ScreenPaint"))
+        if self.screenPaintWindow == None:
+            self.screenPaintWindow = ScreenPaintWindow()
+            self.screenPaintWindow.show()
+        else:
+            self.screenPaintWindow.startDraw()
 
     def showClipboard(self):
         self.pinWindowMgr.showClipboard()
@@ -58,7 +63,14 @@ class MainWindow(QWidget):
         self.settingWindow.show()
 
     def switchScreenPaintMode(self):
-        print(self.tr("SwitchScreenPaintMode"))
+        if self.screenPaintWindow == None:
+            return
+
+        if self.screenPaintWindow.isVisible():
+            self.screenPaintWindow.canvasEditor.completeDraw()
+            self.screenPaintWindow.hide()
+        else:
+            self.screenPaintWindow.show()
 
     def switchMouseThroughState(self):
         self.pinWindowMgr.switchMouseThroughState()
