@@ -1,17 +1,15 @@
 # coding=utf-8
-from datetime import datetime
-from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .drag_window import *
 
-class PinWindow(DragWindow):  # 固定图片类
+class PinWindow(DragWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent)
         self.shadowWidth = 30
         self.roundRadius = 20
-        self.borderLineWidth = 0.5
+        self.borderLineWidth = 1.5
         self.physicalPixmap = physicalPixmap
         self.setGeometry(screenPoint.x()-self.shadowWidth, screenPoint.y()-self.shadowWidth, physicalSize.width()+2*self.shadowWidth, physicalSize.height()+2*self.shadowWidth)
         self.contentRect = self.rect() - QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
@@ -28,7 +26,7 @@ class PinWindow(DragWindow):  # 固定图片类
         self.show()
 
     def defaultFlag(self):
-        self.setFocusPolicy(Qt.ClickFocus)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
@@ -51,7 +49,7 @@ class PinWindow(DragWindow):  # 固定图片类
         self.blinkTimers = 0
         self.blinkColor = self.blinkColors[self.blinkTimers]
 
-        self.blinkTimer = QtCore.QTimer(self)
+        self.blinkTimer = QTimer(self)
         self.blinkTimer.timeout.connect(self.onBlinkTimerTimeout)
         self.blinkTimer.start(300)
 
@@ -64,6 +62,8 @@ class PinWindow(DragWindow):  # 固定图片类
             self.blinkTimer.stop()
             self.blinkColor = None
             self.update()
+            self.activateWindow()
+            self.setFocus()
 
     def isAllowDrag(self):
         return True
@@ -111,7 +111,7 @@ class PinWindow(DragWindow):  # 固定图片类
         # 绘制闪烁边框
         if self.blinkColor != None:
             blinkPen = QPen(self.blinkColor)  # 实线，浅蓝色
-            blinkPen.setStyle(QtCore.Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+            blinkPen.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
             blinkPen.setWidthF(self.borderLineWidth)  # 0表示线宽为1
             self.painter.setPen(blinkPen)
             if self.isUseRoundStyle:
