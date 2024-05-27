@@ -376,7 +376,10 @@ class ScreenShotWindow(QWidget):
         '''计算划定的截图区域的（缩放倍率1.0的）原始矩形（会变大）
         rectf：划定的截图区域的矩形。可为QRect或QRectF'''
         if isExpand:
-            pixelRatio = self.screenPixmap.devicePixelRatio() + 0.0005
+            if self.screenPixmap.devicePixelRatio() > 1:
+                pixelRatio = self.screenPixmap.devicePixelRatio() + 0.001
+            else:
+                pixelRatio = self.screenPixmap.devicePixelRatio() + 0.0005
         else:
             pixelRatio = self.screenPixmap.devicePixelRatio()
         return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,

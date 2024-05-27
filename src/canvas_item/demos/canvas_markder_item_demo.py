@@ -40,7 +40,7 @@ class DrawingView(QGraphicsView):
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
-                    self.currentItem = CanvasMarkderItem(QRectF(0, 0, 20, 20))
+                    self.currentItem = CanvasMarkerItem(QRectF(0, 0, 20, 20))
 
                     self.scene().addItem(self.currentItem)
 

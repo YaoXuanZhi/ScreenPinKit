@@ -1,12 +1,12 @@
 from .canvas_util import *
 
-class CanvasMarkderItem(QGraphicsRectItem):
+class CanvasMarkerItem(QGraphicsRectItem):
     markderIndex = 0
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
         self.__initStyle()
         self.setDefaultFlag()
-        CanvasMarkderItem.markderIndex = self.markderIndex + 1
+        CanvasMarkerItem.markderIndex = self.markderIndex + 1
         self.showText = f"{self.markderIndex}"
         self.transformComponent = TransformComponent()
 

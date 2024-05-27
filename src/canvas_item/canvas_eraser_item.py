@@ -105,6 +105,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         pixelRatio = self.bgPixmap.devicePixelRatio()
         return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
                       rectf.width() * pixelRatio, rectf.height() * pixelRatio)
+
     def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # 注意，这里面pixmap被复制的区域是经过放大后的区域，因此需要将屏幕区域做一次转换
         physicalRect = self.physicalRectF(self.sceneBoundingRect())

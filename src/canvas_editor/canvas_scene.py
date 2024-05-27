@@ -242,7 +242,7 @@ class CanvasScene(QGraphicsScene):
                         self.pathItem.setPos(targetPos)
                         self.__completeDraw(self.pathItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerItem:
-                        self.pathItem = CanvasMarkderItem(QRectF(0, 0, 50, 50))
+                        self.pathItem = CanvasMarkerItem(QRectF(0, 0, 50, 50))
                         self.__startDraw(self.pathItem)
                         targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)

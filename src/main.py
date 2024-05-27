@@ -61,7 +61,7 @@ class MainWindow(QWidget):
         print(self.tr("SwitchScreenPaintMode"))
 
     def switchMouseThroughState(self):
-        print(self.tr("SwitchMouseThroughState"))
+        self.pinWindowMgr.switchMouseThroughState()
 
     def onScreenShotWindowClosed(self):
         self.screenShotWindow.destroy()

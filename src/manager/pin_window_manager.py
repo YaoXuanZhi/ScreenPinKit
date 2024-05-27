@@ -1,5 +1,6 @@
 import os, glob, re
 from base import *
+from view import *
 
 class PinWindowManager():
     def __init__(self):
@@ -15,7 +16,8 @@ class PinWindowManager():
 
     def addPinWindow(self, screenPoint:QPoint, realSize:QSize, pixmap:QPixmap):
         index = len(self._windows)
-        self._windows.append(PinWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(index)))
+        # self._windows.append(PinWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(index)))
+        self._windows.append(PinEditorWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(index)))
 
     def showClipboard(self):
         '''将剪贴板上的图像数据作为冻结窗口'''
