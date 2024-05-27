@@ -6,6 +6,7 @@ from PyQt5.QtCore import *
 from qfluentwidgets import *
 from common import *
 from view import *
+from manager import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -15,6 +16,10 @@ class MainWindow(QWidget):
         self.screenShotWindow = None
         self.initSystemTrayMenu()
         self.initHotKey()
+        self.initFreezeManager()
+
+    def initFreezeManager(self):
+        self.pinWindowMgr = PinWindowManager()
 
     def initSystemTrayMenu(self):
         trayMenuActions = [
@@ -37,13 +42,14 @@ class MainWindow(QWidget):
     def screenShot(self):
         if self.screenShotWindow == None:
             self.screenShotWindow = ScreenShotWindow()
+            self.screenShotWindow.snipedSignal.connect(self.pinWindowMgr.snip)
         self.screenShotWindow.reShow()
 
     def screenPaint(self):
         print(self.tr("ScreenPaint"))
 
     def showClipboard(self):
-        print(self.tr("ShowClipboard"))
+        self.pinWindowMgr.showClipboard()
 
     def showSettingWindow(self):
         if self.settingWindow == None:

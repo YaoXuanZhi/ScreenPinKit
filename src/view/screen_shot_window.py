@@ -3,7 +3,7 @@ from qfluentwidgets import (RoundMenu, Action, FluentIcon, InfoBar, InfoBarPosit
 from canvas_item import *
 
 class ScreenShotWindow(QWidget):
-    snipedSignal = pyqtSignal(QPoint, QPixmap)
+    snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
     def __init__(self):
         super().__init__()
         self.defaultFlag()
@@ -13,7 +13,6 @@ class ScreenShotWindow(QWidget):
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
         self.initActions()
         self.setWindowOpacity(0.5)
-        self.snipedSignal.connect(self.onSnip)
 
     def initActions(self):
         actions = [
@@ -23,9 +22,6 @@ class ScreenShotWindow(QWidget):
         ]
         self.addActions(actions)
 
-    def onSnip(self, point:QPoint, pixmap:QPixmap):
-        print(f"======> {point} / {pixmap.size()}")
-
     def defaultFlag(self):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
@@ -34,8 +30,8 @@ class ScreenShotWindow(QWidget):
 
     def copyToClipboard(self):
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
-        realCropRect = self.physicalRectF(cropRect)
-        if realCropRect.toRect().size().toSize() != QSize(0, 0):
+        realCropRect = self.physicalRectF(cropRect).toRect()
+        if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             QApplication.clipboard().setPixmap(cropPixmap)
         self.clearScreenShot(False)
@@ -46,10 +42,10 @@ class ScreenShotWindow(QWidget):
             return
 
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
-        realCropRect = self.physicalRectF(cropRect)
+        realCropRect = self.physicalRectF(cropRect).toRect()
         cropPixmap = self.screenPixmap.copy(realCropRect)
         screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
-        self.snipedSignal.emit(screenPoint, cropPixmap)
+        self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
         self.clearScreenShot(False)
         self.close()
 
