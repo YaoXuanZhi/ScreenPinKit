@@ -43,6 +43,7 @@ class MainWindow(QWidget):
         if self.screenShotWindow == None:
             self.screenShotWindow = ScreenShotWindow()
             self.screenShotWindow.snipedSignal.connect(self.pinWindowMgr.snip)
+            self.screenShotWindow.closedSignal.connect(self.onScreenShotWindowClosed)
         self.screenShotWindow.reShow()
 
     def screenPaint(self):
@@ -61,6 +62,10 @@ class MainWindow(QWidget):
 
     def switchMouseThroughState(self):
         print(self.tr("SwitchMouseThroughState"))
+
+    def onScreenShotWindowClosed(self):
+        self.screenShotWindow.destroy()
+        self.screenShotWindow = None
 
     def exit(self):
         sys.exit(0)

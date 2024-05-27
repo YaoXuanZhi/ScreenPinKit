@@ -3,6 +3,7 @@ from canvas_item import *
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
+    closedSignal = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.defaultFlag()
@@ -34,7 +35,7 @@ class ScreenShotWindow(QWidget):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             QApplication.clipboard().setPixmap(cropPixmap)
         self.clearScreenShot(False)
-        self.delayClose()
+        self.close()
 
     def snip(self):
         if not self.hasScreenShot:
@@ -47,7 +48,7 @@ class ScreenShotWindow(QWidget):
             screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
         self.clearScreenShot(False)
-        self.delayClose()
+        self.close()
 
     def initPainterTool(self):
         self.painter = QPainter()
@@ -381,12 +382,6 @@ class ScreenShotWindow(QWidget):
         return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
                       rectf.width() * pixelRatio, rectf.height() * pixelRatio)
 
-    def delayClose(self):
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.onDelayClose)
-        self.timer.setInterval(100)
-        self.timer.start()
-
-    def onDelayClose(self):
-        self.timer.stop()
-        self.close()
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        self.closedSignal.emit()
+        return super().closeEvent(a0)
