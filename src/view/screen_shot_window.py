@@ -34,7 +34,7 @@ class ScreenShotWindow(QWidget):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             QApplication.clipboard().setPixmap(cropPixmap)
         self.clearScreenShot(False)
-        self.close()
+        self.delayClose()
 
     def snip(self):
         if not self.hasScreenShot:
@@ -47,7 +47,7 @@ class ScreenShotWindow(QWidget):
             screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
         self.clearScreenShot(False)
-        self.close()
+        self.delayClose()
 
     def initPainterTool(self):
         self.painter = QPainter()
@@ -97,7 +97,7 @@ class ScreenShotWindow(QWidget):
     def normalizeRectF(self, topLeftPoint, bottomRightPoint):
         return QRectF(topLeftPoint, bottomRightPoint).normalized()
 
-    def paintCenterArea(self, ptStart:QPointF, ptEnd:QPointF):
+    def paintCenterArea(self):
         (rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid) = self.getCenterInfos()
 
         # 绘制已选定的截图区域
@@ -307,7 +307,7 @@ class ScreenShotWindow(QWidget):
             # 绘制截图区域的周边区域遮罩层
             self.paintMaskLayer(fullScreen=False)
             # 绘制中央截图区域
-            self.paintCenterArea(self._pt_start, self._pt_end)
+            self.paintCenterArea()
         else:
             self.paintMaskLayer()
 
@@ -380,3 +380,13 @@ class ScreenShotWindow(QWidget):
             pixelRatio = self.screenPixmap.devicePixelRatio()
         return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
                       rectf.width() * pixelRatio, rectf.height() * pixelRatio)
+
+    def delayClose(self):
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.onDelayClose)
+        self.timer.setInterval(100)
+        self.timer.start()
+
+    def onDelayClose(self):
+        self.timer.stop()
+        self.close()
