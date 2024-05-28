@@ -14,6 +14,15 @@
         "ShowClipboard": "f2",
         "SwitchScreenPaintMode": "alt+l"
     },
+    "Toolbar": {
+        "useWheelZoom" : true,
+        "applyWheelItem" : false
+    },
+    "ShadowStyle": {
+        "focusColor": "#ff00ff",
+        "unFocusColor": "#7d7d7d",
+        "useRoundStyle" : true
+    },
     "QFluentWidgets": {
         "ThemeColor": "#ff009faa",
         "ThemeMode": "Auto"

@@ -50,7 +50,20 @@ class Config(QConfig):
         "HotKey", "SwitchScreenPaintMode", "", ConfigValidator())
 
     # Software Update
-    checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
+    checkUpdateAtStartUp = ConfigItem(
+        "Update", "CheckUpdateAtStartUp", True, BoolValidator())
+
+    # Toolbar
+    toolbarUseWheelZoom = ConfigItem(
+        "Toolbar", "useWheelZoom", True, BoolValidator())
+    toolbarApplyWheelItem = ConfigItem(
+        "Toolbar", "applyWheelItem", True, BoolValidator())
+
+    # ShadowStyle
+    focusShadowColor = ColorConfigItem("ShadowStyle", "focusColor", "#225C7F")
+    unFocusShadowColor = ColorConfigItem("ShadowStyle", "unFocusColor", "#7d7d7d")
+    useRoundStyle = ConfigItem(
+        "ShadowStyle", "useRoundStyle", False, BoolValidator())
 
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"

@@ -14,7 +14,7 @@ class ArrowToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "brushColor" : QColor(255, 0, 0, 100),
+            "brushColor" : QColor(255, 0, 0, 255),
             "penColor" : QColor(255, 0, 0),
             "penWidth" : 2,
             "penStyle" : Qt.PenStyle.SolidLine,

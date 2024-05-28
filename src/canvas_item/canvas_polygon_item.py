@@ -14,6 +14,7 @@ class CanvasPolygonItem(CanvasCommonPathItem):
         self.__initEditMode()
         self.__initStyle()
         self.paintPath = QPainterPath()
+        self.isCompleted = False
 
     def __initStyle(self):
         styleMap = {
@@ -60,6 +61,9 @@ class CanvasPolygonItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        if not self.isCompleted:
+            return
+
         finalStyleMap = self.styleAttribute.getValue().value()
         finalWidth = finalStyleMap["width"]
 
@@ -86,3 +90,7 @@ class CanvasPolygonItem(CanvasCommonPathItem):
         self.paintPath.clear()
         CanvasUtil.buildSegmentsPath(self.paintPath, targetPolygon, isClosePath)
         super().buildShapePath(targetPath, targetPolygon, isClosePath)
+
+    def completeDraw(self):
+        self.isCompleted = True
+        super().completeDraw()

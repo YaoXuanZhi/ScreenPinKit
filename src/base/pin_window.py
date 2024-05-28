@@ -36,13 +36,15 @@ class PinWindow(DragWindow):
         self.isUseRoundStyle = isUse
         self.update()
 
+    def setShadowColor(self, focusColor:QColor, unFocusColor:QColor):
+        self.focusColor = focusColor
+        self.unFocusColor = unFocusColor
+        self.update()
+
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             if self.isAllowDrag():
                 self.close()
-
-        if event.button() == Qt.MouseButton.RightButton:
-            self.setRoundStyle(not self.isUseRoundStyle)
 
     def initBlink(self):
         self.blinkColors = [Qt.GlobalColor.red, Qt.GlobalColor.yellow, Qt.GlobalColor.green]

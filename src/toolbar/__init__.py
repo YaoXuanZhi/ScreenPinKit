@@ -1,4 +1,4 @@
-from .painter_toolbar import *
+from .polygon_line_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
 from .erase_toolbar import *
@@ -6,7 +6,7 @@ from .pen_toolbar import *
 from .common_path_toolbar import *
 from .arrow_toolbar import *
 from .marker_item_toolbar import *
-from .polygonal_toolbar import *
+from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
 from .blur_toolbar import *
 from .painter_toolbar_manager import *

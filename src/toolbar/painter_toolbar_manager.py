@@ -6,7 +6,8 @@ from qfluentwidgets import *
 from canvas_editor import *
 from canvas_item import *
 from extend_widgets import *
-from .painter_toolbar import *
+from common import cfg
+from .polygon_line_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
 from .erase_toolbar import *
@@ -14,7 +15,7 @@ from .pen_toolbar import *
 from .common_path_toolbar import *
 from .arrow_toolbar import *
 from .marker_item_toolbar import *
-from .polygonal_toolbar import *
+from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
 from .blur_toolbar import *
 
@@ -30,6 +31,9 @@ class PainterToolBarManager(QObject):
             type(ShapeToolbar) : [DrawActionEnum.DrawRectangle, DrawActionEnum.DrawEllipse],
             type(TextEditToolbar) : [DrawActionEnum.EditText],
         }
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.zoomClamp = False
+        self.zoomComponent.signal.connect(self.wheelZoom)
 
     def close(self):
         if self.optionBar == None:
@@ -67,6 +71,10 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(self.canvasItemBar, ArrowToolbar):
             drawActionEnum = DrawActionEnum.DrawArrow
+        elif isinstance(self.canvasItemBar, PolygonLineToolbar):
+            drawActionEnum = DrawActionEnum.DrawPolygonalLine
+        elif isinstance(self.canvasItemBar, MarkerPenToolbar):
+            drawActionEnum = DrawActionEnum.UseMarkerPen
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
@@ -79,6 +87,8 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.DrawPolygonalLine
         elif isinstance(canvasItem, CanvasArrowItem):
             matchDrawActionEnum = DrawActionEnum.DrawArrow
+        elif isinstance(canvasItem, CanvasMarkerPen):
+            matchDrawActionEnum = DrawActionEnum.UseMarkerPen
 
         if drawActionEnum != matchDrawActionEnum:
             self.switchDrawTool(matchDrawActionEnum)
@@ -111,11 +121,13 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.UsePencil:
                 self.canvasItemBar = PenToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                self.canvasItemBar = PolygonalToolbar(parent=self.targetWidget)
+                self.canvasItemBar = PolygonLineToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawArrow:
                 self.canvasItemBar = ArrowToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseMarkerItem:
                 self.canvasItemBar = MarkerItemToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UseMarkerPen:
+                self.canvasItemBar = MarkerPenToolbar(parent=self.targetWidget)
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
@@ -125,3 +137,11 @@ class PainterToolBarManager(QObject):
             orientLength=4,
             parent=self.targetWidget,
             )
+
+    def wheelZoom(self, angleDelta:int):
+        if self.canvasItemBar == None:
+            return
+
+        if cfg.get(cfg.toolbarUseWheelZoom):
+            if hasattr(self.canvasItemBar, "wheelZoom"):
+                self.canvasItemBar.wheelZoom(angleDelta)

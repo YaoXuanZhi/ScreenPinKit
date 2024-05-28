@@ -11,27 +11,29 @@ class CanvasEraserItem(CanvasCommonPathItem):
         self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self, pen:QPen):
-        initPen = pen
-        initPen.setCosmetic(True)
-        initPen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-        initPen.setCapStyle(Qt.PenCapStyle.RoundCap)
-        arrowStyleMap = {
-            "pen" : initPen,
+        styleMap = {
+            "width" : 5,
         }
+        self.usePen = pen
+        self.usePen.setWidth(styleMap["width"])
+        self.usePen.setCosmetic(True)
+        self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
         self.styleAttribute = CanvasAttribute()
-        self.styleAttribute.setValue(QVariant(arrowStyleMap))
-        self.updatePen()
-        self.styleAttribute.valueChangedSignal.connect(self.updatePen)
+        self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasEraserItem.value
 
-    def updatePen(self) -> None:
-        oldArrowStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldArrowStyleMap["pen"]
-        self.m_penDefault = finalPen
-        self.m_penSelected = finalPen
+    def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        width = styleMap["width"]
+        self.usePen.setWidth(width)
         self.update()
+
+    def resetStyle(self, styleMap):
+        self.styleAttribute.setValue(QVariant(styleMap))
 
     def __initEditMode(self):
         self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
@@ -39,28 +41,8 @@ class CanvasEraserItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
-    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        oldStyleMap = self.styleAttribute.getValue().value()
-        finalPen:QPen = oldStyleMap["pen"]
-
-        # 计算缩放比例
-        if event.delta() > 0:
-            newPenWidth = finalPen.width() + 1
-        else:
-            newPenWidth = max(1, finalPen.width() - 1)
-
-        finalPen.setWidth(newPenWidth)
-
-        styleMap = {
-            "pen" : finalPen,
-        }
-
-        self.styleAttribute.setValue(QVariant(styleMap))
-
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        styleMap = self.styleAttribute.getValue().value()
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-        painter.setPen(styleMap["pen"])
+        painter.setPen(self.usePen)
         painter.drawPath(targetPath)
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
@@ -76,7 +58,7 @@ class CanvasEraserItem(CanvasCommonPathItem):
 
 class CanvasEraserRectItem(CanvasCommonPathItem):
     '''
-    绘图工具-橡皮擦矩形图元
+    绘图工具-橡皮框图元
     '''
     def __init__(self, bgBrush:QBrush, parent: QWidget = None) -> None:
         super().__init__(parent, False)

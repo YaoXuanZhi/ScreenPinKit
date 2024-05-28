@@ -3,11 +3,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
 from common import cfg
-from extend_widgets import *
-from canvas_item import *
 from .canvas_item_toolbar import *
 
-class PenToolbar(CanvasItemToolBar):
+class PolygonLineToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()

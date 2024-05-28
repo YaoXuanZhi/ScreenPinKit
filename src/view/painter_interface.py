@@ -33,7 +33,7 @@ class PainterInterface(QWidget):
         self.actionGroup:QActionGroup = None
         self.drawWidget:CanvasEditor = None
         self.sceneBrush:QBrush = None
-        self.painterToolBarMgr = None
+        self.painterToolBarMgr:PainterToolBarManager = None
         self.clearDraw(True)
         self.initLayout()
 
@@ -137,6 +137,10 @@ class PainterInterface(QWidget):
 
         self.initDrawLayer()
         self.painterToolBarMgr = PainterToolBarManager(view)
+        self.painterToolBarMgr.providerChangeDrawActionSignal.connect(self.onProviderChangeDrawAction)
+
+    def onProviderChangeDrawAction(self, drawActionEnum:DrawActionEnum):
+        self.switchDrawTool(drawActionEnum)
 
     def initDrawLayer(self):
         if self.drawWidget != None: 
@@ -311,3 +315,8 @@ class PainterInterface(QWidget):
         )
         # w.iconWidget.setFixedSize(QSize(40, 40))
         w.setCustomBackgroundColor('white', '#202020')
+
+    def wheelEvent(self, event: QWheelEvent):
+        if self.painterToolBarMgr != None:
+            self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y())
+        return super().wheelEvent(event)

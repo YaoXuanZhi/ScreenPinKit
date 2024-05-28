@@ -2,12 +2,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
-from common import ScreenShotIcon
-from extend_widgets import *
+from common import cfg
 from canvas_item import *
 from .canvas_item_toolbar import *
 
-class PolygonalToolbar(CanvasItemToolBar):
+class MarkerPenToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()
@@ -15,7 +14,7 @@ class PolygonalToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "color" : QColor(100, 200, 150),
+            "color" : QColor(255, 0, 0),
             "width" : 5,
         }
 
@@ -45,4 +44,19 @@ class PolygonalToolbar(CanvasItemToolBar):
     def refreshAttachItem(self):
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
+            self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def wheelZoom(self, angleDelta:int):
+        finalValue = self.styleMap["width"]
+
+        # 自定义滚轮事件的行为
+        if angleDelta > 1:
+            # 放大
+            finalValue = min(finalValue + 1, 10)
+        else:
+            # 缩小
+            finalValue = max(finalValue - 1, 1)
+        self.styleMap["width"] = finalValue
+
+        if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
             self.canvasItem.resetStyle(self.styleMap.copy())

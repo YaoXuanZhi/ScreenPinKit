@@ -25,6 +25,9 @@ class PinEditorWindow(PinWindow):
         self.painterWidget.initDrawLayer()
         self.painterWidget.drawWidget.setEditorEnabled(False)
 
+        self.setRoundStyle(cfg.get(cfg.useRoundStyle))
+        self.setShadowColor(cfg.get(cfg.focusShadowColor), cfg.get(cfg.unFocusShadowColor))
+
         self.initActions()
 
     def initActions(self):
