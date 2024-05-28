@@ -1,7 +1,3 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
 from common import ScreenShotIcon
 from extend_widgets import *
 from canvas_item import *
@@ -72,7 +68,7 @@ class TextEditToolbar(CanvasItemToolBar):
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def wheelZoom(self, angleDelta:int):
+    def onWheelZoom(self, angleDelta:int):
         finalFont:QFont = self.styleMap["font"]
 
         # 自定义滚轮事件的行为
@@ -85,7 +81,6 @@ class TextEditToolbar(CanvasItemToolBar):
             finalFontSize = max(1, finalFontSize - 2)
         finalFont.setPointSize(finalFontSize)
         self.styleMap["font"] = finalFont
-        self.canvasItem.resetStyle(self.styleMap.copy())
 
     def bindCanvasItem(self, canvasItem:CanvasTextItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
         '''
@@ -97,10 +92,12 @@ class TextEditToolbar(CanvasItemToolBar):
               3. 在选择模式下，操作完当前工具对应图元之后，打算继续绘制新同类图元时，将各选项赋值到新图元上
         '''
         if canvasItem != None:
+            if self.canvasItem != None:
+                self.canvasItem.setWheelEventCallBack(None)
             self.canvasItem = canvasItem
 
             if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectItemChangedEvent:
-                self.canvasItem.zoomComponent.signal.connect(self.wheelZoom)
+                self.canvasItem.setWheelEventCallBack(self.onWheelZoom)
                 self.styleMap = self.canvasItem.styleAttribute.getValue().value()
 
                 # QGraphicsItem.opacity()数值范围是：[0, 1]，滑块数值范围设定为：[0, 100]，这里需要转换下

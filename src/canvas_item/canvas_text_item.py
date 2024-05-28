@@ -5,10 +5,11 @@ class CanvasTextItem(QGraphicsTextItem):
         super().__init__(parent)
         self.__initStyle()
 
-        self.zoomComponent = ZoomComponent()
-        self.zoomComponent.zoomClamp = False
-
         self.transformComponent = TransformComponent()
+        self.onWheelEvent = None
+
+    def setWheelEventCallBack(self, callback):
+        self.onWheelEvent = callback
 
     def __initStyle(self):
         styleMap = {
@@ -124,7 +125,24 @@ class CanvasTextItem(QGraphicsTextItem):
         super().mouseDoubleClickEvent(event)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        self.zoomComponent.TriggerEvent(event.delta())
+        self.onWheelZoom(event.delta())
+        if self.onWheelEvent != None:
+            self.onWheelEvent(event.delta())
+
+    def onWheelZoom(self, angleDelta:int):
+        finalStyleMap = self.styleAttribute.getValue().value()
+        finalFont = finalStyleMap["font"]
+        finalFontSize = finalFont.pointSize()
+        if angleDelta > 1:
+            # 放大
+            finalFontSize = finalFontSize + 2
+        else:
+            # 缩小
+            finalFontSize = max(1, finalFontSize - 2)
+        finalFont.setPointSize(finalFontSize)
+
+        finalStyleMap["font"] = finalFont
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
         option.state = option.state & ~QStyle.StateFlag.State_Selected

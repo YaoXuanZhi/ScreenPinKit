@@ -40,6 +40,7 @@ class PainterToolBarManager(QObject):
             return
 
         if self.canvasItemBar != None:
+            self.canvasItemBar.close()
             self.canvasItemBar.destroy()
             self.canvasItemBar = None
         
