@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from canvas_item import *
+from canvas_item.canvas_util import CanvasUtil
 
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
@@ -60,10 +61,12 @@ class CanvasScene(QGraphicsScene):
     def selectionChangedHandler(self):
         selectItem = None
         if len(self.selectedItems()) > 0:
-            if hasattr(self.selectedItems()[0], "completeDraw"):
-                selectItem = self.selectedItems()[0]
-            else:
+            selectItem = self.selectedItems()[0]
+            if CanvasUtil.isRoiItem(selectItem):
                 return
+        # else:
+        #     return
+
         if self._itemNotifyCallBack != None:
             if self.currentDrawActionEnum == DrawActionEnum.SelectItem and selectItem == None:
                 self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, selectItem)

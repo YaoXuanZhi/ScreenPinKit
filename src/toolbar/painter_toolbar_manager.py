@@ -1,11 +1,6 @@
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from qfluentwidgets import *
-from canvas_editor import *
-from canvas_item import *
-from extend_widgets import *
 from common import cfg
 from .polygon_line_toolbar import *
 from .shape_toolbar import *
@@ -57,6 +52,7 @@ class PainterToolBarManager(QObject):
         2. 如果类型不同，则更换工具栏
         '''
         if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectNothing:
+            self.currentDrawActionEnum = DrawActionEnum.DrawNone
             self.close()
             return
 

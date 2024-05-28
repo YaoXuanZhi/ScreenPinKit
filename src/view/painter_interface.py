@@ -89,7 +89,6 @@ class PainterInterface(QWidget):
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, '箭头', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            # Action(ScreenShotIcon.STAR, '五角星', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawStar)),
             Action(ScreenShotIcon.MARKER_PEN, '记号笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
             Action(ScreenShotIcon.PENCIL, '铅笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
             Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
@@ -102,7 +101,6 @@ class PainterInterface(QWidget):
         if self.drawWidget.sceneBrush != None:
             extendActions = [
                 Action(ScreenShotIcon.ERASE, '橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-                Action(ScreenShotIcon.MOSAIC, '橡皮擦2', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem)),
                 Action(ScreenShotIcon.FILL_REGION, '马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
             ]
             for action in extendActions:
@@ -154,13 +152,14 @@ class PainterInterface(QWidget):
     def sceneUserNotifyHandler(self, sceneUserNotifyEnum:SceneUserNotifyEnum, item:QGraphicsItem):
         if sceneUserNotifyEnum == SceneUserNotifyEnum.EndDrawedEvent and not self.drawWidget.getLockState():
             if item != None:
-                item.setFocus(Qt.FocusReason.OtherFocusReason)
-                item.setSelected(True)
+                if hasattr(item, "forcecSelect"):
+                    item.forcecSelect()
+                self.directSwitchSelectItem()
             self.selectItemAction.setChecked(True)
-            self.selectItemAction.triggered.emit()
 
         if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent, SceneUserNotifyEnum.SelectNothing]:
-            self.painterToolBarMgr.switchSelectItemToolBar(item, sceneUserNotifyEnum)
+            if self.painterToolBarMgr != None:
+                self.painterToolBarMgr.switchSelectItemToolBar(item, sceneUserNotifyEnum)
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)
@@ -257,6 +256,20 @@ class PainterInterface(QWidget):
         if self.painterToolBarMgr != None:
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.checkDrawActionChange()
+        self.setCursor(cursor)
+        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:
+            # 如果上一个绘图工具是绘制矩形，则切换到编辑状态
+            self.drawActions[-1].switchEditState(True)
+        else:
+            self.addDrawAction(DrawAction(drawActionEnum, None))
+
+    def directSwitchSelectItem(self, cursor:QCursor = Qt.CursorShape.ArrowCursor):
+        drawActionEnum = DrawActionEnum.SelectItem
+        self.drawWidget.switchDrawTool(drawActionEnum)
+        self.currentDrawActionEnum = drawActionEnum 
+        # if self.painterToolBarMgr != None:
+        #     self.painterToolBarMgr.switchDrawTool(drawActionEnum)
+        # self.checkDrawActionChange()
         self.setCursor(cursor)
         if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:
             # 如果上一个绘图工具是绘制矩形，则切换到编辑状态

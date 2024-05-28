@@ -16,7 +16,7 @@
     },
     "Toolbar": {
         "useWheelZoom" : true,
-        "applyWheelItem" : false
+        "applyWheelItem" : true
     },
     "ShadowStyle": {
         "focusColor": "#ff00ff",

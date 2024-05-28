@@ -17,14 +17,10 @@ class MarkerItemToolbar(CanvasItemToolBar):
         self.styleMap = {
             "font" : QFont(),
             "textColor" : QColor(Qt.GlobalColor.white),
-            "backgroundColor" : QColor(Qt.GlobalColor.gray),
+            "backgroundColor" : QColor(Qt.GlobalColor.red),
         }
 
     def initUI(self):
-        self.boldButton = self.addAction(Action(ScreenShotIcon.RECTANGLE, '加粗', triggered=self.fontExtStyleChangedHandler))
-        self.boldButton.setCheckable(True)
-        self.italicButton = self.addAction(Action(ScreenShotIcon.ARROW, '斜体', triggered=self.fontExtStyleChangedHandler))
-        self.italicButton.setCheckable(True)
         self.textColorPickerButton = self.initColorOptionUI("颜色", self.styleMap["textColor"])
         self.fontPickerButton = self.initFontOptionUI("字体", self.styleMap["font"])
         self.addSeparator()
@@ -32,21 +28,10 @@ class MarkerItemToolbar(CanvasItemToolBar):
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
 
-    def fontExtStyleChangedHandler(self):
-        font:QFont = self.styleMap["font"]
-        font.setBold(self.boldButton.isChecked())
-        font.setItalic(self.italicButton.isChecked())
-
-        self.fontPickerButton.setTargetFont(font)
-
-        self.refreshAttachItem()
-
     def refreshStyleUI(self):
         font:QFont = self.styleMap["font"]
         textColor:QColor = self.styleMap["textColor"]
         backgroundColor:QColor = self.styleMap["backgroundColor"]
-        self.boldButton.setChecked(font.bold())
-        self.italicButton.setChecked(font.italic())
         self.opacitySlider.setValue(self.opacity)
         self.textColorPickerButton.setColor(textColor)
         self.backgroundColorPickerButton.setColor(backgroundColor)

@@ -7,7 +7,7 @@ class CanvasMarkerItem(QGraphicsRectItem):
         self.__initStyle()
         self.setDefaultFlag()
         CanvasMarkerItem.markderIndex = self.markderIndex + 1
-        self.showText = f"{self.markderIndex}"
+        self.index = CanvasMarkerItem.markderIndex
         self.transformComponent = TransformComponent()
 
     def __initStyle(self):
@@ -22,6 +22,9 @@ class CanvasMarkerItem(QGraphicsRectItem):
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasMarkerItem.value
+
+    @property
+    def showText(self): return f"{self.index}"
 
     def styleAttributeChanged(self):
         self.update()
@@ -71,6 +74,16 @@ class CanvasMarkerItem(QGraphicsRectItem):
         if self.pos() != self.oldPos:
             self.transformComponent.movedSignal.emit(self, self.oldPos, self.pos())
         return super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        finalIndex = self.index
+        if event.delta() > 0:
+            finalIndex = finalIndex + 1
+        else:
+            finalIndex = max(1, finalIndex - 1)
+
+        self.index = finalIndex
+        self.update()
 
     def completeDraw(self):
         pass
