@@ -398,6 +398,9 @@ class CanvasScene(QGraphicsScene):
             selectedItems = self.selectedItems()
             if len(selectedItems) > 0:
                 selectItem = selectedItems[0]
+                if isinstance(selectItem, CanvasTextItem):
+                    if selectItem.isCanEditable():
+                        return super().keyPressEvent(event)
                 if event.key() == Qt.Key_Left:
                     selectItem.moveBy(-1, 0)
                 elif event.key() == Qt.Key_Right:
