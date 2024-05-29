@@ -68,7 +68,6 @@
         <translation>选择界面所使用的语言</translation>
     </message>
     <message>
-        <location filename="../../View/setting_interface/setting_interface.py" line="156"/>
         <source>Software update</source>
         <translation>软件更新</translation>
     </message>
@@ -89,16 +88,16 @@
         <translation>打开帮助页面</translation>
     </message>
     <message>
-        <source>Discover new features and learn useful tips about PyQt-Fluent-Widgets</source>
-        <translation>发现新功能并了解有关 PyQt-Fluent-Widgets 的使用技巧</translation>
+        <source>Discover new features and learn useful tips about ScreenPinKit</source>
+        <translation>发现新功能并了解有关 ScreenPinKit 的使用技巧</translation>
     </message>
     <message>
         <source>Provide feedback</source>
         <translation>提供反馈</translation>
     </message>
     <message>
-        <source>Help us improve PyQt-Fluent-Widgets by providing feedback</source>
-        <translation>通过提供反馈帮助我们改进 PyQt-Fluent-Widgets</translation>
+        <source>Help us improve ScreenPinKit by providing feedback</source>
+        <translation>通过提供反馈帮助我们改进 ScreenPinKit</translation>
     </message>
     <message>
         <source>Check update</source>
