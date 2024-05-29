@@ -39,14 +39,21 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         # return
 
         # 性能损耗大，使用opencv实现版本在遇到较大区域的时候会出现程序闪退
-        tempPixmap = self.sourcePixmap.copy(partRect)
-        # finalPixmap = AfterEffectUtilByPIL.gaussianBlur(tempPixmap, 5)
-        finalPixmap = AfterEffectUtilByPIL.mosaic(tempPixmap, 5, 1)
-        painter.drawPixmap(self.boundingRect().topLeft(), finalPixmap)
+        physicalPartRect = self.physicalRectF(partRect).toRect()
+        partPixmap = self.sourcePixmap.copy(physicalPartRect)
+        effectPixmap = AfterEffectUtilByPIL.gaussianBlur(partPixmap, 2)
+        # effectPixmap = AfterEffectUtilByPIL.mosaic(partPixmap, 5, 1)
+        sourceRect = QRectF(0, 0, partPixmap.width(), partPixmap.height())
+        painter.drawPixmap(self.boundingRect(), effectPixmap, sourceRect)
 
+    def physicalRectF(self, rectf:QRectF):
+        pixelRatio = self.sourcePixmap.devicePixelRatio()
+        return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
+                      rectf.width() * pixelRatio, rectf.height() * pixelRatio)
 
     def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        painter.drawPixmap(self.boundingRect(), self.blurPixmap, self.sceneBoundingRect())
+        physicalRect = self.physicalRectF(self.sceneBoundingRect())
+        painter.drawPixmap(self.boundingRect(), self.blurPixmap, physicalRect)
 
     def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
