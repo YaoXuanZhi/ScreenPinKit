@@ -1,8 +1,3 @@
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-
 from canvas_item.canvas_util import CanvasROIManager
 from .canvas_scene import CanvasScene, DrawActionEnum
 from .canvas_view import CanvasView

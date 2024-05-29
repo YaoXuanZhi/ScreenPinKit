@@ -4,7 +4,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import math, typing, os
 from enum import Enum
-from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 from PyQt5.QtWidgets import QGraphicsSceneWheelEvent
 
 class EnumCanvasROIType(Enum):

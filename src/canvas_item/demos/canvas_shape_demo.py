@@ -38,7 +38,7 @@ class DrawingView(QGraphicsView):
                 if self.pathItem == None:
                     # self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Star)
                     # self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Rectangle)
-                    self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Ellipse)
+                    self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Ellipse)
                     self.scene().addItem(self.pathItem)
                     self.pathItem.polygon.append(targetPos)
                     self.pathItem.polygon.append(targetPos)

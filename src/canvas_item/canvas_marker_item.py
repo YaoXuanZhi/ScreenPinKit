@@ -1,6 +1,10 @@
 from .canvas_util import *
 
 class CanvasMarkerItem(QGraphicsRectItem):
+    '''
+    绘图工具-索引标识
+    @note 滚轮可以改变索引值
+    '''
     markderIndex = 0
     def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)

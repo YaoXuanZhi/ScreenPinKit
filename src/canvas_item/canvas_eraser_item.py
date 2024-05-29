@@ -2,7 +2,7 @@ from .canvas_util import *
 
 class CanvasEraserItem(CanvasCommonPathItem):
     '''
-    绘图工具-橡皮擦图元
+    绘图工具-橡皮擦
     '''
     def __init__(self, pen:QPen = QPen(QColor(0, 255, 0, 100)), isSmoothCurve:bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)

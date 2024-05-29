@@ -7,7 +7,7 @@ from .canvas_svg_item import CanvasSvgItem
 from .canvas_star_item import CanvasStarItem
 from .canvas_text_item import CanvasTextItem
 from .canvas_marker_item import CanvasMarkerItem
-from .canvas_closed_shape_item import CanvasClosedShapeItem, CanvasClosedShapeEnum
+from .canvas_shape_item import CanvasShapeItem, CanvasShapeEnum
 from .canvas_pencil_item import CanvasPencilItem
 from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem

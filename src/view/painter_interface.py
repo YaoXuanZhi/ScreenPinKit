@@ -1,6 +1,4 @@
 # coding=utf-8
-from enum import Enum
-from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -84,7 +82,7 @@ class PainterInterface(QWidget):
 
         # 初始化绘制工具栏
         drawActions = [
-            Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawRectangle)),
+            Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
             Action(ScreenShotIcon.POLYGONAL_LINE, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
             Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
@@ -201,18 +199,6 @@ class PainterInterface(QWidget):
             else:
                 self.destroyImage()
 
-    def contextMenuEvent(self, event:QContextMenuEvent):
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
-            return
-        menu = RoundMenu(parent=self)
-        menu.addActions([
-            Action(ScreenShotIcon.WHITE_BOARD, '标注', triggered=self.showCommandBar),
-            Action(ScreenShotIcon.COPY, '复制', triggered=self.copyToClipboard),
-            Action(ScreenShotIcon.CLICK_THROUGH, '鼠标穿透', triggered=self.clickThrough),
-        ])
-        menu.view.setIconSize(QSize(20, 20))
-        menu.exec(event.globalPos())
-
     def checkDrawActionChange(self):
         # 如果中途切换了绘图工具，则关闭上一个绘图工具的编辑状态
         if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum != self.currentDrawActionEnum:
@@ -252,30 +238,18 @@ class PainterInterface(QWidget):
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
-        self.currentDrawActionEnum = drawActionEnum 
+        if self.currentDrawActionEnum != drawActionEnum:
+            self.createCustomInfoBar(f"绘图工具切换到 【{drawActionEnum.value}】")
+        self.currentDrawActionEnum = drawActionEnum
         if self.painterToolBarMgr != None:
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
-        self.checkDrawActionChange()
         self.setCursor(cursor)
-        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:
-            # 如果上一个绘图工具是绘制矩形，则切换到编辑状态
-            self.drawActions[-1].switchEditState(True)
-        else:
-            self.addDrawAction(DrawAction(drawActionEnum, None))
 
     def directSwitchSelectItem(self, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         drawActionEnum = DrawActionEnum.SelectItem
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
-        # if self.painterToolBarMgr != None:
-        #     self.painterToolBarMgr.switchDrawTool(drawActionEnum)
-        # self.checkDrawActionChange()
         self.setCursor(cursor)
-        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum == DrawActionEnum.DrawRectangle:
-            # 如果上一个绘图工具是绘制矩形，则切换到编辑状态
-            self.drawActions[-1].switchEditState(True)
-        else:
-            self.addDrawAction(DrawAction(drawActionEnum, None))
 
     def clearDraw(self, isInit:bool=False):
         if not isInit:

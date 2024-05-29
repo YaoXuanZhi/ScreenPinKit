@@ -36,6 +36,8 @@ class Config(QConfig):
         "General", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
     cacheFolder = ConfigItem(
         "General", "CacheFolder", "./cache", FolderValidator())
+    imageNameFormat = ConfigItem(
+        "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator())
 
     # HotKey
     screenShotHotKey = ConfigItem(
@@ -64,6 +66,10 @@ class Config(QConfig):
     unFocusShadowColor = ColorConfigItem("ShadowStyle", "unFocusColor", "#7d7d7d")
     useRoundStyle = ConfigItem(
         "ShadowStyle", "useRoundStyle", False, BoolValidator())
+    isSaveWithShadow = ConfigItem(
+        "ShadowStyle", "isSaveWithShadow", False, BoolValidator())
+    isCopyWithShadow = ConfigItem(
+        "ShadowStyle", "isCopyWithShadow", False, BoolValidator())
 
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"

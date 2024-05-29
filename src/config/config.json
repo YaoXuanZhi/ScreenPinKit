@@ -1,8 +1,9 @@
 {
     "General": {
-        "CacheFolder": "D:/OpenSource/ScreenPinKit/src/cache",
+        "CacheFolder": "./cache",
         "DpiScale": "Auto",
-        "Language": "Auto"
+        "Language": "Auto",
+        "ImageNameFormat": "ScreenPinKit_%s.png"
     },
     "Update": {
         "CheckUpdateAtStartUp": true
@@ -21,7 +22,9 @@
     "ShadowStyle": {
         "focusColor": "#ff00ff",
         "unFocusColor": "#7d7d7d",
-        "useRoundStyle" : true
+        "useRoundStyle" : true,
+        "isSaveWithShadow": false,
+        "isCopyWithShadow": false
     },
     "QFluentWidgets": {
         "ThemeColor": "#ff009faa",

@@ -19,7 +19,7 @@ class CanvasItemToolBar(CommandBarView):
     def initDefaultStyle(self):
         raise NotImplementedError("子类需要重写该函数")
 
-    def bindCanvasItem(self, canvasItem:CanvasClosedShapeItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
+    def bindCanvasItem(self, canvasItem:CanvasShapeItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
         '''
         绑定操作图元
         @note 存在多种情况

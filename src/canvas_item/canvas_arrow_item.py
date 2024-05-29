@@ -2,7 +2,8 @@ from .canvas_util import *
 
 class CanvasArrowItem(CanvasCommonPathItem):
     '''
-    绘图工具-箭头图元
+    绘图工具-箭头
+    @note 滚轮可以控制箭头大小
     '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)

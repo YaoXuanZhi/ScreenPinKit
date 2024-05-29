@@ -22,6 +22,9 @@ class QSvgContentWidget(QSvgWidget):
         self.load(svgPath)
 
 class CanvasSvgItem(QGraphicsRectItem):
+    '''
+    绘图工具-Svg
+    '''
     def __init__(self, rect: QRectF, svgPath:str, parent:QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
         self.setDefaultFlag()

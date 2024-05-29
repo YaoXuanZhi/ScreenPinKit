@@ -4,11 +4,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import (RoundMenu, Action, FluentIcon, StateToolTip)
-from canvas_item.canvas_util import ZoomComponent
 from .painter_interface import PainterInterface
 from canvas_item import *
+from canvas_item.canvas_util import ZoomComponent
+from canvas_editor import DrawActionEnum
 from base import *
-from common import cfg
+from common import cfg, ScreenShotIcon
 
 class PinEditorWindow(PinWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
@@ -30,11 +31,30 @@ class PinEditorWindow(PinWindow):
 
         self.initActions()
 
+    def contextMenuEvent(self, event:QContextMenuEvent):
+        if self.painterWidget.currentDrawActionEnum != DrawActionEnum.DrawNone:
+            return
+        menu = RoundMenu(parent=self)
+        menu.addActions([
+            Action(ScreenShotIcon.WHITE_BOARD, '标注', triggered=self.showCommandBar),
+            Action(ScreenShotIcon.COPY, '复制', triggered=self.copyToClipboard),
+            Action(ScreenShotIcon.SAVE_AS, '另存为', triggered=self.saveToDisk),
+            Action(ScreenShotIcon.CLICK_THROUGH, '鼠标穿透', triggered=self.clickThrough),
+        ])
+        menu.view.setIconSize(QSize(20, 20))
+        menu.exec(event.globalPos())
+
+    def showCommandBar(self):
+        self.painterWidget.showCommandBar()
+
+    def clickThrough(self):
+        self.painterWidget.clickThrough()
+
     def initActions(self):
         actions = [
-            Action("复制贴图", self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
-            Action("保存贴图", self, triggered=self.saveToDisk, shortcut="ctrl+s"),
-            Action("开始OCR", self, triggered=self.startOcr, shortcut="ctrl+a"),
+            Action(self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
+            Action(self, triggered=self.saveToDisk, shortcut="ctrl+s"),
+            Action(self, triggered=self.startOcr, shortcut="ctrl+a"),
         ]
         self.addActions(actions)
 
@@ -57,15 +77,17 @@ class PinEditorWindow(PinWindow):
         # https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency/46424800#46424800
         # https://stackoverflow.com/questions/44287407/text-erased-from-screenshot-after-using-clipboard-getimage-on-windows-10/46400011#46400011
 
-        # self.pixmapWidget.copyToClipboard()
-        finalPixmap = self.grab()
+        if cfg.get(cfg.isCopyWithShadow):
+            finalPixmap = self.grab()
+        else:
+            finalPixmap = self.painterWidget.getFinalPixmap()
         QApplication.clipboard().setPixmap(finalPixmap)
 
     def saveToDisk(self):
         # 获取当前时间，并格式化
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        fileName = f"Snipaste_{now_str}.png"
+        fileName = cfg.get(cfg.imageNameFormat) % (now_str)
 
         tempFolder = cfg.get(cfg.cacheFolder)
         finalFolder = "./"
@@ -73,13 +95,11 @@ class PinEditorWindow(PinWindow):
             finalFolder = tempFolder
         finalPath = os.path.join(finalFolder, fileName)
         savePath, _ = QFileDialog.getSaveFileName(self, "Save File", finalPath, "PNG(*.png)")
-        # 检查用户是否点击了“取消”
         if savePath != None:
-            # 保存的截图无阴影
-            # finalPixmap = self.pixmapWidget.getFinalPixmap()
-
-            # 保存带阴影的截图
-            finalPixmap = self.grab()
+            if cfg.get(cfg.isSaveWithShadow):
+                finalPixmap = self.grab()
+            else:
+                finalPixmap = self.painterWidget.getFinalPixmap()
             finalPixmap.save(savePath, "png")
 
     def isAllowDrag(self):

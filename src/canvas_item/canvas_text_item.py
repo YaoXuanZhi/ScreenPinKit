@@ -1,6 +1,10 @@
 from .canvas_util import *
 
 class CanvasTextItem(QGraphicsTextItem):
+    '''
+    绘图工具-文本框
+    @note 滚轮可以控制字体大小
+    '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.__initStyle()

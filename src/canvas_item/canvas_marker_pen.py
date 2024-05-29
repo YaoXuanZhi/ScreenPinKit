@@ -2,6 +2,10 @@ from .canvas_polygon_item import CanvasPolygonItem
 from .canvas_util import *
 
 class CanvasMarkerPen(CanvasPolygonItem):
+    '''
+    绘图工具-记号笔
+    @note 滚轮可以控制笔触大小
+    '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.__initEditMode()

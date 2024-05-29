@@ -2,7 +2,7 @@ from .canvas_util import *
 
 class CanvasPencilItem(CanvasCommonPathItem):
     '''
-    绘图工具-铅笔图元
+    绘图工具-铅笔
     '''
     def __init__(self, isSmoothCurve:bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)

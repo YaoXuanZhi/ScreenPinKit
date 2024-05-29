@@ -2,7 +2,7 @@ from .canvas_util import *
 
 class CanvasPolygonItem(CanvasCommonPathItem):
     '''
-    绘图工具-折线图元
+    绘图工具-折线
 
     Note:
     对于一个非封闭的PathItem而言，为了让它的HitTest行为约束在线段内，将其

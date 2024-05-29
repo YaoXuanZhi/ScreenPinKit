@@ -1,16 +1,16 @@
 from .canvas_util import *
 
-class CanvasClosedShapeEnum(Enum):
+class CanvasShapeEnum(Enum):
     Ellipse = "椭圆"
     Rectangle = "矩形"
     Star = "五角星"
 
-class CanvasClosedShapeItem(CanvasCommonPathItem):
+class CanvasShapeItem(CanvasCommonPathItem):
     '''
     绘图工具-闭合形状
     @note 滚轮可以控制描边宽度
     '''
-    def __init__(self, parent: QWidget = None, shapeType:CanvasClosedShapeEnum = CanvasClosedShapeEnum.Rectangle) -> None:
+    def __init__(self, parent: QWidget = None, shapeType:CanvasShapeEnum = CanvasShapeEnum.Rectangle) -> None:
         super().__init__(parent)
         self.__initEditMode()
         self.__initStyle(shapeType)
@@ -19,7 +19,7 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
         self.zoomComponent.zoomClamp = False
         self.zoomComponent.signal.connect(self.zoomHandle)
 
-    def __initStyle(self, shapeType:CanvasClosedShapeEnum):
+    def __initStyle(self, shapeType:CanvasShapeEnum):
         #todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
         styleMap = {
             "brushColor" : QColor(255, 0, 0, 100),
@@ -92,11 +92,11 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         shapeType = self.useShape
-        if shapeType == CanvasClosedShapeEnum.Ellipse:
+        if shapeType == CanvasShapeEnum.Ellipse:
             CanvasUtil.buildEllipsePath(targetPath, targetPolygon)
-        elif shapeType == CanvasClosedShapeEnum.Rectangle:
+        elif shapeType == CanvasShapeEnum.Rectangle:
             CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
-        elif shapeType == CanvasClosedShapeEnum.Star:
+        elif shapeType == CanvasShapeEnum.Star:
             CanvasUtil.buildStarPath(targetPath, targetPolygon)
 
     def forceSquare(self):

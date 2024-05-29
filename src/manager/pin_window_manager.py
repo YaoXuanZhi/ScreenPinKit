@@ -58,11 +58,16 @@ class PinWindowManager():
 
     def snip(self, screenPoint:QPoint, realSize:QSize, pixmap:QPixmap):
         self.clearScreenImages()
-        pixmap.save(self.getScreenImageName(screenPoint), 'png')
+        saveFolder = cfg.get(cfg.cacheFolder)
+        savePath = os.path.join(saveFolder, self.getScreenImageName(screenPoint))
+        pixmap.save(savePath, 'png')
         self.addPinWindow(screenPoint, realSize, pixmap)
 
     def clearScreenImages(self):
-        filePaths = glob.glob('*.png')
+        searchFolder = cfg.get(cfg.cacheFolder)
+        searchPattern = '*.png'
+        finalSearch = os.path.join(searchFolder, searchPattern)
+        filePaths = glob.glob(finalSearch)
         for filePath in filePaths:
             matchResult = re.match(self.getImageNamePattern(), filePath)
             if matchResult != None and len(matchResult.groups()) > 0:
@@ -72,14 +77,17 @@ class PinWindowManager():
         return f'screen {screenPoint.x()}-{screenPoint.y()}.png'
 
     def getImageNamePattern(self):
-        return r'screen ([-]*\d+)-([-]*\d+).png'
+        return r'.*screen ([-]*\d+)-([-]*\d+).png'
 
     def findScreenImagePath(self):
-        # 查找文件后缀名为.png的文件路径
-        filePaths = glob.glob('*.png')
+        searchFolder = cfg.get(cfg.cacheFolder)
+        searchPattern = '*.png'
+        finalSearch = os.path.join(searchFolder, searchPattern)
+        filePaths = glob.glob(finalSearch)
         if len(filePaths) > 0:
             # 遍历filePaths中的文件路径
             for filePath in filePaths:
+                print(filePath)
                 matchResult = re.match(self.getImageNamePattern(), filePath)
 
                 if matchResult != None:

@@ -16,11 +16,8 @@ class DrawActionEnum(Enum):
     UseMarkerItem = "使用标记"
     PasteSvg = "粘贴图案"
 
-    DrawDiversity = "绘制多边形"
-    DrawRectangle = "绘制矩形"
-    DrawEllipse = "绘制椭圆"
+    DrawShape = "绘制形状"
     DrawArrow = "绘制箭头"
-    DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制折线"
     SelectItem = "选择对象"
     Mosaic = "马赛克工具"
@@ -150,8 +147,6 @@ class CanvasScene(QGraphicsScene):
             self.lastAddItem = item
             # self.saveAfterEffectPixmap()
             item.setEditableState(True)
-            # if not self.isLockedTool:
-            #     item.setFocus(Qt.FocusReason.OtherFocusReason)
 
         if not isOk:
             self.removeItem(item)
@@ -315,14 +310,9 @@ class CanvasScene(QGraphicsScene):
                             self.__startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum in [DrawActionEnum.DrawRectangle, DrawActionEnum.DrawEllipse, DrawActionEnum.DrawStar]:
+                    elif self.currentDrawActionEnum in [DrawActionEnum.DrawShape]:
                         if self.pathItem == None:
-                            if self.currentDrawActionEnum == DrawActionEnum.DrawRectangle:
-                                self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Rectangle)
-                            elif self.currentDrawActionEnum == DrawActionEnum.DrawEllipse:
-                                self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Ellipse)
-                            elif self.currentDrawActionEnum == DrawActionEnum.DrawStar:
-                                self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Star)
+                            self.pathItem = CanvasShapeItem()
                             self.__startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
@@ -342,7 +332,7 @@ class CanvasScene(QGraphicsScene):
         if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] and self.pathItem != None:
             targetPos = event.scenePos()
 
-            if self.currentDrawActionEnum == DrawActionEnum.DrawRectangle:
+            if self.currentDrawActionEnum == DrawActionEnum.DrawShape:
                 self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                 isForceEqual = int(event.modifiers()) == Qt.KeyboardModifier.ShiftModifier
                 if isForceEqual:
@@ -353,9 +343,6 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.DrawRectangle, 
-                DrawActionEnum.DrawEllipse, 
-                DrawActionEnum.DrawStar,
                 DrawActionEnum.Blur,
                 ]:
                 self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
@@ -382,9 +369,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.DrawRectangle, 
-                DrawActionEnum.DrawEllipse, 
-                DrawActionEnum.DrawStar,
+                DrawActionEnum.DrawShape, 
                 DrawActionEnum.Blur,
                 ]:
                 if event.button() == Qt.LeftButton:

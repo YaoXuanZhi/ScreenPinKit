@@ -2,7 +2,7 @@ from .canvas_util import *
 
 class CanvasStarItem(CanvasCommonPathItem):
     '''
-    绘图工具-五角星图元
+    绘图工具-五芒星
     '''
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)

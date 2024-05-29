@@ -1,7 +1,3 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
 from common import ScreenShotIcon
 from extend_widgets import *
 from canvas_editor import *
@@ -20,7 +16,7 @@ class ShapeToolbar(CanvasItemToolBar):
             "penColor" : QColor(255, 0, 0),
             "penWidth" : 2,
             "penStyle" : Qt.PenStyle.SolidLine,
-            "shape" : CanvasClosedShapeEnum.Rectangle,
+            "shape" : CanvasShapeEnum.Rectangle,
         }
 
         self.outlineTypeInfos = [
@@ -29,9 +25,9 @@ class ShapeToolbar(CanvasItemToolBar):
         ]
 
         self.shapeTypeInfos = [
-            ("矩形", ScreenShotIcon.RECTANGLE, CanvasClosedShapeEnum.Rectangle),
-            ("圆形", ScreenShotIcon.CIRCLE, CanvasClosedShapeEnum.Ellipse),
-            ("五角星", ScreenShotIcon.STAR, CanvasClosedShapeEnum.Star),
+            ("矩形", ScreenShotIcon.RECTANGLE, CanvasShapeEnum.Rectangle),
+            ("圆形", ScreenShotIcon.CIRCLE, CanvasShapeEnum.Ellipse),
+            ("五角星", ScreenShotIcon.STAR, CanvasShapeEnum.Star),
         ]
 
     def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
@@ -62,9 +58,9 @@ class ShapeToolbar(CanvasItemToolBar):
     def initUI(self):
         self.shapeComBox = self.initShapeOptionUI()
         self.addSeparator()
-        self.outlineTypeComBox, self.outlineColorPickerButton = self.initOutlineOptionUI()
+        self.outlineTypeComBox, self.outlineColorPickerButton = self.initPenOptionUI()
         self.addSeparator()
-        self.backgroundColorPickerButton = self.initColorOptionUI("背景", Qt.GlobalColor.red)
+        self.backgroundColorPickerButton = self.initColorOptionUI("画刷", Qt.GlobalColor.red)
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
     
@@ -110,10 +106,10 @@ class ShapeToolbar(CanvasItemToolBar):
         self.initTemplateOptionUI("形状", shapeComBox)
         return shapeComBox
     
-    def initOutlineOptionUI(self):
-        '''描边选项'''
+    def initPenOptionUI(self):
+        '''画笔选项'''
 
-        optionName = "描边"
+        optionName = "画笔"
 
         # 描边风格选项
         outlineTypeComBox = ComboBox(self)

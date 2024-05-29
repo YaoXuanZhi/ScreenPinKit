@@ -22,10 +22,6 @@ class PainterToolBarManager(QObject):
         self.targetWidget = targetWidget
         self.canvasItemBar:CommandBarView = None
         self.optionBar:QWidget = None
-        self.toolBarMap = {
-            type(ShapeToolbar) : [DrawActionEnum.DrawRectangle, DrawActionEnum.DrawEllipse],
-            type(TextEditToolbar) : [DrawActionEnum.EditText],
-        }
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.zoomClamp = False
         self.zoomComponent.signal.connect(self.wheelZoom)
@@ -63,7 +59,7 @@ class PainterToolBarManager(QObject):
         if isinstance(self.canvasItemBar, TextEditToolbar):
             drawActionEnum = DrawActionEnum.EditText
         elif isinstance(self.canvasItemBar, ShapeToolbar):
-            drawActionEnum = DrawActionEnum.DrawRectangle
+            drawActionEnum = DrawActionEnum.DrawShape
         elif isinstance(self.canvasItemBar, MarkerItemToolbar):
             drawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(self.canvasItemBar, ArrowToolbar):
@@ -76,8 +72,8 @@ class PainterToolBarManager(QObject):
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
             matchDrawActionEnum = DrawActionEnum.EditText
-        elif isinstance(canvasItem, CanvasClosedShapeItem):
-            matchDrawActionEnum = DrawActionEnum.DrawRectangle
+        elif isinstance(canvasItem, CanvasShapeItem):
+            matchDrawActionEnum = DrawActionEnum.DrawShape
         elif isinstance(canvasItem, CanvasMarkerItem):
             matchDrawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(canvasItem, CanvasPolygonItem):
@@ -108,7 +104,7 @@ class PainterToolBarManager(QObject):
         if self.canvasItemBar == None:
             if drawActionEnum == DrawActionEnum.EditText:
                 self.canvasItemBar = TextEditToolbar(parent=self.targetWidget)
-            elif drawActionEnum == DrawActionEnum.DrawRectangle:
+            elif drawActionEnum == DrawActionEnum.DrawShape:
                 self.canvasItemBar = ShapeToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseEraser:
                 self.canvasItemBar = EraseToolbar(parent=self.targetWidget)
