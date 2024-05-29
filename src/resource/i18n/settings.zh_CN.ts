@@ -166,4 +166,71 @@
         <translation>切换桌面绘图模式</translation>
     </message>
 </context>
+<context>
+    <name>PainterInterface</name>
+    <message>
+        <source>Locked</source>
+        <translation>锁定</translation>
+    </message>
+    <message>
+        <source>UnLocked</source>
+        <translation>解锁</translation>
+    </message>
+    <message>
+        <source>Select item</source>
+        <translation>选择对象</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>形状</translation>
+    </message>
+    <message>
+        <source>Line strip</source>
+        <translation>折线</translation>
+    </message>
+    <message>
+        <source>Index mark</source>
+        <translation>标记</translation>
+    </message>
+    <message>
+        <source>Arrow</source>
+        <translation>箭头</translation>
+    </message>
+    <message>
+        <source>Marker pen</source>
+        <translation>记号笔</translation>
+    </message>
+    <message>
+        <source>Pencil</source>
+        <translation>铅笔</translation>
+    </message>
+    <message>
+        <source>TextEdit</source>
+        <translation>文本框</translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation>橡皮擦</translation>
+    </message>
+    <message>
+        <source>Mosaic/Blur</source>
+        <translation>马赛克/模糊工具</translation>
+    </message>
+    <message>
+        <source>Clear draw</source>
+        <translation>清除绘画</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>撤销</translation>
+    </message>
+    <message>
+        <source>Redo</source>
+        <translation>重做</translation>
+    </message>
+    <message>
+        <source>finish draw</source>
+        <translation>完成绘画</translation>
+    </message>
+</context>
 </TS>

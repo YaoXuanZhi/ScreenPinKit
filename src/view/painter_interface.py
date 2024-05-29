@@ -64,9 +64,9 @@ class PainterInterface(QWidget):
         # 锁定机制-绘制工具
         lockState = self.drawWidget.getLockState()
         if lockState:
-            switchLockAction = Action(ScreenShotIcon.LOCKED, '锁定', triggered=self.switchLocked)
+            switchLockAction = Action(ScreenShotIcon.LOCKED, self.tr("Locked"), triggered=self.switchLocked)
         else:
-            switchLockAction = Action(ScreenShotIcon.UNLOCKED, '解锁', triggered=self.switchLocked)
+            switchLockAction = Action(ScreenShotIcon.UNLOCKED, self.tr("UnLocked"), triggered=self.switchLocked)
 
         switchLockAction.setCheckable(True)
         self.switchLockButton = view.addAction(switchLockAction)
@@ -74,7 +74,7 @@ class PainterInterface(QWidget):
 
         view.addSeparator()
 
-        selectItemAction = Action(ScreenShotIcon.SELECT_ITEM, '选择', triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem))
+        selectItemAction = Action(ScreenShotIcon.SELECT_ITEM, self.tr("Select item"), triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem))
         finalDrawActions = [
             selectItemAction
         ]
@@ -82,14 +82,14 @@ class PainterInterface(QWidget):
 
         # 初始化绘制工具栏
         drawActions = [
-            Action(ScreenShotIcon.SHAPE, '形状', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
-            Action(ScreenShotIcon.POLYGONAL_LINE, '折线', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
-            Action(ScreenShotIcon.GUIDE, '标记', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
+            Action(ScreenShotIcon.SHAPE, self.tr("Shape"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
+            Action(ScreenShotIcon.POLYGONAL_LINE, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
+            Action(ScreenShotIcon.GUIDE, self.tr("Index mark"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
-            Action(ScreenShotIcon.ARROW, '箭头', triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            Action(ScreenShotIcon.MARKER_PEN, '记号笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
-            Action(ScreenShotIcon.PENCIL, '铅笔', triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
-            Action(ScreenShotIcon.TEXT, '文本', triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
+            Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
+            Action(ScreenShotIcon.MARKER_PEN, self.tr("Marker pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
+            Action(ScreenShotIcon.PENCIL, self.tr("Pencil"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
+            Action(ScreenShotIcon.TEXT, self.tr("TextEdit"), triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
         ]
 
         for action in drawActions:
@@ -98,8 +98,8 @@ class PainterInterface(QWidget):
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if self.drawWidget.sceneBrush != None:
             extendActions = [
-                Action(ScreenShotIcon.ERASE, '橡皮擦', triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-                Action(ScreenShotIcon.FILL_REGION, '马赛克', triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
+                Action(ScreenShotIcon.ERASE, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
+                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
@@ -112,10 +112,10 @@ class PainterInterface(QWidget):
         view.addActions(finalDrawActions)
         view.addSeparator()
         view.addActions([
-            Action(ScreenShotIcon.DELETE_ALL, '清除绘画', triggered=self.clearDraw),
-            Action(ScreenShotIcon.UNDO2, '撤销', triggered=self.undo),
-            Action(ScreenShotIcon.REDO2, '重做', triggered=self.redo),
-            Action(ScreenShotIcon.FINISHED, '完成绘画', triggered=self.completeDraw),
+            Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
+            Action(ScreenShotIcon.UNDO2, self.tr("Undo"), triggered=self.undo),
+            Action(ScreenShotIcon.REDO2, self.tr("Redo"), triggered=self.redo),
+            Action(ScreenShotIcon.FINISHED, self.tr("finish draw"), triggered=self.completeDraw),
         ])
 
         view.hBoxLayout.setContentsMargins(1, 1, 1, 1)
@@ -177,10 +177,10 @@ class PainterInterface(QWidget):
         tip = ""
         if self.drawWidget.getLockState():
             finalIcon = ScreenShotIcon.LOCKED
-            tip = "锁定"
+            tip = self.tr("Locked")
         else:
             finalIcon = ScreenShotIcon.UNLOCKED
-            tip = "解锁"
+            tip = self.tr("UnLocked")
         self.switchLockButton.setIcon(finalIcon)
         self.switchLockButton.setToolTip(tip)
 
