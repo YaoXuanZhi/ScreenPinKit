@@ -194,6 +194,7 @@ class PainterInterface(QWidget):
             if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
                 self.clearDrawFlag()
                 self.drawWidget.quitDraw()
+                self.setFocus()
             elif self.toolbar != None and self.toolbar.isVisible():
                 self.completeDraw()
             else:

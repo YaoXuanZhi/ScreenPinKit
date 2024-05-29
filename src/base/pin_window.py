@@ -65,7 +65,6 @@ class PinWindow(DragWindow):
             self.blinkColor = None
             self.update()
             self.activateWindow()
-            self.setFocus()
 
     def isAllowDrag(self):
         return True
