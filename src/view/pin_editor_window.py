@@ -67,7 +67,7 @@ class PinEditorWindow(PinWindow):
         now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
         fileName = f"Snipaste_{now_str}.png"
 
-        tempFolder = cfg.get(cfg.tempFolder)
+        tempFolder = cfg.get(cfg.cacheFolder)
         finalFolder = "./"
         if os.path.exists(tempFolder):
             finalFolder = tempFolder

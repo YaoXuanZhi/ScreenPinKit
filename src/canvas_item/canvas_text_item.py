@@ -145,6 +145,7 @@ class CanvasTextItem(QGraphicsTextItem):
         self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+        # https://codebrowser.dev/qt5/qtbase/src/widgets/graphicsview/qgraphicsitem.cpp.html
         option.state = option.state & ~QStyle.StateFlag.State_Selected
         option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         return super().paint(painter, option, widget)
