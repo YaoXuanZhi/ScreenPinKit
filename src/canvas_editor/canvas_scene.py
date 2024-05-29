@@ -203,6 +203,9 @@ class CanvasScene(QGraphicsScene):
             selectItem.wheelEvent(event)
             event.accept()
             return
+        if isinstance(self.pathItem, CanvasPolygonItem):
+            event.accept()
+            return
         return super().wheelEvent(event)
 
     # 参考https://excalidraw.com/上面的操作方式
@@ -399,4 +402,17 @@ class CanvasScene(QGraphicsScene):
 
                         break
 
+        elif event.key() in [Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down]:
+            selectedItems = self.selectedItems()
+            if len(selectedItems) > 0:
+                selectItem = selectedItems[0]
+                if event.key() == Qt.Key_Left:
+                    selectItem.moveBy(-1, 0)
+                elif event.key() == Qt.Key_Right:
+                    selectItem.moveBy(1, 0)
+                elif event.key() == Qt.Key_Up:
+                    selectItem.moveBy(0, -1)
+                elif event.key() == Qt.Key_Down:
+                    selectItem.moveBy(0, 1)
+            return
         return super().keyPressEvent(event)

@@ -125,3 +125,13 @@ class PinWindow(DragWindow):
     def closeEvent(self, event) -> None:
         if self.closeCallback != None:
             self.closeCallback()
+
+    def keyPressEvent(self, event) -> None:
+        if event.key() == Qt.Key_Left:
+            self.move(self.x() - 1, self.y())
+        elif event.key() == Qt.Key_Right:
+            self.move(self.x() + 1, self.y())
+        elif event.key() == Qt.Key_Up:
+            self.move(self.x(), self.y() - 1)
+        elif event.key() == Qt.Key_Down:
+            self.move(self.x(), self.y() + 1)

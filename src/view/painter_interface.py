@@ -199,6 +199,7 @@ class PainterInterface(QWidget):
                 self.completeDraw()
             else:
                 self.destroyImage()
+        super().keyPressEvent(event)
 
     def checkDrawActionChange(self):
         # 如果中途切换了绘图工具，则关闭上一个绘图工具的编辑状态
