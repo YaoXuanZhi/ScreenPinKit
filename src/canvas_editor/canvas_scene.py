@@ -342,7 +342,13 @@ class CanvasScene(QGraphicsScene):
         if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] and self.pathItem != None:
             targetPos = event.scenePos()
 
-            if self.currentDrawActionEnum in [
+            if self.currentDrawActionEnum == DrawActionEnum.DrawRectangle:
+                self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
+                isForceEqual = int(event.modifiers()) == Qt.KeyboardModifier.ShiftModifier
+                if isForceEqual:
+                    self.pathItem.forceSquare()
+                self.pathItem.update()
+            elif self.currentDrawActionEnum in [
                 DrawActionEnum.DrawPolygonalLine, 
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 

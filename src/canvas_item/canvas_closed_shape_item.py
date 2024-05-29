@@ -98,3 +98,24 @@ class CanvasClosedShapeItem(CanvasCommonPathItem):
             CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
         elif shapeType == CanvasClosedShapeEnum.Star:
             CanvasUtil.buildStarPath(targetPath, targetPolygon)
+
+    def forceSquare(self):
+        if self.polygon.count() == 2:
+            begin = self.polygon.at(0)
+            end = self.polygon.at(self.polygon.count() - 1)
+
+            finalRect = QRectF(begin, end).normalized()
+            maxLength = max(finalRect.width(), finalRect.height())
+
+            if end.x() - begin.x() > 0:
+                endPosX = begin.x() + maxLength
+            else:
+                endPosX = begin.x() - maxLength
+
+            if end.y() - begin.y() > 0:
+                endPosY = begin.y() + maxLength
+            else:
+                endPosY = begin.y() - maxLength
+
+            end = QPointF(endPosX, endPosY)
+            self.polygon.replace(1, end)
