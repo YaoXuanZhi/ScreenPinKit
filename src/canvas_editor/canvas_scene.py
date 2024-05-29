@@ -52,9 +52,6 @@ class CanvasScene(QGraphicsScene):
         self.selectionChanged.connect(self.selectionChangedHandler)
         # self.setBackgroundBrush(self.bgBrush)
 
-        self.cacheMgr = PixmapCacheManager()
-        self.cacheMgr.saveLastPixmap(self.bgBrush.texture().copy())
-
     def selectionChangedHandler(self):
         selectItem = None
         if len(self.selectedItems()) > 0:
@@ -142,11 +139,10 @@ class CanvasScene(QGraphicsScene):
     def __completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
         if isOk:
             item.completeDraw()
-            # self.itemList.append(item)
             self.itemAddSignal.emit(self, item)
             self.lastAddItem = item
-            self.saveLastPixmap()
-            item.setEditableState(True)
+            if isinstance(item, CanvasTextItem):
+                item.setEditableState(True)
 
         if not isOk:
             self.removeItem(item)
@@ -171,20 +167,19 @@ class CanvasScene(QGraphicsScene):
         self.pathItem = None
         self.lastAddItem = None
         self.itemList = []
-        self.saveLastPixmap()
 
     def canUndo(self):
         return self.pathItem == None
 
-    def saveLastPixmap(self):
+    def captureCurrentScenePixmap(self) -> QPixmap:
+        '''捕获当前场景快照'''
         basePixmap = self.bgBrush.texture().copy()
         painter = QPainter()
         painter.begin(basePixmap)
         view = self.views()[0]
         painter.drawPixmap(view.geometry(), view.grab())
         painter.end()
-
-        self.cacheMgr.saveLastPixmap(basePixmap)
+        return basePixmap
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
@@ -211,11 +206,6 @@ class CanvasScene(QGraphicsScene):
         view:QGraphicsView = self.views()[0]
         targetPos = event.scenePos()
         item = self.itemAt(event.scenePos(), view.transform())
-
-        # item = None
-        # itemList = self.items(event.scenePos())
-        # if len(itemList) > 0:
-        #     item = itemList[0]
 
         isSkip = False
         if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
@@ -291,8 +281,8 @@ class CanvasScene(QGraphicsScene):
                                 self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.Blur:
                         if self.pathItem == None:
-                            lastPixmap = self.cacheMgr.lastPixmap.copy()
-                            self.pathItem = CanvasBlurRectItem(lastPixmap, None)
+                            lastPixmap = self.captureCurrentScenePixmap()
+                            self.pathItem = CanvasBlurRectItem(lastPixmap)
                             self.__startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
@@ -326,7 +316,7 @@ class CanvasScene(QGraphicsScene):
                         self.pathItem.update()
             if event.button() == Qt.RightButton:
                 if self.pathItem == None and self.currentDrawActionEnum == DrawActionEnum.Blur:
-                    lastPixmap = self.cacheMgr.lastPixmap.copy()
+                    lastPixmap = self.captureCurrentScenePixmap()
                     self.pathItem = CanvasBlurRectItem(lastPixmap)
                     self.__startDraw(self.pathItem)
                     sceneRect = QRect(QPoint(0, 0), lastPixmap.size())
@@ -397,8 +387,6 @@ class CanvasScene(QGraphicsScene):
 
                 if hasattr(finalItem, "completeDraw"):
                     if not isinstance(finalItem, CanvasTextItem) or not finalItem.isCanEditable():
-                        # self.itemList.remove(finalItem)
-                        # self.removeItem(finalItem)
                         self.itemDeleteSignal.emit(self, finalItem)
 
                         if self._itemNotifyCallBack != None:
