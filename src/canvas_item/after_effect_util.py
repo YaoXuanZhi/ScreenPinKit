@@ -1,8 +1,16 @@
+from enum import Enum
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PIL import ImageFilter, Image
+
+class AfterEffectType(Enum):
+    '''
+    图像后处理效果类型
+    '''
+    GaussianBlur = "高斯模糊"
+    Mosaic = "马赛克"
 
 class AfterEffectUtilByPIL:
     '''
@@ -189,26 +197,50 @@ class BlurEffectThread(QThread):
         self.maxSize = maxSize or self.maxSize
         self.start()
 
-class BlurManager(QObject):
-    """ Blur Manager """
+class PixmapCacheManager(QObject):
+    """ PixmapCache Manager """
 
-    _instance = None
-    _lastBlurPixmap:QPixmap = None
+    _lastPixmap:QPixmap = None
 
     def __init__(self):
         super().__init__()
 
-        self.blurRadius = 3
-        self.maxBlurSize = None
-        self.blurThread = BlurEffectThread()
-
-    def saveBlurPixmap(self, sourcePixmap):
-        self.blurThread.blurFinished.connect(self.__onBlurFinished)
-        self.blurThread.blur(sourcePixmap, self.blurRadius, self.maxBlurSize)
-
-    def __onBlurFinished(self, blurPixmap: QPixmap):
-        """ blur finished slot """
-        self._lastBlurPixmap:QPixmap = blurPixmap
+    def saveLastPixmap(self, sourcePixmap):
+        self._lastPixmap = sourcePixmap
 
     @property
-    def lastBlurPixmap(self) -> QPixmap: return self._lastBlurPixmap
+    def lastPixmap(self) -> QPixmap: return self._lastPixmap
+
+class EffectWorker(QThread):
+    '''图像后处理线程'''
+    effectFinishedSignal = pyqtSignal(QPixmap)
+    isRunning = 0
+
+    def __init__(self, effectType:AfterEffectType) -> None:
+        super().__init__()
+        self.setStackSize(1024*1024)
+        self.effectType = effectType
+
+    def startEffect(self, sourcePixmap:QPixmap, strength:int):
+        if self.isRunning:
+            return
+        self.sourcePixmap = sourcePixmap
+        self.strength = strength
+        self.start()
+
+    def run(self):
+        self.isRunning = 1
+        try:
+            if self.effectType == AfterEffectType.GaussianBlur:
+                finalPixmap = AfterEffectUtilByPIL.gaussianBlur(self.sourcePixmap, self.strength)
+                pass
+            elif self.effectType == AfterEffectType.Mosaic:
+                finalPixmap = AfterEffectUtilByPIL.mosaic(self.sourcePixmap, 5, self.strength)
+            else:
+                pass
+            self.effectFinishedSignal.emit(finalPixmap)
+            self.isRunning = 0
+        except Exception as e:
+            print(e)
+            self.isRunning = 0
+            raise

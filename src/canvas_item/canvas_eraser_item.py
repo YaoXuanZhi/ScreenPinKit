@@ -80,8 +80,8 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # bug:目前实现方式在该图元旋转时会出现bug
-        # return self.customPaintByClip(painter, targetPath)
-        return self.customPaintByCopy(painter, targetPath)
+        return self.customPaintByClip(painter, targetPath)
+        # return self.customPaintByCopy(painter, targetPath)
 
     def physicalRectF(self, rectf:QRectF):
         pixelRatio = self.bgPixmap.devicePixelRatio()

@@ -7,11 +7,20 @@ from extend_widgets import *
 from canvas_item import *
 from .canvas_item_toolbar import *
 
-class BlurToolbar(CommandBarView):
+class BlurToolbar(CanvasItemToolBar):
     blurTypeChangedSignal = pyqtSignal(DrawActionEnum)
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.initUI()
+        self.listenerEvent()
+
+    def initDefaultStyle(self):
+        self.styleMap = {
+            "strength" : 2,
+        }
+
+    def refreshStyleUI(self):
+        strength:int = self.styleMap["strength"]
+        self.strengthSlider.setValue(strength)
 
     def initUI(self):
         eraseActions = [
@@ -25,30 +34,25 @@ class BlurToolbar(CommandBarView):
             self.actionGroup.addAction(action)
         
         self.addActions(eraseActions)
+        eraseActions[0].trigger()
+        self.strengthSlider = self.initSliderOptionUI("强度", self.styleMap["strength"], 2, 10)
 
-        self.strengthSlider = self.initSliderOptionUI("强度", 50, 10, 100)
+    def listenerEvent(self):
+        self.strengthSlider.valueChanged.connect(self.strengthValueChangedHandler)
 
-    def initSliderOptionUI(self, optionName:str, defaultValue:int = 0, minValue:int = 0, maxValue:int = 100):
-        '''滑块选项'''
-        opacitySlider = Slider(Qt.Horizontal)
-        opacitySlider.setRange(minValue, maxValue)
-        opacitySlider.setValue(defaultValue)
-        self.initTemplateOptionUI(optionName, opacitySlider)
-        return opacitySlider
+    def strengthValueChangedHandler(self, value:float):
+        self.styleMap["strength"] = value
+        self.refreshAttachItem()
 
-    def initTemplateOptionUI(self, optionName:str, optionWidget:QWidget):
-        '''模板选项'''
-        optionView = QWidget()
-        optionLayout = QHBoxLayout()
-        optionView.setLayout(optionLayout)
-        optionLayout.addWidget(QLabel(optionName))
-        optionLayout.addWidget(optionWidget)
-        self.addWidget(optionView)
-        return optionWidget
+    def wheelZoom(self, angleDelta:int):
+        # 自定义滚轮事件的行为
+        if angleDelta > 1:
+            # 放大
+            self.strengthSlider.setValue(self.strengthSlider.value() + 1)
+        else:
+            # 缩小
+            self.strengthSlider.setValue(self.strengthSlider.value() - 1)
 
-    def showEvent(self, a0: QShowEvent) -> None:
-        self.hBoxLayout.setContentsMargins(1, 1, 1, 1)
-        self.setIconSize(QSize(20, 20))
-        self.resizeToSuitableWidth()
-        self.adjustSize()
-        return super().showEvent(a0)
+    def refreshAttachItem(self):
+        if self.canvasItem != None:
+            self.canvasItem.resetStyle(self.styleMap.copy())

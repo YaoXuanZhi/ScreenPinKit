@@ -32,7 +32,7 @@ class PainterInterface(QWidget):
         self.drawWidget:CanvasEditor = None
         self.sceneBrush:QBrush = None
         self.painterToolBarMgr:PainterToolBarManager = None
-        self.clearDraw(True)
+        self.currentDrawActionEnum = DrawActionEnum.DrawNone
         self.initLayout()
 
     def initLayout(self):
@@ -201,14 +201,6 @@ class PainterInterface(QWidget):
                 self.destroyImage()
         super().keyPressEvent(event)
 
-    def checkDrawActionChange(self):
-        # 如果中途切换了绘图工具，则关闭上一个绘图工具的编辑状态
-        if len(self.drawActions) > 0 and self.drawActions[-1].actionEnum != self.currentDrawActionEnum:
-            self.createCustomInfoBar(f"绘图工具切换到 【{self.currentDrawActionEnum.value}】")
-
-    def addDrawAction(self, drawAction:DrawAction):
-        self.drawActions.append(drawAction)
-
     def undo(self):
         self.drawWidget.undo()
 
@@ -253,13 +245,9 @@ class PainterInterface(QWidget):
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)
 
-    def clearDraw(self, isInit:bool=False):
-        if not isInit:
-            if hasattr(self, "drawWidget"):
-                self.drawWidget.clearDraw()
-
-        self.drawActions: list[DrawAction] = []
-        self.clearDrawFlag()
+    def clearDraw(self):
+        if hasattr(self, "drawWidget"):
+            self.drawWidget.clearDraw()
 
     def focusInEvent(self, event:QFocusEvent) -> None:
         self.parentWidget().focused = True

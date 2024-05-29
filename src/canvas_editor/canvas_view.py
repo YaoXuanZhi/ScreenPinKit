@@ -1,8 +1,3 @@
-from PyQt5 import QtGui
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
 from canvas_item.canvas_util import *
 
 class CanvasView(QGraphicsView):
@@ -14,18 +9,11 @@ class CanvasView(QGraphicsView):
         super().__init__(scene, parent)
         self.initUI()
 
-        # self.zoomComponent = ZoomComponent()
-        # self.zoomComponent.zoomClamp = True
-        # self.zoomComponent.signal.connect(self.zoomHandle)
-
-    # def zoomHandle(self, zoomFactor):
-    #     self.scale(zoomFactor, zoomFactor)
-
     def initUI(self):
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.scene_width, self.scene_height = self.frameSize().width(), self.frameSize().height()
-        self.setSceneRect(0, 0, self.scene_width, self.scene_height)
+        self.scene().setSceneRect(0, 0, self.scene_width, self.scene_height)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("background: transparent; border:0px;")
@@ -48,6 +36,5 @@ class CanvasView(QGraphicsView):
             pathItem = self.scene().pathItem
         # 如果有选中了某个图元，则滚动事件会正常往下分发
         if len(self.scene().selectedItems()) < 1 and pathItem == None:
-            # self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         return super().wheelEvent(event)

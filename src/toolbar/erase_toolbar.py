@@ -31,6 +31,8 @@ class EraseToolbar(CanvasItemToolBar):
         
         self.addActions(eraseActions)
 
+        eraseActions[0].trigger()
+
     def refreshStyleUI(self):
         pass
 

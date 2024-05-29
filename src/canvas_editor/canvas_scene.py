@@ -52,8 +52,8 @@ class CanvasScene(QGraphicsScene):
         self.selectionChanged.connect(self.selectionChangedHandler)
         # self.setBackgroundBrush(self.bgBrush)
 
-        # self.blurMgr = BlurManager()
-        # self.blurMgr.saveBlurPixmap(self.bgBrush.texture().copy())
+        self.cacheMgr = PixmapCacheManager()
+        self.cacheMgr.saveLastPixmap(self.bgBrush.texture().copy())
 
     def selectionChangedHandler(self):
         selectItem = None
@@ -145,7 +145,7 @@ class CanvasScene(QGraphicsScene):
             # self.itemList.append(item)
             self.itemAddSignal.emit(self, item)
             self.lastAddItem = item
-            # self.saveAfterEffectPixmap()
+            self.saveLastPixmap()
             item.setEditableState(True)
 
         if not isOk:
@@ -171,14 +171,12 @@ class CanvasScene(QGraphicsScene):
         self.pathItem = None
         self.lastAddItem = None
         self.itemList = []
+        self.saveLastPixmap()
 
     def canUndo(self):
         return self.pathItem == None
 
-    def saveAfterEffectPixmap(self):
-        '''
-        缓存机制：开启多线程缓存上次操作的快照后处理结果
-        '''
+    def saveLastPixmap(self):
         basePixmap = self.bgBrush.texture().copy()
         painter = QPainter()
         painter.begin(basePixmap)
@@ -186,7 +184,7 @@ class CanvasScene(QGraphicsScene):
         painter.drawPixmap(view.geometry(), view.grab())
         painter.end()
 
-        # self.blurMgr.saveBlurPixmap(basePixmap)
+        self.cacheMgr.saveLastPixmap(basePixmap)
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
@@ -293,14 +291,11 @@ class CanvasScene(QGraphicsScene):
                                 self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.Blur:
                         if self.pathItem == None:
-                            if self.bgBrush != None:
-                                # blurPixmap = self.blurMgr.lastBlurPixmap.copy()
-                                blurPixmap = None
-                                sourcePixmap = self.bgBrush.texture().copy()
-                                self.pathItem = CanvasBlurRectItem(sourcePixmap, blurPixmap, None)
-                                self.__startDraw(self.pathItem)
-                                self.pathItem.polygon.append(targetPos)
-                                self.pathItem.polygon.append(targetPos)
+                            lastPixmap = self.cacheMgr.lastPixmap.copy()
+                            self.pathItem = CanvasBlurRectItem(lastPixmap, None)
+                            self.__startDraw(self.pathItem)
+                            self.pathItem.polygon.append(targetPos)
+                            self.pathItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                         if self.pathItem == None:
                             self.pathItem = CanvasArrowItem()
@@ -313,7 +308,7 @@ class CanvasScene(QGraphicsScene):
                             self.__startDraw(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum in [DrawActionEnum.DrawShape]:
+                    elif self.currentDrawActionEnum == DrawActionEnum.DrawShape:
                         if self.pathItem == None:
                             self.pathItem = CanvasShapeItem()
                             self.__startDraw(self.pathItem)
@@ -329,6 +324,15 @@ class CanvasScene(QGraphicsScene):
                     else:
                         self.pathItem.polygon.append(targetPos)
                         self.pathItem.update()
+            if event.button() == Qt.RightButton:
+                if self.pathItem == None and self.currentDrawActionEnum == DrawActionEnum.Blur:
+                    lastPixmap = self.cacheMgr.lastPixmap.copy()
+                    self.pathItem = CanvasBlurRectItem(lastPixmap)
+                    self.__startDraw(self.pathItem)
+                    sceneRect = QRect(QPoint(0, 0), lastPixmap.size())
+                    self.pathItem.polygon.append(sceneRect.topLeft())
+                    self.pathItem.polygon.append(sceneRect.bottomRight())
+                    self.__completeDraw(self.pathItem)
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
