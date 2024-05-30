@@ -52,14 +52,10 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
 
         # 裁剪出当前区域
         painter.setClipPath(targetPath)
-        sourceRect = QRectF(QRect(QPoint(0, 0), self.bgPixmap.size()))
-        targetRect = self.mapRectFromScene(sourceRect)
         topLeft = self.mapFromScene(QPoint(0, 0))
 
         # 始终将背景贴到整个view上
-        # painter.drawPixmap(targetRect, self.bgPixmap, sourceRect)
-        painter.drawPixmap(targetRect.topLeft().toPoint(), self.bgPixmap)
-        # painter.drawPixmap(topLeft, self.bgPixmap)
+        painter.drawPixmap(topLeft, self.bgPixmap)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         return super().mouseMoveEvent(event)

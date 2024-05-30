@@ -44,6 +44,7 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
 
     def onEffectFinished(self, finalPixmap:QPixmap):
         self.blurPixmap = finalPixmap
+        self.blurPixmap.setDevicePixelRatio(self.sourcePixmap.devicePixelRatio())
         self.update()
 
     def excludeControllers(self) -> list:
@@ -54,6 +55,7 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         if partRect.width() < self.minSize.width() or partRect.height() < self.minSize.height():
             return
 
+        # self.customPaintByClip(painter, targetPath)
         self.customPaintByCopy(painter, targetPath)
         return
 
@@ -76,6 +78,18 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
             return
         physicalRect = self.physicalRectF(self.sceneBoundingRect())
         painter.drawPixmap(self.boundingRect(), self.blurPixmap, physicalRect)
+
+    def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        if self.blurPixmap == None:
+            return
+        # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
+
+        # 裁剪出当前区域
+        painter.setClipPath(targetPath)
+        topLeft = self.mapFromScene(QPoint(0, 0))
+
+        # 始终将背景贴到整个view上
+        painter.drawPixmap(topLeft, self.blurPixmap)
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()

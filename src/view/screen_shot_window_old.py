@@ -45,11 +45,11 @@ class ScreenShotScene(QGraphicsScene):
 
     def applyExpandArea(self, pos:QPointF):
         self.isApplyExpandArea = True
-        finalPolygon = QPolygonF(self.lastAddItem.polygon)
-        finalPolygon.append(pos)
-        finalRect = finalPolygon.boundingRect()
-        self.lastAddItem.polygon = QPolygonF(finalRect)
-        self.update()
+        # finalPolygon = QPolygonF(self.lastAddItem.polygon)
+        # finalPolygon.append(pos)
+        # finalRect = finalPolygon.boundingRect()
+        # self.lastAddItem.polygon = QPolygonF(finalRect)
+        # self.update()
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         if self.currentItem != None:
@@ -77,10 +77,10 @@ class ScreenShotScene(QGraphicsScene):
             isSkip = True
 
         if isSkip:
-            # if self.lastAddItem != None and event.button() == Qt.LeftButton:
-            #     isHit = self.lastAddItem.contains(event.scenePos())
-            #     if not isHit:
-            #         self.applyExpandArea(event.scenePos())
+            if self.lastAddItem != None and event.button() == Qt.LeftButton:
+                isHit = self.lastAddItem.contains(event.scenePos())
+                if not isHit:
+                    self.applyExpandArea(event.scenePos())
             return super().mousePressEvent(event)
 
         if event.button() == Qt.LeftButton:
