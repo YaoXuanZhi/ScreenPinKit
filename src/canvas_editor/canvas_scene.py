@@ -1,4 +1,5 @@
 import os, random
+from PyQt5.QtCore import QObject
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -20,8 +21,36 @@ class DrawActionEnum(Enum):
     DrawArrow = "绘制箭头"
     DrawPolygonalLine = "绘制折线"
     SelectItem = "选择对象"
-    Mosaic = "马赛克工具"
-    Blur = "模糊工具"
+    UseMosaicTool = "马赛克工具"
+    UseBlurTool = "模糊工具"
+
+class DrawActionInfo(QObject):
+    def __init__(self, parent: QObject = None) -> None:
+        super().__init__(parent)
+        self.map = {}
+        self.initLocale()
+
+    def initLocale(self):
+        self.map[DrawActionEnum.DrawNone] = self.tr("DrawNone")
+        self.map[DrawActionEnum.EditText] = self.tr("EditText")
+        self.map[DrawActionEnum.UsePencil] = self.tr("UsePencil")
+        self.map[DrawActionEnum.UseEraser] = self.tr("UseEraser")
+        self.map[DrawActionEnum.UseEraserRectItem] = self.tr("UseEraserRectItem")
+        self.map[DrawActionEnum.UseMarkerPen] = self.tr("UseMarkerPen")
+        self.map[DrawActionEnum.UseNumberMarker] = self.tr("UseNumberMarker")
+        self.map[DrawActionEnum.PasteSvg] = self.tr("PasteSvg")
+        self.map[DrawActionEnum.DrawShape] = self.tr("DrawShape")
+        self.map[DrawActionEnum.DrawArrow] = self.tr("DrawArrow")
+        self.map[DrawActionEnum.DrawPolygonalLine] = self.tr("DrawPolygonalLine")
+        self.map[DrawActionEnum.SelectItem] = self.tr("SelectItem")
+        self.map[DrawActionEnum.UseMosaicTool] = self.tr("UseBlurTool")
+        self.map[DrawActionEnum.UseBlurTool] = self.tr("UseBlurTool")
+
+    def getInfo(self, drawActionEnum:DrawActionEnum):
+        if drawActionEnum in self.map:
+            return self.map[drawActionEnum]
+        else:
+            return self.tr("UnknownTool")
 
 class SceneUserNotifyEnum(Enum):
     StartDrawedEvent = "已开始绘制"
@@ -279,7 +308,7 @@ class CanvasScene(QGraphicsScene):
                                 self.__startDraw(self.pathItem)
                                 self.pathItem.polygon.append(targetPos)
                                 self.pathItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.Blur:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
                         if self.pathItem == None:
                             lastPixmap = self.captureCurrentScenePixmap()
                             self.pathItem = CanvasBlurRectItem(lastPixmap)
@@ -315,7 +344,7 @@ class CanvasScene(QGraphicsScene):
                         self.pathItem.polygon.append(targetPos)
                         self.pathItem.update()
             if event.button() == Qt.RightButton:
-                if self.pathItem == None and self.currentDrawActionEnum == DrawActionEnum.Blur:
+                if self.pathItem == None and self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
                     lastPixmap = self.captureCurrentScenePixmap()
                     self.pathItem = CanvasBlurRectItem(lastPixmap)
                     self.__startDraw(self.pathItem)
@@ -340,7 +369,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.Blur,
+                DrawActionEnum.UseBlurTool,
                 ]:
                 self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
                 self.pathItem.update()
@@ -367,7 +396,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
                 DrawActionEnum.DrawShape, 
-                DrawActionEnum.Blur,
+                DrawActionEnum.UseBlurTool,
                 ]:
                 if event.button() == Qt.LeftButton:
                     isOk = False

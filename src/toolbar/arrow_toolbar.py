@@ -21,16 +21,16 @@ class ArrowToolbar(CanvasItemToolBar):
         }
 
         self.outlineTypeInfos = [
-            ("实线", Qt.PenStyle.SolidLine),
-            ("虚线", Qt.PenStyle.DashLine),
+            (self.tr("Solid line"), Qt.PenStyle.SolidLine),
+            (self.tr("Dash line"), Qt.PenStyle.DashLine),
         ]
 
     def initUI(self):
-        self.outlineTypeComboBox = self.initComboBoxOptionUI("画笔风格", self.outlineTypeInfos, self.styleMap["penStyle"])
-        self.penColorPickerButton = self.initColorOptionUI("画笔颜色", self.styleMap["penColor"])
-        self.brushColorPickerButton = self.initColorOptionUI("笔刷颜色", self.styleMap["brushColor"])
+        self.outlineTypeComboBox, self.penColorPickerButton = self.initPenOptionUI()
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
+        self.brushColorPickerButton = self.initColorOptionUI(self.tr("Brush"), self.styleMap["brushColor"])
+        self.addSeparator()
+        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
     def listenerEvent(self):
         self.outlineTypeComboBox.currentIndexChanged.connect(self.outlineTypeComboBoxHandle)
@@ -76,3 +76,29 @@ class ArrowToolbar(CanvasItemToolBar):
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def initPenOptionUI(self):
+        '''画笔选项'''
+
+        optionName = self.tr("Pen")
+
+        # 描边风格选项
+        outlineTypeComBox = ComboBox(self)
+        for text, enum in self.outlineTypeInfos:
+            outlineTypeComBox.addItem(text=text, userData=enum)
+
+        # 颜色选项
+        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
+        colorPickerButton.setCheckable(True)
+        colorPickerButton.setFixedSize(30, 30)
+
+        # 布局
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionView.setLayout(optionLayout)
+        optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(outlineTypeComBox)
+        optionLayout.addWidget(colorPickerButton)
+        self.addWidget(optionView)
+
+        return outlineTypeComBox, colorPickerButton

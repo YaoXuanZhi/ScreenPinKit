@@ -69,7 +69,7 @@ class MainWindow(DragWindow):
             extendActions = [
                 QAction('橡皮擦', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
                 QAction('橡皮擦2', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
-                QAction('马赛克', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur), shortcut="alt+7"),
+                QAction('马赛克', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseBlurTool), shortcut="alt+7"),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)

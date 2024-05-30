@@ -36,10 +36,10 @@ class PinEditorWindow(PinWindow):
             return
         menu = RoundMenu(parent=self)
         menu.addActions([
-            Action(ScreenShotIcon.WHITE_BOARD, '标注', triggered=self.showCommandBar),
-            Action(ScreenShotIcon.COPY, '复制', triggered=self.copyToClipboard),
-            Action(ScreenShotIcon.SAVE_AS, '另存为', triggered=self.saveToDisk),
-            Action(ScreenShotIcon.CLICK_THROUGH, '鼠标穿透', triggered=self.clickThrough),
+            Action(ScreenShotIcon.WHITE_BOARD, self.tr("Show toolbar"), triggered=self.showCommandBar),
+            Action(ScreenShotIcon.COPY, self.tr("Copy"), triggered=self.copyToClipboard),
+            Action(ScreenShotIcon.SAVE_AS, self.tr("Save as"), triggered=self.saveToDisk),
+            Action(ScreenShotIcon.CLICK_THROUGH, self.tr("Mouse through"), triggered=self.clickThrough),
         ])
         menu.view.setIconSize(QSize(20, 20))
         menu.exec(event.globalPos())

@@ -84,7 +84,7 @@ class PainterInterface(QWidget):
         drawActions = [
             Action(ScreenShotIcon.SHAPE, self.tr("Shape"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
             Action(ScreenShotIcon.POLYGONAL_LINE, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
-            Action(ScreenShotIcon.NUMBER_MARKER, self.tr("Number mark"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker)),
+            Action(ScreenShotIcon.NUMBER_MARKER, self.tr("Number marker"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
             Action(ScreenShotIcon.MARKER_PEN, self.tr("Marker pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
@@ -99,7 +99,7 @@ class PainterInterface(QWidget):
         if self.drawWidget.sceneBrush != None:
             extendActions = [
                 Action(ScreenShotIcon.ERASE, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.Blur)),
+                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseBlurTool)),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
@@ -115,7 +115,7 @@ class PainterInterface(QWidget):
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
             Action(ScreenShotIcon.UNDO2, self.tr("Undo"), triggered=self.undo),
             Action(ScreenShotIcon.REDO2, self.tr("Redo"), triggered=self.redo),
-            Action(ScreenShotIcon.FINISHED, self.tr("finish draw"), triggered=self.completeDraw),
+            Action(ScreenShotIcon.FINISHED, self.tr("Finish draw"), triggered=self.completeDraw),
         ])
 
         view.hBoxLayout.setContentsMargins(1, 1, 1, 1)
@@ -233,8 +233,11 @@ class PainterInterface(QWidget):
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
+        if not hasattr(self, "drawActionInfo"):
+            self.drawActionInfo = DrawActionInfo()
         if self.currentDrawActionEnum != drawActionEnum:
-            self.createCustomInfoBar(f"绘图工具切换到 【{drawActionEnum.value}】")
+            # self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), drawActionEnum.name))
+            self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum)))
         self.currentDrawActionEnum = drawActionEnum
         if self.painterToolBarMgr != None:
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)

@@ -20,15 +20,15 @@ class ShapeToolbar(CanvasItemToolBar):
         }
 
         self.outlineTypeInfos = [
-            ("实线", Qt.PenStyle.SolidLine),
-            ("虚线", Qt.PenStyle.DashLine),
+            (self.tr("Solid line"), Qt.PenStyle.SolidLine),
+            (self.tr("Dash line"), Qt.PenStyle.DashLine),
         ]
 
         self.shapeTypeInfos = [
-            ("矩形", ScreenShotIcon.RECTANGLE, CanvasShapeEnum.Rectangle),
-            ("圆形", ScreenShotIcon.CIRCLE, CanvasShapeEnum.Ellipse),
-            ("三角形", ScreenShotIcon.CIRCLE, CanvasShapeEnum.Triangle),
-            ("五角星", ScreenShotIcon.STAR, CanvasShapeEnum.Star),
+            (self.tr("Ellipse"), ScreenShotIcon.CIRCLE, CanvasShapeEnum.Ellipse),
+            (self.tr("Triangle"), ScreenShotIcon.TRIANGLE, CanvasShapeEnum.Triangle),
+            (self.tr("Rectangle"), ScreenShotIcon.RECTANGLE, CanvasShapeEnum.Rectangle),
+            (self.tr("Star"), ScreenShotIcon.STAR, CanvasShapeEnum.Star),
         ]
 
     def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
@@ -61,9 +61,9 @@ class ShapeToolbar(CanvasItemToolBar):
         self.addSeparator()
         self.outlineTypeComBox, self.outlineColorPickerButton = self.initPenOptionUI()
         self.addSeparator()
-        self.backgroundColorPickerButton = self.initColorOptionUI("画刷", Qt.GlobalColor.red)
+        self.backgroundColorPickerButton = self.initColorOptionUI(self.tr("Brush"), Qt.GlobalColor.red)
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
+        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
     
     def outlineTypeComBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComBox
@@ -104,13 +104,13 @@ class ShapeToolbar(CanvasItemToolBar):
         for text, icon, enum in self.shapeTypeInfos:
             shapeComBox.addItem(text=text, icon=icon, userData=enum)
         shapeComBox.currentIndexChanged.connect(self.shapeTypeComBoxHandle)
-        self.initTemplateOptionUI("形状", shapeComBox)
+        self.initTemplateOptionUI(self.tr("Shape"), shapeComBox)
         return shapeComBox
     
     def initPenOptionUI(self):
         '''画笔选项'''
 
-        optionName = "画笔"
+        optionName = self.tr("Pen")
 
         # 描边风格选项
         outlineTypeComBox = ComboBox(self)

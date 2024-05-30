@@ -69,7 +69,7 @@ class PainterToolBarManager(QObject):
         elif isinstance(self.canvasItemBar, PolygonLineToolbar):
             drawActionEnum = DrawActionEnum.DrawPolygonalLine
         elif isinstance(self.canvasItemBar, BlurToolbar):
-            drawActionEnum = DrawActionEnum.Blur
+            drawActionEnum = DrawActionEnum.UseBlurTool
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
@@ -85,7 +85,7 @@ class PainterToolBarManager(QObject):
         elif isinstance(canvasItem, CanvasArrowItem):
             matchDrawActionEnum = DrawActionEnum.DrawArrow
         elif isinstance(canvasItem, CanvasBlurRectItem):
-            matchDrawActionEnum = DrawActionEnum.Blur
+            matchDrawActionEnum = DrawActionEnum.UseBlurTool
 
         if drawActionEnum != matchDrawActionEnum:
             self.switchDrawTool(matchDrawActionEnum)
@@ -113,7 +113,7 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.UseEraser:
                 self.canvasItemBar = EraseToolbar(parent=self.targetWidget)
                 self.canvasItemBar.eraseTypeChangedSignal = self.providerChangeDrawActionSignal
-            elif drawActionEnum == DrawActionEnum.Blur:
+            elif drawActionEnum == DrawActionEnum.UseBlurTool:
                 self.canvasItemBar = BlurToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UsePencil:
                 self.canvasItemBar = PenToolbar(parent=self.targetWidget)

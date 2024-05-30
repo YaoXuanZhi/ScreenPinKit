@@ -20,8 +20,8 @@ class EraseToolbar(CanvasItemToolBar):
 
     def initUI(self):
         eraseActions = [
-            Action(ScreenShotIcon.FULL_Dot, '橡皮擦', triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraser)),
-            Action(ScreenShotIcon.FULL_RECTANGLE, '橡皮框', triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
+            Action(ScreenShotIcon.FULL_Dot, self.tr("Eraser pen"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraser)),
+            Action(ScreenShotIcon.FULL_RECTANGLE, self.tr("Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
             ]
 
         self.actionGroup = QActionGroup(self)

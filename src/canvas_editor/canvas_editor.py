@@ -33,8 +33,8 @@ class CanvasEditor(QWidget):
 
     def initActions(self):
         actions = [
-            QAction("撤销", self, triggered=self.undo, shortcut="ctrl+z"),
-            QAction("重做", self, triggered=self.redo, shortcut="ctrl+y"),
+            QAction(self, triggered=self.undo, shortcut="ctrl+z"),
+            QAction(self, triggered=self.redo, shortcut="ctrl+y"),
         ]
         self.addActions(actions)
 

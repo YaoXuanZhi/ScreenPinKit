@@ -20,9 +20,9 @@ class CommonPathToolbar(CanvasItemToolBar):
         }
 
     def initUI(self):
-        self.colorPickerButton = self.initColorOptionUI("颜色", self.styleMap["color"])
+        self.colorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["color"])
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
+        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
     def listenerEvent(self):
         self.colorPickerButton.colorChanged.connect(self.colorChangedHandler)

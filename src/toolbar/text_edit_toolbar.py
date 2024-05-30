@@ -18,14 +18,14 @@ class TextEditToolbar(CanvasItemToolBar):
         }
 
     def initUI(self):
-        self.boldButton = self.addAction(Action(ScreenShotIcon.TEXT_BOLD, '加粗', triggered=self.fontExtStyleChangedHandler))
+        self.boldButton = self.addAction(Action(ScreenShotIcon.TEXT_BOLD, self.tr("Text bold"), triggered=self.fontExtStyleChangedHandler))
         self.boldButton.setCheckable(True)
-        self.italicButton = self.addAction(Action(ScreenShotIcon.TEXT_ITALIC, '斜体', triggered=self.fontExtStyleChangedHandler))
+        self.italicButton = self.addAction(Action(ScreenShotIcon.TEXT_ITALIC, self.tr("Text italic"), triggered=self.fontExtStyleChangedHandler))
         self.italicButton.setCheckable(True)
-        self.textColorPickerButton = self.initColorOptionUI("颜色", self.styleMap["textColor"])
-        self.fontPickerButton = self.initFontOptionUI("字体", self.styleMap["font"])
+        self.textColorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["textColor"])
+        self.fontPickerButton = self.initFontOptionUI(self.tr("Font"), self.styleMap["font"])
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI("不透明度", self.opacity, 10, 100)
+        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
     def fontExtStyleChangedHandler(self):
         font:QFont = self.styleMap["font"]

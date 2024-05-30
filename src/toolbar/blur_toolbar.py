@@ -20,8 +20,8 @@ class BlurToolbar(CanvasItemToolBar):
 
     def initUI(self):
         eraseActions = [
-            Action(ScreenShotIcon.MOSAIC, '马赛克', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.Mosaic)),
-            Action(ScreenShotIcon.BLUR, '模糊', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
+            Action(ScreenShotIcon.MOSAIC, self.tr("Mosaic"), triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseMosaicTool)),
+            Action(ScreenShotIcon.BLUR, self.tr("Blur"), triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
             ]
 
         self.actionGroup = QActionGroup(self)
@@ -31,7 +31,7 @@ class BlurToolbar(CanvasItemToolBar):
         
         self.addActions(eraseActions)
         eraseActions[0].trigger()
-        self.strengthSlider = self.initSliderOptionUI("强度", self.styleMap["strength"], 2, 10)
+        self.strengthSlider = self.initSliderOptionUI(self.tr("Effect strength"), self.styleMap["strength"], 2, 10)
 
     def listenerEvent(self):
         self.strengthSlider.valueChanged.connect(self.strengthValueChangedHandler)

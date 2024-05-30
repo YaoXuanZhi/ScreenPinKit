@@ -167,6 +167,25 @@
     </message>
 </context>
 <context>
+    <name>PinEditorWindow</name>
+    <message>
+        <source>Show toolbar</source>
+        <translation>显示工具栏</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>复制</translation>
+    </message>
+    <message>
+        <source>Save as</source>
+        <translation>另存为</translation>
+    </message>
+    <message>
+        <source>Mouse through</source>
+        <translation>鼠标穿透</translation>
+    </message>
+</context>
+<context>
     <name>PainterInterface</name>
     <message>
         <source>Locked</source>
@@ -189,8 +208,8 @@
         <translation>折线</translation>
     </message>
     <message>
-        <source>Index mark</source>
-        <translation>标记</translation>
+        <source>Number marker</source>
+        <translation>数字标记</translation>
     </message>
     <message>
         <source>Arrow</source>
@@ -229,8 +248,260 @@
         <translation>重做</translation>
     </message>
     <message>
-        <source>finish draw</source>
+        <source>Finish draw</source>
         <translation>完成绘画</translation>
+    </message>
+    <message>
+        <source>Switch to</source>
+        <translation>切换到</translation>
+    </message>
+</context>
+<context>
+    <name>CanvasItemToolBar</name>
+    <message>
+        <source>Change FontFamily</source>
+        <translation>更改字体</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditToolbar</name>
+    <message>
+        <source>Text bold</source>
+        <translation>加粗</translation>
+    </message>
+    <message>
+        <source>Text italic</source>
+        <translation>斜体</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>字体</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>PenToolbar</name>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>PolygonLineToolbar</name>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>ShapeToolbar</name>
+    <message>
+        <source>Brush</source>
+        <translation>笔刷</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>形状</translation>
+    </message>
+    <message>
+        <source>Pen</source>
+        <translation>画笔</translation>
+    </message>
+    <message>
+        <source>Solid line</source>
+        <translation>实线</translation>
+    </message>
+    <message>
+        <source>Dash line</source>
+        <translation>虚线</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>矩形</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>圆形</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>三角形</translation>
+    </message>
+    <message>
+        <source>Star</source>
+        <translation>五角星</translation>
+    </message>
+</context>
+<context>
+    <name>NumberMarkerItemToolbar</name>
+    <message>
+        <source>Text color</source>
+        <translation>字体颜色</translation>
+    </message>
+    <message>
+        <source>Brush color</source>
+        <translation>笔刷颜色</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>字体</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>MarkerPenToolbar</name>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>EraseToolbar</name>
+    <message>
+        <source>Eraser pen</source>
+        <translation>橡皮擦</translation>
+    </message>
+    <message>
+        <source>Eraser frame</source>
+        <translation>橡皮框</translation>
+    </message>
+</context>
+<context>
+    <name>CommonPathToolbar</name>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+</context>
+<context>
+    <name>BlurToolbar</name>
+    <message>
+        <source>Mosaic</source>
+        <translation>马赛克</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>模糊</translation>
+    </message>
+    <message>
+        <source>Effect strength</source>
+        <translation>强度</translation>
+    </message>
+</context>
+<context>
+    <name>ArrowToolbar</name>
+    <message>
+        <source>Solid line</source>
+        <translation>实线</translation>
+    </message>
+    <message>
+        <source>Dash line</source>
+        <translation>虚线</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Pen</source>
+        <translation>画笔</translation>
+    </message>
+    <message>
+        <source>Brush</source>
+        <translation>笔刷</translation>
+    </message>
+</context>
+<context>
+    <name>DrawActionInfo</name>
+    <message>
+        <source>DrawNone</source>
+        <translation>无操作</translation>
+    </message>
+    <message>
+        <source>EditText</source>
+        <translation>编辑文字</translation>
+    </message>
+    <message>
+        <source>UsePencil</source>
+        <translation>使用画笔</translation>
+    </message>
+    <message>
+        <source>UseEraser</source>
+        <translation>使用橡皮擦</translation>
+    </message>
+    <message>
+        <source>UseEraserRectItem</source>
+        <translation>使用橡皮框</translation>
+    </message>
+    <message>
+        <source>UseMarkerPen</source>
+        <translation>使用记号笔</translation>
+    </message>
+    <message>
+        <source>UseNumberMarker</source>
+        <translation>使用数字标记</translation>
+    </message>
+    <message>
+        <source>PasteSvg</source>
+        <translation>粘贴图案</translation>
+    </message>
+    <message>
+        <source>DrawShape</source>
+        <translation>绘制形状</translation>
+    </message>
+    <message>
+        <source>DrawArrow</source>
+        <translation>绘制箭头</translation>
+    </message>
+    <message>
+        <source>DrawPolygonalLine</source>
+        <translation>绘制折线</translation>
+    </message>
+    <message>
+        <source>SelectItem</source>
+        <translation>选择对象</translation>
+    </message>
+    <message>
+        <source>UseMosaicTool</source>
+        <translation>马赛克工具</translation>
+    </message>
+    <message>
+        <source>UseBlurTool</source>
+        <translation>模糊工具</translation>
+    </message>
+    <message>
+        <source>UnknownTool</source>
+        <translation>未知工具</translation>
     </message>
 </context>
 </TS>
