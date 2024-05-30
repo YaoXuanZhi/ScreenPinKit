@@ -15,6 +15,8 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
         self.limitRect = finalGeometry
 
         self.edgeColor = QColor(30, 120, 255, 255)
+        self.usePen = QPen(self.edgeColor, 2, Qt.PenStyle.SolidLine)
+        self.useBrush = QBrush(self.edgeColor)
 
     def getEdgeOffset(self) -> int:
         return 0
@@ -52,13 +54,14 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
         painter.setClipPath(targetPath)
         sourceRect = QRectF(QRect(QPoint(0, 0), self.bgPixmap.size()))
         targetRect = self.mapRectFromScene(sourceRect)
+        topLeft = self.mapFromScene(QPoint(0, 0))
 
         # 始终将背景贴到整个view上
         # painter.drawPixmap(targetRect, self.bgPixmap, sourceRect)
         painter.drawPixmap(targetRect.topLeft().toPoint(), self.bgPixmap)
+        # painter.drawPixmap(topLeft, self.bgPixmap)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        print(f"===========> {self.limitRect} {event.pos()}")
         return super().mouseMoveEvent(event)
 
     def getStretchableRect(self) -> QRect:
@@ -74,7 +77,7 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
         painter.restore()
 
         painter.save()
-        painter.setPen(QPen(self.edgeColor, 2, Qt.PenStyle.SolidLine))
+        painter.setPen(self.usePen)
         rect = self.getStretchableRect()
         painter.drawRect(rect)
         painter.restore()
@@ -93,7 +96,7 @@ class CanvasPasteImageItem(CanvasCommonPathItem):
             pen = QPen()
             pen.setColor(Qt.GlobalColor.white)
             pen.setWidth(1)
-            brush = QBrush(self.edgeColor)
+            brush = QBrush(self.useBrush)
             for item in self.controllers:
                 item.setPen(pen)
                 item.setBrush(brush)

@@ -39,13 +39,12 @@ class ScreenShotScene(QGraphicsScene):
     def onSceneRectChanged(self, _rect:QRectF):
         rect = self.sceneRect()
         if self.maskLayer == None:
-            self.maskLayer = CanvasMaskItem(QColor(0, 0, 0, 64))
+            self.maskLayer = CanvasMaskItem(QColor(0, 0, 0, 150))
             self.addItem(self.maskLayer)
         self.maskLayer.setRect(rect)
 
     def applyExpandArea(self, pos:QPointF):
         self.isApplyExpandArea = True
-        print(f"========> 333 {self.isApplyExpandArea}")
         finalPolygon = QPolygonF(self.lastAddItem.polygon)
         finalPolygon.append(pos)
         finalRect = finalPolygon.boundingRect()
@@ -78,10 +77,10 @@ class ScreenShotScene(QGraphicsScene):
             isSkip = True
 
         if isSkip:
-            if self.lastAddItem != None and event.button() == Qt.LeftButton:
-                isHit = self.lastAddItem.contains(event.scenePos())
-                if not isHit:
-                    self.applyExpandArea(event.scenePos())
+            # if self.lastAddItem != None and event.button() == Qt.LeftButton:
+            #     isHit = self.lastAddItem.contains(event.scenePos())
+            #     if not isHit:
+            #         self.applyExpandArea(event.scenePos())
             return super().mousePressEvent(event)
 
         if event.button() == Qt.LeftButton:
@@ -108,7 +107,6 @@ class ScreenShotScene(QGraphicsScene):
                     self.lastAddItem = self.currentItem
                 self.currentItem = None
 
-        print(f"========> 444 {self.isApplyExpandArea}")
         if self.isApplyExpandArea:
             self.isApplyExpandArea = False
             self.lastAddItem.refreshTransformOriginPoint()
@@ -121,7 +119,8 @@ class ScreenShotScene(QGraphicsScene):
             self.exitSignal.emit()
 
 class ScreenShotWindow(QWidget):
-    snipedSignal = pyqtSignal(QPoint, QPixmap)
+    snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
+    closedSignal = pyqtSignal()
     def __init__(self, parent:QWidget = None):
         super().__init__(parent)
         self.defaultFlag()
@@ -129,10 +128,7 @@ class ScreenShotWindow(QWidget):
         self.initActions()
         self.painter = QPainter()
         self.registerListen()
-        self.setWindowOpacity(0.2)
-
-    def onSnip(self, point:QPoint, pixmap:QPixmap):
-        print(f"======> {point} / {pixmap.size()}")
+        self.setWindowOpacity(0.5)
 
     def defaultFlag(self):
         self.setMouseTracking(True)
@@ -148,7 +144,6 @@ class ScreenShotWindow(QWidget):
         self.contentLayout.addWidget(self.view)
 
     def registerListen(self):
-        self.snipedSignal.connect(self.onSnip)
         self.scene.exitSignal.connect(lambda: self.close())
 
     def initActions(self):
@@ -169,19 +164,25 @@ class ScreenShotWindow(QWidget):
     def copyToClipboard(self):
         if not self.scene.isCapturing():
             return
-        cropRect = self.toPhysicalRectF(self.scene.lastAddItem.sceneBoundingRect()).toRect()
-        cropPixmap = self.screenPixmap.copy(cropRect)
-        QApplication.clipboard().setPixmap(cropPixmap)
+        cropRect = self.scene.lastAddItem.sceneBoundingRect()
+        realCropRect = self.toPhysicalRectF(cropRect).toRect()
+        if realCropRect.size() != QSize(0, 0):
+            cropPixmap = self.screenPixmap.copy(realCropRect)
+            QApplication.clipboard().setPixmap(cropPixmap)
+        self.cancelScreenShot()
         self.close()
 
     def snip(self):
         if not self.scene.isCapturing():
             return
-        rect = self.scene.lastAddItem.sceneBoundingRect()
-        cropRect = self.toPhysicalRectF(rect).toRect()
-        cropPixmap = self.screenPixmap.copy(cropRect)
-        screenPoint = self.mapToGlobal(rect.topLeft().toPoint())
-        self.snipedSignal.emit(screenPoint, cropPixmap)
+        cropRect = self.scene.lastAddItem.sceneBoundingRect()
+        realCropRect = self.toPhysicalRectF(cropRect).toRect()
+        if realCropRect.size() != QSize(0, 0):
+            cropPixmap = self.screenPixmap.copy(realCropRect)
+            screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
+            self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
+        self.cancelScreenShot()
+        self.close()
 
     def cancelScreenShot(self):
         self.scene.cancelScreenShot()
@@ -202,6 +203,6 @@ class ScreenShotWindow(QWidget):
         self.scene.reset()
         self.show()
 
-    # def mouseDoubleClickEvent(self, event):
-    #     if event.button() == Qt.MouseButton.LeftButton:
-    #         self.close()
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        self.closedSignal.emit()
+        return super().closeEvent(a0)
