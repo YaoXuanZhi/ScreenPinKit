@@ -24,11 +24,11 @@ class MainWindow(QWidget):
 
     def initSystemTrayMenu(self):
         trayMenuActions = [
-            Action(ScreenShotIcon.LOGO, self.tr("Snap"), triggered=self.screenShot),
+            Action(ScreenShotIcon.SNAP, self.tr("Snap"), triggered=self.screenShot),
             Action(ScreenShotIcon.SETTING, self.tr("Preferences"), triggered=self.showSettingWindow),
             Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
-        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, QIcon(":/qfluentwidgets/images/logo.png"), trayMenuActions, self.screenShot)
+        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, Icon(ScreenShotIcon.LOGO), trayMenuActions, self.screenShot)
         self.systemTrayIcon.show()
 
     def initHotKey(self):

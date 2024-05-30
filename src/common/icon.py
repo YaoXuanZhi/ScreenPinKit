@@ -5,7 +5,8 @@ import os
 from qfluentwidgets import FluentIconBase, getIconColor, Theme
 
 class ScreenShotIcon(FluentIconBase, Enum):
-    LOGO = "截图"
+    LOGO = "whiteboard3"
+    SNAP = "截图"
     QUIT = "取消"
     SETTING = "设置"
     WHITE_BOARD = "whiteboard"
@@ -51,6 +52,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     TEXT_ITALIC = "italic"
     FULL_Dot = "full-stop"
     FULL_RECTANGLE = "full-rectangle"
+    BLUR = "blur"
 
     def path(self, theme=Theme.AUTO):
         # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")

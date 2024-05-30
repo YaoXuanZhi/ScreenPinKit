@@ -1,7 +1,3 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
 from common import ScreenShotIcon
 from extend_widgets import *
 from canvas_item import *
@@ -25,7 +21,7 @@ class BlurToolbar(CanvasItemToolBar):
     def initUI(self):
         eraseActions = [
             Action(ScreenShotIcon.MOSAIC, '马赛克', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.Mosaic)),
-            Action(ScreenShotIcon.RECTANGLE, '模糊', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
+            Action(ScreenShotIcon.BLUR, '模糊', triggered=lambda: self.blurTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
             ]
 
         self.actionGroup = QActionGroup(self)

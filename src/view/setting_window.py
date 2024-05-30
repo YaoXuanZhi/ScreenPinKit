@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from qframelesswindow import FramelessWindow, StandardTitleBar
+from qfluentwidgets import *
 from common import *
 from .setting_interface import *
 
@@ -24,6 +25,6 @@ class SettingWindow(FramelessWindow):
         w, h = desktop.width(), desktop.height()
         self.move(w//2 - self.width()//2, h//2 - self.height()//2)
 
-        self.setWindowIcon(QIcon(":/qfluentwidgets/images/logo.png"))
+        self.setWindowIcon(Icon(ScreenShotIcon.LOGO))
         self.setWindowTitle(APP_NAME + " " + self.tr("Preferences"))
         self.titleBar.raise_()
