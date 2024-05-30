@@ -1,3 +1,4 @@
+# coding=utf-8
 from .canvas_util import *
 from .after_effect_util import *
 

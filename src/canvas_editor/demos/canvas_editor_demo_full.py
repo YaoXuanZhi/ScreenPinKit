@@ -58,7 +58,7 @@ class MainWindow(DragWindow):
             QAction("切换锁定状态", self, triggered=lambda: self.canvasEditor.switchLockState(), shortcut="alt+0"),
 
             QAction("切换到铅笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil), shortcut="alt+1"),
-            QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
+            QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip), shortcut="alt+2"),
             QAction("绘制多边形", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape), shortcut="alt+3"),
             QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
             QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+8"),

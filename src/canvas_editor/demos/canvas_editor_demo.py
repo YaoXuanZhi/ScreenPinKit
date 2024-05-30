@@ -63,9 +63,10 @@ class DrawingScene(QGraphicsScene):
         self.addItem(pathItem2)
 
         pathItem3 = CanvasEditablePath(None, False)
-        pathItem3.addPoint(QPointF(-100, -100), Qt.PointingHandCursor)
-        pathItem3.addPoint(QPointF(-30, -50), Qt.PointingHandCursor)
-        pathItem3.addPoint(QPointF(-200, -280), Qt.SizeAllCursor)
+        pathItem3.addPoint(QPointF(0, 0), Qt.SizeAllCursor)
+        pathItem3.addPoint(QPointF(50, 50), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(200, 200), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(0, 380), Qt.SizeAllCursor)
         pathItem3.update()
         pathItem3.setPos(targetPoint/-2)
         self.addItem(pathItem3)
@@ -92,7 +93,7 @@ class DrawingScene(QGraphicsScene):
                     if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
                         if self.pathItem == None:
                             self.setEditableState(False)
-                            self.pathItem = CanvasPolygonItem()
+                            self.pathItem = CanvasLineStripItem()
                             self.addItem(self.pathItem)
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)

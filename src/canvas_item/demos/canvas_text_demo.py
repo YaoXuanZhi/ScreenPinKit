@@ -1,3 +1,4 @@
+# coding=utf-8
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -97,15 +98,16 @@ class DrawingView(QGraphicsView):
         # self.setDragMode(QGraphicsView.RubberBandDrag)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        item = self.itemAt(event.pos())
+        if item != None and self.currentItem != item:
+            return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
                     self.currentItem = CanvasTextItem()
-                    self.currentItem.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsFocusable)
-                    self.currentItem.setAcceptHoverEvents(True)
                     self.currentItem.setPlainText("输入文本")
-                    # self.currentItem.switchEditableBox2()
+                    self.currentItem.switchEditableBox()
                     self.scene().addItem(self.currentItem)
 
                     targetPos = self.mapToScene(event.pos())

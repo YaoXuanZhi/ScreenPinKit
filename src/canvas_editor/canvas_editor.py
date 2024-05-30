@@ -1,3 +1,4 @@
+# coding=utf-8
 from canvas_item.canvas_util import CanvasROIManager
 from .canvas_scene import CanvasScene, DrawActionEnum
 from .canvas_view import CanvasView

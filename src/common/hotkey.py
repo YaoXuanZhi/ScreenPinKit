@@ -1,6 +1,6 @@
 # coding:utf-8
-from PyQt5.QtCore import QObject , pyqtSignal
 import time
+from PyQt5.QtCore import *
 from system_hotkey import *
 
 class KeyboardEx(QObject):

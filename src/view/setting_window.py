@@ -1,10 +1,11 @@
+# coding=utf-8
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from common import *
 from qframelesswindow import FramelessWindow, StandardTitleBar
 from qfluentwidgets import *
-from common import *
 from .setting_interface import *
 
 class SettingWindow(FramelessWindow):

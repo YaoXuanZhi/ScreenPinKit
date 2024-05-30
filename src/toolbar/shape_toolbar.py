@@ -1,7 +1,5 @@
+# coding=utf-8
 from common import ScreenShotIcon
-from extend_widgets import *
-from canvas_editor import *
-from canvas_item import *
 from .canvas_item_toolbar import *
 
 class ShapeToolbar(CanvasItemToolBar):
@@ -31,7 +29,13 @@ class ShapeToolbar(CanvasItemToolBar):
             (self.tr("Star"), ScreenShotIcon.STAR, CanvasShapeEnum.Star),
         ]
 
-    def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
+    def refreshStyleUI(self):
+        penColor:QColor = self.styleMap["penColor"]
+        brushColor:QColor = self.styleMap["brushColor"]
+        self.outlineColorPickerButton.setColor(penColor)
+        self.backgroundColorPickerButton.setColor(brushColor)
+        self.opacitySlider.setValue(self.opacity)
+
         # 更新形状选项
         currentShape = self.styleMap["shape"]
         currentIndex = 0
@@ -49,13 +53,6 @@ class ShapeToolbar(CanvasItemToolBar):
             currentIndex = currentIndex + 1 
         self.outlineTypeComBox.setCurrentIndex(currentIndex)
 
-    def refreshStyleUI(self):
-        penColor:QColor = self.styleMap["penColor"]
-        brushColor:QColor = self.styleMap["brushColor"]
-        self.outlineColorPickerButton.setColor(penColor)
-        self.backgroundColorPickerButton.setColor(brushColor)
-        self.opacitySlider.setValue(self.opacity)
-
     def initUI(self):
         self.shapeComBox = self.initShapeOptionUI()
         self.addSeparator()
@@ -64,6 +61,8 @@ class ShapeToolbar(CanvasItemToolBar):
         self.backgroundColorPickerButton = self.initColorOptionUI(self.tr("Brush"), Qt.GlobalColor.red)
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
+
+        # self.selectItemChangedHandle(None)
     
     def outlineTypeComBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComBox

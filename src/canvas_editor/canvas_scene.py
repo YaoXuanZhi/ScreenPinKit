@@ -1,9 +1,5 @@
+# coding=utf-8
 import os, random
-from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from canvas_item import *
 from canvas_item.canvas_util import CanvasUtil
 
@@ -19,7 +15,7 @@ class DrawActionEnum(Enum):
 
     DrawShape = "绘制形状"
     DrawArrow = "绘制箭头"
-    DrawPolygonalLine = "绘制折线"
+    DrawLineStrip = "绘制折线"
     SelectItem = "选择对象"
     UseMosaicTool = "马赛克工具"
     UseBlurTool = "模糊工具"
@@ -41,7 +37,7 @@ class DrawActionInfo(QObject):
         self.map[DrawActionEnum.PasteSvg] = self.tr("PasteSvg")
         self.map[DrawActionEnum.DrawShape] = self.tr("DrawShape")
         self.map[DrawActionEnum.DrawArrow] = self.tr("DrawArrow")
-        self.map[DrawActionEnum.DrawPolygonalLine] = self.tr("DrawPolygonalLine")
+        self.map[DrawActionEnum.DrawLineStrip] = self.tr("DrawLineStrip")
         self.map[DrawActionEnum.SelectItem] = self.tr("SelectItem")
         self.map[DrawActionEnum.UseMosaicTool] = self.tr("UseBlurTool")
         self.map[DrawActionEnum.UseBlurTool] = self.tr("UseBlurTool")
@@ -157,7 +153,7 @@ class CanvasScene(QGraphicsScene):
         if self.pathItem != None:
             isOk = True
             # 由于线段控件强制退出时，需要回收一个预览操作点，需要额外处理
-            if isinstance(self.pathItem, CanvasPolygonItem):
+            if isinstance(self.pathItem, CanvasLineStripItem):
                 if self.pathItem.polygon.count() > 2:
                     self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
                 else:
@@ -225,7 +221,7 @@ class CanvasScene(QGraphicsScene):
             selectItem.wheelEvent(event)
             event.accept()
             return
-        if isinstance(self.pathItem, CanvasPolygonItem):
+        if isinstance(self.pathItem, CanvasLineStripItem):
             event.accept()
             return
         return super().wheelEvent(event)
@@ -334,9 +330,9 @@ class CanvasScene(QGraphicsScene):
                             self.pathItem.polygon.append(targetPos)
                             self.pathItem.polygon.append(targetPos)
 
-                if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
+                if self.currentDrawActionEnum == DrawActionEnum.DrawLineStrip:
                     if self.pathItem == None:
-                        self.pathItem = CanvasPolygonItem()
+                        self.pathItem = CanvasLineStripItem()
                         self.__startDraw(self.pathItem)
                         self.pathItem.polygon.append(targetPos)
                         self.pathItem.polygon.append(targetPos)
@@ -365,7 +361,7 @@ class CanvasScene(QGraphicsScene):
                     self.pathItem.forceSquare()
                 self.pathItem.update()
             elif self.currentDrawActionEnum in [
-                DrawActionEnum.DrawPolygonalLine, 
+                DrawActionEnum.DrawLineStrip, 
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
@@ -381,7 +377,7 @@ class CanvasScene(QGraphicsScene):
     def mouseReleaseEvent(self, event):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.pathItem != None:
 
-            if self.currentDrawActionEnum in [DrawActionEnum.DrawPolygonalLine] and event.button() == Qt.RightButton:
+            if self.currentDrawActionEnum in [DrawActionEnum.DrawLineStrip] and event.button() == Qt.RightButton:
                 if event.button() == Qt.RightButton and self.pathItem != None:
                     isOk = False
                     if self.pathItem.polygon.count() > 2:

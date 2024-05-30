@@ -1,3 +1,4 @@
+# coding=utf-8
 from enum import Enum
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *

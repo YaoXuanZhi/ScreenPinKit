@@ -1,3 +1,4 @@
+# coding=utf-8
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -36,11 +37,14 @@ class DrawingView(QGraphicsView):
         # self.setDragMode(QGraphicsView.RubberBandDrag)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        item = self.itemAt(event.pos())
+        if item != None and self.currentItem != item:
+            return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.isCanDrag():
                 item = self.itemAt(event.pos())
                 if item == None:
-                    self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 20, 20))
+                    self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 50, 50))
 
                     self.scene().addItem(self.currentItem)
 

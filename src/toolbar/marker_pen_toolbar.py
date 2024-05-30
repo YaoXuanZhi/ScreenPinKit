@@ -1,9 +1,5 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
+# coding=utf-8
 from common import cfg
-from canvas_item import *
 from .canvas_item_toolbar import *
 
 class MarkerPenToolbar(CanvasItemToolBar):

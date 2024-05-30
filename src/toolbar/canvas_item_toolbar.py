@@ -1,8 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
-from common import ScreenShotIcon
+# coding=utf-8
 from extend_widgets import *
 from canvas_editor import *
 from canvas_item import *
@@ -11,10 +7,10 @@ import typing
 class CanvasItemToolBar(CommandBarView):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.canvasItem = None
         self.initDefaultStyle()
         self.initUI()
         self.refreshStyleUI()
-        self.canvasItem = None
 
     def initDefaultStyle(self):
         raise NotImplementedError("子类需要重写该函数")

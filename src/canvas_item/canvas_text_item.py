@@ -1,3 +1,4 @@
+# coding=utf-8
 from .canvas_util import *
 
 class CanvasTextItem(QGraphicsTextItem):
@@ -16,13 +17,15 @@ class CanvasTextItem(QGraphicsTextItem):
         self.onWheelEvent = callback
 
     def __initStyle(self):
+        defaultFont = QFont()
+        defaultFont.setPointSize(16)
         styleMap = {
-            "font" : QFont(),
+            "font" : defaultFont,
             "textColor" : QColor(Qt.GlobalColor.red),
         }
         self.styleAttribute = CanvasAttribute()
-        self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
+        self.styleAttribute.setValue(QVariant(styleMap))
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasTextItem.value
@@ -73,15 +76,6 @@ class CanvasTextItem(QGraphicsTextItem):
         # pos = math.ceil(len(self.toPlainText())/2) # 让光标移到文本中间
         textCursor = self.textCursor()
         textCursor.setPosition(pos)
-        self.setTextCursor(textCursor)
-
-    def switchEditableBox2(self):
-        self.clearFocus()
-        self.setTextInteractionFlags(Qt.TextEditorInteraction)
-        self.setFocus()
-
-        textCursor = self.textCursor()
-        textCursor.movePosition(QTextCursor.MoveOperation.Start)
         self.setTextCursor(textCursor)
 
     def mapToText(self, pos):

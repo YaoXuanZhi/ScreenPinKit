@@ -1,4 +1,5 @@
-from .polygon_line_toolbar import *
+# coding=utf-8
+from .line_strip_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
 from .erase_toolbar import *

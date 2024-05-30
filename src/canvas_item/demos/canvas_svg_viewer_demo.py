@@ -1,6 +1,7 @@
+# coding=utf-8
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from qframelesswindow import FramelessWindow
 from PyQt5.QtSvg import QSvgWidget
 from qfluentwidgets import PrimaryPushButton, SplitTitleBar, PushButton

@@ -1,13 +1,5 @@
 # coding=utf-8
-from datetime import datetime
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qfluentwidgets import (Action)
 from base import *
-from common import *
-from canvas_item import *
-from extend_widgets import *
 from .painter_interface import *
 
 class QScreenPainterWidget(PainterInterface):
@@ -85,7 +77,7 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
 
     def initActions(self):
         actions = [
-            Action("切换到演示模式", self, triggered=self.switchPreviewMode, shortcut="ctrl+w"),
+            QAction(self, triggered=self.switchPreviewMode, shortcut="ctrl+w"),
         ]
         self.addActions(actions)
 

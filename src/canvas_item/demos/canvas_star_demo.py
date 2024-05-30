@@ -1,3 +1,4 @@
+# coding=utf-8
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -32,6 +33,9 @@ class DrawingView(QGraphicsView):
         self.pathItem = None
 
     def mousePressEvent(self, event):
+        item = self.itemAt(event.pos())
+        if item != None and self.pathItem != item:
+            return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())

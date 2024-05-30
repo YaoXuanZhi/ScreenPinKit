@@ -1,12 +1,6 @@
 # coding=utf-8
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-
 from common import ScreenShotIcon
-from qfluentwidgets import *
-
-from canvas_editor import CanvasEditor, DrawActionEnum, SceneUserNotifyEnum
+from canvas_editor import *
 from canvas_item import *
 from toolbar import *
 
@@ -83,7 +77,7 @@ class PainterInterface(QWidget):
         # 初始化绘制工具栏
         drawActions = [
             Action(ScreenShotIcon.SHAPE, self.tr("Shape"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
-            Action(ScreenShotIcon.POLYGONAL_LINE, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
+            Action(ScreenShotIcon.LINE_STRIP, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip)),
             Action(ScreenShotIcon.NUMBER_MARKER, self.tr("Number marker"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
@@ -236,7 +230,6 @@ class PainterInterface(QWidget):
         if not hasattr(self, "drawActionInfo"):
             self.drawActionInfo = DrawActionInfo()
         if self.currentDrawActionEnum != drawActionEnum:
-            # self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), drawActionEnum.name))
             self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum)))
         self.currentDrawActionEnum = drawActionEnum
         if self.painterToolBarMgr != None:

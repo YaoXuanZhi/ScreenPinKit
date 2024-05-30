@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+# coding=utf-8
 from canvas_item import *
 from .canvas_scene import *
 

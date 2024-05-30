@@ -1,6 +1,6 @@
+# coding=utf-8
 from common import ScreenShotIcon
-from extend_widgets import *
-from canvas_item import *
+from canvas_editor import DrawActionEnum
 from .canvas_item_toolbar import *
 
 class BlurToolbar(CanvasItemToolBar):

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QGraphicsSceneMouseEvent
+# coding=utf-8
 from .canvas_util import *
 
 class CanvasPasteImageItem(CanvasCommonPathItem):

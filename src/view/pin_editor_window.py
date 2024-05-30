@@ -1,15 +1,12 @@
 # coding=utf-8
 from datetime import datetime
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qfluentwidgets import (RoundMenu, Action, FluentIcon, StateToolTip)
-from .painter_interface import PainterInterface
+from qfluentwidgets import (RoundMenu, Action)
+from base import *
 from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
-from base import *
 from common import cfg, ScreenShotIcon
+from .painter_interface import PainterInterface
 
 class PinEditorWindow(PinWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):

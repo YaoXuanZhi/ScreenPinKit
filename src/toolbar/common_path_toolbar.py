@@ -1,10 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
-from common import ScreenShotIcon
-from extend_widgets import *
-from canvas_item import *
+# coding=utf-8
 from .canvas_item_toolbar import *
 
 class CommonPathToolbar(CanvasItemToolBar):

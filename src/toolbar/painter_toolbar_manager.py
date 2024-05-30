@@ -1,8 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+# coding=utf-8
 from common import cfg
-from .polygon_line_toolbar import *
+from .line_strip_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
 from .erase_toolbar import *
@@ -66,8 +64,8 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.DrawArrow
         elif isinstance(self.canvasItemBar, MarkerPenToolbar):
             drawActionEnum = DrawActionEnum.UseMarkerPen
-        elif isinstance(self.canvasItemBar, PolygonLineToolbar):
-            drawActionEnum = DrawActionEnum.DrawPolygonalLine
+        elif isinstance(self.canvasItemBar, LineStripToolbar):
+            drawActionEnum = DrawActionEnum.DrawLineStrip
         elif isinstance(self.canvasItemBar, BlurToolbar):
             drawActionEnum = DrawActionEnum.UseBlurTool
 
@@ -80,8 +78,8 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.UseNumberMarker
         elif isinstance(canvasItem, CanvasMarkerPen):
             matchDrawActionEnum = DrawActionEnum.UseMarkerPen
-        elif isinstance(canvasItem, CanvasPolygonItem):
-            matchDrawActionEnum = DrawActionEnum.DrawPolygonalLine
+        elif isinstance(canvasItem, CanvasLineStripItem):
+            matchDrawActionEnum = DrawActionEnum.DrawLineStrip
         elif isinstance(canvasItem, CanvasArrowItem):
             matchDrawActionEnum = DrawActionEnum.DrawArrow
         elif isinstance(canvasItem, CanvasBlurRectItem):
@@ -117,8 +115,8 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar = BlurToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UsePencil:
                 self.canvasItemBar = PenToolbar(parent=self.targetWidget)
-            elif drawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                self.canvasItemBar = PolygonLineToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.DrawLineStrip:
+                self.canvasItemBar = LineStripToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawArrow:
                 self.canvasItemBar = ArrowToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseNumberMarker:

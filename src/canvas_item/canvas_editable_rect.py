@@ -1,9 +1,11 @@
-# https://blog.csdn.net/qq_33659478/article/details/126646020
-# https://blog.csdn.net/xiaonuo911teamo/article/details/106129696
-# https://blog.csdn.net/xiaonuo911teamo/article/details/106075647
+# coding=utf-8
+# 参考资料
+#  - https://blog.csdn.net/qq_33659478/article/details/126646020
+#  - https://blog.csdn.net/xiaonuo911teamo/article/details/106129696
+#  - https://blog.csdn.net/xiaonuo911teamo/article/details/106075647
 import math
 from enum import Enum
-from collections import OrderedDict, deque
+from collections import deque
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -285,6 +287,9 @@ class CanvasROI(QGraphicsEllipseItem):
         super().paint(painter, option, widget)
         parentItem:CanvasEditablePath = self.parentItem()
 
+        painter.setBrush(Qt.GlobalColor.red)
+        painter.drawEllipse(self.rect())
+
         painter.save()
         painter.setPen(Qt.white)
         font = painter.font()
@@ -324,8 +329,8 @@ class CanvasEditablePath(QGraphicsObject):
 
         self.radius = 8
         self.m_borderWidth = 4
-        self.roiRadius = self.m_borderWidth + 3
-        # self.roiRadius = 5
+        # self.roiRadius = self.m_borderWidth + 3
+        self.roiRadius = 12
 
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
         self.m_penSelected = QPen(QColor("#FFFFA637"), self.m_borderWidth)

@@ -1,3 +1,4 @@
+# coding=utf-8
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -21,11 +22,16 @@ class DrawingScene(QGraphicsScene):
         self.pathItem = None
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        view = self.views()[0]
+        pos = view.mapFromScene(event.scenePos())
+        item = view.itemAt(pos)
+        if item != None and self.pathItem != item:
+            return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.views()[0].isCanDrag():
                 targetPos = event.scenePos()
                 if self.pathItem == None:
-                    self.pathItem = CanvasPolygonItem()
+                    self.pathItem = CanvasLineStripItem()
                     self.addItem(self.pathItem)
                     self.pathItem.polygon.append(targetPos)
                     self.pathItem.polygon.append(targetPos)

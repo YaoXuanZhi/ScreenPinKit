@@ -1,12 +1,14 @@
+# coding=utf-8
+# 参考资料
+#  - https://svgco.de/
+#  - https://editor.method.ac/
+#  - https://svgedit.netlify.app/editor/index.html
+#  - https://yqnn.github.io/svg-path-editor/
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 from .canvas_util import *
-# 使用https://svgco.de/工具来将位图转换为矢量图
-# https://editor.method.ac/
-# https://svgedit.netlify.app/editor/index.html
-# https://yqnn.github.io/svg-path-editor/
 
 class QSvgContentWidget(QSvgWidget):
     def __init__(self, svgPath:str, parent=None):

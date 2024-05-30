@@ -257,6 +257,13 @@
     </message>
 </context>
 <context>
+    <name>QScreenPainterWidget</name>
+    <message>
+        <source>Switch to</source>
+        <translation>切换到</translation>
+    </message>
+</context>
+<context>
     <name>CanvasItemToolBar</name>
     <message>
         <source>Change FontFamily</source>
@@ -484,7 +491,7 @@
         <translation>绘制箭头</translation>
     </message>
     <message>
-        <source>DrawPolygonalLine</source>
+        <source>DrawLineStrip</source>
         <translation>绘制折线</translation>
     </message>
     <message>

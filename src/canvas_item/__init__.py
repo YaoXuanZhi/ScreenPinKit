@@ -1,6 +1,8 @@
+# coding=utf-8
 from .canvas_util import *
+from .after_effect_util import *
 from .canvas_arrow_item import CanvasArrowItem
-from .canvas_polygon_item import CanvasPolygonItem
+from .canvas_line_strip_item import CanvasLineStripItem
 from .canvas_editable_rect import CanvasEditablePath
 from .canvas_marker_pen import CanvasMarkerPen
 from .canvas_svg_item import CanvasSvgItem
@@ -12,7 +14,6 @@ from .canvas_pencil_item import CanvasPencilItem
 from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem
 from .canvas_ocr_text_item import CanvasOcrTextItem
-from .after_effect_util import *
 from .canvas_blur_item import CanvasBlurRectItem
 from .canvas_mask_item import CanvasMaskItem
 from .canvas_paste_image_item import CanvasPasteImageItem

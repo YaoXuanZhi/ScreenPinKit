@@ -1,3 +1,4 @@
+# coding=utf-8
 from .canvas_util import *
 
 class CanvasNumberMarkerItem(QGraphicsRectItem):
@@ -17,8 +18,8 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     def __initStyle(self):
         styleMap = {
             "font" : QFont(),
-            "textColor" : QColor(Qt.GlobalColor.red),
-            "backgroundColor" : QColor(0, 255, 0, 150),
+            "textColor" : QColor(Qt.GlobalColor.white),
+            "backgroundColor" : QColor(Qt.GlobalColor.red),
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))

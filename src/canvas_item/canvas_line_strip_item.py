@@ -1,6 +1,7 @@
+# coding=utf-8
 from .canvas_util import *
 
-class CanvasPolygonItem(CanvasCommonPathItem):
+class CanvasLineStripItem(CanvasCommonPathItem):
     '''
     绘图工具-折线
 

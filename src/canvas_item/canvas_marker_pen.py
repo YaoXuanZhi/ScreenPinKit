@@ -1,7 +1,8 @@
-from .canvas_polygon_item import CanvasPolygonItem
+# coding=utf-8
+from .canvas_line_strip_item import CanvasLineStripItem
 from .canvas_util import *
 
-class CanvasMarkerPen(CanvasPolygonItem):
+class CanvasMarkerPen(CanvasLineStripItem):
     '''
     绘图工具-记号笔
     @note 滚轮可以控制笔触大小

@@ -1,3 +1,4 @@
+# coding=utf-8
 from canvas_item.canvas_util import *
 
 class CanvasView(QGraphicsView):

@@ -1,11 +1,8 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
+# coding=utf-8
 from common import cfg
 from .canvas_item_toolbar import *
 
-class PolygonLineToolbar(CanvasItemToolBar):
+class LineStripToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()

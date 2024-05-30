@@ -1,9 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qfluentwidgets import *
-from extend_widgets import *
-from canvas_item import *
+# coding=utf-8
 from .canvas_item_toolbar import *
 
 class ArrowToolbar(CanvasItemToolBar):
@@ -38,7 +33,13 @@ class ArrowToolbar(CanvasItemToolBar):
         self.brushColorPickerButton.colorChanged.connect(self.brushColorChangedHandler)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
 
-    def selectItemChangedHandle(self, canvasItem:QGraphicsItem):
+    def refreshStyleUI(self):
+        penColor:QColor = self.styleMap["penColor"]
+        brushColor:QColor = self.styleMap["brushColor"]
+        self.opacitySlider.setValue(self.opacity)
+        self.penColorPickerButton.setColor(penColor)
+        self.brushColorPickerButton.setColor(brushColor)
+
         currentIndex = 0
         currentPenStyle = self.styleMap["penStyle"]
         for _, penStyle in self.outlineTypeInfos:
@@ -46,13 +47,6 @@ class ArrowToolbar(CanvasItemToolBar):
                 break
             currentIndex = currentIndex + 1 
         self.outlineTypeComboBox.setCurrentIndex(currentIndex)
-
-    def refreshStyleUI(self):
-        penColor:QColor = self.styleMap["penColor"]
-        brushColor:QColor = self.styleMap["brushColor"]
-        self.opacitySlider.setValue(self.opacity)
-        self.penColorPickerButton.setColor(penColor)
-        self.brushColorPickerButton.setColor(brushColor)
 
     def outlineTypeComboBoxHandle(self, index):
         comBox:ComboBox = self.outlineTypeComboBox

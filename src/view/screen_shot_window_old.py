@@ -1,5 +1,4 @@
 # coding=utf-8
-from PyQt5.QtGui import QPainter
 from canvas_item import *
 from canvas_item.canvas_util import CanvasUtil
 from base import *

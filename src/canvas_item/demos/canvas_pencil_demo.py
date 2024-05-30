@@ -1,4 +1,4 @@
-# 优化思路：https://blog.csdn.net/Larry_Yanan/article/details/125935157
+# coding=utf-8
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *

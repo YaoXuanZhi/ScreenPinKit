@@ -36,7 +36,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     STAR = "星"
     # RECTANGLE = "方形边框"
     RECTANGLE = "矩形"
-    POLYGONAL_LINE = "折线"
+    LINE_STRIP = "折线"
     POLYGON = "多边形"
     SELECT_ITEM = "选择工具"
     MOSAIC = "马赛克"
