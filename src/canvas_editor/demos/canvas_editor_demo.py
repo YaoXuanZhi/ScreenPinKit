@@ -29,7 +29,7 @@ class DrawingScene(QGraphicsScene):
 
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
 
-        self.pathItem = None
+        self.currentItem = None
 
         self.itemList:list = []
 
@@ -63,12 +63,11 @@ class DrawingScene(QGraphicsScene):
         self.addItem(pathItem2)
 
         pathItem3 = CanvasEditablePath(None, False)
-        pathItem3.addPoint(QPointF(0, 0), Qt.SizeAllCursor)
-        pathItem3.addPoint(QPointF(50, 50), Qt.PointingHandCursor)
-        pathItem3.addPoint(QPointF(200, 200), Qt.PointingHandCursor)
-        pathItem3.addPoint(QPointF(0, 380), Qt.SizeAllCursor)
+        pathItem3.addPoint(QPointF(22, -52), Qt.SizeAllCursor)
+        pathItem3.addPoint(QPointF(-22, 151), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(222, 148), Qt.PointingHandCursor)
+        pathItem3.addPoint(QPointF(-221, 319), Qt.SizeAllCursor)
         pathItem3.update()
-        pathItem3.setPos(targetPoint/-2)
         self.addItem(pathItem3)
 
     def setEditableState(self, isEditable:bool):
@@ -81,95 +80,94 @@ class DrawingScene(QGraphicsScene):
         view:DrawingView = self.views()[0]
         pos = view.mapFromScene(event.scenePos())
         item = view.itemAt(pos)
-        if item != None and self.pathItem != item:
+        if item != None and self.currentItem != item:
             return super().mousePressEvent(event)
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if event.button() == Qt.LeftButton:
 
-                # if not self.views()[0].isCanDrag() and (not item or self.pathItem == item or not issubclass(type(item), CanvasROI)):
-                if not view.isCanDrag() and (not item or self.pathItem == item or not issubclass(type(item), CanvasROI) or issubclass(type(item), CanvasCommonPathItem)):
+                if not view.isCanDrag() and (not item or self.currentItem == item or not issubclass(type(item), CanvasROI) or issubclass(type(item), CanvasCommonPathItem)):
                     targetPos = event.scenePos()
 
                     if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             self.setEditableState(False)
-                            self.pathItem = CanvasLineStripItem()
-                            self.addItem(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                            self.currentItem = CanvasLineStripItem()
+                            self.addItem(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
                         else:
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.update()
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.update()
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             self.setEditableState(False)
-                            self.pathItem = CanvasArrowItem()
-                            self.addItem(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                            self.currentItem = CanvasArrowItem()
+                            self.addItem(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             self.setEditableState(False)
-                            self.pathItem = CanvasMarkerPen()
-                            self.addItem(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                            self.currentItem = CanvasMarkerPen()
+                            self.addItem(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
-            if self.pathItem != None and not self.views()[0].isCanDrag():
+            if self.currentItem != None and not self.views()[0].isCanDrag():
                 targetPos = event.scenePos()
 
                 if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                    self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-                    self.pathItem.update()
+                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
-                    self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-                    self.pathItem.update()
+                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
-                    self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-                    self.pathItem.update()
+                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.update()
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                if event.button() == Qt.RightButton and self.pathItem != None:
-                    if self.pathItem.polygon.count() > 1:
-                        self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
-                        self.pathItem.completeDraw()
-                        self.itemList.append(self.pathItem)
+                if event.button() == Qt.RightButton and self.currentItem != None:
+                    if self.currentItem.polygon.count() > 1:
+                        self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
+                        self.currentItem.completeDraw()
+                        self.itemList.append(self.currentItem)
                     else:
-                        self.removeItem(self.pathItem)
+                        self.removeItem(self.currentItem)
                     self.setEditableState(True)
-                    self.pathItem = None
+                    self.currentItem = None
             elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:                
-                if event.button() == Qt.RightButton and self.pathItem != None:
-                    self.removeItem(self.pathItem)
+                if event.button() == Qt.RightButton and self.currentItem != None:
+                    self.removeItem(self.currentItem)
                     self.setEditableState(True)
-                    self.pathItem = None
-                elif event.button() == Qt.LeftButton and self.pathItem != None:
-                    if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
-                        self.removeItem(self.pathItem)
+                    self.currentItem = None
+                elif event.button() == Qt.LeftButton and self.currentItem != None:
+                    if self.currentItem.polygon.at(0) == self.currentItem.polygon.at(1):
+                        self.removeItem(self.currentItem)
                     else:
-                        self.pathItem.completeDraw()
-                        self.itemList.append(self.pathItem)
+                        self.currentItem.completeDraw()
+                        self.itemList.append(self.currentItem)
                     self.setEditableState(True)
-                    self.pathItem = None
+                    self.currentItem = None
             elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:                
-                if event.button() == Qt.RightButton and self.pathItem != None:
-                    self.removeItem(self.pathItem)
+                if event.button() == Qt.RightButton and self.currentItem != None:
+                    self.removeItem(self.currentItem)
                     self.setEditableState(True)
-                    self.pathItem = None
-                elif event.button() == Qt.LeftButton and self.pathItem != None:
-                    if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
-                        self.removeItem(self.pathItem)
+                    self.currentItem = None
+                elif event.button() == Qt.LeftButton and self.currentItem != None:
+                    if self.currentItem.polygon.at(0) == self.currentItem.polygon.at(1):
+                        self.removeItem(self.currentItem)
                     else:
-                        self.pathItem.completeDraw()
-                        self.itemList.append(self.pathItem)
+                        self.currentItem.completeDraw()
+                        self.itemList.append(self.currentItem)
                     self.setEditableState(True)
-                    self.pathItem = None
+                    self.currentItem = None
         super().mouseReleaseEvent(event)
 
 class DrawingView(QGraphicsView):
@@ -320,7 +318,7 @@ class MainWindow(QDragWindow):
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         self.scene.currentDrawActionEnum = drawActionEnum
-        self.scene.pathItem = None
+        self.scene.currentItem = None
         self.view.setEnabled(drawActionEnum != DrawActionEnum.DrawNone)
 
     def initUI(self):

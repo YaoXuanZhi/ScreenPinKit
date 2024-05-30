@@ -30,47 +30,47 @@ class DrawingView(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         # self.setDragMode(QGraphicsView.RubberBandDrag)
 
-        self.pathItem = None
+        self.currentItem = None
 
     def mousePressEvent(self, event):
         item = self.itemAt(event.pos())
-        if item != None and self.pathItem != item:
+        if item != None and self.currentItem != item:
             return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())
-                if self.pathItem == None:
-                    # self.pathItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Star)
-                    # self.pathItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Rectangle)
-                    # self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Ellipse)
-                    self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Triangle)
-                    self.scene().addItem(self.pathItem)
-                    self.pathItem.polygon.append(targetPos)
-                    self.pathItem.polygon.append(targetPos)
+                if self.currentItem == None:
+                    # self.currentItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Star)
+                    # self.currentItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Rectangle)
+                    # self.currentItem = CanvasShapeItem(None, CanvasShapeEnum.Ellipse)
+                    self.currentItem = CanvasShapeItem(None, CanvasShapeEnum.Triangle)
+                    self.scene().addItem(self.currentItem)
+                    self.currentItem.polygon.append(targetPos)
+                    self.currentItem.polygon.append(targetPos)
                 return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if self.pathItem != None and not self.isCanDrag():
+        if self.currentItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
-            self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-            self.pathItem.update()
+            self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+            self.currentItem.update()
             return
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.RightButton and self.pathItem != None:
-            self.scene().removeItem(self.pathItem)
-            self.pathItem = None
+        if event.button() == Qt.RightButton and self.currentItem != None:
+            self.scene().removeItem(self.currentItem)
+            self.currentItem = None
             return
-        elif event.button() == Qt.LeftButton and self.pathItem != None:
-            if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
-                self.scene().removeItem(self.pathItem)
+        elif event.button() == Qt.LeftButton and self.currentItem != None:
+            if self.currentItem.polygon.at(0) == self.currentItem.polygon.at(1):
+                self.scene().removeItem(self.currentItem)
             else:
-                self.pathItem.completeDraw()
-                self.pathItem.setEditableState(True)
+                self.currentItem.completeDraw()
+                self.currentItem.setEditableState(True)
 
-            self.pathItem = None
+            self.currentItem = None
             return
         super().mouseReleaseEvent(event)
 

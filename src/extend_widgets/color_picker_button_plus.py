@@ -24,7 +24,7 @@ class ColorPickerButtonPlus(QToolButton):
         options = QColorDialog.ColorDialogOption.NoButtons
         if self.enableAlpha:
             options = QColorDialog.ColorDialogOption.ShowAlphaChannel  # 可选，显示Alpha通道
-        color:QColor = QColorDialog.getColor(self.color, self, "选择颜色", options)
+        color:QColor = QColorDialog.getColor(self.color, self, self.tr("Select color"), options)
 
         if color.isValid():
             self.setColor(color)
@@ -68,13 +68,13 @@ class ColorPickerButtonEx(TransparentToggleToolButton):
         # self.setToolButtonStyle(self.toolButtonStyle())
         self.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
-        self.setToolTip("右击选择颜色")
+        self.setToolTip(self.tr("Click to select color"))
 
     def __showColorDialog(self):
         options = QColorDialog.ColorDialogOption.NoButtons
         if self.enableAlpha:
             options = QColorDialog.ColorDialogOption.ShowAlphaChannel  # 可选，显示Alpha通道
-        color:QColor = QColorDialog.getColor(self.color, self, "选择颜色", options)
+        color:QColor = QColorDialog.getColor(self.color, self, self.tr("Select color"), options)
 
         if color.isValid():
             self.setColor(color)

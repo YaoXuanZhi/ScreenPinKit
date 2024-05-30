@@ -10,24 +10,24 @@ from canvas_item import *
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super(DrawingScene, self).__init__(parent)
-        self.pathItem = None
+        self.currentItem = None
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            if self.pathItem == None:
-                self.pathItem = CanvasPencilItem()
-                self.addItem(self.pathItem)
-                self.pathItem.polygon.append(event.scenePos())
-                self.pathItem.update()
+            if self.currentItem == None:
+                self.currentItem = CanvasPencilItem()
+                self.addItem(self.currentItem)
+                self.currentItem.polygon.append(event.scenePos())
+                self.currentItem.update()
 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.LeftButton:
-            self.pathItem.polygon.append(event.scenePos())
-            self.pathItem.update()
+            self.currentItem.polygon.append(event.scenePos())
+            self.currentItem.update()
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.pathItem = None
+            self.currentItem = None
 
 class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):

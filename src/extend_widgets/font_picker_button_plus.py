@@ -21,7 +21,7 @@ class FontPickerButtonPlus(QToolButton):
         self.clicked.connect(self.__showFontDialog)
 
     def __showFontDialog(self):
-        font, ok = QFontDialog.getFont(self.targetFont, self, "选择字体")
+        font, ok = QFontDialog.getFont(self.targetFont, self, self.tr("Select font family"))
         font.setBold(self.targetFont.bold())
         font.setItalic(self.targetFont.italic())
 

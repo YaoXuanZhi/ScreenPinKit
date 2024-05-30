@@ -66,7 +66,7 @@ class CanvasScene(QGraphicsScene):
         self._currentDrawActionEnum = DrawActionEnum.DrawNone
         self._isLockedTool = True
 
-        self.pathItem = None
+        self.currentItem = None
         self.lastAddItem = None
         self.bgBrush = backgroundBrush
 
@@ -150,15 +150,15 @@ class CanvasScene(QGraphicsScene):
             self._itemNotifyCallBack(SceneUserNotifyEnum.StartDrawedEvent, item)
 
     def forceCompleteDraw(self):
-        if self.pathItem != None:
+        if self.currentItem != None:
             isOk = True
-            # 由于线段控件强制退出时，需要回收一个预览操作点，需要额外处理
-            if isinstance(self.pathItem, CanvasLineStripItem):
-                if self.pathItem.polygon.count() > 2:
-                    self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
+            # 由于折线图元绘制过程中强制退出时，需要回收一个预览操作点，需要额外处理
+            if isinstance(self.currentItem, CanvasLineStripItem):
+                if self.currentItem.polygon.count() > 2:
+                    self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
                 else:
                     isOk = False
-            self.__completeDraw(self.pathItem, isOk)
+            self.__completeDraw(self.currentItem, isOk)
         self.lastAddItem = None
 
     def __completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
@@ -174,7 +174,7 @@ class CanvasScene(QGraphicsScene):
             if self.lastAddItem != None:
                 self.lastAddItem.setEditableState(True)
 
-        self.pathItem = None
+        self.currentItem = None
 
         if self._itemNotifyCallBack != None:
             if isOk:
@@ -189,12 +189,12 @@ class CanvasScene(QGraphicsScene):
 
     def clearDraw(self):
         self.clear()
-        self.pathItem = None
+        self.currentItem = None
         self.lastAddItem = None
         self.itemList = []
 
     def canUndo(self):
-        return self.pathItem == None
+        return self.currentItem == None
 
     def captureCurrentScenePixmap(self) -> QPixmap:
         '''捕获当前场景快照'''
@@ -221,7 +221,7 @@ class CanvasScene(QGraphicsScene):
             selectItem.wheelEvent(event)
             event.accept()
             return
-        if isinstance(self.pathItem, CanvasLineStripItem):
+        if isinstance(self.currentItem, CanvasLineStripItem):
             event.accept()
             return
         return super().wheelEvent(event)
@@ -246,22 +246,22 @@ class CanvasScene(QGraphicsScene):
             return super().mousePressEvent(event)
         else:
             if event.button() == Qt.LeftButton:
-                if self.pathItem == None:
+                if self.currentItem == None:
                     if self.currentDrawActionEnum == DrawActionEnum.EditText:
-                        self.pathItem = CanvasTextItem()
-                        self.pathItem.switchEditableBox()
-                        self.__startDraw(self.pathItem)
-                        targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
-                        self.pathItem.setPos(targetPos)
-                        self.__completeDraw(self.pathItem)
+                        self.currentItem = CanvasTextItem()
+                        self.currentItem.switchEditableBox()
+                        self.__startDraw(self.currentItem)
+                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
+                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        self.currentItem.setPos(targetPos)
+                        self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
-                        self.pathItem = CanvasNumberMarkerItem(QRectF(0, 0, 50, 50))
-                        self.__startDraw(self.pathItem)
-                        targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
-                        self.pathItem.setPos(targetPos)
-                        self.__completeDraw(self.pathItem)
+                        self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 50, 50))
+                        self.__startDraw(self.currentItem)
+                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
+                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        self.currentItem.setPos(targetPos)
+                        self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
                         folderPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources")
                         def getSvgFiles(folderPath):
@@ -274,92 +274,92 @@ class CanvasScene(QGraphicsScene):
                         index = random.randint(0, len(svgPaths) - 1)
                         svgPath = svgPaths[index]
                         if index % 2 == 0:
-                            self.pathItem = CanvasSvgItem(QRectF(), svgPath)
+                            self.currentItem = CanvasSvgItem(QRectF(), svgPath)
                         else:
-                            self.pathItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)
+                            self.currentItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)
 
-                        self.__startDraw(self.pathItem)
-                        targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
-                        self.pathItem.setPos(targetPos)
-                        self.__completeDraw(self.pathItem)
+                        self.__startDraw(self.currentItem)
+                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
+                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        self.currentItem.setPos(targetPos)
+                        self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UsePencil:
-                        self.pathItem = CanvasPencilItem()
-                        self.__startDraw(self.pathItem)
-                        self.pathItem.polygon.append(targetPos)
+                        self.currentItem = CanvasPencilItem()
+                        self.__startDraw(self.currentItem)
+                        self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseEraser:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             if self.bgBrush != None:
                                 eraseBrush = self.bgBrush
                                 erasePen = QPen(eraseBrush, 10)
                             else:
                                 erasePen = QPen(Qt.GlobalColor.blue)
-                            self.pathItem = CanvasEraserItem(erasePen)
-                            self.__startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
+                            self.currentItem = CanvasEraserItem(erasePen)
+                            self.__startDraw(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseEraserRectItem:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             if self.bgBrush != None:
-                                self.pathItem = CanvasEraserRectItem(self.bgBrush)
-                                self.__startDraw(self.pathItem)
-                                self.pathItem.polygon.append(targetPos)
-                                self.pathItem.polygon.append(targetPos)
+                                self.currentItem = CanvasEraserRectItem(self.bgBrush)
+                                self.__startDraw(self.currentItem)
+                                self.currentItem.polygon.append(targetPos)
+                                self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
-                        if self.pathItem == None:
+                        if self.currentItem == None:
                             lastPixmap = self.captureCurrentScenePixmap()
-                            self.pathItem = CanvasBlurRectItem(lastPixmap)
-                            self.__startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                            self.currentItem = CanvasBlurRectItem(lastPixmap)
+                            self.__startDraw(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
-                        if self.pathItem == None:
-                            self.pathItem = CanvasArrowItem()
-                            self.__startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                        if self.currentItem == None:
+                            self.currentItem = CanvasArrowItem()
+                            self.__startDraw(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
-                        if self.pathItem == None:
-                            self.pathItem = CanvasMarkerPen()
-                            self.__startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                        if self.currentItem == None:
+                            self.currentItem = CanvasMarkerPen()
+                            self.__startDraw(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.DrawShape:
-                        if self.pathItem == None:
-                            self.pathItem = CanvasShapeItem()
-                            self.__startDraw(self.pathItem)
-                            self.pathItem.polygon.append(targetPos)
-                            self.pathItem.polygon.append(targetPos)
+                        if self.currentItem == None:
+                            self.currentItem = CanvasShapeItem()
+                            self.__startDraw(self.currentItem)
+                            self.currentItem.polygon.append(targetPos)
+                            self.currentItem.polygon.append(targetPos)
 
                 if self.currentDrawActionEnum == DrawActionEnum.DrawLineStrip:
-                    if self.pathItem == None:
-                        self.pathItem = CanvasLineStripItem()
-                        self.__startDraw(self.pathItem)
-                        self.pathItem.polygon.append(targetPos)
-                        self.pathItem.polygon.append(targetPos)
+                    if self.currentItem == None:
+                        self.currentItem = CanvasLineStripItem()
+                        self.__startDraw(self.currentItem)
+                        self.currentItem.polygon.append(targetPos)
+                        self.currentItem.polygon.append(targetPos)
                     else:
-                        self.pathItem.polygon.append(targetPos)
-                        self.pathItem.update()
+                        self.currentItem.polygon.append(targetPos)
+                        self.currentItem.update()
             if event.button() == Qt.RightButton:
-                if self.pathItem == None and self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
+                if self.currentItem == None and self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
                     lastPixmap = self.captureCurrentScenePixmap()
-                    self.pathItem = CanvasBlurRectItem(lastPixmap)
-                    self.__startDraw(self.pathItem)
+                    self.currentItem = CanvasBlurRectItem(lastPixmap)
+                    self.__startDraw(self.currentItem)
                     sceneRect = QRect(QPoint(0, 0), lastPixmap.size())
-                    self.pathItem.polygon.append(sceneRect.topLeft())
-                    self.pathItem.polygon.append(sceneRect.bottomRight())
-                    self.__completeDraw(self.pathItem)
+                    self.currentItem.polygon.append(sceneRect.topLeft())
+                    self.currentItem.polygon.append(sceneRect.bottomRight())
+                    self.__completeDraw(self.currentItem)
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] and self.pathItem != None:
+        if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] and self.currentItem != None:
             targetPos = event.scenePos()
 
             if self.currentDrawActionEnum == DrawActionEnum.DrawShape:
-                self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
+                self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
                 isForceEqual = int(event.modifiers()) == Qt.KeyboardModifier.ShiftModifier
                 if isForceEqual:
-                    self.pathItem.forceSquare()
-                self.pathItem.update()
+                    self.currentItem.forceSquare()
+                self.currentItem.update()
             elif self.currentDrawActionEnum in [
                 DrawActionEnum.DrawLineStrip, 
                 DrawActionEnum.DrawArrow, 
@@ -367,26 +367,26 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.UseEraserRectItem, 
                 DrawActionEnum.UseBlurTool,
                 ]:
-                self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-                self.pathItem.update()
+                self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                self.currentItem.update()
             elif self.currentDrawActionEnum in [DrawActionEnum.UsePencil, DrawActionEnum.UseEraser]:
-                self.pathItem.polygon.append(targetPos)
-                self.pathItem.update()
+                self.currentItem.polygon.append(targetPos)
+                self.currentItem.update()
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.pathItem != None:
+        if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.currentItem != None:
 
             if self.currentDrawActionEnum in [DrawActionEnum.DrawLineStrip] and event.button() == Qt.RightButton:
-                if event.button() == Qt.RightButton and self.pathItem != None:
+                if event.button() == Qt.RightButton and self.currentItem != None:
                     isOk = False
-                    if self.pathItem.polygon.count() > 2:
-                        self.pathItem.polygon.remove(self.pathItem.polygon.count() - 1)
+                    if self.currentItem.polygon.count() > 2:
+                        self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
                         isOk = True
-                    self.__completeDraw(self.pathItem, isOk)
+                    self.__completeDraw(self.currentItem, isOk)
             elif self.currentDrawActionEnum in [DrawActionEnum.UsePencil, DrawActionEnum.UseEraser]:
                 if event.button() == Qt.LeftButton:
-                    self.__completeDraw(self.pathItem)
+                    self.__completeDraw(self.currentItem)
             elif self.currentDrawActionEnum in [
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
@@ -396,9 +396,9 @@ class CanvasScene(QGraphicsScene):
                 ]:
                 if event.button() == Qt.LeftButton:
                     isOk = False
-                    if self.pathItem.polygon.at(0) != self.pathItem.polygon.at(1):
+                    if self.currentItem.polygon.at(0) != self.currentItem.polygon.at(1):
                         isOk = True
-                    self.__completeDraw(self.pathItem, isOk)
+                    self.__completeDraw(self.currentItem, isOk)
 
         super().mouseReleaseEvent(event)
 

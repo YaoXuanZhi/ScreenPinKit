@@ -16,7 +16,7 @@ class CanvasStarItem(CanvasCommonPathItem):
     def __initStyle(self):
         self.defaultPenWidth = 3
         styleMap = {
-            "brush" : QBrush(QColor(255, 0, 0, 255)),
+            "brush" : QBrush(QColor(255, 0, 0, 100)),
             "pen" : QPen(QColor(255, 0, 0), self.defaultPenWidth, Qt.SolidLine),
         }
         self.styleAttribute = CanvasAttribute()

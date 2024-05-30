@@ -305,7 +305,7 @@
     </message>
 </context>
 <context>
-    <name>PolygonLineToolbar</name>
+    <name>LineStripToolbar</name>
     <message>
         <source>Color</source>
         <translation>颜色</translation>
@@ -509,6 +509,24 @@
     <message>
         <source>UnknownTool</source>
         <translation>未知工具</translation>
+    </message>
+</context>
+<context>
+    <name>FontPickerButtonPlus</name>
+    <message>
+        <source>Select font family</source>
+        <translation>选择字体</translation>
+    </message>
+</context>
+<context>
+    <name>ColorPickerButtonPlus</name>
+    <message>
+        <source>Select color</source>
+        <translation>选择颜色</translation>
+    </message>
+    <message>
+        <source>Click to select color</source>
+        <translation>点击选择颜色</translation>
     </message>
 </context>
 </TS>

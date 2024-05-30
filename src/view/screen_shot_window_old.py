@@ -22,7 +22,7 @@ class ScreenShotScene(QGraphicsScene):
         super().__init__(parent)
         self.sceneRectChanged.connect(self.onSceneRectChanged)
         self.maskLayer:QGraphicsItem = None
-        self.pathItem:CanvasCommonPathItem = None
+        self.currentItem:CanvasCommonPathItem = None
         self.lastAddItem:CanvasCommonPathItem = None
         self.isApplyExpandArea:bool = False
 
@@ -53,10 +53,10 @@ class ScreenShotScene(QGraphicsScene):
         self.update()
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
-        if self.pathItem != None:
+        if self.currentItem != None:
             targetPos = event.scenePos()
-            self.pathItem.polygon.replace(self.pathItem.polygon.count() - 1, targetPos)
-            self.pathItem.update()
+            self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+            self.currentItem.update()
         super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
@@ -86,27 +86,27 @@ class ScreenShotScene(QGraphicsScene):
 
         if event.button() == Qt.LeftButton:
             targetPos = event.scenePos()
-            if self.pathItem == None:
-                self.pathItem = CanvasPasteImageItem(bgBrush=self.backgroundBrush())
-                self.pathItem.setEditableState(True)
-                self.addItem(self.pathItem)
-                self.pathItem.polygon.append(targetPos)
-                self.pathItem.polygon.append(targetPos)
+            if self.currentItem == None:
+                self.currentItem = CanvasPasteImageItem(bgBrush=self.backgroundBrush())
+                self.currentItem.setEditableState(True)
+                self.addItem(self.currentItem)
+                self.currentItem.polygon.append(targetPos)
+                self.currentItem.polygon.append(targetPos)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
-        if self.pathItem != None:
+        if self.currentItem != None:
             if event.button() == Qt.RightButton:
-                self.removeItem(self.pathItem)
-                self.pathItem = None
+                self.removeItem(self.currentItem)
+                self.currentItem = None
             elif event.button() == Qt.LeftButton:
-                if self.pathItem.polygon.at(0) == self.pathItem.polygon.at(1):
-                    self.removeItem(self.pathItem)
+                if self.currentItem.polygon.at(0) == self.currentItem.polygon.at(1):
+                    self.removeItem(self.currentItem)
                 else:
-                    self.pathItem.completeDraw()
-                    self.pathItem.setFocus(Qt.FocusReason.OtherFocusReason)
-                    self.lastAddItem = self.pathItem
-                self.pathItem = None
+                    self.currentItem.completeDraw()
+                    self.currentItem.setFocus(Qt.FocusReason.OtherFocusReason)
+                    self.lastAddItem = self.currentItem
+                self.currentItem = None
 
         print(f"========> 444 {self.isApplyExpandArea}")
         if self.isApplyExpandArea:
