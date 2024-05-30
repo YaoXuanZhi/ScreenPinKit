@@ -7,7 +7,7 @@ from extend_widgets import *
 from canvas_item import *
 from .canvas_item_toolbar import *
 
-class MarkerItemToolbar(CanvasItemToolBar):
+class NumberMarkerItemToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()

@@ -9,7 +9,7 @@ from .erase_toolbar import *
 from .pen_toolbar import *
 from .common_path_toolbar import *
 from .arrow_toolbar import *
-from .marker_item_toolbar import *
+from .number_marker_item_toolbar import *
 from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
 from .blur_toolbar import *
@@ -60,8 +60,8 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.EditText
         elif isinstance(self.canvasItemBar, ShapeToolbar):
             drawActionEnum = DrawActionEnum.DrawShape
-        elif isinstance(self.canvasItemBar, MarkerItemToolbar):
-            drawActionEnum = DrawActionEnum.UseMarkerItem
+        elif isinstance(self.canvasItemBar, NumberMarkerItemToolbar):
+            drawActionEnum = DrawActionEnum.UseNumberMarker
         elif isinstance(self.canvasItemBar, ArrowToolbar):
             drawActionEnum = DrawActionEnum.DrawArrow
         elif isinstance(self.canvasItemBar, MarkerPenToolbar):
@@ -76,8 +76,8 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.EditText
         elif isinstance(canvasItem, CanvasShapeItem):
             matchDrawActionEnum = DrawActionEnum.DrawShape
-        elif isinstance(canvasItem, CanvasMarkerItem):
-            matchDrawActionEnum = DrawActionEnum.UseMarkerItem
+        elif isinstance(canvasItem, CanvasNumberMarkerItem):
+            matchDrawActionEnum = DrawActionEnum.UseNumberMarker
         elif isinstance(canvasItem, CanvasMarkerPen):
             matchDrawActionEnum = DrawActionEnum.UseMarkerPen
         elif isinstance(canvasItem, CanvasPolygonItem):
@@ -121,8 +121,8 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar = PolygonLineToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawArrow:
                 self.canvasItemBar = ArrowToolbar(parent=self.targetWidget)
-            elif drawActionEnum == DrawActionEnum.UseMarkerItem:
-                self.canvasItemBar = MarkerItemToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UseNumberMarker:
+                self.canvasItemBar = NumberMarkerItemToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseMarkerPen:
                 self.canvasItemBar = MarkerPenToolbar(parent=self.targetWidget)
 

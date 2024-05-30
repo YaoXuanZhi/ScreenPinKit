@@ -1,6 +1,6 @@
 from .canvas_util import *
 
-class CanvasMarkerItem(QGraphicsRectItem):
+class CanvasNumberMarkerItem(QGraphicsRectItem):
     '''
     绘图工具-索引标识
     @note 滚轮可以改变索引值
@@ -10,8 +10,8 @@ class CanvasMarkerItem(QGraphicsRectItem):
         super().__init__(rect, parent)
         self.__initStyle()
         self.setDefaultFlag()
-        CanvasMarkerItem.markderIndex = self.markderIndex + 1
-        self.index = CanvasMarkerItem.markderIndex
+        CanvasNumberMarkerItem.markderIndex = self.markderIndex + 1
+        self.index = CanvasNumberMarkerItem.markderIndex
         self.transformComponent = TransformComponent()
 
     def __initStyle(self):

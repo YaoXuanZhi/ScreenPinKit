@@ -84,7 +84,7 @@ class PainterInterface(QWidget):
         drawActions = [
             Action(ScreenShotIcon.SHAPE, self.tr("Shape"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
             Action(ScreenShotIcon.POLYGONAL_LINE, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine)),
-            Action(ScreenShotIcon.GUIDE, self.tr("Index mark"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerItem)),
+            Action(ScreenShotIcon.NUMBER_MARKER, self.tr("Number mark"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker)),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
             Action(ScreenShotIcon.MARKER_PEN, self.tr("Marker pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),

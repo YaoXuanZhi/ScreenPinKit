@@ -5,7 +5,7 @@ from .erase_toolbar import *
 from .pen_toolbar import *
 from .common_path_toolbar import *
 from .arrow_toolbar import *
-from .marker_item_toolbar import *
+from .number_marker_item_toolbar import *
 from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
 from .blur_toolbar import *

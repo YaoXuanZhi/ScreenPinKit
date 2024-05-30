@@ -53,6 +53,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     FULL_Dot = "full-stop"
     FULL_RECTANGLE = "full-rectangle"
     BLUR = "blur"
+    NUMBER_MARKER = "number-marker"
 
     def path(self, theme=Theme.AUTO):
         # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")

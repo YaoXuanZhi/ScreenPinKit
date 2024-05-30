@@ -13,7 +13,7 @@ class DrawActionEnum(Enum):
     UseEraser = "使用橡皮擦"
     UseEraserRectItem = "使用橡皮框"
     UseMarkerPen = "使用记号笔"
-    UseMarkerItem = "使用标记"
+    UseNumberMarker = "使用数字标记"
     PasteSvg = "粘贴图案"
 
     DrawShape = "绘制形状"
@@ -230,8 +230,8 @@ class CanvasScene(QGraphicsScene):
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
                         self.pathItem.setPos(targetPos)
                         self.__completeDraw(self.pathItem)
-                    elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerItem:
-                        self.pathItem = CanvasMarkerItem(QRectF(0, 0, 50, 50))
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
+                        self.pathItem = CanvasNumberMarkerItem(QRectF(0, 0, 50, 50))
                         self.__startDraw(self.pathItem)
                         targetPos.setX(targetPos.x() - self.pathItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.pathItem.boundingRect().height() / 2)
