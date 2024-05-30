@@ -2,16 +2,15 @@
 from .canvas_util import *
 from .after_effect_util import *
 
-class CanvasBlurRectItem(CanvasCommonPathItem):
+class CanvasEffectRectItem(CanvasCommonPathItem):
     '''
-    绘图工具-模糊矩形图元
+    绘图工具-特效图元
     '''
     def __init__(self, sourcePixmap:QPixmap, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.sourcePixmap = sourcePixmap
-        self.blurPixmap = None
-        self.effectWorker = EffectWorker(AfterEffectType.GaussianBlur)
-        # self.effectWorker = EffectWorker(AfterEffectType.Mosaic)
+        self.effectedPixmap = None
+        self.effectWorker = EffectWorker()
         self.effectWorker.effectFinishedSignal.connect(self.onEffectFinished)
         self.minSize = QSize(5, 5)
         self.__initEditMode()
@@ -25,7 +24,8 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
 
     def __initStyle(self):
         styleMap = {
-            "strength" : 1,
+            "strength" : 5,
+            "effectType" : AfterEffectType.GaussianBlur,
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
@@ -40,11 +40,12 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         strength = styleMap["strength"]
-        self.effectWorker.startEffect(self.sourcePixmap, strength)
+        effectType = styleMap["effectType"]
+        self.effectWorker.startEffect(effectType, self.sourcePixmap, strength)
 
     def onEffectFinished(self, finalPixmap:QPixmap):
-        self.blurPixmap = finalPixmap
-        self.blurPixmap.setDevicePixelRatio(self.sourcePixmap.devicePixelRatio())
+        self.effectedPixmap = finalPixmap
+        self.effectedPixmap.setDevicePixelRatio(self.sourcePixmap.devicePixelRatio())
         self.update()
 
     def excludeControllers(self) -> list:
@@ -74,13 +75,13 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
                       rectf.width() * pixelRatio, rectf.height() * pixelRatio)
 
     def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        if self.blurPixmap == None:
+        if self.effectedPixmap == None:
             return
         physicalRect = self.physicalRectF(self.sceneBoundingRect())
-        painter.drawPixmap(self.boundingRect(), self.blurPixmap, physicalRect)
+        painter.drawPixmap(self.boundingRect(), self.effectedPixmap, physicalRect)
 
     def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
-        if self.blurPixmap == None:
+        if self.effectedPixmap == None:
             return
         # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
 
@@ -89,7 +90,7 @@ class CanvasBlurRectItem(CanvasCommonPathItem):
         topLeft = self.mapFromScene(QPoint(0, 0))
 
         # 始终将背景贴到整个view上
-        painter.drawPixmap(topLeft, self.blurPixmap)
+        painter.drawPixmap(topLeft, self.effectedPixmap)
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()

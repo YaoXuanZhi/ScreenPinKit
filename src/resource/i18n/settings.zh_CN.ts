@@ -411,7 +411,7 @@
     </message>
 </context>
 <context>
-    <name>BlurToolbar</name>
+    <name>EffectToolbar</name>
     <message>
         <source>Mosaic</source>
         <translation>马赛克</translation>
@@ -423,6 +423,10 @@
     <message>
         <source>Effect strength</source>
         <translation>强度</translation>
+    </message>
+    <message>
+        <source>Effect</source>
+        <translation>特效</translation>
     </message>
 </context>
 <context>
@@ -499,12 +503,8 @@
         <translation>选择对象</translation>
     </message>
     <message>
-        <source>UseMosaicTool</source>
-        <translation>马赛克工具</translation>
-    </message>
-    <message>
-        <source>UseBlurTool</source>
-        <translation>模糊工具</translation>
+        <source>UseEffectTool</source>
+        <translation>特效工具</translation>
     </message>
     <message>
         <source>UnknownTool</source>

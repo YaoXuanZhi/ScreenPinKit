@@ -10,7 +10,7 @@ from .arrow_toolbar import *
 from .number_marker_item_toolbar import *
 from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
-from .blur_toolbar import *
+from .effect_toolbar import *
 
 class PainterToolBarManager(QObject):
     providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
@@ -66,8 +66,8 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.UseMarkerPen
         elif isinstance(self.canvasItemBar, LineStripToolbar):
             drawActionEnum = DrawActionEnum.DrawLineStrip
-        elif isinstance(self.canvasItemBar, BlurToolbar):
-            drawActionEnum = DrawActionEnum.UseBlurTool
+        elif isinstance(self.canvasItemBar, EffectToolbar):
+            drawActionEnum = DrawActionEnum.UseEffectTool
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
         if isinstance(canvasItem, CanvasTextItem):
@@ -82,8 +82,8 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.DrawLineStrip
         elif isinstance(canvasItem, CanvasArrowItem):
             matchDrawActionEnum = DrawActionEnum.DrawArrow
-        elif isinstance(canvasItem, CanvasBlurRectItem):
-            matchDrawActionEnum = DrawActionEnum.UseBlurTool
+        elif isinstance(canvasItem, CanvasEffectRectItem):
+            matchDrawActionEnum = DrawActionEnum.UseEffectTool
 
         if drawActionEnum != matchDrawActionEnum:
             self.switchDrawTool(matchDrawActionEnum)
@@ -111,8 +111,8 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.UseEraser:
                 self.canvasItemBar = EraseToolbar(parent=self.targetWidget)
                 self.canvasItemBar.eraseTypeChangedSignal = self.providerChangeDrawActionSignal
-            elif drawActionEnum == DrawActionEnum.UseBlurTool:
-                self.canvasItemBar = BlurToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.UseEffectTool:
+                self.canvasItemBar = EffectToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UsePencil:
                 self.canvasItemBar = PenToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawLineStrip:

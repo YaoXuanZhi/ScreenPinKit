@@ -93,7 +93,7 @@ class PainterInterface(QWidget):
         if self.drawWidget.sceneBrush != None:
             extendActions = [
                 Action(ScreenShotIcon.ERASE, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseBlurTool)),
+                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool)),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
@@ -147,7 +147,7 @@ class PainterInterface(QWidget):
                 item.setEditableState(True)
                 if hasattr(item, "forcecSelect"):
                     item.forcecSelect()
-                self.directSwitchSelectItem()
+                self.directSwitchDrawTool(DrawActionEnum.SelectItem)
             self.selectItemAction.setChecked(True)
 
         if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent, SceneUserNotifyEnum.SelectNothing]:
@@ -224,6 +224,8 @@ class PainterInterface(QWidget):
         self.drawWidget.switchDrawTool(drawActionEnum)
         if not hasattr(self, "drawActionInfo"):
             self.drawActionInfo = DrawActionInfo()
+        if self.preHandleEraseToole(drawActionEnum):
+            return
         if self.currentDrawActionEnum != drawActionEnum:
             self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum)))
         self.currentDrawActionEnum = drawActionEnum
@@ -231,8 +233,14 @@ class PainterInterface(QWidget):
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.setCursor(cursor)
 
-    def directSwitchSelectItem(self, cursor:QCursor = Qt.CursorShape.ArrowCursor):
-        drawActionEnum = DrawActionEnum.SelectItem
+    def preHandleEraseToole(self, drawActionEnum:DrawActionEnum):
+        eraseTools = [DrawActionEnum.UseEraser, DrawActionEnum.UseEraserRectItem]
+        if self.currentDrawActionEnum in eraseTools and drawActionEnum in eraseTools:
+            self.directSwitchDrawTool(drawActionEnum)
+            return True
+        return False
+
+    def directSwitchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)

@@ -36,7 +36,6 @@ class ShapeToolbar(CanvasItemToolBar):
         self.backgroundColorPickerButton.setColor(brushColor)
         self.opacitySlider.setValue(self.opacity)
 
-        # 更新形状选项
         currentShape = self.styleMap["shape"]
         currentIndex = 0
         for _, _, shapeType in self.shapeTypeInfos:
@@ -78,6 +77,7 @@ class ShapeToolbar(CanvasItemToolBar):
         self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandler)
         self.backgroundColorPickerButton.colorChanged.connect(self.backgroundColorChangedHandler)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.shapeComBox.currentIndexChanged.connect(self.shapeTypeComBoxHandle)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:
@@ -102,7 +102,6 @@ class ShapeToolbar(CanvasItemToolBar):
         shapeComBox = ComboBox(self)
         for text, icon, enum in self.shapeTypeInfos:
             shapeComBox.addItem(text=text, icon=icon, userData=enum)
-        shapeComBox.currentIndexChanged.connect(self.shapeTypeComBoxHandle)
         self.initTemplateOptionUI(self.tr("Shape"), shapeComBox)
         return shapeComBox
     

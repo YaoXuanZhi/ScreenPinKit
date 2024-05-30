@@ -14,6 +14,7 @@ class EraseToolbar(CanvasItemToolBar):
         }
 
     def initUI(self):
+        self.addSeparator()
         eraseActions = [
             Action(ScreenShotIcon.FULL_Dot, self.tr("Eraser pen"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraser)),
             Action(ScreenShotIcon.FULL_RECTANGLE, self.tr("Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
@@ -27,12 +28,13 @@ class EraseToolbar(CanvasItemToolBar):
         self.addActions(eraseActions)
 
         eraseActions[0].trigger()
+        self.addSeparator()
 
     def refreshStyleUI(self):
         pass
 
     def refreshAttachItem(self):
-        if self.canvasItem != None:
+        if self.canvasItem != None and hasattr(self.canvasItem, "resetStyle"):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
     def wheelZoom(self, angleDelta:int):
@@ -41,7 +43,7 @@ class EraseToolbar(CanvasItemToolBar):
         # 自定义滚轮事件的行为
         if angleDelta > 1:
             # 放大
-            finalValue = min(finalValue + 1, 20)
+            finalValue = finalValue + 1
         else:
             # 缩小
             finalValue = max(finalValue - 1, 1)

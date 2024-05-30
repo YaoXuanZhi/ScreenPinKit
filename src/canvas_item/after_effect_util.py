@@ -217,14 +217,14 @@ class EffectWorker(QThread):
     effectFinishedSignal = pyqtSignal(QPixmap)
     isRunning = 0
 
-    def __init__(self, effectType:AfterEffectType) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self.setStackSize(1024*1024)
-        self.effectType = effectType
 
-    def startEffect(self, sourcePixmap:QPixmap, strength:int):
+    def startEffect(self, effectType:AfterEffectType, sourcePixmap:QPixmap, strength:int):
         if self.isRunning:
             return
+        self.effectType = effectType
         self.sourcePixmap = sourcePixmap
         self.strength = strength
         self.start()

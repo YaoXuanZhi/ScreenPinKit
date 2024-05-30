@@ -17,8 +17,7 @@ class DrawActionEnum(Enum):
     DrawArrow = "绘制箭头"
     DrawLineStrip = "绘制折线"
     SelectItem = "选择对象"
-    UseMosaicTool = "马赛克工具"
-    UseBlurTool = "模糊工具"
+    UseEffectTool = "特效工具"
 
 class DrawActionInfo(QObject):
     def __init__(self, parent: QObject = None) -> None:
@@ -39,8 +38,7 @@ class DrawActionInfo(QObject):
         self.map[DrawActionEnum.DrawArrow] = self.tr("DrawArrow")
         self.map[DrawActionEnum.DrawLineStrip] = self.tr("DrawLineStrip")
         self.map[DrawActionEnum.SelectItem] = self.tr("SelectItem")
-        self.map[DrawActionEnum.UseMosaicTool] = self.tr("UseBlurTool")
-        self.map[DrawActionEnum.UseBlurTool] = self.tr("UseBlurTool")
+        self.map[DrawActionEnum.UseEffectTool] = self.tr("UseEffectTool")
 
     def getInfo(self, drawActionEnum:DrawActionEnum):
         if drawActionEnum in self.map:
@@ -304,10 +302,10 @@ class CanvasScene(QGraphicsScene):
                                 self.__startDraw(self.currentItem)
                                 self.currentItem.polygon.append(targetPos)
                                 self.currentItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
+                    elif self.currentDrawActionEnum == DrawActionEnum.UseEffectTool:
                         if self.currentItem == None:
                             lastPixmap = self.captureCurrentScenePixmap()
-                            self.currentItem = CanvasBlurRectItem(lastPixmap)
+                            self.currentItem = CanvasEffectRectItem(lastPixmap)
                             self.__startDraw(self.currentItem)
                             self.currentItem.polygon.append(targetPos)
                             self.currentItem.polygon.append(targetPos)
@@ -340,9 +338,9 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.polygon.append(targetPos)
                         self.currentItem.update()
             if event.button() == Qt.RightButton:
-                if self.currentItem == None and self.currentDrawActionEnum == DrawActionEnum.UseBlurTool:
+                if self.currentItem == None and self.currentDrawActionEnum == DrawActionEnum.UseEffectTool:
                     lastPixmap = self.captureCurrentScenePixmap()
-                    self.currentItem = CanvasBlurRectItem(lastPixmap)
+                    self.currentItem = CanvasEffectRectItem(lastPixmap)
                     self.__startDraw(self.currentItem)
                     sceneRect = QRect(QPoint(0, 0), lastPixmap.size())
                     self.currentItem.polygon.append(sceneRect.topLeft())
@@ -365,7 +363,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.UseBlurTool,
+                DrawActionEnum.UseEffectTool,
                 ]:
                 self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
                 self.currentItem.update()
@@ -392,7 +390,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.UseMarkerPen, 
                 DrawActionEnum.UseEraserRectItem, 
                 DrawActionEnum.DrawShape, 
-                DrawActionEnum.UseBlurTool,
+                DrawActionEnum.UseEffectTool,
                 ]:
                 if event.button() == Qt.LeftButton:
                     isOk = False

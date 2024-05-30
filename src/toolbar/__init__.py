@@ -9,5 +9,5 @@ from .arrow_toolbar import *
 from .number_marker_item_toolbar import *
 from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
-from .blur_toolbar import *
+from .effect_toolbar import *
 from .painter_toolbar_manager import *
