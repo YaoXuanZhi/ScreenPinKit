@@ -64,10 +64,10 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.UseMarkerItem
         elif isinstance(self.canvasItemBar, ArrowToolbar):
             drawActionEnum = DrawActionEnum.DrawArrow
-        elif isinstance(self.canvasItemBar, PolygonLineToolbar):
-            drawActionEnum = DrawActionEnum.DrawPolygonalLine
         elif isinstance(self.canvasItemBar, MarkerPenToolbar):
             drawActionEnum = DrawActionEnum.UseMarkerPen
+        elif isinstance(self.canvasItemBar, PolygonLineToolbar):
+            drawActionEnum = DrawActionEnum.DrawPolygonalLine
         elif isinstance(self.canvasItemBar, BlurToolbar):
             drawActionEnum = DrawActionEnum.Blur
 
@@ -78,12 +78,12 @@ class PainterToolBarManager(QObject):
             matchDrawActionEnum = DrawActionEnum.DrawShape
         elif isinstance(canvasItem, CanvasMarkerItem):
             matchDrawActionEnum = DrawActionEnum.UseMarkerItem
+        elif isinstance(canvasItem, CanvasMarkerPen):
+            matchDrawActionEnum = DrawActionEnum.UseMarkerPen
         elif isinstance(canvasItem, CanvasPolygonItem):
             matchDrawActionEnum = DrawActionEnum.DrawPolygonalLine
         elif isinstance(canvasItem, CanvasArrowItem):
             matchDrawActionEnum = DrawActionEnum.DrawArrow
-        elif isinstance(canvasItem, CanvasMarkerPen):
-            matchDrawActionEnum = DrawActionEnum.UseMarkerPen
         elif isinstance(canvasItem, CanvasBlurRectItem):
             matchDrawActionEnum = DrawActionEnum.Blur
 

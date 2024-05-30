@@ -52,7 +52,7 @@ class MarkerPenToolbar(CanvasItemToolBar):
         # 自定义滚轮事件的行为
         if angleDelta > 1:
             # 放大
-            finalValue = min(finalValue + 1, 10)
+            finalValue = finalValue + 1
         else:
             # 缩小
             finalValue = max(finalValue - 1, 1)
