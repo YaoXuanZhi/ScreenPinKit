@@ -182,19 +182,17 @@ class PainterInterface(QWidget):
         super().closeEvent(event)
         self.completeDraw()
 
-    def keyPressEvent(self, event) -> None:
-        # 监听ESC键，当按下ESC键时，逐步取消编辑状态
-        if event.key() == Qt.Key_Escape:
-            # 如果当前绘图工具不在编辑状态，则本次按下Esc键会关掉绘图工具条
-            if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
-                self.clearDrawFlag()
-                self.drawWidget.quitDraw()
-                self.setFocus()
-            elif self.toolbar != None and self.toolbar.isVisible():
-                self.completeDraw()
-            else:
-                self.destroyImage()
-        super().keyPressEvent(event)
+    def tryQuitDraw(self):
+        # 如果当前绘图工具不在编辑状态，则本次按下Esc键会关掉绘图工具条
+        if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
+            self.clearDrawFlag()
+            self.drawWidget.quitDraw()
+            self.setFocus()
+            return False
+        elif self.toolbar != None and self.toolbar.isVisible():
+            self.completeDraw()
+            return False
+        return True
 
     def undo(self):
         self.drawWidget.undo()
@@ -204,9 +202,6 @@ class PainterInterface(QWidget):
 
     def clickThrough(self):
         self.parentWidget().setMouseThroughState(True)
-
-    def destroyImage(self):
-        self.parentWidget().close()
 
     # 得到最终绘制后的Pixmap
     def getFinalPixmap(self) -> QPixmap:

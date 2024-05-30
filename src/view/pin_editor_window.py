@@ -122,3 +122,9 @@ class PinEditorWindow(PinWindow):
     def closeEvent(self, event) -> None:
         self.painterWidget.close()
         super().closeEvent(event)
+
+    def keyPressEvent(self, event) -> None:
+        if event.key() == Qt.Key_Escape:
+            if self.painterWidget.tryQuitDraw():
+                self.close()
+        super().keyPressEvent(event)
