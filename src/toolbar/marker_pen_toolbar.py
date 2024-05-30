@@ -10,8 +10,8 @@ class MarkerPenToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "color" : QColor(255, 0, 0),
-            "width" : 5,
+            "color" : QColor(81, 0, 0, 128),
+            "width" : 16,
         }
 
     def initUI(self):
