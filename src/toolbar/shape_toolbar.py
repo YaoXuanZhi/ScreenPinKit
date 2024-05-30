@@ -27,6 +27,7 @@ class ShapeToolbar(CanvasItemToolBar):
         self.shapeTypeInfos = [
             ("矩形", ScreenShotIcon.RECTANGLE, CanvasShapeEnum.Rectangle),
             ("圆形", ScreenShotIcon.CIRCLE, CanvasShapeEnum.Ellipse),
+            ("三角形", ScreenShotIcon.CIRCLE, CanvasShapeEnum.Triangle),
             ("五角星", ScreenShotIcon.STAR, CanvasShapeEnum.Star),
         ]
 

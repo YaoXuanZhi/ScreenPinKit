@@ -4,6 +4,8 @@ class CanvasShapeEnum(Enum):
     Ellipse = "椭圆"
     Rectangle = "矩形"
     Star = "五角星"
+    Triangle = "三角形"
+    NPolygon = "N边形"
 
 class CanvasShapeItem(CanvasCommonPathItem):
     '''
@@ -14,10 +16,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
         super().__init__(parent)
         self.__initEditMode()
         self.__initStyle(shapeType)
-
-        self.zoomComponent = ZoomComponent()
-        self.zoomComponent.zoomClamp = False
-        self.zoomComponent.signal.connect(self.zoomHandle)
+        self.sides = 3
 
     def __initStyle(self, shapeType:CanvasShapeEnum):
         #todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
@@ -68,16 +67,6 @@ class CanvasShapeItem(CanvasCommonPathItem):
 
         self.update()
 
-    def zoomHandle(self, zoomFactor):
-        finalStyleMap = self.styleAttribute.getValue().value()
-        finalWidth = finalStyleMap["penWidth"]
-        if zoomFactor > 1:
-            finalWidth = finalWidth + 1
-        else:
-            finalWidth = max(0, finalWidth - 1)
-
-        finalStyleMap["penWidth"] = finalWidth
-        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         painter.setBrush(self.useBrushColor)
@@ -85,7 +74,24 @@ class CanvasShapeItem(CanvasCommonPathItem):
         painter.drawPath(targetPath)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        self.zoomComponent.TriggerEvent(event.delta())
+        if int(event.modifiers()) == Qt.ControlModifier:
+            if self.useShape == CanvasShapeEnum.NPolygon:
+                if event.delta() > 1:
+                    self.sides = min(30, self.sides + 1)
+                else:
+                    self.sides = max(0, self.sides - 1)
+                self.update()
+            pass
+        else:
+            finalStyleMap = self.styleAttribute.getValue().value()
+            finalWidth = finalStyleMap["penWidth"]
+            if event.delta() > 1:
+                finalWidth = finalWidth + 1
+            else:
+                finalWidth = max(0, finalWidth - 1)
+
+            finalStyleMap["penWidth"] = finalWidth
+            self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()
@@ -96,6 +102,10 @@ class CanvasShapeItem(CanvasCommonPathItem):
             CanvasUtil.buildEllipsePath(targetPath, targetPolygon)
         elif shapeType == CanvasShapeEnum.Rectangle:
             CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
+        elif shapeType == CanvasShapeEnum.Triangle:
+            CanvasUtil.buildTrianglePath(targetPath, targetPolygon)
+        elif shapeType == CanvasShapeEnum.NPolygon:
+            CanvasUtil.buildNPolygonPath(targetPath, targetPolygon, self.sides)
         elif shapeType == CanvasShapeEnum.Star:
             CanvasUtil.buildStarPath(targetPath, targetPolygon)
 

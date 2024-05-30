@@ -32,13 +32,17 @@ class DrawingView(QGraphicsView):
         self.pathItem = None
 
     def mousePressEvent(self, event):
+        item = self.itemAt(event.pos())
+        if item != None and self.pathItem != item:
+            return super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             if not self.isCanDrag():
                 targetPos = self.mapToScene(event.pos())
                 if self.pathItem == None:
-                    # self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Star)
-                    # self.pathItem = CanvasClosedShapeItem(None, CanvasClosedShapeEnum.Rectangle)
-                    self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Ellipse)
+                    # self.pathItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Star)
+                    # self.pathItem = CanvasClosedShapeItem(None, CanvasShapeEnum.Rectangle)
+                    # self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Ellipse)
+                    self.pathItem = CanvasShapeItem(None, CanvasShapeEnum.Triangle)
                     self.scene().addItem(self.pathItem)
                     self.pathItem.polygon.append(targetPos)
                     self.pathItem.polygon.append(targetPos)

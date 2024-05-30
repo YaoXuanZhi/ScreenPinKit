@@ -399,6 +399,65 @@ class CanvasUtil:
         return []
 
     @staticmethod
+    def buildTrianglePath(targetPath:QPainterPath, polygon:QPolygonF) -> typing.Iterable[QPointF]:
+        '''构造三角形'''
+        targetPath.clear()
+
+        begin = polygon.at(0)
+        end = polygon.at(polygon.count() - 1)
+
+        if begin == end:
+            return
+
+        rect = QRectF(begin, end).normalized()
+        topCenter = (rect.topLeft() + rect.topRight())/2
+        bottomLeft = rect.bottomLeft()
+        bottomRight = rect.bottomRight()
+        targetPath.addPolygon(QPolygonF([topCenter, bottomLeft, bottomRight]))
+        targetPath.closeSubpath()
+
+        return [topCenter, bottomLeft, bottomRight]
+
+    @staticmethod
+    def buildNPolygonPath(targetPath:QPainterPath, polygon:QPolygonF, sides:int = 3) -> typing.Iterable[QPointF]:
+        '''构造N边形'''
+
+        # 过小或过大都自动将其转换成椭圆
+        if sides < 3 or sides > 30:
+            return CanvasUtil.buildEllipsePath(targetPath, polygon)
+
+        targetPath.clear()
+        begin = polygon.at(0)
+        end = polygon.at(polygon.count() - 1)
+
+        boundRect = QRectF(begin, end).normalized()
+
+        # 先按照正方形区域来绘制这个这个多边形
+        squareRect = QRectF(boundRect)
+        if squareRect.width() < squareRect.height():
+            squareRect.setHeight(squareRect.width())
+        else:
+            squareRect.setWidth(squareRect.height())
+        center = squareRect.center()
+        radius = squareRect.width() / 2
+
+        # 计算多边形的外接圆上的点
+        angleStep = 2 * math.pi / sides
+        for i in range(sides):
+            angle = angleStep * i
+            x = center.x() + radius * math.cos(angle)
+            y = center.y() + radius * math.sin(angle)
+            point = QPointF(x, y)
+            if i == 0:
+                targetPath.moveTo(point)  # 移动到第一个点
+            else:
+                targetPath.lineTo(point)  # 连接到后续的点
+
+        # 闭合路径以形成多边形
+        targetPath.closeSubpath()
+        return []
+
+    @staticmethod
     def buildArrowPath(targetPath:QPainterPath, polygon:QPolygonF, arrowStyle:map) -> typing.Iterable[QPointF]:
         '''构造箭头'''
         targetPath.clear()

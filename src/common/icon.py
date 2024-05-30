@@ -43,8 +43,14 @@ class ScreenShotIcon(FluentIconBase, Enum):
     UNLOCKED = "解锁"
 
     CIRCLE = "圆形3"
-    SHAPE = "diversity"
+    SHAPE = "diversity3"
     FILL_REGION = "fill-region"
+    TRIANGLE = "triangle"
+
+    TEXT_BOLD = "bold"
+    TEXT_ITALIC = "italic"
+    FULL_Dot = "full-stop"
+    FULL_RECTANGLE = "full-rectangle"
 
     def path(self, theme=Theme.AUTO):
         # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")
