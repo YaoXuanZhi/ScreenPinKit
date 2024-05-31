@@ -23,9 +23,10 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def __initStyle(self):
+        # 由于图元和工具栏是采用动态方式绑定的，必须确保绑定时触发一次valueChangedSignal
         styleMap = {
             "strength" : 5,
-            "effectType" : AfterEffectType.GaussianBlur,
+            "effectType" : AfterEffectType.Unknown,
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))

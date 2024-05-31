@@ -1,6 +1,5 @@
 # coding=utf-8
 from enum import Enum
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,8 +9,9 @@ class AfterEffectType(Enum):
     '''
     图像后处理效果类型
     '''
-    GaussianBlur = "高斯模糊"
-    Mosaic = "马赛克"
+    Unknown = "Unknown"
+    Blur = "Blur"
+    Mosaic = "Mosaic"
 
 class AfterEffectUtilByPIL:
     '''
@@ -198,20 +198,6 @@ class BlurEffectThread(QThread):
         self.maxSize = maxSize or self.maxSize
         self.start()
 
-class PixmapCacheManager(QObject):
-    """ PixmapCache Manager """
-
-    _lastPixmap:QPixmap = None
-
-    def __init__(self):
-        super().__init__()
-
-    def saveLastPixmap(self, sourcePixmap):
-        self._lastPixmap = sourcePixmap
-
-    @property
-    def lastPixmap(self) -> QPixmap: return self._lastPixmap
-
 class EffectWorker(QThread):
     '''图像后处理线程'''
     effectFinishedSignal = pyqtSignal(QPixmap)
@@ -232,7 +218,7 @@ class EffectWorker(QThread):
     def run(self):
         self.isRunning = 1
         try:
-            if self.effectType == AfterEffectType.GaussianBlur:
+            if self.effectType == AfterEffectType.Blur:
                 finalPixmap = AfterEffectUtilByPIL.gaussianBlur(self.sourcePixmap, self.strength)
                 pass
             elif self.effectType == AfterEffectType.Mosaic:

@@ -1,5 +1,5 @@
 # coding=utf-8
-from common import ScreenShotIcon
+from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
 class TextEditToolbar(CanvasItemToolBar):
@@ -10,10 +10,11 @@ class TextEditToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         defaultFont = QFont()
-        defaultFont.setPointSize(16)
+        defaultPointSize = cfg.get(cfg.textEditToolbarFontSize)
+        defaultFont.setPointSize(defaultPointSize)
         self.styleMap = {
             "font" : defaultFont,
-            "textColor" : QColor(Qt.GlobalColor.red),
+            "textColor" : cfg.get(cfg.textEditToolbarTextColor),
         }
 
     def initUI(self):

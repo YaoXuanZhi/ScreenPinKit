@@ -1,5 +1,5 @@
 # coding:utf-8
-from common import cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
+from common import cfg, ScreenShotIcon, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
 from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
                             OptionsSettingCard, RangeSettingCard, PushSettingCard,
                             ColorSettingCard, HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
@@ -65,6 +65,23 @@ class SettingInterface(ScrollArea):
             parent=self.personalGroup
         )
 
+        # EffectToolBar
+        self.effectToolBarGroup = SettingCardGroup(self.tr("EffectToolBar"), self.scrollWidget)
+        self.effectToolBarEffectTypeCard = ComboBoxSettingCard(
+            cfg.effectToolbarEffectType,
+            ScreenShotIcon.FILL_REGION,
+            self.tr('Effect type'),
+            self.tr('Set your default effect type'),
+            texts=['Blur', 'Mosaic'],
+            parent=self.effectToolBarGroup
+        )
+        self.effectToolBarStrengthCard = RangeSettingCard(
+            cfg.effectToolbarStrength,
+            FIF.HIGHTLIGHT,
+            self.tr("Set your default effect strength"),
+            parent=self.effectToolBarGroup
+        )
+
         # update software
         self.updateSoftwareGroup = SettingCardGroup(self.tr("Software update"), self.scrollWidget)
         self.updateOnStartUpCard = SwitchSettingCard(
@@ -118,6 +135,9 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.languageCard)
 
+        self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
+        self.effectToolBarGroup.addSettingCard(self.effectToolBarEffectTypeCard)
+
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
         self.aboutGroup.addSettingCard(self.feedbackCard)
@@ -128,6 +148,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.musicInThisPCGroup)
         self.expandLayout.addWidget(self.personalGroup)
+        self.expandLayout.addWidget(self.effectToolBarGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 

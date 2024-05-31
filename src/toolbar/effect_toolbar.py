@@ -1,5 +1,5 @@
 # coding=utf-8
-from common import ScreenShotIcon
+from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
 class EffectToolbar(CanvasItemToolBar):
@@ -9,12 +9,12 @@ class EffectToolbar(CanvasItemToolBar):
 
     def initDefaultStyle(self):
         self.styleMap = {
-            "strength" : 2,
-            "effectType" : AfterEffectType.Mosaic,
+            "strength" : cfg.get(cfg.effectToolbarStrength),
+            "effectType" : cfg.get(cfg.effectToolbarEffectType),
         }
 
         self.effectTypeInfos = [
-            (self.tr("Blur"), ScreenShotIcon.BLUR, AfterEffectType.GaussianBlur),
+            (self.tr("Blur"), ScreenShotIcon.BLUR, AfterEffectType.Blur),
             (self.tr("Mosaic"), ScreenShotIcon.MOSAIC, AfterEffectType.Mosaic),
         ]
 
@@ -32,7 +32,8 @@ class EffectToolbar(CanvasItemToolBar):
 
     def initUI(self):
         self.effectTypeComBox = self.initEffectOptionUI()
-        self.strengthSlider = self.initSliderOptionUI(self.tr("Effect strength"), self.styleMap["strength"], 2, 10)
+        (minValue, maxValue) = cfg.effectToolbarStrength.range
+        self.strengthSlider = self.initSliderOptionUI(self.tr("Effect strength"), self.styleMap["strength"], minValue, maxValue)
         self.addSeparator()
 
     def initEffectOptionUI(self):

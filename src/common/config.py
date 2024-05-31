@@ -1,5 +1,6 @@
 # coding:utf-8
 from enum import Enum
+from canvas_item import *
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -70,6 +71,18 @@ class Config(QConfig):
         "ShadowStyle", "isSaveWithShadow", False, BoolValidator())
     isCopyWithShadow = ConfigItem(
         "ShadowStyle", "isCopyWithShadow", False, BoolValidator())
+
+    # TextEditToolbar
+    textEditToolbarFontSize = RangeConfigItem(
+        "TextEditToolbar", "fontSize", 5, RangeValidator(1, 100))
+    textEditToolbarTextColor = ColorConfigItem(
+        "TextEditToolbar", "textColor", Qt.red)
+
+    # EffectToolbar
+    effectToolbarStrength = RangeConfigItem(
+        "EffectToolbar", "strength", 5, RangeValidator(1, 15))
+    effectToolbarEffectType = OptionsConfigItem(
+        "EffectToolbar", "effectType", AfterEffectType.Blur, OptionsValidator(AfterEffectType), EnumSerializer(AfterEffectType))
 
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"

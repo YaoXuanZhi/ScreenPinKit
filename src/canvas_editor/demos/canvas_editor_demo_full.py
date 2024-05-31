@@ -61,15 +61,14 @@ class MainWindow(DragWindow):
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip), shortcut="alt+2"),
             QAction("绘制多边形", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape), shortcut="alt+3"),
             QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
-            QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+8"),
+            QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+7"),
         ]
 
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if not self.physicalPixmap.isNull():
             extendActions = [
                 QAction('橡皮擦', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser), shortcut="alt+5"),
-                QAction('橡皮擦2', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
-                QAction('特效工具', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool), shortcut="alt+7"),
+                QAction('橡皮框', self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraserRectItem), shortcut="alt+6"),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
