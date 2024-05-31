@@ -1,5 +1,5 @@
 # coding=utf-8
-from common import ScreenShotIcon
+from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
 class ShapeToolbar(CanvasItemToolBar):
@@ -10,11 +10,11 @@ class ShapeToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "brushColor" : QColor(255, 0, 0, 0),
-            "penColor" : QColor(255, 0, 0),
-            "penWidth" : 2,
-            "penStyle" : Qt.PenStyle.SolidLine,
-            "shape" : CanvasShapeEnum.Rectangle,
+            "brushColor" : cfg.get(cfg.shapeToolbarBrushColor),
+            "penColor" : cfg.get(cfg.shapeToolbarPenColor),
+            "penWidth" : cfg.get(cfg.shapeToolbarPenWidth),
+            "penStyle" : cfg.get(cfg.shapeToolbarPenStyle),
+            "shape" : cfg.get(cfg.shapeToolbarShape),
         }
 
         self.outlineTypeInfos = [

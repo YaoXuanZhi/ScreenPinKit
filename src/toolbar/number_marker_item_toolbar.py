@@ -1,4 +1,5 @@
 # coding=utf-8
+from common import cfg
 from .canvas_item_toolbar import *
 
 class NumberMarkerItemToolbar(CanvasItemToolBar):
@@ -8,10 +9,13 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
     def initDefaultStyle(self):
         self.opacity:int = 100
+        defaultFont = QFont()
+        defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
+        defaultFont.setFamily(defaultFontFamily)
         self.styleMap = {
-            "font" : QFont(),
-            "textColor" : QColor(Qt.GlobalColor.white),
-            "backgroundColor" : QColor(Qt.GlobalColor.red),
+            "font" : defaultFont,
+            "textColor" : cfg.get(cfg.numberMarkerItemToolbarTextColor),
+            "backgroundColor" : cfg.get(cfg.numberMarkerItemToolbarBackgroundColor),
         }
 
     def initUI(self):

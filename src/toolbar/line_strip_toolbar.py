@@ -10,8 +10,8 @@ class LineStripToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "color" : QColor(255, 0, 0),
-            "width" : 5,
+            "color" : cfg.get(cfg.lineStripToolbarColor),
+            "width" : cfg.get(cfg.lineStripToolbarWidth),
         }
 
     def initUI(self):

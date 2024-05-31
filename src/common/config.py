@@ -90,6 +90,54 @@ class Config(QConfig):
     eraseToolbarWidth = RangeConfigItem(
         "EraseToolbar", "width", 5, RangeValidator(1, 30))
 
+    # ShapeToolbar
+    shapeToolbarPenWidth = RangeConfigItem(
+        "ShapeToolbar", "penWidth", 2, RangeValidator(1, 30))
+    shapeToolbarBrushColor = ColorConfigItem(
+        "ShapeToolbar", "brushColor", Qt.GlobalColor.blue)
+    shapeToolbarPenColor = ColorConfigItem(
+        "ShapeToolbar", "penColor", Qt.GlobalColor.gray)
+    shapeToolbarPenStyle = OptionsConfigItem(
+        "ShapeToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+    shapeToolbarShape = OptionsConfigItem(
+        "ShapeToolbar", "shape", CanvasShapeEnum.Rectangle, OptionsValidator(CanvasShapeEnum), EnumSerializer(CanvasShapeEnum))
+
+    # ArrowToolbar
+    arrowToolbarPenWidth = RangeConfigItem(
+        "ArrowToolbar", "penWidth", 2, RangeValidator(1, 30))
+    arrowToolbarBrushColor = ColorConfigItem(
+        "ArrowToolbar", "brushColor", Qt.GlobalColor.blue)
+    arrowToolbarPenColor = ColorConfigItem(
+        "ArrowToolbar", "penColor", Qt.GlobalColor.gray)
+    arrowToolbarPenStyle = OptionsConfigItem(
+        "ArrowToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+
+    # LineStripToolbar
+    lineStripToolbarWidth = RangeConfigItem(
+        "LineStripToolbar", "width", 5, RangeValidator(1, 30))
+    lineStripToolbarColor = ColorConfigItem(
+        "LineStripToolbar", "color", Qt.GlobalColor.red)
+
+    # MarkerPenToolbar
+    markerPenToolbarWidth = RangeConfigItem(
+        "MarkerPenToolbar", "width", 5, RangeValidator(1, 30))
+    markerPenToolbarColor = ColorConfigItem(
+        "MarkerPenToolbar", "color", Qt.GlobalColor.red)
+
+    # PenToolbar
+    penToolbarWidth = RangeConfigItem(
+        "PenToolbar", "width", 5, RangeValidator(1, 30))
+    penToolbarColor = ColorConfigItem(
+        "PenToolbar", "color", Qt.GlobalColor.red)
+
+    # NumberMarkerItemToolbar
+    numberMarkerItemToolbarFontFamily = ConfigItem(
+        "NumberMarkerItemToolbar", "fontFamily", "Microsoft YaHei")
+    numberMarkerItemToolbarTextColor = ColorConfigItem(
+        "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white)
+    numberMarkerItemToolbarBackgroundColor = ColorConfigItem(
+        "NumberMarkerItemToolbar", "backgroundColor", Qt.GlobalColor.red)
+
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"
 APP_NAME = "ScreenPinKit"

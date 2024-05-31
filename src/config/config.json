@@ -1,12 +1,40 @@
 {
+    "ArrowToolbar": {
+        "brushColor": "#ffff0000",
+        "penColor": "#ffff0000",
+        "penStyle": 1,
+        "penWidth": 2
+    },
     "General": {
         "CacheFolder": "./cache",
         "DpiScale": "Auto",
-        "Language": "Auto",
-        "ImageNameFormat": "ScreenPinKit_%s.png"
+        "ImageNameFormat": "ScreenPinKit_%s.png",
+        "Language": "Auto"
     },
     "Update": {
         "CheckUpdateAtStartUp": true
+    },
+    "EffectToolbar": {
+        "effectType": "Blur",
+        "strength": 5
+    },
+    "EraseToolbar": {
+        "width": 5
+    },
+    "ShadowStyle": {
+        "focusColor": "#00ff00ff",
+        "isCopyWithShadow": false,
+        "isSaveWithShadow": false,
+        "unFocusColor": "#007d7d7d",
+        "useRoundStyle": true
+    },
+    "LineStripToolbar": {
+        "color": "#ffff0000",
+        "width": 5
+    },
+    "MarkerPenToolbar": {
+        "color": "#995f0f26",
+        "width": 16
     },
     "HotKey": {
         "MouseThough": "alt+f",
@@ -15,56 +43,33 @@
         "ShowClipboard": "f2",
         "SwitchScreenPaintMode": "alt+l"
     },
-    "Toolbar": {
-        "useWheelZoom" : true,
-        "applyWheelItem" : true
-    },
-    "ShadowStyle": {
-        "focusColor": "#ff00ff",
-        "unFocusColor": "#7d7d7d",
-        "useRoundStyle" : true,
-        "isSaveWithShadow": false,
-        "isCopyWithShadow": false
-    },
-    "QFluentWidgets": {
-        "ThemeColor": "#ff009faa",
-        "ThemeMode": "Auto"
-    },
-    "ShapeToolbar": {
-        "brushColor": "#007d7d7d",
-        "penColor": "#007d7d7d",
-        "penWidth": 2,
-        "penStyle": "SolidLine",
-        "shape": "Rectangle"
-    },
-    "EraseToolbar": {
-        "width": 5
-    },
-    "ArrowToolbar": {
-        "brushColor": "#007d7d7d",
-        "penColor": "#007d7d7d",
-        "penWidth": 2,
-        "penStyle": 1
-    },
-    "EffectToolbar": {
-        "strength": 5,
-        "effectType": "Blur"
-    },
-    "LineStripToolbar": {
-        "width": 5,
-        "color": "#007d7d7d"
-    },
-    "MarkerPenToolbar": {
-        "width": 5,
-        "color": "#007d7d7d"
+    "NumberMarkerItemToolbar": {
+        "backgroundColor": "#ffff0000",
+        "fontFamily": "Microsoft YaHei",
+        "textColor": "#ffffffff"
     },
     "PenToolbar": {
-        "width": 5,
-        "color": "#007d7d7d"
+        "color": "#ffff0000",
+        "width": 5
+    },
+    "ShapeToolbar": {
+        "brushColor": "#00ff00ff",
+        "penColor": "#ffff0000",
+        "penStyle": 1,
+        "penWidth": 2,
+        "shape": "Rectangle"
     },
     "TextEditToolbar": {
         "fontFamily": "Microsoft YaHei",
         "fontSize": 15,
         "textColor": "#ffff007f"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Auto"
+    },
+    "Toolbar": {
+        "applyWheelItem": true,
+        "useWheelZoom": true
     }
 }

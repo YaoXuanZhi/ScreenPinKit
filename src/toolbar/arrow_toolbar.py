@@ -1,4 +1,5 @@
 # coding=utf-8
+from common import cfg
 from .canvas_item_toolbar import *
 
 class ArrowToolbar(CanvasItemToolBar):
@@ -9,10 +10,10 @@ class ArrowToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "brushColor" : QColor(255, 0, 0, 255),
-            "penColor" : QColor(255, 0, 0),
-            "penWidth" : 2,
-            "penStyle" : Qt.PenStyle.SolidLine,
+            "brushColor" : cfg.get(cfg.arrowToolbarBrushColor),
+            "penColor" : cfg.get(cfg.arrowToolbarPenColor),
+            "penWidth" : cfg.get(cfg.arrowToolbarPenWidth),
+            "penStyle" : cfg.get(cfg.arrowToolbarPenStyle),
         }
 
         self.outlineTypeInfos = [

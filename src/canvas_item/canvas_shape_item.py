@@ -2,11 +2,11 @@
 from .canvas_util import *
 
 class CanvasShapeEnum(Enum):
-    Ellipse = "椭圆"
-    Rectangle = "矩形"
-    Star = "五角星"
-    Triangle = "三角形"
-    NPolygon = "N边形"
+    Ellipse = "Ellipse"
+    Triangle = "Triangle"
+    Rectangle = "Rectangle"
+    Star = "Star"
+    # NPolygon = "N边形"
 
 class CanvasShapeItem(CanvasCommonPathItem):
     '''
