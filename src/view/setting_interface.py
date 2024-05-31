@@ -65,24 +65,24 @@ class SettingInterface(ScrollArea):
             parent=self.personalGroup
         )
 
-        # TextEditToolbar
+        # textEditToolbar
         self.textEditToolbarGroup = SettingCardGroup(self.tr("TextEditToolbar"), self.scrollWidget)
         self.textEditToolbarFontCard = PushSettingCard(
             self.tr('Choose font'),
             FIF.FONT,
-            self.tr('Font'),
+            self.tr('Font family'),
             parent=self.textEditToolbarGroup
         )
         self.textEditToolbarFontSizeCard = RangeSettingCard(
             cfg.textEditToolbarFontSize,
             FIF.FONT,
-            self.tr('Set your default font size'),
+            self.tr('Font size'),
             parent=self.textEditToolbarGroup
         )
         self.textEditToolbarTextColorCard = ColorSettingCard(
             cfg.textEditToolbarTextColor,
             FIF.PALETTE,
-            self.tr("Set your default text color"),
+            self.tr("Text color"),
             parent=self.textEditToolbarGroup
         )
 
@@ -99,8 +99,17 @@ class SettingInterface(ScrollArea):
         self.effectToolBarStrengthCard = RangeSettingCard(
             cfg.effectToolbarStrength,
             FIF.HIGHTLIGHT,
-            self.tr("Set your default effect strength"),
+            self.tr("Effect strength"),
             parent=self.effectToolBarGroup
+        )
+
+        # eraseToolbar
+        self.eraseToolbarGroup = SettingCardGroup(self.tr("EraseToolbar"), self.scrollWidget)
+        self.eraseToolbarWidthCard = RangeSettingCard(
+            cfg.eraseToolbarWidth,
+            FIF.HIGHTLIGHT,
+            self.tr("Eraser width"),
+            parent=self.eraseToolbarGroup
         )
 
         # update software
@@ -163,6 +172,8 @@ class SettingInterface(ScrollArea):
         self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
         self.effectToolBarGroup.addSettingCard(self.effectToolBarEffectTypeCard)
 
+        self.eraseToolbarGroup.addSettingCard(self.eraseToolbarWidthCard)
+
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
         self.aboutGroup.addSettingCard(self.feedbackCard)
@@ -175,6 +186,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.personalGroup)
         self.expandLayout.addWidget(self.textEditToolbarGroup)
         self.expandLayout.addWidget(self.effectToolBarGroup)
+        self.expandLayout.addWidget(self.eraseToolbarGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 

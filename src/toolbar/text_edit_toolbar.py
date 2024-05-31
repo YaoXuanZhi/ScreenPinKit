@@ -73,14 +73,16 @@ class TextEditToolbar(CanvasItemToolBar):
     def onWheelZoom(self, angleDelta:int):
         finalFont:QFont = self.styleMap["font"]
 
+        (minValue, maxValue) = cfg.textEditToolbarFontSize.range
+
         # 自定义滚轮事件的行为
         finalFontSize = finalFont.pointSize()
         if angleDelta > 1:
             # 放大
-            finalFontSize = finalFontSize + 2
+            finalFontSize = min(maxValue, finalFontSize + 2)
         else:
             # 缩小
-            finalFontSize = max(1, finalFontSize - 2)
+            finalFontSize = max(minValue, finalFontSize - 2)
         finalFont.setPointSize(finalFontSize)
         self.styleMap["font"] = finalFont
 

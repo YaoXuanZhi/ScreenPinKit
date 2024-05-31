@@ -86,6 +86,10 @@ class Config(QConfig):
     effectToolbarEffectType = OptionsConfigItem(
         "EffectToolbar", "effectType", AfterEffectType.Blur, OptionsValidator(AfterEffectType), EnumSerializer(AfterEffectType))
 
+    # EraseToolbar
+    eraseToolbarWidth = RangeConfigItem(
+        "EraseToolbar", "width", 5, RangeValidator(1, 30))
+
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"
 APP_NAME = "ScreenPinKit"

@@ -1,5 +1,5 @@
 # coding=utf-8
-from common import ScreenShotIcon
+from common import ScreenShotIcon, cfg
 from canvas_editor import DrawActionEnum
 from .canvas_item_toolbar import *
 
@@ -10,7 +10,7 @@ class EraseToolbar(CanvasItemToolBar):
 
     def initDefaultStyle(self):
         self.styleMap = {
-            "width" : 5,
+            "width" : cfg.get(cfg.eraseToolbarWidth),
         }
 
     def initUI(self):
@@ -39,12 +39,13 @@ class EraseToolbar(CanvasItemToolBar):
 
     def wheelZoom(self, angleDelta:int):
         finalValue = self.styleMap["width"]
+        (minValue, maxValue) = cfg.eraseToolbarWidth.range
 
         # 自定义滚轮事件的行为
         if angleDelta > 1:
             # 放大
-            finalValue = finalValue + 1
+            finalValue = min(maxValue, finalValue + 2)
         else:
             # 缩小
-            finalValue = max(finalValue - 1, 1)
+            finalValue = max(minValue, finalValue - 2)
         self.styleMap["width"] = finalValue
