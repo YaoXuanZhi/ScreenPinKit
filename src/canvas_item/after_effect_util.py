@@ -12,6 +12,9 @@ class AfterEffectType(Enum):
     Unknown = "Unknown"
     Blur = "Blur"
     Mosaic = "Mosaic"
+    Detail = "Detail"
+    Find_Edges = "Find_Edges"
+    Contour = "Contour"
 
 class AfterEffectUtilByPIL:
     '''
@@ -50,6 +53,21 @@ class AfterEffectUtilByPIL:
         finalImage = blockSourceImage.resize((width // pixelateFactor, height // pixelateFactor), Image.NEAREST)
         finalImage = finalImage.resize((width, height), Image.NEAREST)
         return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+
+    @staticmethod
+    def detail(pixmap:QPixmap):
+        '''图像突出'''
+        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.DETAIL)
+
+    @staticmethod
+    def findEdges(pixmap:QPixmap):
+        '''边缘提取'''
+        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.FIND_EDGES)
+
+    @staticmethod
+    def contour(pixmap:QPixmap):
+        '''轮廓提取'''
+        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
 
     # @staticmethod
     # def mosaic2(pixmap:QPixmap, blockSize = 16):
@@ -167,37 +185,6 @@ class AfterEffectUtilByPIL:
 #         blurred = cv2.GaussianBlur(ndArray, (blurRadius, blurRadius), 0)
 #         return QPixmap.fromImage(QImage(blurred.data, width, height, 3*width, QImage.Format.Format_RGB888))
 
-class BlurEffectThread(QThread):
-    """ 
-    Blur album cover thread
-    参考acrylic_label.py控件的实现，实现后处理缓存机制
-    """
-
-    blurFinished = pyqtSignal(QPixmap)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.pixmap = None
-        self.blurRadius = 7
-        self.maxSize = None
-
-    def run(self):
-        if not self.pixmap:
-            return
-
-        # pixmap = AfterEffectUtilByCv.gaussianBlur(
-        #     self.pixmap, self.blurRadius)
-
-        pixmap = AfterEffectUtilByPIL.gaussianBlur(
-            self.pixmap, self.blurRadius)
-        self.blurFinished.emit(pixmap)
-
-    def blur(self, pixmap: QPixmap, blurRadius=6, maxSize: tuple = None):
-        self.pixmap = pixmap
-        self.blurRadius = blurRadius
-        self.maxSize = maxSize or self.maxSize
-        self.start()
-
 class EffectWorker(QThread):
     '''图像后处理线程'''
     effectFinishedSignal = pyqtSignal(QPixmap)
@@ -220,9 +207,14 @@ class EffectWorker(QThread):
         try:
             if self.effectType == AfterEffectType.Blur:
                 finalPixmap = AfterEffectUtilByPIL.gaussianBlur(self.sourcePixmap, self.strength)
-                pass
             elif self.effectType == AfterEffectType.Mosaic:
                 finalPixmap = AfterEffectUtilByPIL.mosaic(self.sourcePixmap, 5, self.strength)
+            elif self.effectType == AfterEffectType.Detail:
+                finalPixmap = AfterEffectUtilByPIL.detail(self.sourcePixmap)
+            elif self.effectType == AfterEffectType.Find_Edges:
+                finalPixmap = AfterEffectUtilByPIL.findEdges(self.sourcePixmap)
+            elif self.effectType == AfterEffectType.Contour:
+                finalPixmap = AfterEffectUtilByPIL.contour(self.sourcePixmap)
             else:
                 pass
             self.effectFinishedSignal.emit(finalPixmap)

@@ -529,6 +529,18 @@
         <translation>模糊</translation>
     </message>
     <message>
+        <source>Detail</source>
+        <translation>图像突出</translation>
+    </message>
+    <message>
+        <source>Find_Edges</source>
+        <translation>边缘提取</translation>
+    </message>
+    <message>
+        <source>Contour</source>
+        <translation>轮廓提取</translation>
+    </message>
+    <message>
         <source>Effect strength</source>
         <translation>强度</translation>
     </message>
