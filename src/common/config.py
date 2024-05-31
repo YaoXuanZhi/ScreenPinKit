@@ -73,6 +73,8 @@ class Config(QConfig):
         "ShadowStyle", "isCopyWithShadow", False, BoolValidator())
 
     # TextEditToolbar
+    textEditToolbarFontFamily = ConfigItem(
+        "TextEditToolbar", "fontFamily", "Microsoft YaHei")
     textEditToolbarFontSize = RangeConfigItem(
         "TextEditToolbar", "fontSize", 5, RangeValidator(1, 100))
     textEditToolbarTextColor = ColorConfigItem(

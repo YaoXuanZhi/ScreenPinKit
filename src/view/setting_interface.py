@@ -65,6 +65,27 @@ class SettingInterface(ScrollArea):
             parent=self.personalGroup
         )
 
+        # TextEditToolbar
+        self.textEditToolbarGroup = SettingCardGroup(self.tr("TextEditToolbar"), self.scrollWidget)
+        self.textEditToolbarFontCard = PushSettingCard(
+            self.tr('Choose font'),
+            FIF.FONT,
+            self.tr('Font'),
+            parent=self.textEditToolbarGroup
+        )
+        self.textEditToolbarFontSizeCard = RangeSettingCard(
+            cfg.textEditToolbarFontSize,
+            FIF.FONT,
+            self.tr('Set your default font size'),
+            parent=self.textEditToolbarGroup
+        )
+        self.textEditToolbarTextColorCard = ColorSettingCard(
+            cfg.textEditToolbarTextColor,
+            FIF.PALETTE,
+            self.tr("Set your default text color"),
+            parent=self.textEditToolbarGroup
+        )
+
         # EffectToolBar
         self.effectToolBarGroup = SettingCardGroup(self.tr("EffectToolBar"), self.scrollWidget)
         self.effectToolBarEffectTypeCard = ComboBoxSettingCard(
@@ -135,6 +156,10 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.languageCard)
 
+        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarFontCard)
+        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarFontSizeCard)
+        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarTextColorCard)
+
         self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
         self.effectToolBarGroup.addSettingCard(self.effectToolBarEffectTypeCard)
 
@@ -148,6 +173,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.musicInThisPCGroup)
         self.expandLayout.addWidget(self.personalGroup)
+        self.expandLayout.addWidget(self.textEditToolbarGroup)
         self.expandLayout.addWidget(self.effectToolBarGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)

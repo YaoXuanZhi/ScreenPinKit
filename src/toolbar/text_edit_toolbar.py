@@ -11,6 +11,8 @@ class TextEditToolbar(CanvasItemToolBar):
         self.opacity:int = 100
         defaultFont = QFont()
         defaultPointSize = cfg.get(cfg.textEditToolbarFontSize)
+        defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
+        defaultFont.setFamily(defaultFontFamily)
         defaultFont.setPointSize(defaultPointSize)
         self.styleMap = {
             "font" : defaultFont,

@@ -63,7 +63,8 @@
         "color": "#007d7d7d"
     },
     "TextEditToolbar": {
+        "fontFamily": "Microsoft YaHei",
         "fontSize": 15,
-        "textColor": "#ff007f"
+        "textColor": "#ffff007f"
     }
 }
