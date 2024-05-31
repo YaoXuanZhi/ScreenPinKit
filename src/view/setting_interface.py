@@ -93,7 +93,7 @@ class SettingInterface(ScrollArea):
             cfg.effectToolbarEffectType,
             ScreenShotIcon.FILL_REGION,
             self.tr('Effect type'),
-            self.tr('Set your default effect type'),
+            None,
             texts=['Blur', 'Mosaic'],
             parent=self.effectToolBarGroup
         )
@@ -139,7 +139,7 @@ class SettingInterface(ScrollArea):
             cfg.shapeToolbarPenStyle,
             FIF.HIGHTLIGHT,
             self.tr("Pen style"),
-            self.tr("Change brush style"),
+            None,
             texts=[
                 "SolidLine", "DashLine"
             ],
@@ -149,7 +149,7 @@ class SettingInterface(ScrollArea):
             cfg.shapeToolbarShape,
             ScreenShotIcon.SHAPE,
             self.tr('Shape'),
-            self.tr('Set your default shape'),
+            None,
             texts=['Ellipse', 'Triangle', 'Rectangle', 'Star'],
             parent=self.shapeToolbarGroup
         )
@@ -180,7 +180,7 @@ class SettingInterface(ScrollArea):
             cfg.arrowToolbarPenStyle,
             FIF.HIGHTLIGHT,
             self.tr("Pen style"),
-            self.tr("Change brush style"),
+            None,
             texts=[
                 "SolidLine", "DashLine"
             ],
@@ -258,42 +258,40 @@ class SettingInterface(ScrollArea):
             enableAlpha=True
         )
 
-        # shadowStyle
-        self.shadowStyleGroup = SettingCardGroup(self.tr("ShadowStyle"), self.scrollWidget)
-        self.shadowStyleFocusColorCard = ColorSettingCard(
-            cfg.focusShadowColor,
+        # windowShadowStyle
+        self.windowShadowStyleGroup = SettingCardGroup(self.tr("WindowShadowStyle"), self.scrollWidget)
+        self.windowShadowStyleFocusColorCard = ColorSettingCard(
+            cfg.windowShadowStyleFocusColor,
             FIF.PALETTE,
             self.tr("Focus color"),
-            parent=self.shadowStyleGroup,
-            enableAlpha=True
+            parent=self.windowShadowStyleGroup,
         )
-        self.shadowStyleUnfocusColorCard = ColorSettingCard(
-            cfg.unFocusShadowColor,
+        self.windowShadowStyleUnfocusColorCard = ColorSettingCard(
+            cfg.windowShadowStyleUnFocusColor,
             FIF.PALETTE,
             self.tr("Unfocus color"),
-            parent=self.shadowStyleGroup,
-            enableAlpha=True
+            parent=self.windowShadowStyleGroup,
         )
-        self.shadowStyleUseRoundStyleCard = SwitchSettingCard(
+        self.windowShadowStyleUseRoundStyleCard = SwitchSettingCard(
             FIF.VOLUME,
             self.tr('Use round style'),
             None,
-            configItem=cfg.useRoundStyle,
-            parent=self.shadowStyleGroup
+            configItem=cfg.windowShadowStyleUseRoundStyle,
+            parent=self.windowShadowStyleGroup
         )
-        self.shadowStyleIsSaveWithShadowCard = SwitchSettingCard(
+        self.windowShadowStyleIsSaveWithShadowCard = SwitchSettingCard(
             FIF.FEEDBACK,
             self.tr('Save screenshot with shadow'),
             None,
-            configItem=cfg.isSaveWithShadow,
-            parent=self.shadowStyleGroup
+            configItem=cfg.windowShadowStyleIsSaveWithShadow,
+            parent=self.windowShadowStyleGroup
         )
-        self.ShadowStyleisCopyWithShadowCard = SwitchSettingCard(
+        self.windowShadowStyleisCopyWithShadowCard = SwitchSettingCard(
             FIF.CHECKBOX,
             self.tr('Copy screenshot with shadow'),
             None,
-            configItem=cfg.isCopyWithShadow,
-            parent=self.shadowStyleGroup
+            configItem=cfg.windowShadowStyleIsCopyWithShadow,
+            parent=self.windowShadowStyleGroup
         )
 
         # update software
@@ -353,8 +351,8 @@ class SettingInterface(ScrollArea):
         self.textEditToolbarGroup.addSettingCard(self.textEditToolbarFontSizeCard)
         self.textEditToolbarGroup.addSettingCard(self.textEditToolbarTextColorCard)
 
-        self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
         self.effectToolBarGroup.addSettingCard(self.effectToolBarEffectTypeCard)
+        self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
 
         self.eraseToolbarGroup.addSettingCard(self.eraseToolbarWidthCard)
 
@@ -369,24 +367,24 @@ class SettingInterface(ScrollArea):
         self.arrowToolbarGroup.addSettingCard(self.arrowToolbarBrushColorCard)
         self.arrowToolbarGroup.addSettingCard(self.arrowToolbarPenStyleCard)
 
-        self.lineStripToolbarGroup.addSettingCard(self.lineStripToolbarWidthCard)
         self.lineStripToolbarGroup.addSettingCard(self.lineStripToolbarColorCard)
+        self.lineStripToolbarGroup.addSettingCard(self.lineStripToolbarWidthCard)
 
         self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarFontCard)
-        self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarWidthCard)
         self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarColorCard)
+        self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarWidthCard)
 
-        self.penToolbarGroup.addSettingCard(self.penToolbarWidthCard)
         self.penToolbarGroup.addSettingCard(self.penToolbarColorCard)
+        self.penToolbarGroup.addSettingCard(self.penToolbarWidthCard)
 
         self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarTextColorCard)
         self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarBackgroundColorCard)
 
-        self.shadowStyleGroup.addSettingCard(self.shadowStyleFocusColorCard)
-        self.shadowStyleGroup.addSettingCard(self.shadowStyleUnfocusColorCard)
-        self.shadowStyleGroup.addSettingCard(self.shadowStyleUseRoundStyleCard)
-        self.shadowStyleGroup.addSettingCard(self.shadowStyleIsSaveWithShadowCard)
-        self.shadowStyleGroup.addSettingCard(self.ShadowStyleisCopyWithShadowCard)
+        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleFocusColorCard)
+        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUnfocusColorCard)
+        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUseRoundStyleCard)
+        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleIsSaveWithShadowCard)
+        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleisCopyWithShadowCard)
 
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
@@ -407,7 +405,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.markerPenToolbarGroup)
         self.expandLayout.addWidget(self.penToolbarGroup)
         self.expandLayout.addWidget(self.numberMarkerItemToolbarGroup)
-        self.expandLayout.addWidget(self.shadowStyleGroup)
+        self.expandLayout.addWidget(self.windowShadowStyleGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
@@ -427,12 +425,17 @@ class SettingInterface(ScrollArea):
             parent=self.window()
         )
 
-    def __onDeskLyricFontCardClicked(self):
-        """ desktop lyric font button clicked slot """
+    def __onTextEditToolbarFontCardClicked(self):
         font, isOk = QFontDialog.getFont(
-            cfg.desktopLyricFont, self.window(), self.tr("Choose font"))
+            cfg.textEditToolbarFont, self.window(), self.tr("Choose font"))
         if isOk:
-            cfg.desktopLyricFont = font
+            cfg.textEditToolbarFont = font
+
+    def __onMarkerPenToolbarFontCardClicked(self):
+        font, isOk = QFontDialog.getFont(
+            cfg.numberMarkerItemToolbarFont, self.window(), self.tr("Choose font"))
+        if isOk:
+            cfg.numberMarkerItemToolbarFont = font
 
     def __onDownloadFolderCardClicked(self):
         """ download folder card clicked slot """
@@ -457,9 +460,12 @@ class SettingInterface(ScrollArea):
         cfg.appRestartSig.connect(self.__showRestartTooltip)
         cfg.themeChanged.connect(self.__onThemeChanged)
 
-        # # music in the pc
+        # general
         self.cacheFolderCard.clicked.connect(
             self.__onDownloadFolderCardClicked)
+
+        self.textEditToolbarFontCard.clicked.connect(self.__onTextEditToolbarFontCardClicked)
+        self.markerPenToolbarFontCard.clicked.connect(self.__onMarkerPenToolbarFontCardClicked)
 
         # about
         self.aboutCard.clicked.connect(self.checkUpdateSig)

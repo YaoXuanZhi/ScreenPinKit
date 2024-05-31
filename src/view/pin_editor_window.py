@@ -23,8 +23,8 @@ class PinEditorWindow(PinWindow):
         self.painterWidget.initDrawLayer()
         self.painterWidget.drawWidget.setEditorEnabled(False)
 
-        self.setRoundStyle(cfg.get(cfg.useRoundStyle))
-        self.setShadowColor(cfg.get(cfg.focusShadowColor), cfg.get(cfg.unFocusShadowColor))
+        self.setRoundStyle(cfg.get(cfg.windowShadowStyleUseRoundStyle))
+        self.setShadowColor(cfg.get(cfg.windowShadowStyleFocusColor), cfg.get(cfg.windowShadowStyleUnFocusColor))
 
         self.initActions()
 
@@ -74,7 +74,7 @@ class PinEditorWindow(PinWindow):
         # https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency/46424800#46424800
         # https://stackoverflow.com/questions/44287407/text-erased-from-screenshot-after-using-clipboard-getimage-on-windows-10/46400011#46400011
 
-        if cfg.get(cfg.isCopyWithShadow):
+        if cfg.get(cfg.windowShadowStyleIsCopyWithShadow):
             finalPixmap = self.grab()
         else:
             finalPixmap = self.painterWidget.getFinalPixmap()
@@ -93,7 +93,7 @@ class PinEditorWindow(PinWindow):
         finalPath = os.path.join(finalFolder, fileName)
         savePath, _ = QFileDialog.getSaveFileName(self, "Save File", finalPath, "PNG(*.png)")
         if savePath != None:
-            if cfg.get(cfg.isSaveWithShadow):
+            if cfg.get(cfg.windowShadowStyleIsSaveWithShadow):
                 finalPixmap = self.grab()
             else:
                 finalPixmap = self.painterWidget.getFinalPixmap()

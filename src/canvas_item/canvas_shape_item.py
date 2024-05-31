@@ -105,8 +105,8 @@ class CanvasShapeItem(CanvasCommonPathItem):
             CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
         elif shapeType == CanvasShapeEnum.Triangle:
             CanvasUtil.buildTrianglePath(targetPath, targetPolygon)
-        elif shapeType == CanvasShapeEnum.NPolygon:
-            CanvasUtil.buildNPolygonPath(targetPath, targetPolygon, self.sides)
+        # elif shapeType == CanvasShapeEnum.NPolygon:
+        #     CanvasUtil.buildNPolygonPath(targetPath, targetPolygon, self.sides)
         elif shapeType == CanvasShapeEnum.Star:
             CanvasUtil.buildStarPath(targetPath, targetPolygon)
 

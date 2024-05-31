@@ -62,15 +62,17 @@ class Config(QConfig):
     toolbarApplyWheelItem = ConfigItem(
         "Toolbar", "applyWheelItem", True, BoolValidator())
 
-    # ShadowStyle
-    focusShadowColor = ColorConfigItem("ShadowStyle", "focusColor", "#225C7F")
-    unFocusShadowColor = ColorConfigItem("ShadowStyle", "unFocusColor", "#7d7d7d")
-    useRoundStyle = ConfigItem(
-        "ShadowStyle", "useRoundStyle", False, BoolValidator())
-    isSaveWithShadow = ConfigItem(
-        "ShadowStyle", "isSaveWithShadow", False, BoolValidator())
-    isCopyWithShadow = ConfigItem(
-        "ShadowStyle", "isCopyWithShadow", False, BoolValidator())
+    # WindowShadowStyle
+    windowShadowStyleFocusColor = ColorConfigItem(
+        "WindowShadowStyle", "focusColor", Qt.GlobalColor.blue)
+    windowShadowStyleUnFocusColor = ColorConfigItem(
+        "WindowShadowStyle", "unFocusColor", Qt.GlobalColor.gray)
+    windowShadowStyleUseRoundStyle = ConfigItem(
+        "WindowShadowStyle", "useRoundStyle", False, BoolValidator())
+    windowShadowStyleIsSaveWithShadow = ConfigItem(
+        "WindowShadowStyle", "isSaveWithShadow", False, BoolValidator())
+    windowShadowStyleIsCopyWithShadow = ConfigItem(
+        "WindowShadowStyle", "isCopyWithShadow", False, BoolValidator())
 
     # TextEditToolbar
     textEditToolbarFontFamily = ConfigItem(
@@ -137,6 +139,26 @@ class Config(QConfig):
         "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white)
     numberMarkerItemToolbarBackgroundColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "backgroundColor", Qt.GlobalColor.red)
+
+    @property
+    def numberMarkerItemToolbarFont(self):
+        font = QFont(self.numberMarkerItemToolbarFontFamily.value)
+        return font
+
+    @numberMarkerItemToolbarFont.setter
+    def numberMarkerItemToolbarFont(self, font: QFont):
+        self.numberMarkerItemToolbarFontFamily.value = font.family()
+        self.save()
+
+    @property
+    def textEditToolbarFont(self):
+        font = QFont(self.textEditToolbarFontFamily.value)
+        return font
+
+    @textEditToolbarFont.setter
+    def textEditToolbarFont(self, font: QFont):
+        self.textEditToolbarFontFamily.value = font.family()
+        self.save()
 
 YEAR = 2023
 AUTHOR = "YaoXuanZhi"

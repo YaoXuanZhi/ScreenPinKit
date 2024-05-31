@@ -21,13 +21,6 @@
     "EraseToolbar": {
         "width": 5
     },
-    "ShadowStyle": {
-        "focusColor": "#00ff00ff",
-        "isCopyWithShadow": false,
-        "isSaveWithShadow": false,
-        "unFocusColor": "#007d7d7d",
-        "useRoundStyle": true
-    },
     "LineStripToolbar": {
         "color": "#ffff0000",
         "width": 5
@@ -71,5 +64,12 @@
     "Toolbar": {
         "applyWheelItem": true,
         "useWheelZoom": true
+    },
+    "WindowShadowStyle": {
+        "focusColor": "#00ff00ff",
+        "isCopyWithShadow": false,
+        "isSaveWithShadow": false,
+        "unFocusColor": "#007d7d7d",
+        "useRoundStyle": true
     }
 }

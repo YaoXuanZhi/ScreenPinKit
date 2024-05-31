@@ -10,7 +10,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         defaultFont = QFont()
-        defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
+        defaultFontFamily = cfg.get(cfg.numberMarkerItemToolbarFontFamily)
         defaultFont.setFamily(defaultFontFamily)
         self.styleMap = {
             "font" : defaultFont,

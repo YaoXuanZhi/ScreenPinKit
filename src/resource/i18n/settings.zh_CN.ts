@@ -119,6 +119,114 @@
         <source>Configuration takes effect after restart</source>
         <translation>配置在重启软件后生效</translation>
     </message>
+    <message>
+        <source>TextEditToolbar</source>
+        <translation>文本框工具栏</translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation>字体样式</translation>
+    </message>
+    <message>
+        <source>Choose font</source>
+        <translation>选择字体</translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation>字体大小</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>文本颜色</translation>
+    </message>
+    <message>
+        <source>EffectToolBar</source>
+        <translation>特效工具栏</translation>
+    </message>
+    <message>
+        <source>Effect type</source>
+        <translation>类型</translation>
+    </message>
+    <message>
+        <source>Set your default effect type</source>
+        <translation>设置默认特效类型</translation>
+    </message>
+    <message>
+        <source>Effect strength</source>
+        <translation>强度</translation>
+    </message>
+    <message>
+        <source>EraseToolbar</source>
+        <translation>橡皮工具</translation>
+    </message>
+    <message>
+        <source>Eraser width</source>
+        <translation>橡皮擦宽度</translation>
+    </message>
+    <message>
+        <source>ShapeToolbar</source>
+        <translation>形状工具栏</translation>
+    </message>
+    <message>
+        <source>Brush color</source>
+        <translation>笔刷颜色</translation>
+    </message>
+    <message>
+        <source>Pen color</source>
+        <translation>画笔颜色</translation>
+    </message>
+    <message>
+        <source>Pen width</source>
+        <translation>画笔宽度</translation>
+    </message>
+    <message>
+        <source>Pen style</source>
+        <translation>画笔风格</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>形状</translation>
+    </message>
+    <message>
+        <source>ArrowToolbar</source>
+        <translation>箭头工具栏</translation>
+    </message>
+    <message>
+        <source>PenToolbar</source>
+        <translation>铅笔工具栏</translation>
+    </message>
+    <message>
+        <source>NumberMarkerItemToolbar</source>
+        <translation>数字标记工具栏</translation>
+    </message>
+    <message>
+        <source>Background color</source>
+        <translation>背景颜色</translation>
+    </message>
+    <message>
+        <source>WindowShadowStyle</source>
+        <translation>窗口阴影风格</translation>
+    </message>
+    <message>
+        <source>Focus color</source>
+        <translation>获取焦点时的颜色</translation>
+    </message>
+    <message>
+        <source>Unfocus color</source>
+        <translation>失去焦点后的颜色</translation>
+    </message>
+    <message>
+        <source>Use round style</source>
+        <translation>是否启用圆角风格</translation>
+    </message>
+    <message>
+        <source>Save screenshot with shadow</source>
+        <translation>保存的截图是否要带窗口阴影</translation>
+    </message>
+    <message>
+        <source>Copy screenshot with shadow</source>
+        <translation>复制截图时是否带窗口阴影</translation>
+    </message>
 </context>
 <context>
     <name>SettingWindow</name>
