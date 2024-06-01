@@ -17,7 +17,7 @@ class ShapeToolbar(CanvasItemToolBar):
             "shape" : cfg.get(cfg.shapeToolbarShape),
         }
 
-        self.outlineTypeInfos = [
+        self.penStyleInfos = [
             (self.tr("Solid line"), Qt.PenStyle.SolidLine),
             (self.tr("Dash line"), Qt.PenStyle.DashLine),
         ]
@@ -32,7 +32,7 @@ class ShapeToolbar(CanvasItemToolBar):
     def refreshStyleUI(self):
         penColor:QColor = self.styleMap["penColor"]
         brushColor:QColor = self.styleMap["brushColor"]
-        self.outlineColorPickerButton.setColor(penColor)
+        self.penColorPickerButton.setColor(penColor)
         self.backgroundColorPickerButton.setColor(brushColor)
         self.opacitySlider.setValue(self.opacity)
 
@@ -46,23 +46,23 @@ class ShapeToolbar(CanvasItemToolBar):
 
         currentIndex = 0
         currentPenStyle = self.styleMap["penStyle"]
-        for _, penStyle in self.outlineTypeInfos:
+        for _, penStyle in self.penStyleInfos:
             if penStyle == currentPenStyle:
                 break
             currentIndex = currentIndex + 1 
-        self.outlineTypeComBox.setCurrentIndex(currentIndex)
+        self.penStyleComBox.setCurrentIndex(currentIndex)
 
     def initUI(self):
         self.shapeComBox = self.initShapeOptionUI()
         self.addSeparator()
-        self.outlineTypeComBox, self.outlineColorPickerButton = self.initPenOptionUI()
+        self.penStyleComBox, self.penColorPickerButton = self.initPenOptionUI()
         self.addSeparator()
         self.backgroundColorPickerButton = self.initColorOptionUI(self.tr("Brush"), Qt.GlobalColor.red)
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
     
-    def outlineTypeComBoxHandle(self, index):
-        comBox:ComboBox = self.outlineTypeComBox
+    def penStyleComBoxHandle(self, index):
+        comBox:ComboBox = self.penStyleComBox
         self.styleMap["penStyle"] = comBox.currentData()        
         self.refreshAttachItem()
 
@@ -72,9 +72,9 @@ class ShapeToolbar(CanvasItemToolBar):
         self.refreshAttachItem()
 
     def listenerEvent(self):
-        self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandler)
-        self.backgroundColorPickerButton.colorChanged.connect(self.backgroundColorChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.penColorPickerButton.colorChanged.connect(self.penColorChangedHandle)
+        self.backgroundColorPickerButton.colorChanged.connect(self.backgroundColorChangedHandle)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
         self.shapeComBox.currentIndexChanged.connect(self.shapeTypeComBoxHandle)
 
     def refreshAttachItem(self):
@@ -82,15 +82,15 @@ class ShapeToolbar(CanvasItemToolBar):
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def outlineColorChangedHandler(self, color:QColor):
+    def penColorChangedHandle(self, color:QColor):
         self.styleMap["penColor"] = color
         self.refreshAttachItem()
 
-    def backgroundColorChangedHandler(self, color:QColor):
+    def backgroundColorChangedHandle(self, color:QColor):
         self.styleMap["brushColor"] = color
         self.refreshAttachItem()
 
-    def opacityValueChangedHandler(self, value:float):
+    def opacityValueChangedHandle(self, value:float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
@@ -109,10 +109,10 @@ class ShapeToolbar(CanvasItemToolBar):
         optionName = self.tr("Pen")
 
         # 描边风格选项
-        outlineTypeComBox = ComboBox(self)
-        for text, enum in self.outlineTypeInfos:
-            outlineTypeComBox.addItem(text=text, userData=enum)
-        outlineTypeComBox.currentIndexChanged.connect(self.outlineTypeComBoxHandle)
+        penStyleComBox = ComboBox(self)
+        for text, enum in self.penStyleInfos:
+            penStyleComBox.addItem(text=text, userData=enum)
+        penStyleComBox.currentIndexChanged.connect(self.penStyleComBoxHandle)
 
         # 颜色选项
         colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
@@ -124,8 +124,23 @@ class ShapeToolbar(CanvasItemToolBar):
         optionLayout = QHBoxLayout()
         optionView.setLayout(optionLayout)
         optionLayout.addWidget(QLabel(optionName))
-        optionLayout.addWidget(outlineTypeComBox)
+        optionLayout.addWidget(penStyleComBox)
         optionLayout.addWidget(colorPickerButton)
         self.addWidget(optionView)
 
-        return outlineTypeComBox, colorPickerButton
+        return penStyleComBox, colorPickerButton
+
+    def wheelZoom(self, angleDelta:int):
+        finalValue = self.styleMap["penWidth"]
+
+        # 自定义滚轮事件的行为
+        if angleDelta > 1:
+            # 放大
+            finalValue = finalValue + 1
+        else:
+            # 缩小
+            finalValue = max(finalValue - 1, 1)
+        self.styleMap["penWidth"] = finalValue
+
+        if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
+            self.canvasItem.resetStyle(self.styleMap.copy())

@@ -190,13 +190,13 @@ class SettingInterface(ScrollArea):
         # lineStripToolbar
         self.lineStripToolbarGroup = SettingCardGroup(self.tr("LineStripToolbar"), self.scrollWidget)
         self.lineStripToolbarWidthCard = RangeSettingCard(
-            cfg.lineStripToolbarWidth,
+            cfg.lineStripToolbarPenWidth,
             FIF.FONT_SIZE,
             self.tr("Pen width"),
             parent=self.lineStripToolbarGroup
         )
         self.lineStripToolbarColorCard = ColorSettingCard(
-            cfg.lineStripToolbarColor,
+            cfg.lineStripToolbarPenColor,
             FIF.PALETTE,
             self.tr("Pen color"),
             parent=self.lineStripToolbarGroup,
@@ -212,13 +212,13 @@ class SettingInterface(ScrollArea):
             parent=self.markerPenToolbarGroup
         )
         self.markerPenToolbarWidthCard = RangeSettingCard(
-            cfg.markerPenToolbarWidth,
+            cfg.markerPenToolbarPenWidth,
             FIF.FONT_SIZE,
             self.tr("Pen width"),
             parent=self.markerPenToolbarGroup
         )
         self.markerPenToolbarColorCard = ColorSettingCard(
-            cfg.markerPenToolbarColor,
+            cfg.markerPenToolbarPenColor,
             FIF.PALETTE,
             self.tr("Pen color"),
             parent=self.markerPenToolbarGroup,
@@ -228,13 +228,13 @@ class SettingInterface(ScrollArea):
         # penToolbar
         self.penToolbarGroup = SettingCardGroup(self.tr("PenToolbar"), self.scrollWidget)
         self.penToolbarWidthCard = RangeSettingCard(
-            cfg.penToolbarWidth,
+            cfg.penToolbarPenWidth,
             FIF.FONT_SIZE,
             self.tr("Pen width"),
             parent=self.penToolbarGroup
         )
         self.penToolbarColorCard = ColorSettingCard(
-            cfg.penToolbarColor,
+            cfg.penToolbarPenColor,
             FIF.PALETTE,
             self.tr("Pen color"),
             parent=self.penToolbarGroup,

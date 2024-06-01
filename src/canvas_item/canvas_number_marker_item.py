@@ -16,11 +16,19 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         self.transformComponent = TransformComponent()
 
     def __initStyle(self):
+        defaultFont = QFont()
         styleMap = {
-            "font" : QFont(),
+            "font" : defaultFont,
             "textColor" : QColor(Qt.GlobalColor.white),
-            "backgroundColor" : QColor(Qt.GlobalColor.red),
+            "penColor" : QColor(Qt.GlobalColor.red),
+            "penWidth" : 2,
+            "penStyle" : Qt.PenStyle.SolidLine,
         }
+
+        self.usePen = QPen()
+        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setColor(styleMap["penColor"])
+        self.usePen.setStyle(styleMap["penStyle"])
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
@@ -32,6 +40,13 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     def showText(self): return f"{self.index}"
 
     def styleAttributeChanged(self):
+        styleMap = self.styleAttribute.getValue().value()
+        penColor = styleMap["penColor"]
+        penWidth = styleMap["penWidth"]
+        penStyle = styleMap["penStyle"]
+        self.usePen.setColor(penColor)
+        self.usePen.setWidth(penWidth)
+        self.usePen.setStyle(penStyle)
         self.update()
 
     def resetStyle(self, styleMap):
@@ -45,11 +60,10 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         styleMap = self.styleAttribute.getValue().value()
         font = styleMap["font"]
         textColor = styleMap["textColor"]
-        backgroundColor = styleMap["backgroundColor"]
 
         painter.save()
-        painter.setBrush(backgroundColor)
-        painter.setPen(Qt.NoPen)
+        painter.setBrush(Qt.NoBrush)
+        painter.setPen(self.usePen)
         painter.drawEllipse(self.boundingRect())
 
         painter.setPen(textColor)
@@ -81,14 +95,25 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         return super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        finalIndex = self.index
-        if event.delta() > 0:
-            finalIndex = finalIndex + 1
+        if int(event.modifiers()) == Qt.ControlModifier:
+            finalIndex = self.index
+            if event.delta() > 0:
+                finalIndex = finalIndex + 1
+            else:
+                finalIndex = max(1, finalIndex - 1)
+            self.index = finalIndex
+            self.update()
+            return
         else:
-            finalIndex = max(1, finalIndex - 1)
-
-        self.index = finalIndex
-        self.update()
+            finalStyleMap = self.styleAttribute.getValue().value()
+            finalWidth = finalStyleMap["penWidth"]
+            if event.delta() > 0:
+                finalWidth = finalWidth + 1
+            else:
+                finalWidth = max(finalWidth - 1, 1)
+            finalStyleMap["penWidth"] = finalWidth
+            self.usePen.setWidth(finalWidth)
+            self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def completeDraw(self):
         pass

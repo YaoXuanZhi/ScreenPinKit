@@ -19,19 +19,19 @@ class CommonPathToolbar(CanvasItemToolBar):
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
     def listenerEvent(self):
-        self.colorPickerButton.colorChanged.connect(self.colorChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.colorPickerButton.colorChanged.connect(self.colorChangedHandle)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 
     def refreshStyleUI(self):
         textColor:QColor = self.styleMap["color"]
         self.opacitySlider.setValue(self.opacity)
         self.colorPickerButton.setColor(textColor)
 
-    def colorChangedHandler(self, color:QColor):
+    def colorChangedHandle(self, color:QColor):
         self.styleMap["color"] = color
         self.refreshAttachItem()
 
-    def opacityValueChangedHandler(self, value:float):
+    def opacityValueChangedHandle(self, value:float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)

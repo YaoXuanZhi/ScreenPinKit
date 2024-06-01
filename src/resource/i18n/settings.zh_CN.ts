@@ -469,12 +469,32 @@
 <context>
     <name>NumberMarkerItemToolbar</name>
     <message>
-        <source>Text color</source>
-        <translation>字体颜色</translation>
+        <source>Solid line</source>
+        <translation>实线</translation>
     </message>
     <message>
-        <source>Brush color</source>
-        <translation>笔刷颜色</translation>
+        <source>Dash line</source>
+        <translation>虚线</translation>
+    </message>
+    <message>
+        <source>Pen</source>
+        <translation>画笔</translation>
+    </message>
+    <message>
+        <source>Pen color</source>
+        <translation>画笔颜色</translation>
+    </message>
+    <message>
+        <source>Pen width</source>
+        <translation>画笔宽度</translation>
+    </message>
+    <message>
+        <source>Pen style</source>
+        <translation>画笔风格</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>字体颜色</translation>
     </message>
     <message>
         <source>Font</source>

@@ -15,50 +15,117 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         self.styleMap = {
             "font" : defaultFont,
             "textColor" : cfg.get(cfg.numberMarkerItemToolbarTextColor),
-            "backgroundColor" : cfg.get(cfg.numberMarkerItemToolbarBackgroundColor),
+            "penColor" : cfg.get(cfg.numberMarkerItemToolbarPenColor),
+            "penWidth" : cfg.get(cfg.numberMarkerItemToolbarPenWidth),
+            "penStyle" : cfg.get(cfg.numberMarkerItemToolbarPenStyle),
         }
 
+        self.penStyleInfos = [
+            (self.tr("Solid line"), Qt.PenStyle.SolidLine),
+            (self.tr("Dash line"), Qt.PenStyle.DashLine),
+        ]
+
     def initUI(self):
+        self.penStyleComBox, self.penColorPickerButton = self.initPenOptionUI()
+        self.addSeparator()
         self.textColorPickerButton = self.initColorOptionUI(self.tr("Text color"), self.styleMap["textColor"])
         self.fontPickerButton = self.initFontOptionUI(self.tr("Font"), self.styleMap["font"])
         self.addSeparator()
-        self.backgroundColorPickerButton = self.initColorOptionUI(self.tr("Brush color"), self.styleMap["backgroundColor"])
-        self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
+
+    def penStyleComBoxHandle(self, index):
+        comBox:ComboBox = self.penStyleComBox
+        self.styleMap["penStyle"] = comBox.currentData()        
+        self.refreshAttachItem()
 
     def refreshStyleUI(self):
         font:QFont = self.styleMap["font"]
         textColor:QColor = self.styleMap["textColor"]
-        backgroundColor:QColor = self.styleMap["backgroundColor"]
-        self.opacitySlider.setValue(self.opacity)
+        penColor:QColor = self.styleMap["penColor"]
+        self.penColorPickerButton.setColor(penColor)
         self.textColorPickerButton.setColor(textColor)
-        self.backgroundColorPickerButton.setColor(backgroundColor)
         self.fontPickerButton.setTargetFont(font)
+        self.opacitySlider.setValue(self.opacity)
 
-    def textColorChangedHandler(self, color:QColor):
+        currentIndex = 0
+        currentPenStyle = self.styleMap["penStyle"]
+        for _, penStyle in self.penStyleInfos:
+            if penStyle == currentPenStyle:
+                break
+            currentIndex = currentIndex + 1 
+        self.penStyleComBox.setCurrentIndex(currentIndex)
+
+    def textColorChangedHandle(self, color:QColor):
         self.styleMap["textColor"] = color
         self.refreshAttachItem()
 
-    def backgroundColorChangedHandler(self, color:QColor):
-        self.styleMap["backgroundColor"] = color
+    def penStyleComBoxHandle(self, index):
+        comBox:ComboBox = self.penStyleComBox
+        self.styleMap["penStyle"] = comBox.currentData()        
         self.refreshAttachItem()
 
-    def fontChangedHandler(self, font:QFont):
+    def fontChangedHandle(self, font:QFont):
         self.styleMap["font"] = font
         self.refreshAttachItem()
 
-    def opacityValueChangedHandler(self, value:float):
+    def opacityValueChangedHandle(self, value:float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
 
     def listenerEvent(self):
-        self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandler)
-        self.backgroundColorPickerButton.colorChanged.connect(self.backgroundColorChangedHandler)
-        self.fontPickerButton.fontChanged.connect(self.fontChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.penColorPickerButton.colorChanged.connect(self.penColorChangedHandle)
+        self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
+        self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
+            self.canvasItem.resetStyle(self.styleMap.copy())
+
+    def penColorChangedHandle(self, color:QColor):
+        self.styleMap["penColor"] = color
+        self.refreshAttachItem()
+
+    def initPenOptionUI(self):
+        '''画笔选项'''
+
+        optionName = self.tr("Pen")
+
+        # 描边风格选项
+        penStyleComBox = ComboBox(self)
+        for text, enum in self.penStyleInfos:
+            penStyleComBox.addItem(text=text, userData=enum)
+        penStyleComBox.currentIndexChanged.connect(self.penStyleComBoxHandle)
+
+        # 颜色选项
+        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
+        colorPickerButton.setCheckable(True)
+        colorPickerButton.setFixedSize(30, 30)
+
+        # 布局
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionView.setLayout(optionLayout)
+        optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(penStyleComBox)
+        optionLayout.addWidget(colorPickerButton)
+        self.addWidget(optionView)
+
+        return penStyleComBox, colorPickerButton
+
+    def wheelZoom(self, angleDelta:int):
+        finalValue = self.styleMap["penWidth"]
+
+        # 自定义滚轮事件的行为
+        if angleDelta > 1:
+            # 放大
+            finalValue = finalValue + 1
+        else:
+            # 缩小
+            finalValue = max(finalValue - 1, 1)
+        self.styleMap["penWidth"] = finalValue
+
+        if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
             self.canvasItem.resetStyle(self.styleMap.copy())

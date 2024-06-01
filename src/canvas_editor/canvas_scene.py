@@ -72,10 +72,10 @@ class CanvasScene(QGraphicsScene):
         self._itemNotifyCallBack = None
         self._lastSelectedItem = None
 
-        self.selectionChanged.connect(self.selectionChangedHandler)
+        self.selectionChanged.connect(self.selectionChangedHandle)
         # self.setBackgroundBrush(self.bgBrush)
 
-    def selectionChangedHandler(self):
+    def selectionChangedHandle(self):
         selectItem = None
         if len(self.selectedItems()) > 0:
             selectItem = self.selectedItems()[0]
@@ -254,12 +254,11 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
-                        self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 50, 50))
+                        self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 25, 25))
                         self.__startDraw(self.currentItem)
                         targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
                         targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
                         self.currentItem.setPos(targetPos)
-                        self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
                         folderPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources")
                         def getSvgFiles(folderPath):
@@ -385,6 +384,11 @@ class CanvasScene(QGraphicsScene):
             elif self.currentDrawActionEnum in [DrawActionEnum.UsePencil, DrawActionEnum.UseEraser]:
                 if event.button() == Qt.LeftButton:
                     self.__completeDraw(self.currentItem)
+            elif self.currentDrawActionEnum in [DrawActionEnum.UseNumberMarker]:
+                if event.button() == Qt.LeftButton:
+                    self.currentItem.setSelected(False)
+                    self.__completeDraw(self.currentItem)
+                    return
             elif self.currentDrawActionEnum in [
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 

@@ -20,16 +20,16 @@ class TextEditToolbar(CanvasItemToolBar):
         }
 
     def initUI(self):
-        self.boldButton = self.addAction(Action(ScreenShotIcon.TEXT_BOLD, self.tr("Text bold"), triggered=self.fontExtStyleChangedHandler))
+        self.boldButton = self.addAction(Action(ScreenShotIcon.TEXT_BOLD, self.tr("Text bold"), triggered=self.fontExtStyleChangedHandle))
         self.boldButton.setCheckable(True)
-        self.italicButton = self.addAction(Action(ScreenShotIcon.TEXT_ITALIC, self.tr("Text italic"), triggered=self.fontExtStyleChangedHandler))
+        self.italicButton = self.addAction(Action(ScreenShotIcon.TEXT_ITALIC, self.tr("Text italic"), triggered=self.fontExtStyleChangedHandle))
         self.italicButton.setCheckable(True)
         self.textColorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["textColor"])
         self.fontPickerButton = self.initFontOptionUI(self.tr("Font"), self.styleMap["font"])
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
-    def fontExtStyleChangedHandler(self):
+    def fontExtStyleChangedHandle(self):
         font:QFont = self.styleMap["font"]
         font.setBold(self.boldButton.isChecked())
         font.setItalic(self.italicButton.isChecked())
@@ -47,23 +47,23 @@ class TextEditToolbar(CanvasItemToolBar):
         self.textColorPickerButton.setColor(textColor)
         self.fontPickerButton.setTargetFont(font)
 
-    def textColorChangedHandler(self, color:QColor):
+    def textColorChangedHandle(self, color:QColor):
         self.styleMap["textColor"] = color
         self.refreshAttachItem()
 
-    def fontChangedHandler(self, font:QFont):
+    def fontChangedHandle(self, font:QFont):
         self.styleMap["font"] = font
         self.refreshAttachItem()
 
-    def opacityValueChangedHandler(self, value:float):
+    def opacityValueChangedHandle(self, value:float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
 
     def listenerEvent(self):
-        self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandler)
-        self.fontPickerButton.fontChanged.connect(self.fontChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
+        self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:

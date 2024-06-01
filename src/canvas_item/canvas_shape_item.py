@@ -76,17 +76,17 @@ class CanvasShapeItem(CanvasCommonPathItem):
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         if int(event.modifiers()) == Qt.ControlModifier:
-            if self.useShape == CanvasShapeEnum.NPolygon:
-                if event.delta() > 1:
-                    self.sides = min(30, self.sides + 1)
-                else:
-                    self.sides = max(0, self.sides - 1)
-                self.update()
+            # if self.useShape == CanvasShapeEnum.NPolygon:
+            #     if event.delta() > 0:
+            #         self.sides = min(30, self.sides + 1)
+            #     else:
+            #         self.sides = max(0, self.sides - 1)
+            #     self.update()
             pass
         else:
             finalStyleMap = self.styleAttribute.getValue().value()
             finalWidth = finalStyleMap["penWidth"]
-            if event.delta() > 1:
+            if event.delta() > 0:
                 finalWidth = finalWidth + 1
             else:
                 finalWidth = max(0, finalWidth - 1)

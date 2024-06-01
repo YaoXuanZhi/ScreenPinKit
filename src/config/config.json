@@ -22,12 +22,12 @@
         "width": 5
     },
     "LineStripToolbar": {
-        "color": "#ffff0000",
-        "width": 5
+        "penColor": "#ffff0000",
+        "penWidth": 5
     },
     "MarkerPenToolbar": {
-        "color": "#995f0f26",
-        "width": 16
+        "penColor": "#995f0f26",
+        "penWidth": 16
     },
     "HotKey": {
         "MouseThough": "alt+f",
@@ -37,13 +37,15 @@
         "SwitchScreenPaintMode": "alt+l"
     },
     "NumberMarkerItemToolbar": {
-        "backgroundColor": "#ffff0000",
+        "penColor": "#ffff0000",
+        "penStyle": 1,
+        "penWidth": 2,
         "fontFamily": "Microsoft YaHei",
         "textColor": "#ffffffff"
     },
     "PenToolbar": {
-        "color": "#ffff0000",
-        "width": 5
+        "penColor": "#ffff0000",
+        "penWidth": 5
     },
     "ShapeToolbar": {
         "brushColor": "#00ff00ff",

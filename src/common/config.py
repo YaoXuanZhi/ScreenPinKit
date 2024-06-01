@@ -115,30 +115,34 @@ class Config(QConfig):
         "ArrowToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
 
     # LineStripToolbar
-    lineStripToolbarWidth = RangeConfigItem(
-        "LineStripToolbar", "width", 5, RangeValidator(1, 30))
-    lineStripToolbarColor = ColorConfigItem(
-        "LineStripToolbar", "color", Qt.GlobalColor.red)
+    lineStripToolbarPenWidth = RangeConfigItem(
+        "LineStripToolbar", "penWidth", 5, RangeValidator(1, 30))
+    lineStripToolbarPenColor = ColorConfigItem(
+        "LineStripToolbar", "penColor", Qt.GlobalColor.red)
 
     # MarkerPenToolbar
-    markerPenToolbarWidth = RangeConfigItem(
-        "MarkerPenToolbar", "width", 5, RangeValidator(1, 30))
-    markerPenToolbarColor = ColorConfigItem(
-        "MarkerPenToolbar", "color", Qt.GlobalColor.red)
+    markerPenToolbarPenWidth = RangeConfigItem(
+        "MarkerPenToolbar", "penWidth", 5, RangeValidator(1, 30))
+    markerPenToolbarPenColor = ColorConfigItem(
+        "MarkerPenToolbar", "penColor", Qt.GlobalColor.red)
 
     # PenToolbar
-    penToolbarWidth = RangeConfigItem(
-        "PenToolbar", "width", 5, RangeValidator(1, 30))
-    penToolbarColor = ColorConfigItem(
-        "PenToolbar", "color", Qt.GlobalColor.red)
+    penToolbarPenWidth = RangeConfigItem(
+        "PenToolbar", "penWidth", 5, RangeValidator(1, 30))
+    penToolbarPenColor = ColorConfigItem(
+        "PenToolbar", "penColor", Qt.GlobalColor.red)
 
     # NumberMarkerItemToolbar
     numberMarkerItemToolbarFontFamily = ConfigItem(
         "NumberMarkerItemToolbar", "fontFamily", "Microsoft YaHei")
     numberMarkerItemToolbarTextColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white)
-    numberMarkerItemToolbarBackgroundColor = ColorConfigItem(
-        "NumberMarkerItemToolbar", "backgroundColor", Qt.GlobalColor.red)
+    numberMarkerItemToolbarPenWidth = RangeConfigItem(
+        "NumberMarkerItemToolbar", "penWidth", 2, RangeValidator(1, 30))
+    numberMarkerItemToolbarPenColor = ColorConfigItem(
+        "NumberMarkerItemToolbar", "penColor", Qt.GlobalColor.gray)
+    numberMarkerItemToolbarPenStyle = OptionsConfigItem(
+        "NumberMarkerItemToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
 
     @property
     def numberMarkerItemToolbarFont(self):

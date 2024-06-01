@@ -19,12 +19,12 @@ class CanvasLineStripItem(CanvasCommonPathItem):
 
     def __initStyle(self):
         styleMap = {
-            "color" : QColor(0, 255, 0, 100),
-            "width" : 5,
+            "penColor" : QColor(0, 255, 0, 100),
+            "penWidth" : 5,
         }
 
-        self.usePen = QPen(styleMap["color"])
-        self.usePen.setWidth(styleMap["width"])
+        self.usePen = QPen(styleMap["penColor"])
+        self.usePen.setWidth(styleMap["penWidth"])
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -40,10 +40,10 @@ class CanvasLineStripItem(CanvasCommonPathItem):
 
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
-        color = styleMap["color"]
-        width = styleMap["width"]
-        self.usePen.setColor(color)
-        self.usePen.setWidth(width)
+        penColor = styleMap["penColor"]
+        penWidth = styleMap["penWidth"]
+        self.usePen.setColor(penColor)
+        self.usePen.setWidth(penWidth)
         self.update()
 
     def getOffsetLength(self) -> int:
@@ -66,7 +66,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
             return
 
         finalStyleMap = self.styleAttribute.getValue().value()
-        finalWidth = finalStyleMap["width"]
+        finalWidth = finalStyleMap["penWidth"]
 
         # 计算缩放比例
         if event.delta() > 0:
@@ -74,7 +74,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         else:
             finalWidth = max(1, finalWidth - 1)
 
-        finalStyleMap["width"] = finalWidth
+        finalStyleMap["penWidth"] = finalWidth
         self.usePen.setWidth(finalWidth)
 
         self.styleAttribute.setValue(QVariant(finalStyleMap))

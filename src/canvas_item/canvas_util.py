@@ -1146,7 +1146,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     
     def endRotate(self, localPos:QPointF) -> None:
         self.transformComponent.rotatedSignal.emit(self, self.oldRotate, self.rotation())
-        self.forcecSelect()
+        self.forceSelect()
 
     def startResize(self, localPos:QPointF) -> None:
         self.oldPolygon = QPolygonF(self.polygon)
@@ -1163,9 +1163,9 @@ class CanvasCommonPathItem(QGraphicsPathItem):
             roiPosList.append(roiItem.pos())
         self.transformComponent.resizedSignal.emit(self, (self.oldPolygon, self.oldRoiPosList), (QPolygonF(self.polygon), roiPosList))
         self.refreshTransformOriginPoint()
-        self.forcecSelect()
+        self.forceSelect()
 
-    def forcecSelect(self):
+    def forceSelect(self):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.setSelected(True)
 

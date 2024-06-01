@@ -10,29 +10,29 @@ class MarkerPenToolbar(CanvasItemToolBar):
     def initDefaultStyle(self):
         self.opacity:int = 100
         self.styleMap = {
-            "color" : cfg.get(cfg.markerPenToolbarColor),
-            "width" : cfg.get(cfg.markerPenToolbarWidth),
+            "penColor" : cfg.get(cfg.markerPenToolbarPenColor),
+            "penWidth" : cfg.get(cfg.markerPenToolbarPenWidth),
         }
 
     def initUI(self):
-        self.colorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["color"])
+        self.colorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["penColor"])
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
 
     def listenerEvent(self):
-        self.colorPickerButton.colorChanged.connect(self.colorChangedHandler)
-        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandler)
+        self.colorPickerButton.colorChanged.connect(self.colorChangedHandle)
+        self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 
     def refreshStyleUI(self):
-        textColor:QColor = self.styleMap["color"]
+        penColor:QColor = self.styleMap["penColor"]
         self.opacitySlider.setValue(self.opacity)
-        self.colorPickerButton.setColor(textColor)
+        self.colorPickerButton.setColor(penColor)
 
-    def colorChangedHandler(self, color:QColor):
-        self.styleMap["color"] = color
+    def colorChangedHandle(self, color:QColor):
+        self.styleMap["penColor"] = color
         self.refreshAttachItem()
 
-    def opacityValueChangedHandler(self, value:float):
+    def opacityValueChangedHandle(self, value:float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
@@ -43,7 +43,7 @@ class MarkerPenToolbar(CanvasItemToolBar):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
     def wheelZoom(self, angleDelta:int):
-        finalValue = self.styleMap["width"]
+        finalValue = self.styleMap["penWidth"]
 
         # 自定义滚轮事件的行为
         if angleDelta > 1:
@@ -52,7 +52,7 @@ class MarkerPenToolbar(CanvasItemToolBar):
         else:
             # 缩小
             finalValue = max(finalValue - 1, 1)
-        self.styleMap["width"] = finalValue
+        self.styleMap["penWidth"] = finalValue
 
         if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
             self.canvasItem.resetStyle(self.styleMap.copy())

@@ -48,14 +48,14 @@ class EffectToolbar(CanvasItemToolBar):
         return effectTypeComBox
 
     def listenerEvent(self):
-        self.strengthSlider.valueChanged.connect(self.strengthValueChangedHandler)
+        self.strengthSlider.valueChanged.connect(self.strengthValueChangedHandle)
         self.effectTypeComBox.currentIndexChanged.connect(self.effectTypeComBoxHandle)
 
     def onEffectTypeChanged(self, effectType:AfterEffectType):
         self.styleMap["effectType"] = effectType
         self.refreshAttachItem()
 
-    def strengthValueChangedHandler(self, value:float):
+    def strengthValueChangedHandle(self, value:float):
         self.styleMap["strength"] = value
         self.refreshAttachItem()
 
