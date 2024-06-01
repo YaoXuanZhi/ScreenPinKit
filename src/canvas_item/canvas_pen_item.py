@@ -1,9 +1,9 @@
 # coding=utf-8
 from .canvas_util import *
 
-class CanvasPencilItem(CanvasCommonPathItem):
+class CanvasPenItem(CanvasCommonPathItem):
     '''
-    绘图工具-铅笔
+    绘图工具-画笔
     '''
     def __init__(self, isSmoothCurve:bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)
@@ -69,6 +69,6 @@ class CanvasPencilItem(CanvasCommonPathItem):
             targetPath.addPolygon(targetPolygon)
 
     def setEditableState(self, isEditable: bool):
-        '''铅笔不允许绘制结束之后的重新编辑'''
+        '''不允许绘制结束之后的重新编辑'''
         # return super().setEditableState(isEditable)
         pass

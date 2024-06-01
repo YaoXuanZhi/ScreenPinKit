@@ -243,6 +243,12 @@ class SettingInterface(ScrollArea):
 
         # numberMarkerItemToolbar
         self.numberMarkerItemToolbarGroup = SettingCardGroup(self.tr("NumberMarkerItemToolbar"), self.scrollWidget)
+        self.numberMarkerItemToolbarFontCard = PushSettingCard(
+            self.tr('Choose font'),
+            FIF.FONT,
+            self.tr('Font family'),
+            parent=self.numberMarkerItemToolbarGroup
+        )
         self.numberMarkerItemToolbarTextColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarTextColor,
             FIF.PALETTE,
@@ -250,12 +256,28 @@ class SettingInterface(ScrollArea):
             parent=self.numberMarkerItemToolbarGroup,
             enableAlpha=True
         )
-        self.numberMarkerItemToolbarBackgroundColorCard = ColorSettingCard(
-            cfg.numberMarkerItemToolbarBackgroundColor,
+        self.numberMarkerItemToolbarPenWidthCard = RangeSettingCard(
+            cfg.numberMarkerItemToolbarPenWidth,
+            FIF.FONT_SIZE,
+            self.tr("Pen width"),
+            parent=self.numberMarkerItemToolbarGroup
+        )
+        self.numberMarkerItemToolbarPenColorCard = ColorSettingCard(
+            cfg.numberMarkerItemToolbarPenColor,
             FIF.PALETTE,
-            self.tr("Background color"),
+            self.tr("Pen color"),
             parent=self.numberMarkerItemToolbarGroup,
             enableAlpha=True
+        )
+        self.numberMarkerItemToolbarPenStyleCard = OptionsSettingCard(
+            cfg.numberMarkerItemToolbarPenStyle,
+            FIF.HIGHTLIGHT,
+            self.tr("Pen style"),
+            None,
+            texts=[
+                "SolidLine", "DashLine"
+            ],
+            parent=self.numberMarkerItemToolbarGroup
         )
 
         # windowShadowStyle
@@ -377,8 +399,11 @@ class SettingInterface(ScrollArea):
         self.penToolbarGroup.addSettingCard(self.penToolbarColorCard)
         self.penToolbarGroup.addSettingCard(self.penToolbarWidthCard)
 
+        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarFontCard)
         self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarTextColorCard)
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarBackgroundColorCard)
+        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenWidthCard)
+        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenColorCard)
+        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenStyleCard)
 
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleFocusColorCard)
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUnfocusColorCard)

@@ -10,7 +10,7 @@ from .canvas_star_item import CanvasStarItem
 from .canvas_text_item import CanvasTextItem
 from .canvas_number_marker_item import CanvasNumberMarkerItem
 from .canvas_shape_item import CanvasShapeItem, CanvasShapeEnum
-from .canvas_pencil_item import CanvasPencilItem
+from .canvas_pen_item import CanvasPenItem
 from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem
 from .canvas_ocr_text_item import CanvasOcrTextItem

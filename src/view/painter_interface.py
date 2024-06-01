@@ -82,7 +82,7 @@ class PainterInterface(QWidget):
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
             Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
             Action(ScreenShotIcon.MARKER_PEN, self.tr("Marker pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
-            Action(ScreenShotIcon.PENCIL, self.tr("Pencil"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePencil)),
+            Action(ScreenShotIcon.PEN, self.tr("Pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePen)),
             Action(ScreenShotIcon.TEXT, self.tr("TextEdit"), triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
         ]
 
@@ -294,6 +294,6 @@ class PainterInterface(QWidget):
         w.setCustomBackgroundColor('white', '#202020')
 
     def wheelEvent(self, event: QWheelEvent):
-        if self.painterToolBarMgr != None:
+        if self.painterToolBarMgr != None and int(event.modifiers()) == Qt.ControlModifier:
             self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y())
         return super().wheelEvent(event)

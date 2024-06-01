@@ -113,7 +113,7 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar.eraseTypeChangedSignal = self.providerChangeDrawActionSignal
             elif drawActionEnum == DrawActionEnum.UseEffectTool:
                 self.canvasItemBar = EffectToolbar(parent=self.targetWidget)
-            elif drawActionEnum == DrawActionEnum.UsePencil:
+            elif drawActionEnum == DrawActionEnum.UsePen:
                 self.canvasItemBar = PenToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawLineStrip:
                 self.canvasItemBar = LineStripToolbar(parent=self.targetWidget)

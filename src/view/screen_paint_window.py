@@ -79,8 +79,7 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
         self.setMouseThroughState(False)
 
     def isAllowModifyOpactity(self):
-        # return not self.canvasEditor.drawWidget.isEditorEnabled()
-        return True
+        return self.canvasEditor.currentDrawActionEnum in [DrawActionEnum.SelectItem, DrawActionEnum.DrawNone]
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:

@@ -15,7 +15,7 @@ class DrawingScene(QGraphicsScene):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             if self.currentItem == None:
-                self.currentItem = CanvasPencilItem()
+                self.currentItem = CanvasPenItem()
                 self.addItem(self.currentItem)
                 self.currentItem.polygon.append(event.scenePos())
                 self.currentItem.update()

@@ -6,7 +6,7 @@ from canvas_item.canvas_util import CanvasUtil
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
     EditText = "编辑文字"
-    UsePencil = "使用画笔"
+    UsePen = "使用画笔"
     UseEraser = "使用橡皮擦"
     UseEraserRectItem = "使用橡皮框"
     UseMarkerPen = "使用记号笔"
@@ -28,7 +28,7 @@ class DrawActionInfo(QObject):
     def initLocale(self):
         self.map[DrawActionEnum.DrawNone] = self.tr("DrawNone")
         self.map[DrawActionEnum.EditText] = self.tr("EditText")
-        self.map[DrawActionEnum.UsePencil] = self.tr("UsePencil")
+        self.map[DrawActionEnum.UsePen] = self.tr("UsePencil")
         self.map[DrawActionEnum.UseEraser] = self.tr("UseEraser")
         self.map[DrawActionEnum.UseEraserRectItem] = self.tr("UseEraserRectItem")
         self.map[DrawActionEnum.UseMarkerPen] = self.tr("UseMarkerPen")
@@ -280,8 +280,8 @@ class CanvasScene(QGraphicsScene):
                         targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
-                    elif self.currentDrawActionEnum == DrawActionEnum.UsePencil:
-                        self.currentItem = CanvasPencilItem()
+                    elif self.currentDrawActionEnum == DrawActionEnum.UsePen:
+                        self.currentItem = CanvasPenItem()
                         self.__startDraw(self.currentItem)
                         self.currentItem.polygon.append(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseEraser:
@@ -366,7 +366,7 @@ class CanvasScene(QGraphicsScene):
                 ]:
                 self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
                 self.currentItem.update()
-            elif self.currentDrawActionEnum in [DrawActionEnum.UsePencil, DrawActionEnum.UseEraser]:
+            elif self.currentDrawActionEnum in [DrawActionEnum.UsePen, DrawActionEnum.UseEraser]:
                 self.currentItem.polygon.append(targetPos)
                 self.currentItem.update()
         super().mouseMoveEvent(event)
@@ -381,14 +381,14 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
                         isOk = True
                     self.__completeDraw(self.currentItem, isOk)
-            elif self.currentDrawActionEnum in [DrawActionEnum.UsePencil, DrawActionEnum.UseEraser]:
+            elif self.currentDrawActionEnum in [DrawActionEnum.UsePen, DrawActionEnum.UseEraser]:
                 if event.button() == Qt.LeftButton:
                     self.__completeDraw(self.currentItem)
             elif self.currentDrawActionEnum in [DrawActionEnum.UseNumberMarker]:
                 if event.button() == Qt.LeftButton:
+                    super().mouseReleaseEvent(event)
                     self.currentItem.setSelected(False)
                     self.__completeDraw(self.currentItem)
-                    return
             elif self.currentDrawActionEnum in [
                 DrawActionEnum.DrawArrow, 
                 DrawActionEnum.UseMarkerPen, 

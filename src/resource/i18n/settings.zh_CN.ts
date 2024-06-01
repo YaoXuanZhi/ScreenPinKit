@@ -168,6 +168,14 @@
         <translation>形状工具栏</translation>
     </message>
     <message>
+        <source>LineStripToolbar</source>
+        <translation>折线工具栏</translation>
+    </message>
+    <message>
+        <source>MarkerPenToolbar</source>
+        <translation>记号笔工具栏</translation>
+    </message>
+    <message>
         <source>Brush color</source>
         <translation>笔刷颜色</translation>
     </message>
@@ -193,7 +201,7 @@
     </message>
     <message>
         <source>PenToolbar</source>
-        <translation>铅笔工具栏</translation>
+        <translation>画笔工具栏</translation>
     </message>
     <message>
         <source>NumberMarkerItemToolbar</source>
@@ -328,8 +336,8 @@
         <translation>记号笔</translation>
     </message>
     <message>
-        <source>Pencil</source>
-        <translation>铅笔</translation>
+        <source>Pen</source>
+        <translation>画笔</translation>
     </message>
     <message>
         <source>TextEdit</source>
