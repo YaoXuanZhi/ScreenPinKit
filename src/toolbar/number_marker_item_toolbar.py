@@ -117,14 +117,12 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
     def wheelZoom(self, angleDelta:int):
         finalValue = self.styleMap["penWidth"]
+        (minValue, maxValue) = cfg.numberMarkerItemToolbarPenWidth.range
 
-        # 自定义滚轮事件的行为
         if angleDelta > 1:
-            # 放大
-            finalValue = finalValue + 1
+            finalValue = min(maxValue, finalValue + 1)
         else:
-            # 缩小
-            finalValue = max(finalValue - 1, 1)
+            finalValue = max(minValue, finalValue - 1)
         self.styleMap["penWidth"] = finalValue
 
         if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):

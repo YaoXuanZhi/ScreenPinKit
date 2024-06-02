@@ -41,11 +41,8 @@ class EraseToolbar(CanvasItemToolBar):
         finalValue = self.styleMap["width"]
         (minValue, maxValue) = cfg.eraseToolbarWidth.range
 
-        # 自定义滚轮事件的行为
         if angleDelta > 1:
-            # 放大
             finalValue = min(maxValue, finalValue + 2)
         else:
-            # 缩小
             finalValue = max(minValue, finalValue - 2)
         self.styleMap["width"] = finalValue

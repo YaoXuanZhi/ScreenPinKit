@@ -65,13 +65,13 @@ class EffectToolbar(CanvasItemToolBar):
         self.refreshAttachItem()
 
     def wheelZoom(self, angleDelta:int):
-        # 自定义滚轮事件的行为
+        finalValue = self.strengthSlider.value()
+        (minValue, maxValue) = cfg.effectToolbarStrength.range
         if angleDelta > 1:
-            # 放大
-            self.strengthSlider.setValue(self.strengthSlider.value() + 1)
+            finalValue = min(maxValue, finalValue + 1)
         else:
-            # 缩小
-            self.strengthSlider.setValue(self.strengthSlider.value() - 1)
+            finalValue = max(minValue, finalValue - 1)
+        self.strengthSlider.setValue(finalValue)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:
