@@ -120,6 +120,10 @@
         <translation>配置在重启软件后生效</translation>
     </message>
     <message>
+        <source>Toolbar</source>
+        <translation>工具栏</translation>
+    </message>
+    <message>
         <source>TextEditToolbar</source>
         <translation>文本框工具栏</translation>
     </message>
@@ -675,6 +679,145 @@
     <message>
         <source>Click to select color</source>
         <translation>点击选择颜色</translation>
+    </message>
+</context>
+<context>
+    <name>ToolbarInterface</name>
+    <message>
+        <source>TextEditToolbar</source>
+        <translation>文本框工具栏</translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation>字体样式</translation>
+    </message>
+    <message>
+        <source>Choose font</source>
+        <translation>选择字体</translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation>字体大小</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>文本颜色</translation>
+    </message>
+    <message>
+        <source>EffectToolbar</source>
+        <translation>特效工具栏</translation>
+    </message>
+    <message>
+        <source>Effect type</source>
+        <translation>类型</translation>
+    </message>
+    <message>
+        <source>Set your default effect type</source>
+        <translation>设置默认特效类型</translation>
+    </message>
+    <message>
+        <source>Mosaic</source>
+        <translation>马赛克</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>模糊</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>图像突出</translation>
+    </message>
+    <message>
+        <source>Find_Edges</source>
+        <translation>边缘提取</translation>
+    </message>
+    <message>
+        <source>Contour</source>
+        <translation>轮廓提取</translation>
+    </message>
+    <message>
+        <source>Effect strength</source>
+        <translation>强度</translation>
+    </message>
+    <message>
+        <source>EraseToolbar</source>
+        <translation>橡皮工具</translation>
+    </message>
+    <message>
+        <source>Eraser width</source>
+        <translation>橡皮擦宽度</translation>
+    </message>
+    <message>
+        <source>ShapeToolbar</source>
+        <translation>形状工具栏</translation>
+    </message>
+    <message>
+        <source>LineStripToolbar</source>
+        <translation>折线工具栏</translation>
+    </message>
+    <message>
+        <source>MarkerPenToolbar</source>
+        <translation>记号笔工具栏</translation>
+    </message>
+    <message>
+        <source>Brush color</source>
+        <translation>笔刷颜色</translation>
+    </message>
+    <message>
+        <source>Pen color</source>
+        <translation>画笔颜色</translation>
+    </message>
+    <message>
+        <source>Pen width</source>
+        <translation>画笔宽度</translation>
+    </message>
+    <message>
+        <source>Pen style</source>
+        <translation>画笔风格</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>形状</translation>
+    </message>
+    <message>
+        <source>ArrowToolbar</source>
+        <translation>箭头工具栏</translation>
+    </message>
+    <message>
+        <source>PenToolbar</source>
+        <translation>画笔工具栏</translation>
+    </message>
+    <message>
+        <source>NumberMarkerItemToolbar</source>
+        <translation>数字标记工具栏</translation>
+    </message>
+    <message>
+        <source>Background color</source>
+        <translation>背景颜色</translation>
+    </message>
+    <message>
+        <source>Solid line</source>
+        <translation>实线</translation>
+    </message>
+    <message>
+        <source>Dash line</source>
+        <translation>虚线</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>矩形</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>圆形</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>三角形</translation>
+    </message>
+    <message>
+        <source>Star</source>
+        <translation>五角星</translation>
     </message>
 </context>
 </TS>

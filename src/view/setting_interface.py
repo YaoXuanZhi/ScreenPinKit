@@ -9,6 +9,7 @@ from qfluentwidgets import FluentIcon as FIF
 from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QWidget, QLabel, QFontDialog, QFileDialog
+from .toolbar_interface import ToolbarSettingCard
 
 class SettingInterface(ScrollArea):
     """ Setting interface """
@@ -65,219 +66,13 @@ class SettingInterface(ScrollArea):
             parent=self.personalGroup
         )
 
-        # textEditToolbar
-        self.textEditToolbarGroup = SettingCardGroup(self.tr("TextEditToolbar"), self.scrollWidget)
-        self.textEditToolbarFontCard = PushSettingCard(
-            self.tr('Choose font'),
-            FIF.FONT,
+        # toolbar
+        self.toolbarGroup = SettingCardGroup(self.tr("Toolbar"), self.scrollWidget)
+        self.toolbarListCard = ToolbarSettingCard(
+            FIF.SETTING,
+            self.tr('Toolbar Perference'),
             self.tr('Font family'),
-            parent=self.textEditToolbarGroup
-        )
-        self.textEditToolbarFontSizeCard = RangeSettingCard(
-            cfg.textEditToolbarFontSize,
-            FIF.FONT_SIZE,
-            self.tr('Font size'),
-            parent=self.textEditToolbarGroup
-        )
-        self.textEditToolbarTextColorCard = ColorSettingCard(
-            cfg.textEditToolbarTextColor,
-            FIF.PALETTE,
-            self.tr("Text color"),
-            parent=self.textEditToolbarGroup,
-            enableAlpha=True
-        )
-
-        # effectToolBar
-        self.effectToolBarGroup = SettingCardGroup(self.tr("EffectToolBar"), self.scrollWidget)
-        self.effectToolBarEffectTypeCard = ComboBoxSettingCard(
-            cfg.effectToolbarEffectType,
-            ScreenShotIcon.FILL_REGION,
-            self.tr('Effect type'),
-            None,
-            texts=['Blur', 'Mosaic'],
-            parent=self.effectToolBarGroup
-        )
-        self.effectToolBarStrengthCard = RangeSettingCard(
-            cfg.effectToolbarStrength,
-            FIF.HIGHTLIGHT,
-            self.tr("Effect strength"),
-            parent=self.effectToolBarGroup
-        )
-
-        # eraseToolbar
-        self.eraseToolbarGroup = SettingCardGroup(self.tr("EraseToolbar"), self.scrollWidget)
-        self.eraseToolbarWidthCard = RangeSettingCard(
-            cfg.eraseToolbarWidth,
-            FIF.HIGHTLIGHT,
-            self.tr("Eraser width"),
-            parent=self.eraseToolbarGroup
-        )
-
-        # shapeToolbar
-        self.shapeToolbarGroup = SettingCardGroup(self.tr("ShapeToolbar"), self.scrollWidget)
-        self.shapeToolbarPenWidthCard = RangeSettingCard(
-            cfg.shapeToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.shapeToolbarGroup
-        )
-        self.shapeToolbarBrushColorCard = ColorSettingCard(
-            cfg.shapeToolbarBrushColor,
-            FIF.PALETTE,
-            self.tr("Brush color"),
-            parent=self.shapeToolbarGroup,
-            enableAlpha=True
-        )
-        self.shapeToolbarPenColorCard = ColorSettingCard(
-            cfg.shapeToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.shapeToolbarGroup,
-            enableAlpha=True
-        )
-        self.shapeToolbarPenStyleCard = OptionsSettingCard(
-            cfg.shapeToolbarPenStyle,
-            FIF.HIGHTLIGHT,
-            self.tr("Pen style"),
-            None,
-            texts=[
-                "SolidLine", "DashLine"
-            ],
-            parent=self.shapeToolbarGroup
-        )
-        self.shapeToolbarEffectTypeCard = ComboBoxSettingCard(
-            cfg.shapeToolbarShape,
-            ScreenShotIcon.SHAPE,
-            self.tr('Shape'),
-            None,
-            texts=['Ellipse', 'Triangle', 'Rectangle', 'Star'],
-            parent=self.shapeToolbarGroup
-        )
-
-        # arrowToolbar
-        self.arrowToolbarGroup = SettingCardGroup(self.tr("ArrowToolbar"), self.scrollWidget)
-        self.arrowToolbarPenWidthCard = RangeSettingCard(
-            cfg.arrowToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.arrowToolbarGroup
-        )
-        self.arrowToolbarBrushColorCard = ColorSettingCard(
-            cfg.arrowToolbarBrushColor,
-            FIF.PALETTE,
-            self.tr("Brush color"),
-            parent=self.arrowToolbarGroup,
-            enableAlpha=True
-        )
-        self.arrowToolbarPenColorCard = ColorSettingCard(
-            cfg.arrowToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.arrowToolbarGroup,
-            enableAlpha=True
-        )
-        self.arrowToolbarPenStyleCard = OptionsSettingCard(
-            cfg.arrowToolbarPenStyle,
-            FIF.HIGHTLIGHT,
-            self.tr("Pen style"),
-            None,
-            texts=[
-                "SolidLine", "DashLine"
-            ],
-            parent=self.arrowToolbarGroup
-        )
-
-        # lineStripToolbar
-        self.lineStripToolbarGroup = SettingCardGroup(self.tr("LineStripToolbar"), self.scrollWidget)
-        self.lineStripToolbarWidthCard = RangeSettingCard(
-            cfg.lineStripToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.lineStripToolbarGroup
-        )
-        self.lineStripToolbarColorCard = ColorSettingCard(
-            cfg.lineStripToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.lineStripToolbarGroup,
-            enableAlpha=True
-        )
-
-        # markerPenToolbar
-        self.markerPenToolbarGroup = SettingCardGroup(self.tr("MarkerPenToolbar"), self.scrollWidget)
-        self.markerPenToolbarFontCard = PushSettingCard(
-            self.tr('Choose font'),
-            FIF.FONT,
-            self.tr('Font family'),
-            parent=self.markerPenToolbarGroup
-        )
-        self.markerPenToolbarWidthCard = RangeSettingCard(
-            cfg.markerPenToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.markerPenToolbarGroup
-        )
-        self.markerPenToolbarColorCard = ColorSettingCard(
-            cfg.markerPenToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.markerPenToolbarGroup,
-            enableAlpha=True
-        )
-
-        # penToolbar
-        self.penToolbarGroup = SettingCardGroup(self.tr("PenToolbar"), self.scrollWidget)
-        self.penToolbarWidthCard = RangeSettingCard(
-            cfg.penToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.penToolbarGroup
-        )
-        self.penToolbarColorCard = ColorSettingCard(
-            cfg.penToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.penToolbarGroup,
-            enableAlpha=True
-        )
-
-        # numberMarkerItemToolbar
-        self.numberMarkerItemToolbarGroup = SettingCardGroup(self.tr("NumberMarkerItemToolbar"), self.scrollWidget)
-        self.numberMarkerItemToolbarFontCard = PushSettingCard(
-            self.tr('Choose font'),
-            FIF.FONT,
-            self.tr('Font family'),
-            parent=self.numberMarkerItemToolbarGroup
-        )
-        self.numberMarkerItemToolbarTextColorCard = ColorSettingCard(
-            cfg.numberMarkerItemToolbarTextColor,
-            FIF.PALETTE,
-            self.tr("Text color"),
-            parent=self.numberMarkerItemToolbarGroup,
-            enableAlpha=True
-        )
-        self.numberMarkerItemToolbarPenWidthCard = RangeSettingCard(
-            cfg.numberMarkerItemToolbarPenWidth,
-            FIF.FONT_SIZE,
-            self.tr("Pen width"),
-            parent=self.numberMarkerItemToolbarGroup
-        )
-        self.numberMarkerItemToolbarPenColorCard = ColorSettingCard(
-            cfg.numberMarkerItemToolbarPenColor,
-            FIF.PALETTE,
-            self.tr("Pen color"),
-            parent=self.numberMarkerItemToolbarGroup,
-            enableAlpha=True
-        )
-        self.numberMarkerItemToolbarPenStyleCard = OptionsSettingCard(
-            cfg.numberMarkerItemToolbarPenStyle,
-            FIF.HIGHTLIGHT,
-            self.tr("Pen style"),
-            None,
-            texts=[
-                "SolidLine", "DashLine"
-            ],
-            parent=self.numberMarkerItemToolbarGroup
+            parent=self.toolbarGroup
         )
 
         # windowShadowStyle
@@ -369,41 +164,7 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.languageCard)
 
-        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarFontCard)
-        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarFontSizeCard)
-        self.textEditToolbarGroup.addSettingCard(self.textEditToolbarTextColorCard)
-
-        self.effectToolBarGroup.addSettingCard(self.effectToolBarEffectTypeCard)
-        self.effectToolBarGroup.addSettingCard(self.effectToolBarStrengthCard)
-
-        self.eraseToolbarGroup.addSettingCard(self.eraseToolbarWidthCard)
-
-        self.shapeToolbarGroup.addSettingCard(self.shapeToolbarPenWidthCard)
-        self.shapeToolbarGroup.addSettingCard(self.shapeToolbarPenColorCard)
-        self.shapeToolbarGroup.addSettingCard(self.shapeToolbarBrushColorCard)
-        self.shapeToolbarGroup.addSettingCard(self.shapeToolbarPenStyleCard)
-        self.shapeToolbarGroup.addSettingCard(self.shapeToolbarEffectTypeCard)
-
-        self.arrowToolbarGroup.addSettingCard(self.arrowToolbarPenWidthCard)
-        self.arrowToolbarGroup.addSettingCard(self.arrowToolbarPenColorCard)
-        self.arrowToolbarGroup.addSettingCard(self.arrowToolbarBrushColorCard)
-        self.arrowToolbarGroup.addSettingCard(self.arrowToolbarPenStyleCard)
-
-        self.lineStripToolbarGroup.addSettingCard(self.lineStripToolbarColorCard)
-        self.lineStripToolbarGroup.addSettingCard(self.lineStripToolbarWidthCard)
-
-        self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarFontCard)
-        self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarColorCard)
-        self.markerPenToolbarGroup.addSettingCard(self.markerPenToolbarWidthCard)
-
-        self.penToolbarGroup.addSettingCard(self.penToolbarColorCard)
-        self.penToolbarGroup.addSettingCard(self.penToolbarWidthCard)
-
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarFontCard)
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarTextColorCard)
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenWidthCard)
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenColorCard)
-        self.numberMarkerItemToolbarGroup.addSettingCard(self.numberMarkerItemToolbarPenStyleCard)
+        self.toolbarGroup.addSettingCard(self.toolbarListCard)
 
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleFocusColorCard)
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUnfocusColorCard)
@@ -421,16 +182,8 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.generalGroup)
         self.expandLayout.addWidget(self.personalGroup)
-        self.expandLayout.addWidget(self.textEditToolbarGroup)
-        self.expandLayout.addWidget(self.effectToolBarGroup)
-        self.expandLayout.addWidget(self.eraseToolbarGroup)
-        self.expandLayout.addWidget(self.shapeToolbarGroup)
-        self.expandLayout.addWidget(self.arrowToolbarGroup)
-        self.expandLayout.addWidget(self.lineStripToolbarGroup)
-        self.expandLayout.addWidget(self.markerPenToolbarGroup)
-        self.expandLayout.addWidget(self.penToolbarGroup)
-        self.expandLayout.addWidget(self.numberMarkerItemToolbarGroup)
         self.expandLayout.addWidget(self.windowShadowStyleGroup)
+        self.expandLayout.addWidget(self.toolbarGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
@@ -449,18 +202,6 @@ class SettingInterface(ScrollArea):
             self.tr('Configuration takes effect after restart'),
             parent=self.window()
         )
-
-    def __onTextEditToolbarFontCardClicked(self):
-        font, isOk = QFontDialog.getFont(
-            cfg.textEditToolbarFont, self.window(), self.tr("Choose font"))
-        if isOk:
-            cfg.textEditToolbarFont = font
-
-    def __onMarkerPenToolbarFontCardClicked(self):
-        font, isOk = QFontDialog.getFont(
-            cfg.numberMarkerItemToolbarFont, self.window(), self.tr("Choose font"))
-        if isOk:
-            cfg.numberMarkerItemToolbarFont = font
 
     def __onDownloadFolderCardClicked(self):
         """ download folder card clicked slot """
@@ -488,9 +229,6 @@ class SettingInterface(ScrollArea):
         # general
         self.cacheFolderCard.clicked.connect(
             self.__onDownloadFolderCardClicked)
-
-        self.textEditToolbarFontCard.clicked.connect(self.__onTextEditToolbarFontCardClicked)
-        self.markerPenToolbarFontCard.clicked.connect(self.__onMarkerPenToolbarFontCardClicked)
 
         # about
         self.aboutCard.clicked.connect(self.checkUpdateSig)
