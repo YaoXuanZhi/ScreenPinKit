@@ -23,17 +23,24 @@ class KeyboardEx(QObject):
     def __convertToHotkey(self, key:str) -> list:
         result = []
         for str in key.split("+"):
-            result.append(str.replace("ctrl", "control"))
+            temp = str.replace("ctrl", "control")
+            temp = temp.lower()
+            if len(temp) > 0:
+                result.append(temp)
         return result
 
     def addHotKey(self, key:str, callback, overwrite=False):
-        self.map_callbacks[key] = callback
         hotkey = self.__convertToHotkey(key)
+        if len(hotkey) == 0:
+            return
+        self.map_callbacks[key] = callback
         self.hk.register(hotkey, callback=lambda _: self.handleSignal.emit(key), overwrite=overwrite)
 
     def addHotKeyEx(self, key:str, times, callback):
-        result = self.__convertToHotkey(key)
-        self.hk.register(result, callback=lambda _: self.updatePressTime(key))
+        hotkey = self.__convertToHotkey(key)
+        if len(hotkey) == 0:
+            return
+        self.hk.register(hotkey, callback=lambda _: self.updatePressTime(key))
 
         defaultValue = {
             "lastPressTime" : 0,
