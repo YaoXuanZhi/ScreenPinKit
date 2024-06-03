@@ -41,15 +41,15 @@ class Config(QConfig):
         "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator())
 
     # HotKey
-    screenShotHotKey = ConfigItem(
+    hotKeyScreenShot = ConfigItem(
         "HotKey", "ScreenShot", "", ConfigValidator())
-    screenPaintHotKey = ConfigItem(
+    hotKeyScreenPaint = ConfigItem(
         "HotKey", "ScreenPaint", "", ConfigValidator())
-    mouseThoughHotKey = ConfigItem(
+    hotKeyToggleMouseClickThrough = ConfigItem(
         "HotKey", "MouseThough", "", ConfigValidator())
-    showClipboardHotKey = ConfigItem(
+    hotKeyShowClipboard = ConfigItem(
         "HotKey", "ShowClipboard", "", ConfigValidator())
-    switchScreenPaintModeHotKey = ConfigItem(
+    hotKeySwitchScreenPaintMode = ConfigItem(
         "HotKey", "SwitchScreenPaintMode", "", ConfigValidator())
 
     # Software Update

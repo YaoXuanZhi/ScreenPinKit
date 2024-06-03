@@ -55,6 +55,11 @@ class ScreenShotIcon(FluentIconBase, Enum):
     BLUR = "blur"
     NUMBER_MARKER = "number-marker"
 
+    WARNING_LIGHT = "Warning_light"
+    SUCCESS_LIGHT = "Success_light"
+    ERROR_LIGHT = "Error_light"
+    INFO_LIGHT = "Info_light"
+
     def path(self, theme=Theme.AUTO):
         # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")
         return os.path.join(os.path.dirname(__file__), f"../resource/icons/icons8-{self.value}-64.svg")

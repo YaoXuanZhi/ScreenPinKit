@@ -28,11 +28,11 @@ class MainWindow(QWidget):
     def initHotKey(self):
         if self.keyObj == None:
             self.keyObj = KeyboardEx()
-        self.keyObj.addHotKey(cfg.get(cfg.showClipboardHotKey), self.showClipboard)
-        self.keyObj.addHotKey(cfg.get(cfg.screenPaintHotKey), self.screenPaint)
-        self.keyObj.addHotKey(cfg.get(cfg.screenShotHotKey), self.screenShot)
-        self.keyObj.addHotKey(cfg.get(cfg.mouseThoughHotKey), self.switchMouseThroughState)
-        self.keyObj.addHotKey(cfg.get(cfg.switchScreenPaintModeHotKey), self.switchScreenPaintMode)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeyShowClipboard), self.showClipboard)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenPaint), self.screenPaint)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenShot), self.screenShot)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeyToggleMouseClickThrough), self.switchMouseThroughState)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeySwitchScreenPaintMode), self.switchScreenPaintMode)
 
     def screenShot(self):
         if self.screenShotWindow == None:

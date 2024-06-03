@@ -239,6 +239,10 @@
         <source>Copy screenshot with shadow</source>
         <translation>复制截图时是否带窗口阴影</translation>
     </message>
+    <message>
+        <source>Global Hotkey</source>
+        <translation>全局快捷键</translation>
+    </message>
 </context>
 <context>
     <name>SettingWindow</name>
@@ -818,6 +822,29 @@
     <message>
         <source>Star</source>
         <translation>五角星</translation>
+    </message>
+</context>
+<context>
+    <name>HotkeySettingCardGroup</name>
+    <message>
+        <source>Screen shot</source>
+        <translation>桌面截图</translation>
+    </message>
+    <message>
+        <source>Show clipboard</source>
+        <translation>显示剪贴板</translation>
+    </message>
+    <message>
+        <source>Screen paint</source>
+        <translation>桌面绘图</translation>
+    </message>
+    <message>
+        <source>Switch screen paint mode</source>
+        <translation>隐藏/显示桌面绘图</translation>
+    </message>
+    <message>
+        <source>Toggle mouse cick-through</source>
+        <translation>鼠标穿透开关</translation>
     </message>
 </context>
 </TS>

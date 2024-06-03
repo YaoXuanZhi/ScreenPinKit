@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QWidget, QLabel, QFontDialog, QFileDialog
 from .toolbar_interface import ToolbarSettingCard
+from .hotkey_setting_card_group import HotkeySettingCardGroup
 
 class SettingInterface(ScrollArea):
     """ Setting interface """
@@ -71,7 +72,7 @@ class SettingInterface(ScrollArea):
         self.toolbarListCard = ToolbarSettingCard(
             FIF.SETTING,
             self.tr('Toolbar Perference'),
-            self.tr('Font family'),
+            None,
             parent=self.toolbarGroup
         )
 
@@ -110,6 +111,10 @@ class SettingInterface(ScrollArea):
             configItem=cfg.windowShadowStyleIsCopyWithShadow,
             parent=self.windowShadowStyleGroup
         )
+
+        # hotkey
+
+        self.hotkeyGroup = HotkeySettingCardGroup(self.tr("Global Hotkey"), self.scrollWidget)
 
         # update software
         self.updateSoftwareGroup = SettingCardGroup(self.tr("Software update"), self.scrollWidget)
@@ -184,6 +189,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.personalGroup)
         self.expandLayout.addWidget(self.windowShadowStyleGroup)
         self.expandLayout.addWidget(self.toolbarGroup)
+        self.expandLayout.addWidget(self.hotkeyGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
