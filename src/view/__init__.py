@@ -6,3 +6,4 @@ from .screen_shot_window import *
 from .screen_paint_window import *
 from .painter_interface import *
 from .pin_editor_window import *
+from .toolbar_setting_card_group import *

@@ -1,13 +1,9 @@
 # coding:utf-8
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
-from common import cfg, ScreenShotIcon, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
-from typing import Union
-from qfluentwidgets import *
-from qfluentwidgets import FluentIcon as FIF
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from common import cfg, ScreenShotIcon
+from qfluentwidgets import FluentIcon as FIF
 from extend_widgets import *
 from canvas_item.after_effect_util import AfterEffectType
 from canvas_item.canvas_shape_item import CanvasShapeEnum
@@ -30,14 +26,14 @@ class ToolbarInterface(QWidget):
         self.stackedWidget = QStackedWidget(self)
         self.vBoxLayout = QVBoxLayout(self)
 
-        self.textEditToolbarInterface = self.buildTextEditToolbar()
-        self.eraseToolbarInterface = self.buildEraseToolbar()
         self.shapeToolbarInterface = self.buildShapeToolbar()
-        self.arrowToolbarInterface = self.buildArrowToolbar()
         self.lineStripToolbarInterface = self.buildLineStripToolbar()
+        self.numberMarkerItemToolbarInterface = self.buildNumberMarkerItemToolbar()
+        self.arrowToolbarInterface = self.buildArrowToolbar()
         self.markerPenToolbarInterface = self.buildMarkerPenToolbar()
         self.penToolbarInterface = self.buildPenToolbar()
-        self.numberMarkerItemToolbarInterface = self.buildNumberMarkerItemToolbar()
+        self.textEditToolbarInterface = self.buildTextEditToolbar()
+        self.eraseToolbarInterface = self.buildEraseToolbar()
         self.effectToolbarInterface = self.buildEffectToolBar()
 
         # add items to pivot
@@ -56,8 +52,8 @@ class ToolbarInterface(QWidget):
         self.vBoxLayout.setContentsMargins(30, 10, 30, 30)
 
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
-        self.stackedWidget.setCurrentWidget(self.textEditToolbarInterface)
-        self.pivot.setCurrentItem(self.textEditToolbarInterface.objectName())
+        self.stackedWidget.setCurrentWidget(self.shapeToolbarInterface)
+        self.pivot.setCurrentItem(self.shapeToolbarInterface.objectName())
 
     def __onTextEditToolbarFontCardClicked(self):
         font, isOk = QFontDialog.getFont(
@@ -322,10 +318,10 @@ class ToolbarInterface(QWidget):
             self.tr('Shape'),
             None,
             options=[
-                ('Ellipse', CanvasShapeEnum.Ellipse),
-                ('Triangle', CanvasShapeEnum.Triangle),
-                ('Rectangle', CanvasShapeEnum.Rectangle),
-                ('Star', CanvasShapeEnum.Star),
+                (self.tr('Ellipse'), CanvasShapeEnum.Ellipse),
+                (self.tr('Triangle'), CanvasShapeEnum.Triangle),
+                (self.tr('Rectangle'), CanvasShapeEnum.Rectangle),
+                (self.tr('Star'), CanvasShapeEnum.Star),
                 ],
             parent=shapeToolbarGroup
         )
@@ -355,23 +351,18 @@ class ToolbarInterface(QWidget):
 class ToolbarSettingCard(ScrollArea):
     """ Toolbar card with a push button """
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent: QWidget = None) -> None:
+    def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.interface = ToolbarInterface(self)
 
-        self.resize(400, 300)
+        self.resize(400, 400)
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addWidget(self.interface)
-        return
-        self.scrollWidget = QWidget()
-        self.expandLayout = ExpandLayout(self.scrollWidget)
 
-        self.expandLayout.addWidget(self.interface)
+class ToolbarSettingCardGroup(SettingCardGroup):
+    """ Setting card group """
 
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, 30, 0, 20)
-        self.setWidget(self.scrollWidget)
-        self.setWidgetResizable(True)
-        # self.scrollWidget.adjustSize()
-        self.adjustSize()
+    def __init__(self, title: str, parent=None):
+        super().__init__(title, parent=parent)
+        self.toolbarCard = ToolbarSettingCard(self)
+        self.addSettingCard(self.toolbarCard)

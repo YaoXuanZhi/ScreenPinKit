@@ -9,8 +9,8 @@ from qfluentwidgets import FluentIcon as FIF
 from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QWidget, QLabel, QFontDialog, QFileDialog
-from .toolbar_interface import ToolbarSettingCard
 from .hotkey_setting_card_group import HotkeySettingCardGroup
+from .toolbar_setting_card_group import ToolbarSettingCardGroup
 
 class SettingInterface(ScrollArea):
     """ Setting interface """
@@ -68,13 +68,7 @@ class SettingInterface(ScrollArea):
         )
 
         # toolbar
-        self.toolbarGroup = SettingCardGroup(self.tr("Toolbar"), self.scrollWidget)
-        self.toolbarListCard = ToolbarSettingCard(
-            FIF.SETTING,
-            self.tr('Toolbar Perference'),
-            None,
-            parent=self.toolbarGroup
-        )
+        self.toolbarGroup = ToolbarSettingCardGroup(self.tr("Toolbar"), self.scrollWidget)
 
         # windowShadowStyle
         self.windowShadowStyleGroup = SettingCardGroup(self.tr("WindowShadowStyle"), self.scrollWidget)
@@ -113,7 +107,6 @@ class SettingInterface(ScrollArea):
         )
 
         # hotkey
-
         self.hotkeyGroup = HotkeySettingCardGroup(self.tr("Global Hotkey"), self.scrollWidget)
 
         # update software
@@ -168,8 +161,6 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.languageCard)
-
-        self.toolbarGroup.addSettingCard(self.toolbarListCard)
 
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleFocusColorCard)
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUnfocusColorCard)
