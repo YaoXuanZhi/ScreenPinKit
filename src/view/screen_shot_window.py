@@ -154,6 +154,8 @@ class ScreenShotWindow(QWidget):
             else:
                 glassRect.moveBottomRight(pos + QPoint(-offset, -offset))
         self.painter.drawPixmap(glassRect.topLeft(), glassPixmap)
+        self.painter.setPen(QPen(Qt.GlobalColor.white, 2, Qt.SolidLine))
+        self.painter.drawRect(glassRect - QMargins(2, 2, 2, 2))
         tempRect = QRectF(QPointF(0, 0), pos)
         physicalPoint = self.physicalRectF(tempRect, False).toRect().bottomRight()
         labelRectF = QRectF(glassRect.bottomLeft().x(), glassRect.bottomLeft().y(), glassSize, labelHeight)

@@ -145,8 +145,8 @@ class PainterInterface(QWidget):
         if sceneUserNotifyEnum == SceneUserNotifyEnum.EndDrawedEvent and not self.drawWidget.getLockState():
             if item != None:
                 item.setEditableState(True)
-                if hasattr(item, "forcecSelect"):
-                    item.forcecSelect()
+                if hasattr(item, "forceSelect"):
+                    item.forceSelect()
                 self.directSwitchDrawTool(DrawActionEnum.SelectItem)
             self.selectItemAction.setChecked(True)
 
