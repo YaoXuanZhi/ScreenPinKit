@@ -20,6 +20,7 @@ class ScreenShotWindow(QWidget):
         super().__init__()
         self.defaultFlag()
 
+        self.isUseHexColor = False
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
         self.initPainterTool()
@@ -31,6 +32,7 @@ class ScreenShotWindow(QWidget):
             QAction(parent=self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
             QAction(parent=self, triggered=self.snip, shortcut="ctrl+t"),
             QAction(parent=self, triggered=self.cancelScreenShot, shortcut="esc"),
+            QAction(parent=self, triggered=self.pickUpScreenColor, shortcut="c"),
         ]
         self.addActions(actions)
 
@@ -80,6 +82,7 @@ class ScreenShotWindow(QWidget):
         self.pen_SolidLine_lightWhite.setWidthF(2)  # 0表示线宽为1
 
     def clearScreenShot(self, isGotoScreeShot=True):
+        self.screenColor = None
         self.hasScreenShot = False  # 是否已通过拖动鼠标左键划定截图区域
         self.isCapturing = False  # 正在拖动鼠标左键选定截图区域时
         self.isMoving = False  # 在截图区域内拖动时
@@ -106,9 +109,77 @@ class ScreenShotWindow(QWidget):
         self.setGeometry(finalGeometry)
         self.clearScreenShot()
         self.show()
+        self.activateWindow()
 
     def normalizeRectF(self, topLeftPoint, bottomRightPoint):
         return QRectF(topLeftPoint, bottomRightPoint).normalized()
+
+    def paintMagnifyingGlassPixmap(self, pos, glassSize):
+        '''绘制放大镜内的图像(含纵横十字线)
+        pos:鼠标光标位置
+        glassSize:放大镜边框大小'''
+        pixmapRect = QRect(0, 0, 20, 20)  # 以鼠标光标为中心的正方形区域，最好是偶数
+        pixmapRect.moveCenter(pos)
+        glassPixmap = self.screenPixmap.copy(self.physicalRectF(pixmapRect).toRect())
+        glassPixmap.setDevicePixelRatio(1.0)
+        glassPixmap = glassPixmap.scaled(glassSize, glassSize, Qt.AspectRatioMode.KeepAspectRatio)
+        screenColor = glassPixmap.toImage().pixelColor(glassPixmap.rect().center())
+        # 在放大后的QPixmap上画纵横十字线
+        if not hasattr(self, "_painter"):
+            self._painter = QPainter()
+        self._painter.begin(glassPixmap)
+        halfWidth = glassPixmap.width() / 2
+        halfHeight = glassPixmap.height() / 2
+        self._painter.setPen(self.pen_SolidLine_lightBlue)
+        self._painter.drawLine(QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight))
+        self._painter.drawLine(QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height()))
+        self._painter.end()
+        return glassPixmap, screenColor
+
+    def paintMagnifyingGlass(self, glassSize=150, offset=30, labelHeight=60):
+        screenSizeF = QSizeF(self.screenPixmap.width() / self.screenPixmap.devicePixelRatioF(), self.screenPixmap.height() / self.screenPixmap.devicePixelRatioF())
+        pos = QCursor.pos()
+        glassPixmap, screenColor = self.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
+        self.screenColor = screenColor
+        # 限制放大镜显示不超出屏幕外
+        glassRect = glassPixmap.rect()
+        if (pos.x() + glassSize + offset) < screenSizeF.width():
+            if (pos.y() + offset + glassSize + labelHeight) < screenSizeF.height():
+                glassRect.moveTo(pos + QPoint(offset, offset))
+            else:
+                glassRect.moveBottomLeft(pos + QPoint(offset, -offset))
+        else:
+            if (pos.y() + offset + glassSize + labelHeight) < screenSizeF.height():
+                glassRect.moveTopRight(pos + QPoint(-offset, offset))
+            else:
+                glassRect.moveBottomRight(pos + QPoint(-offset, -offset))
+        self.painter.drawPixmap(glassRect.topLeft(), glassPixmap)
+        tempRect = QRectF(QPointF(0, 0), pos)
+        physicalPoint = self.physicalRectF(tempRect, False).toRect().bottomRight()
+        labelRectF = QRectF(glassRect.bottomLeft().x(), glassRect.bottomLeft().y(), glassSize, labelHeight)
+        self.painter.setPen(self.pen_transparent)
+        self.painter.fillRect(labelRectF, self.color_black)
+        self.painter.setPen(self.pen_white)
+        self.painter.setFont(self.font_normal)
+        labelRectF = labelRectF - QMarginsF(12, 10, 12, 10)
+        self.painter.drawText(labelRectF,
+                              Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+                              f"({physicalPoint.x()}, {physicalPoint.y()})")
+
+
+        self.painter.drawText(labelRectF,
+                            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+                            self.getScreenColorStr())
+
+        self.painter.setBrush(Qt.NoBrush)
+        self.painter.setPen(QPen(screenColor, 3))
+        self.painter.drawRect(labelRectF)
+
+    def getScreenColorStr(self):
+        if self.isUseHexColor:
+            return f"hex:{self.screenColor.name()}"
+        else:
+            return f"rgb:({self.screenColor.red()}, {self.screenColor.green()}, {self.screenColor.blue()})"
 
     def paintCenterArea(self):
         (rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid) = self.getCenterInfos()
@@ -323,6 +394,7 @@ class ScreenShotWindow(QWidget):
             self.paintCenterArea()
         else:
             self.paintMaskLayer()
+        self.paintMagnifyingGlass()
 
         self.painter.end()
 
@@ -349,6 +421,12 @@ class ScreenShotWindow(QWidget):
                 self.isCapturing = True  # 进入划定截图区域模式
         if event.button() == Qt.MouseButton.RightButton:
             self.cancelScreenShot()
+
+    def pickUpScreenColor(self):
+        text = self.getScreenColorStr()
+        QApplication.clipboard().setText(text)
+        self.clearScreenShot(False)
+        self.close()
 
     def cancelScreenShot(self):
         if self.hasScreenShot or self.isCapturing:  # 清空已划定的的截图区域
@@ -400,3 +478,9 @@ class ScreenShotWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent) -> None:
         self.closedSignal.emit()
         return super().closeEvent(a0)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if int(event.modifiers()) == Qt.Modifier.SHIFT:
+            self.isUseHexColor = not self.isUseHexColor
+            self.update()
+        super().keyPressEvent(event)

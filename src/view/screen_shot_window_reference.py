@@ -320,6 +320,7 @@ class ScreenArea(QObject):
         glassPixmap = self.physicalPixmap(pixmapRect)
         glassPixmap.setDevicePixelRatio(1.0)
         glassPixmap = glassPixmap.scaled(glassSize, glassSize, Qt.AspectRatioMode.KeepAspectRatio)
+        screenColor = glassPixmap.toImage().pixelColor(glassPixmap.rect().center())
         # 在放大后的QPixmap上画纵横十字线
         self._painter.begin(glassPixmap)
         halfWidth = glassPixmap.width() / 2
@@ -328,7 +329,7 @@ class ScreenArea(QObject):
         self._painter.drawLine(QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight))
         self._painter.drawLine(QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height()))
         self._painter.end()
-        return glassPixmap
+        return glassPixmap, screenColor
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
@@ -341,6 +342,7 @@ class ScreenShotWindow(QWidget):
         self.initFunctionalFlag()
         self.initActions()
         self.screenArea = ScreenArea(self)
+        self.isUseHexColor = False
         # self.setWindowOpacity(0.5)
 
     def initActions(self):
@@ -348,6 +350,7 @@ class ScreenShotWindow(QWidget):
             QAction(parent=self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
             QAction(parent=self, triggered=self.snip, shortcut="ctrl+t"),
             QAction(parent=self, triggered=self.cancelScreenShot, shortcut="esc"),
+            QAction(parent=self, triggered=self.pickUpScreenColor, shortcut="c"),
         ]
         self.addActions(actions)
 
@@ -385,6 +388,12 @@ class ScreenShotWindow(QWidget):
         self.isMoving = False  # 在截图区域内拖动时
         self.isAdjusting = False  # 在截图区域的边框按住鼠标左键调整大小时
         self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
+
+    def pickUpScreenColor(self):
+        text = self.getScreenColorStr()
+        QApplication.clipboard().setText(text)
+        self.clearScreenShot(False)
+        self.close()
 
     def cancelScreenShot(self):
         if self.hasScreenShot or self.isCapturing:  # 清空已划定的的截图区域
@@ -430,6 +439,7 @@ class ScreenShotWindow(QWidget):
             return
         self.start()
         self.show()
+        self.activateWindow()
 
     def paintEvent(self, event):
         centerRectF = self.screenArea.centerLogicalRectF()
@@ -491,7 +501,7 @@ class ScreenShotWindow(QWidget):
                 maskPixmap.fill(self.color_black)
                 self.painter.drawPixmap(area.topLeft(), maskPixmap)
 
-    def paintMagnifyingGlass(self, screenSizeF:QSizeF, glassSize=150, offset=30, labelHeight=30):
+    def paintMagnifyingGlass(self, screenSizeF:QSizeF, glassSize=150, offset=30, labelHeight=60):
         '''未划定截图区域模式时、正在划定截取区域时、调整截取区域大小时在鼠标光标右下角显示放大镜
         glassSize:放大镜正方形边长
         offset:放大镜任意一个端点距离鼠标光标位置的最近距离
@@ -499,7 +509,8 @@ class ScreenShotWindow(QWidget):
         if self.hasScreenShot and (not self.isCapturing) and (not self.isAdjusting):
             return
         pos = QtGui.QCursor.pos()
-        glassPixmap = self.screenArea.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
+        glassPixmap, screenColor = self.screenArea.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
+        self.screenColor = screenColor
         # 限制放大镜显示不超出屏幕外
         glassRect = glassPixmap.rect()
         if (pos.x() + glassSize + offset) < screenSizeF.width():
@@ -513,19 +524,31 @@ class ScreenShotWindow(QWidget):
             else:
                 glassRect.moveBottomRight(pos + QPoint(-offset, -offset))
         self.painter.drawPixmap(glassRect.topLeft(), glassPixmap)
-        # 显示pos:(x, y)、rgb:(255,255,255)
-        qrgb = QtGui.QRgba64.fromArgb32(glassPixmap.toImage().pixel(glassPixmap.rect().center()))
-        labelRectF = QRectF(glassRect.bottomLeft().x(), glassRect.bottomLeft().y(), glassSize, labelHeight)
-        self.painter.setPen(self.pen_transparent)
-        self.painter.setBrush(self.color_black)  # 黑底
-        self.painter.drawRect(labelRectF)
-        self.painter.setPen(self.pen_white)
-        self.painter.setFont(self.font_normal)
         tempRect = QRectF(QPointF(0, 0), pos)
         physicalPoint = self.screenArea.physicalRectF(tempRect).toRect().bottomRight()
+        labelRectF = QRectF(glassRect.bottomLeft().x(), glassRect.bottomLeft().y(), glassSize, labelHeight)
+        self.painter.setPen(self.pen_transparent)
+        self.painter.fillRect(labelRectF, self.color_black)
+        self.painter.setPen(self.pen_white)
+        self.painter.setFont(self.font_normal)
+        labelRectF = labelRectF - QMarginsF(12, 10, 12, 10)
         self.painter.drawText(labelRectF,
-                              Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                              'pos:(%s, %s)\nrgb:(%s, %s, %s)' % (physicalPoint.x(), physicalPoint.y(), qrgb.red8(), qrgb.green8(), qrgb.blue8()))
+                              Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+                              f"({physicalPoint.x()}, {physicalPoint.y()})")
+
+        self.painter.drawText(labelRectF,
+                            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+                            self.getScreenColorStr())
+
+        self.painter.setBrush(Qt.NoBrush)
+        self.painter.setPen(QPen(screenColor, 3))
+        self.painter.drawRect(labelRectF)
+
+    def getScreenColorStr(self):
+        if self.isUseHexColor:
+            return f"hex:{self.screenColor.name()}"
+        else:
+            return f"rgb:({self.screenColor.red()}, {self.screenColor.green()}, {self.screenColor.blue()})"
 
     def clearScreenShotArea(self):
         '''清空已划定的截取区域'''
@@ -595,3 +618,9 @@ class ScreenShotWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent) -> None:
         self.closedSignal.emit()
         return super().closeEvent(a0)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if int(event.modifiers()) == Qt.Modifier.SHIFT:
+            self.isUseHexColor = not self.isUseHexColor
+            self.update()
+        super().keyPressEvent(event)
