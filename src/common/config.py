@@ -42,15 +42,15 @@ class Config(QConfig):
 
     # HotKey
     hotKeyScreenShot = ConfigItem(
-        "HotKey", "ScreenShot", "", ConfigValidator())
+        "HotKey", "ScreenShot", "", ConfigValidator(), restart=True)
     hotKeyScreenPaint = ConfigItem(
-        "HotKey", "ScreenPaint", "", ConfigValidator())
+        "HotKey", "ScreenPaint", "", ConfigValidator(), restart=True)
     hotKeyToggleMouseClickThrough = ConfigItem(
-        "HotKey", "MouseThough", "", ConfigValidator())
+        "HotKey", "MouseThough", "", ConfigValidator(), restart=True)
     hotKeyShowClipboard = ConfigItem(
-        "HotKey", "ShowClipboard", "", ConfigValidator())
+        "HotKey", "ShowClipboard", "", ConfigValidator(), restart=True)
     hotKeySwitchScreenPaintMode = ConfigItem(
-        "HotKey", "SwitchScreenPaintMode", "", ConfigValidator())
+        "HotKey", "SwitchScreenPaintMode", "", ConfigValidator(), restart=True)
 
     # Software Update
     checkUpdateAtStartUp = ConfigItem(

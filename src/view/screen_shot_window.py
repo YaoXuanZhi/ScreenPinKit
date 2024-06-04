@@ -4,6 +4,18 @@ from canvas_item import *
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
     closedSignal = pyqtSignal()
+
+    Unknown = 0
+    TopLeft = 1
+    TopMid = 2
+    TopRight = 3
+    LeftMid = 4
+    RightMid = 5
+    BottomLeft = 6
+    BottomMid = 7
+    BottomRight = 8
+    Center = 9
+
     def __init__(self):
         super().__init__()
         self.defaultFlag()
@@ -191,50 +203,50 @@ class ScreenShotWindow(QWidget):
          square_topMid, square_bottomMid, square_leftMid, square_rightMid) = self.getSquareInfos()
 
         if square_topLeft.contains(pointf):
-            return 'TL'
+            return ScreenShotWindow.TopLeft
         elif square_topMid.contains(pointf):
-            return 'T'
+            return ScreenShotWindow.TopMid
         elif square_topRight.contains(pointf):
-            return 'TR'
+            return ScreenShotWindow.TopRight
         elif square_leftMid.contains(pointf):
-            return 'L'
+            return ScreenShotWindow.LeftMid
         elif square_rightMid.contains(pointf):
-            return 'R'
+            return ScreenShotWindow.RightMid
         elif square_bottomLeft.contains(pointf):
-            return 'BL'
+            return ScreenShotWindow.BottomLeft
         elif square_bottomMid.contains(pointf):
-            return 'B'
+            return ScreenShotWindow.BottomMid
         elif square_bottomRight.contains(pointf):
-            return 'BR'
+            return ScreenShotWindow.BottomRight
         elif rt_center.contains(pointf):
-            return 'CENTER'
+            return ScreenShotWindow.Center
         else:
-            return 'ERROR'
+            return ScreenShotWindow.Unknown
 
     def adjustCenterAreaBy(self, pointf):
         '''根据开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），判断调整大小的意图方向，判定新的开始、结束位置'''
         rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         startPointF = rt_center.topLeft()
         endPointF = rt_center.bottomRight()
-        if self._mousePos == 'TL':
+        if self._mousePos == ScreenShotWindow.TopLeft:
             startPointF = pointf
-        elif self._mousePos == 'T':
+        elif self._mousePos == ScreenShotWindow.TopMid:
             startPointF.setY(pointf.y())
-        elif self._mousePos == 'TR':
+        elif self._mousePos == ScreenShotWindow.TopRight:
             startPointF.setY(pointf.y())
             endPointF.setX(pointf.x())
-        elif self._mousePos == 'L':
+        elif self._mousePos == ScreenShotWindow.LeftMid:
             startPointF.setX(pointf.x())
-        elif self._mousePos == 'R':
+        elif self._mousePos == ScreenShotWindow.RightMid:
             endPointF.setX(pointf.x())
-        elif self._mousePos == 'BL':
+        elif self._mousePos == ScreenShotWindow.BottomLeft:
             startPointF.setX(pointf.x())
             endPointF.setY(pointf.y())
-        elif self._mousePos == 'B':
+        elif self._mousePos == ScreenShotWindow.BottomMid:
             endPointF.setY(pointf.y())
-        elif self._mousePos == 'BR':
+        elif self._mousePos == ScreenShotWindow.BottomRight:
             endPointF = pointf
-        else:  # 'ERROR'
+        else:  # 'ScreenShotWindow.Unknown'
             return
         self.setCenterArea(startPointF, endPointF)
 
@@ -330,7 +342,7 @@ class ScreenShotWindow(QWidget):
                     self.setBeginAdjustPoint(pos)
 
                     # 如果在非截图区进行点击，那么直接拓展截图区
-                    if self._mousePos == "ERROR":
+                    if self._mousePos == ScreenShotWindow.Unknown:
                         self.expandScreenShotArea(pos)
             else:
                 self.setCenterArea(pos, pos)
