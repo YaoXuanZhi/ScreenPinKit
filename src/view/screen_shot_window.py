@@ -137,6 +137,8 @@ class ScreenShotWindow(QWidget):
         return glassPixmap, screenColor
 
     def paintMagnifyingGlass(self, glassSize=150, offset=30, labelHeight=60):
+        if self.hasScreenShot or self.isCapturing:
+            return
         screenSizeF = QSizeF(self.screenPixmap.width() / self.screenPixmap.devicePixelRatioF(), self.screenPixmap.height() / self.screenPixmap.devicePixelRatioF())
         pos = QCursor.pos()
         glassPixmap, screenColor = self.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
@@ -168,11 +170,11 @@ class ScreenShotWindow(QWidget):
                               Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
                               f"({physicalPoint.x()}, {physicalPoint.y()})")
 
-
         self.painter.drawText(labelRectF,
                             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
                             self.getScreenColorStr())
 
+        labelRectF = labelRectF + QMarginsF(0, 5, 0, 5)
         self.painter.setBrush(Qt.NoBrush)
         self.painter.setPen(QPen(screenColor, 3))
         self.painter.drawRect(labelRectF)

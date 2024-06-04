@@ -93,7 +93,7 @@ class ScreenArea(QObject):
     def centerPhysicalPixmap(self, editAction=True):
         '''截图区域的QPixmap
         editAction:是否带上编辑结果'''
-        return self.physicalPixmap(self._rt_center + QMarginsF(-1, -1, 1, 1), editAction=editAction)
+        return self.physicalPixmap(self._rt_center, editAction=editAction)
 
     def centerTopMid(self):
         return self._pt_centerTopMid
@@ -373,12 +373,11 @@ class ScreenShotWindow(QWidget):
     def snip(self):
         if not self.hasScreenShot:
             return
-
-        cropRect = self.screenArea.centerLogicalRectF()
         if self.screenArea.centerLogicalRectF().toRect().size() != QSize(0, 0):
+            centerRect = self.screenArea.centerLogicalRectF().toRect()
             cropPixmap = self.screenArea.centerPhysicalPixmap()
-            screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
-            self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
+            screenPoint = self.mapToGlobal(centerRect.topLeft())
+            self.snipedSignal.emit(screenPoint, centerRect.size(), cropPixmap)
         self.clearScreenShot(False)
         self.close()
 
@@ -506,7 +505,7 @@ class ScreenShotWindow(QWidget):
         glassSize:放大镜正方形边长
         offset:放大镜任意一个端点距离鼠标光标位置的最近距离
         labelHeight:pos和rgb两行文字的高度'''
-        if self.hasScreenShot and (not self.isCapturing) and (not self.isAdjusting):
+        if self.hasScreenShot or self.isCapturing:
             return
         pos = QtGui.QCursor.pos()
         glassPixmap, screenColor = self.screenArea.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
@@ -542,6 +541,7 @@ class ScreenShotWindow(QWidget):
                             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
                             self.getScreenColorStr())
 
+        labelRectF = labelRectF + QMarginsF(0, 5, 0, 5)
         self.painter.setBrush(Qt.NoBrush)
         self.painter.setPen(QPen(screenColor, 3))
         self.painter.drawRect(labelRectF)
