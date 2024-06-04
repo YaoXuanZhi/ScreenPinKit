@@ -1,14 +1,18 @@
 # coding=utf-8
+import typing, os, threading
 from datetime import datetime
-from qfluentwidgets import (RoundMenu, Action)
+from qfluentwidgets import (RoundMenu, Action, StateToolTip)
 from base import *
 from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
+from ocr_service import *
 from .painter_interface import PainterInterface
 
 class PinEditorWindow(PinWindow):
+    ocrStartSignal = pyqtSignal()
+    ocrEndSignal = pyqtSignal(list, list, list)
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent, screenPoint, physicalSize, physicalPixmap, closeCallback)
         self.contentLayout = QVBoxLayout(self)
@@ -55,6 +59,9 @@ class PinEditorWindow(PinWindow):
         ]
         self.addActions(actions)
 
+        self.ocrStartSignal.connect(self.onOcrStart)
+        self.ocrEndSignal.connect(self.onOcrEnd)
+
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()
         if zoomFactor > 1:
@@ -67,7 +74,53 @@ class PinEditorWindow(PinWindow):
         self.setWindowOpacity(finalValue)
 
     def startOcr(self):
-        print("开始OCR")
+        '''使用独立线程进行OCR识别'''
+        if hasattr(self, "ocrState"):
+            return
+        self.ocrState = 0
+        self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
+        self.ocrThread.start()
+
+    def onExecuteOcr(self, pixmap:QPixmap):
+        print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
+        ocrService = OcrService()
+        self.ocrStartSignal.emit()
+        # boxes, txts, scores = ocrService.ocr(pixmap)
+        boxes, txts, scores = ocrService.ocrWithProcess(pixmap)
+        self.ocrEndSignal.emit(boxes, txts, scores)
+        self.ocrState = 1
+
+    def onOcrStart(self):
+        if not hasattr(self, "stateTooltip") or self.stateTooltip == None:
+            self.stateTooltip = StateToolTip('正在OCR识别', '客官请耐心等待哦~~', self)
+            self.stateTooltip.setStyleSheet("background: transparent; border:0px;")
+            self.stateTooltip.move(self.painterWidget.geometry().topRight() + QPoint(-self.stateTooltip.frameSize().width() - 20, self.stateTooltip.frameSize().height() - 20))
+            self.stateTooltip.show()
+
+    def onOcrEnd(self, boxes, txts, scores):
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+        drop_score = 0.5
+        for idx, (box, txt) in enumerate(zip(boxes, txts)):
+            if scores is not None and scores[idx] < drop_score:
+                continue
+            
+            box = np.reshape(np.array(box), [-1, 1, 2]).astype(np.int64)
+
+            polygon = QPolygonF()
+            for tuple in box:
+                finalPosition = self.painterWidget.drawWidget.view.mapToScene(QPointF(tuple[0][0], tuple[0][1]).toPoint())
+                polygon.append(finalPosition)
+
+            textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
+            self.painterWidget.drawWidget.scene.addItem(textItem)
+            self.painterWidget.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
 
     def copyToClipboard(self):
         # 因为Windows下剪贴板不支持透明度，其会将Image里的alpha值用255直接进行填充，相关讨论可以看下面这两个链接

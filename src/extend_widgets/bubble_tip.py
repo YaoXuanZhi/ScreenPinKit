@@ -1,10 +1,12 @@
 # coding:utf-8
 # @note 基于teaching_tip.py改造而来
 from enum import Enum
+from typing import Union
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QPoint, QObject, QPointF, QTimer, QPropertyAnimation, QEvent, QRect, QRectF
+from PyQt5.QtGui import QPainter, QColor, QPainterPath, QIcon, QCursor, QPolygonF, QPixmap, QImage
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QApplication, QGraphicsDropShadowEffect
+
 from qfluentwidgets import *
 
 class BubbleTipTailPosition(Enum):
