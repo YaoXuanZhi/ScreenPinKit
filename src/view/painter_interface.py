@@ -184,10 +184,8 @@ class PainterInterface(QWidget):
 
     def tryQuitDraw(self):
         # 如果当前绘图工具不在编辑状态，则本次按下Esc键会关掉绘图工具条
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
-            self.clearDrawFlag()
-            self.drawWidget.quitDraw()
-            self.setFocus()
+        if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
+            self.selectItemAction.trigger()
             return False
         elif self.toolbar != None and self.toolbar.isVisible():
             self.completeDraw()
