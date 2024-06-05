@@ -8,7 +8,7 @@ class QScreenPainterWidget(PainterInterface):
         super().__init__(parent, None)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
-        return BubbleTipTailPosition.TOP_CENTER
+        return BubbleTipTailPosition.BOTTOM
 
     def contextMenuEvent(self, event:QContextMenuEvent):
         return
