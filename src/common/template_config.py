@@ -1,3 +1,4 @@
+TEMPLATE_CONFIG = '''
 {
     "ArrowToolbar": {
         "brushColor": "#ffff0000",
@@ -74,4 +75,4 @@
         "unFocusColor": "#007d7d7d",
         "useRoundStyle": true
     }
-}
+}'''

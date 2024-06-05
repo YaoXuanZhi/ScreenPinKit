@@ -87,7 +87,6 @@ class PinWindowManager():
         if len(filePaths) > 0:
             # 遍历filePaths中的文件路径
             for filePath in filePaths:
-                print(filePath)
                 matchResult = re.match(self.getImageNamePattern(), filePath)
 
                 if matchResult != None:

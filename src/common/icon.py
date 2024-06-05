@@ -60,4 +60,4 @@ class ScreenShotIcon(FluentIconBase, Enum):
     INFO_LIGHT = "Info_light"
 
     def path(self, theme=Theme.AUTO):
-        return f':/ScreenPinKit/icons/icons8-{self.value}-64.svg'
+        return f':/ScreenPinKit/resource/icons/icons8-{self.value}-64.svg'

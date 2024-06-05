@@ -10,6 +10,8 @@ from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, Boo
                             ColorConfigItem, OptionsValidator, RangeConfigItem, RangeValidator,
                             FolderListValidator, EnumSerializer, ConfigValidator, FolderValidator, ConfigSerializer)
 
+from .template_config import TEMPLATE_CONFIG
+
 class Language(Enum):
     """ Language enumeration """
 
@@ -170,7 +172,11 @@ configFolder = os.path.join(os.path.expanduser("~"), f".{APP_NAME}")
 configPath = os.path.join(configFolder, 'config.json')
 if not os.path.exists(configFolder):
     os.mkdir(configFolder)
-    templateConfigPath = os.path.join(os.path.dirname(__file__), "../config/template.json")
-    shutil.copy(templateConfigPath, configPath)
+
+if not os.path.exists(configPath):
+    with open(configPath, "w") as f:
+        f.write(TEMPLATE_CONFIG)
+        f.close()
+
 cfg = Config()
 qconfig.load(configPath, cfg)
