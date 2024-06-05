@@ -1,5 +1,6 @@
 # coding:utf-8
-from common import cfg, ScreenShotIcon, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
+from common import cfg, ScreenShotIcon
+from version import HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
 from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
                             OptionsSettingCard, RangeSettingCard, PushSettingCard,
                             ColorSettingCard, HyperlinkCard, PrimaryPushSettingCard, ScrollArea,

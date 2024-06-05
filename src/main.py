@@ -1,6 +1,8 @@
 import sys, os
+from common import *
 from view import *
 from manager import *
+from version import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from common import *
+from version import *
 from qframelesswindow import FramelessWindow, StandardTitleBar
 from qfluentwidgets import *
 from .setting_interface import *
