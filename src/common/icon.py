@@ -1,6 +1,5 @@
 # coding: utf-8
 from enum import Enum
-import os
 
 from qfluentwidgets import FluentIconBase, getIconColor, Theme
 
@@ -61,5 +60,4 @@ class ScreenShotIcon(FluentIconBase, Enum):
     INFO_LIGHT = "Info_light"
 
     def path(self, theme=Theme.AUTO):
-        # return os.path.join(os.path.dirname(__file__), f"resource/icons/icons8-{self.value}-64.png")
-        return os.path.join(os.path.dirname(__file__), f"../resource/icons/icons8-{self.value}-64.svg")
+        return f':/ScreenPinKit/icons/icons8-{self.value}-64.svg'

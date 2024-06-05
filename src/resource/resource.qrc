@@ -1,0 +1,58 @@
+<RCC>
+    <qresource prefix="/ScreenPinKit">
+        <file>icons/icons8-whiteboard3-64.svg</file>
+        <file>icons/icons8-截图-64.svg</file>
+        <file>icons/icons8-取消-64.svg</file>
+        <file>icons/icons8-设置-64.svg</file>
+        <file>icons/icons8-whiteboard-64.svg</file>
+        <file>icons/icons8-复制-64.svg</file>
+        <file>icons/icons8-文本框-64.svg</file>
+        <file>icons/icons8-文本-64.svg</file>
+        <file>icons/icons8-橡皮-64.svg</file>
+        <file>icons/icons8-铅笔-64.svg</file>
+        <file>icons/icons8-圆珠笔-64.svg</file>
+        <file>icons/icons8-撤销-64.svg</file>
+        <file>icons/icons8-恢复-64.svg</file>
+        <file>icons/icons8-保存-64.svg</file>
+        <file>icons/icons8-另存为-64.svg</file>
+        <file>icons/icons8-完成-64.svg</file>
+        <file>icons/icons8-delete-all-64.svg</file>
+        <file>icons/icons8-编辑图像-64.svg</file>
+        <file>icons/icons8-回收站-64.svg</file>
+        <file>icons/icons8-刷-64.svg</file>
+        <file>icons/icons8-左2-64.svg</file>
+        <file>icons/icons8-右2-64.svg</file>
+        <file>icons/icons8-通用ocr-64.svg</file>
+        <file>icons/icons8-翻开的书-64.svg</file>
+        <file>icons/icons8-进入地理围栏-64.svg</file>
+        <file>icons/icons8-箭头-64.svg</file>
+        <file>icons/icons8-记号笔-64.svg</file>
+        <file>icons/icons8-星-64.svg</file>
+        <file>icons/icons8-矩形-64.svg</file>
+        <file>icons/icons8-折线-64.svg</file>
+        <file>icons/icons8-多边形-64.svg</file>
+        <file>icons/icons8-选择工具-64.svg</file>
+        <file>icons/icons8-马赛克-64.svg</file>
+        <file>icons/icons8-锁定-64.svg</file>
+        <file>icons/icons8-解锁-64.svg</file>
+        <file>icons/icons8-圆形3-64.svg</file>
+        <file>icons/icons8-diversity3-64.svg</file>
+        <file>icons/icons8-fill-region-64.svg</file>
+        <file>icons/icons8-triangle-64.svg</file>
+        <file>icons/icons8-bold-64.svg</file>
+        <file>icons/icons8-italic-64.svg</file>
+        <file>icons/icons8-full-stop-64.svg</file>
+        <file>icons/icons8-full-rectangle-64.svg</file>
+        <file>icons/icons8-blur-64.svg</file>
+        <file>icons/icons8-number-marker-64.svg</file>
+        <file>icons/icons8-Warning_light-64.svg</file>
+        <file>icons/icons8-Success_light-64.svg</file>
+        <file>icons/icons8-Error_light-64.svg</file>
+        <file>icons/icons8-Info_light-64.svg</file>
+
+        <file>qss/dark/setting_interface.qss</file>
+        <file>qss/light/setting_interface.qss</file>
+
+        <file>i18n/settings.zh_CN.qm</file>
+    </qresource>
+</RCC>

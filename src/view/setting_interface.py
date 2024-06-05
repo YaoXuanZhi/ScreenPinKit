@@ -1,5 +1,5 @@
 # coding:utf-8
-from common import cfg, ScreenShotIcon
+from common import cfg, ScreenShotIcon, StyleSheet
 from version import HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
 from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
                             OptionsSettingCard, RangeSettingCard, PushSettingCard,
@@ -188,10 +188,7 @@ class SettingInterface(ScrollArea):
     def __setQss(self):
         """ set style sheet """
         self.scrollWidget.setObjectName('scrollWidget')
-
-        theme = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{theme}/setting_interface.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        StyleSheet.SETTING_INTERFACE.apply(self)
 
     def __showRestartTooltip(self):
         """ show restart tooltip """

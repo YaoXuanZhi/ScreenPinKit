@@ -3,6 +3,7 @@ from common import *
 from view import *
 from manager import *
 from version import *
+from resource import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -98,7 +99,7 @@ def main():
     locale = cfg.get(cfg.language).value
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
-    settingTranslator.load(locale, "settings", ".", os.path.join(os.path.dirname(__file__), "resource/i18n"))
+    settingTranslator.load(locale, "settings", ".", ":/ScreenPinKit/i18n")
 
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)
