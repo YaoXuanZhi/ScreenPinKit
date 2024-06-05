@@ -44,7 +44,7 @@ class PainterInterface(QWidget):
             self.sceneBrush.setTransform(transform)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
-        return BubbleTipTailPosition.TOP_RIGHT
+        return BubbleTipTailPosition.AUTO
 
     def showCommandBar(self):
         if self.toolbar != None:
@@ -126,7 +126,7 @@ class PainterInterface(QWidget):
         )
 
         self.initDrawLayer()
-        self.painterToolBarMgr = PainterToolBarManager(view)
+        self.painterToolBarMgr = PainterToolBarManager(view, self.toolbar)
         self.painterToolBarMgr.providerChangeDrawActionSignal.connect(self.onProviderChangeDrawAction)
 
     def onProviderChangeDrawAction(self, drawActionEnum:DrawActionEnum):

@@ -124,12 +124,19 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.UseMarkerPen:
                 self.canvasItemBar = MarkerPenToolbar(parent=self.targetWidget)
 
+        parent:BubbleTip = self.parent()
+        finalTailPosition = BubbleTipTailPosition.TOP_LEFT
+        orientLength = 4
+        if parent.manager.isCorrectedBound():
+            finalTailPosition = BubbleTipTailPosition.BOTTOM_LEFT
+            orientLength = orientLength + 8
+
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
             view=self.canvasItemBar,
             duration=-1,
-            tailPosition=BubbleTipTailPosition.TOP_LEFT,
-            orientLength=4,
+            tailPosition=finalTailPosition,
+            orientLength=orientLength,
             parent=self.targetWidget,
             )
 
