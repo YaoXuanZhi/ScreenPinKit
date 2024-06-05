@@ -53,14 +53,18 @@ class PinEditorWindow(PinWindow):
 
     def initActions(self):
         actions = [
-            Action(self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
-            Action(self, triggered=self.saveToDisk, shortcut="ctrl+s"),
-            Action(self, triggered=self.startOcr, shortcut="ctrl+a"),
+            QAction(self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
+            QAction(self, triggered=self.saveToDisk, shortcut="ctrl+s"),
+            QAction(self, triggered=self.startOcr, shortcut="ctrl+a"),
+            QAction(self, triggered=self.completeDraw, shortcut="ctrl+w"),
         ]
         self.addActions(actions)
 
         self.ocrStartSignal.connect(self.onOcrStart)
         self.ocrEndSignal.connect(self.onOcrEnd)
+
+    def completeDraw(self):
+        self.painterWidget.completeDraw()
 
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()
