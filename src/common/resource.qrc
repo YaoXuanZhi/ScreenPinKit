@@ -6,19 +6,12 @@
         <file>resource/icons/icons8-设置-64.svg</file>
         <file>resource/icons/icons8-whiteboard-64.svg</file>
         <file>resource/icons/icons8-复制-64.svg</file>
-        <file>resource/icons/icons8-文本框-64.svg</file>
         <file>resource/icons/icons8-文本-64.svg</file>
         <file>resource/icons/icons8-橡皮-64.svg</file>
-        <file>resource/icons/icons8-铅笔-64.svg</file>
         <file>resource/icons/icons8-圆珠笔-64.svg</file>
-        <file>resource/icons/icons8-撤销-64.svg</file>
-        <file>resource/icons/icons8-恢复-64.svg</file>
-        <file>resource/icons/icons8-保存-64.svg</file>
         <file>resource/icons/icons8-另存为-64.svg</file>
         <file>resource/icons/icons8-完成-64.svg</file>
         <file>resource/icons/icons8-delete-all-64.svg</file>
-        <file>resource/icons/icons8-编辑图像-64.svg</file>
-        <file>resource/icons/icons8-回收站-64.svg</file>
         <file>resource/icons/icons8-刷-64.svg</file>
         <file>resource/icons/icons8-左2-64.svg</file>
         <file>resource/icons/icons8-右2-64.svg</file>
@@ -44,11 +37,13 @@
         <file>resource/icons/icons8-full-stop-64.svg</file>
         <file>resource/icons/icons8-full-rectangle-64.svg</file>
         <file>resource/icons/icons8-blur-64.svg</file>
+        <file>resource/icons/icons8-pin-64.svg</file>
         <file>resource/icons/icons8-number-marker-64.svg</file>
         <file>resource/icons/icons8-Warning_light-64.svg</file>
         <file>resource/icons/icons8-Success_light-64.svg</file>
         <file>resource/icons/icons8-Error_light-64.svg</file>
         <file>resource/icons/icons8-Info_light-64.svg</file>
+        <file>resource/icons/icons8-rounded-corner-64.svg</file>
 
         <file>resource/qss/dark/setting_interface.qss</file>
         <file>resource/qss/light/setting_interface.qss</file>

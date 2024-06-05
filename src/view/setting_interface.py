@@ -75,32 +75,32 @@ class SettingInterface(ScrollArea):
         self.windowShadowStyleGroup = SettingCardGroup(self.tr("WindowShadowStyle"), self.scrollWidget)
         self.windowShadowStyleFocusColorCard = ColorSettingCard(
             cfg.windowShadowStyleFocusColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Focus color"),
             parent=self.windowShadowStyleGroup,
         )
         self.windowShadowStyleUnfocusColorCard = ColorSettingCard(
             cfg.windowShadowStyleUnFocusColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Unfocus color"),
             parent=self.windowShadowStyleGroup,
         )
         self.windowShadowStyleUseRoundStyleCard = SwitchSettingCard(
-            FIF.VOLUME,
+            ScreenShotIcon.ROUNDED_CORNER,
             self.tr('Use round style'),
             None,
             configItem=cfg.windowShadowStyleUseRoundStyle,
             parent=self.windowShadowStyleGroup
         )
         self.windowShadowStyleIsSaveWithShadowCard = SwitchSettingCard(
-            FIF.FEEDBACK,
+            ScreenShotIcon.SAVE_AS,
             self.tr('Save screenshot with shadow'),
             None,
             configItem=cfg.windowShadowStyleIsSaveWithShadow,
             parent=self.windowShadowStyleGroup
         )
         self.windowShadowStyleisCopyWithShadowCard = SwitchSettingCard(
-            FIF.CHECKBOX,
+            ScreenShotIcon.COPY,
             self.tr('Copy screenshot with shadow'),
             None,
             configItem=cfg.windowShadowStyleIsCopyWithShadow,

@@ -104,20 +104,20 @@ class ToolbarInterface(QWidget):
         )
         numberMarkerItemToolbarTextColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarTextColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Text color"),
             parent=numberMarkerItemToolbarGroup,
             enableAlpha=True
         )
         numberMarkerItemToolbarPenWidthCard = RangeSettingCard(
             cfg.numberMarkerItemToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=numberMarkerItemToolbarGroup
         )
         numberMarkerItemToolbarPenColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=numberMarkerItemToolbarGroup,
             enableAlpha=True
@@ -146,13 +146,13 @@ class ToolbarInterface(QWidget):
         penToolbarGroup = SettingCardGroupLite(self)
         penToolbarWidthCard = RangeSettingCard(
             cfg.penToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=penToolbarGroup
         )
         penToolbarColorCard = ColorSettingCard(
             cfg.penToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=penToolbarGroup,
             enableAlpha=True
@@ -165,13 +165,13 @@ class ToolbarInterface(QWidget):
         markerPenToolbarGroup = SettingCardGroupLite(self)
         markerPenToolbarWidthCard = RangeSettingCard(
             cfg.markerPenToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=markerPenToolbarGroup
         )
         markerPenToolbarColorCard = ColorSettingCard(
             cfg.markerPenToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=markerPenToolbarGroup,
             enableAlpha=True
@@ -184,13 +184,13 @@ class ToolbarInterface(QWidget):
         lineStripToolbarGroup = SettingCardGroupLite(self)
         lineStripToolbarWidthCard = RangeSettingCard(
             cfg.lineStripToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=lineStripToolbarGroup
         )
         lineStripToolbarColorCard = ColorSettingCard(
             cfg.lineStripToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=lineStripToolbarGroup,
             enableAlpha=True
@@ -203,20 +203,20 @@ class ToolbarInterface(QWidget):
         arrowToolbarGroup = SettingCardGroupLite(self)
         arrowToolbarPenWidthCard = RangeSettingCard(
             cfg.arrowToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=arrowToolbarGroup
         )
         arrowToolbarBrushColorCard = ColorSettingCard(
             cfg.arrowToolbarBrushColor,
-            FIF.PALETTE,
+            ScreenShotIcon.BRUSH,
             self.tr("Brush color"),
             parent=arrowToolbarGroup,
             enableAlpha=True
         )
         arrowToolbarPenColorCard = ColorSettingCard(
             cfg.arrowToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=arrowToolbarGroup,
             enableAlpha=True
@@ -243,7 +243,7 @@ class ToolbarInterface(QWidget):
         eraseToolbarGroup = SettingCardGroupLite(self)
         eraseToolbarWidthCard = RangeSettingCard(
             cfg.eraseToolbarWidth,
-            FIF.HIGHTLIGHT,
+            ScreenShotIcon.PEN,
             self.tr("Eraser width"),
             parent=eraseToolbarGroup
         )
@@ -254,7 +254,7 @@ class ToolbarInterface(QWidget):
         textEditToolbarGroup = SettingCardGroupLite(self)
         textEditToolbarFontCard = PushSettingCard(
             self.tr('Choose font'),
-            FIF.FONT,
+            ScreenShotIcon.TEXT,
             self.tr('Font family'),
             parent=textEditToolbarGroup
         )
@@ -266,7 +266,7 @@ class ToolbarInterface(QWidget):
         )
         textEditToolbarTextColorCard = ColorSettingCard(
             cfg.textEditToolbarTextColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Text color"),
             parent=textEditToolbarGroup,
             enableAlpha=True
@@ -283,20 +283,13 @@ class ToolbarInterface(QWidget):
         shapeToolbarGroup = SettingCardGroupLite(self)
         shapeToolbarPenWidthCard = RangeSettingCard(
             cfg.shapeToolbarPenWidth,
-            FIF.FONT_SIZE,
+            ScreenShotIcon.PEN,
             self.tr("Pen width"),
             parent=shapeToolbarGroup
         )
-        shapeToolbarBrushColorCard = ColorSettingCard(
-            cfg.shapeToolbarBrushColor,
-            FIF.PALETTE,
-            self.tr("Brush color"),
-            parent=shapeToolbarGroup,
-            enableAlpha=True
-        )
         shapeToolbarPenColorCard = ColorSettingCard(
             cfg.shapeToolbarPenColor,
-            FIF.PALETTE,
+            ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=shapeToolbarGroup,
             enableAlpha=True
@@ -311,6 +304,13 @@ class ToolbarInterface(QWidget):
                 (self.tr("Dash line"), Qt.PenStyle.DashLine),
             ],
             parent=shapeToolbarGroup
+        )
+        shapeToolbarBrushColorCard = ColorSettingCard(
+            cfg.shapeToolbarBrushColor,
+            ScreenShotIcon.BRUSH,
+            self.tr("Brush color"),
+            parent=shapeToolbarGroup,
+            enableAlpha=True
         )
         shapeToolbarEffectTypeCard = ComboBoxSettingCardPlus(
             cfg.shapeToolbarShape,
