@@ -78,7 +78,7 @@ class MainWindow(QWidget):
     def exit(self):
         sys.exit(0)
 
-if __name__ == '__main__':
+def main():
     # enable dpi scale
     if cfg.get(cfg.dpiScale) == "Auto":
         QApplication.setHighDpiScaleFactorRoundingPolicy(
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     locale = cfg.get(cfg.language).value
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
-    settingTranslator.load(locale, "settings", ".", "resource/i18n")
+    settingTranslator.load(locale, "settings", ".", os.path.join(os.path.dirname(__file__), "resource/i18n"))
 
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)
@@ -106,3 +106,6 @@ if __name__ == '__main__':
     wnd = MainWindow()
 
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()

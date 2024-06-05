@@ -1,6 +1,8 @@
 # coding:utf-8
 from enum import Enum
 from canvas_item import *
+from version import *
+import os, shutil
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -164,5 +166,11 @@ class Config(QConfig):
         self.textEditToolbarFontFamily.value = font.family()
         self.save()
 
+configFolder = os.path.join(os.path.expanduser("~"), f".{APP_NAME}")
+configPath = os.path.join(configFolder, 'config.json')
+if not os.path.exists(configFolder):
+    os.mkdir(configFolder)
+    templateConfigPath = os.path.join(os.path.dirname(__file__), "../config/template.json")
+    shutil.copy(templateConfigPath, configPath)
 cfg = Config()
-qconfig.load('config/config.json', cfg)
+qconfig.load(configPath, cfg)
