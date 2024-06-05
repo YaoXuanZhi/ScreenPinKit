@@ -289,7 +289,7 @@ class TopTailBubbleTipManager(BubbleTipManager):
         self._isCorrectedBound = y > maxPosY
         if self._isCorrectedBound:
             pos = target.mapToGlobal(QPoint())
-            y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom() - tip.bubble.orientLength
+            y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom() - tip.layout().contentsMargins().top()
 
         return y
 
@@ -456,7 +456,7 @@ class BottomLeftTailBubbleTipManager(BottomTailBubbleTipManager):
         target = tip.target
         pos = target.mapToGlobal(QPoint())
         x = pos.x() - tip.layout().contentsMargins().left()
-        y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom()
+        y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom() - tip.layout().contentsMargins().top()
         return QPoint(x, y)
 
 

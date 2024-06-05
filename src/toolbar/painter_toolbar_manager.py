@@ -126,17 +126,15 @@ class PainterToolBarManager(QObject):
 
         parent:BubbleTip = self.parent()
         finalTailPosition = BubbleTipTailPosition.TOP_LEFT
-        orientLength = 4
         if parent.manager.isCorrectedBound():
             finalTailPosition = BubbleTipTailPosition.BOTTOM_LEFT
-            orientLength = orientLength + 8
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
             view=self.canvasItemBar,
             duration=-1,
             tailPosition=finalTailPosition,
-            orientLength=orientLength,
+            orientLength=2,
             parent=self.targetWidget,
             )
 
