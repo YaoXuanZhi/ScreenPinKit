@@ -1,9 +1,0 @@
-<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" version="1.0">
-
- <g>
-  <title>Layer 1</title>
-  <rect stroke="#000" id="svg_22" height="21.43982" width="36.20957" y="21.39922" x="14.37166" fill="#fff"/>
-  <path stroke="#000" id="svg_23" d="m4.28803,16.85359l7.50691,0l2.31969,-7.54422l2.31969,7.54422l7.50691,0l-6.07321,4.66253l2.31981,7.54422l-6.07321,-4.66266l-6.07321,4.66266l2.31981,-7.54422l-6.07321,-4.66253z" fill="#fff"/>
-  <ellipse stroke="#000" ry="6.2986" rx="8.33771" id="svg_25" cy="43.02041" cx="50.42136" fill="#fff"/>
- </g>
-</svg>

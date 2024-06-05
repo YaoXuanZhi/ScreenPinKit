@@ -92,7 +92,7 @@ class PainterInterface(QWidget):
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if self.drawWidget.sceneBrush != None:
             extendActions = [
-                Action(ScreenShotIcon.ERASE, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
+                Action(ScreenShotIcon.ERASER, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
                 Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool)),
             ]
             for action in extendActions:
@@ -107,8 +107,8 @@ class PainterInterface(QWidget):
         view.addSeparator()
         view.addActions([
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
-            Action(ScreenShotIcon.UNDO2, self.tr("Undo"), triggered=self.undo),
-            Action(ScreenShotIcon.REDO2, self.tr("Redo"), triggered=self.redo),
+            Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
+            Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
             Action(ScreenShotIcon.FINISHED, self.tr("Finish draw"), triggered=self.completeDraw),
         ])
 

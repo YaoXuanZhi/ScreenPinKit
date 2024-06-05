@@ -312,7 +312,7 @@ class ToolbarInterface(QWidget):
             parent=shapeToolbarGroup,
             enableAlpha=True
         )
-        shapeToolbarEffectTypeCard = ComboBoxSettingCardPlus(
+        shapeToolbarShapeCard = ComboBoxSettingCardPlus(
             cfg.shapeToolbarShape,
             ScreenShotIcon.SHAPE,
             self.tr('Shape'),
@@ -328,9 +328,9 @@ class ToolbarInterface(QWidget):
 
         shapeToolbarGroup.addSettingCard(shapeToolbarPenWidthCard)
         shapeToolbarGroup.addSettingCard(shapeToolbarPenColorCard)
-        shapeToolbarGroup.addSettingCard(shapeToolbarBrushColorCard)
         shapeToolbarGroup.addSettingCard(shapeToolbarPenStyleCard)
-        shapeToolbarGroup.addSettingCard(shapeToolbarEffectTypeCard)
+        shapeToolbarGroup.addSettingCard(shapeToolbarBrushColorCard)
+        shapeToolbarGroup.addSettingCard(shapeToolbarShapeCard)
         return shapeToolbarGroup
 
     def addSubInterface(self, widget: QLabel, objectName, text):
