@@ -191,7 +191,7 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
             return (rect.topLeft() + rect.bottomLeft()) / 2 - offsetPoint
         elif posType == EnumPosType.ControllerPosTT:
             # 顶部悬浮
-            hoverDistance = 30
+            hoverDistance = 20
             return (rect.topLeft() + rect.topRight()) / 2 - QPointF(radius, radius + hoverDistance)
 
     def setRectWrapper(self, attachRect:QRectF, posType:EnumPosType, radius:float, size:QSizeF):
@@ -660,15 +660,15 @@ class CanvasUtil:
                     targetPath.addPolygon(polygon)
                 i += 2
 
-class CanvasROI(QGraphicsEllipseItem):
+class CanvasROI(QGraphicsRectItem):
     def __init__(self, hoverCursor:QCursor, id:int, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
         self.hoverCursor = hoverCursor
         self.id = id
         self.initUI()
         self.isMoving = False
-        self.setBrush(Qt.GlobalColor.white)
-        self.setPen(QPen(Qt.NoPen))
+        self.setBrush(QBrush(Qt.NoBrush))
+        self.setPen(Qt.GlobalColor.white)
         self.parent = parent
 
         self.mousePressCallback = None
@@ -726,7 +726,7 @@ class CanvasROIManager(QObject):
 
         self.m_instId = 0
         self.canRoiItemEditable = True
-        self.roiRadius = 8
+        self.roiRadius = 4
 
         self.roiItemList:list[CanvasROI] = []
 
@@ -739,6 +739,8 @@ class CanvasROIManager(QObject):
 
     def mouseReleaseHandle(self, roiItem:CanvasROI, event: QGraphicsSceneMouseEvent):
         parentItem:CanvasCommonPathItem = self.attachParent
+        localPos = roiItem.mapToItem(parentItem, roiItem.rect().center())
+        self.movePointById(roiItem, localPos)
         parentItem.endResize(event.pos())
 
     def mouseMoveHandle(self, roiItem:CanvasROI, event: QGraphicsSceneMouseEvent):
@@ -873,7 +875,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         self.roiMgr.removeROIAfterSignal.connect(self.removeROIAfterCallback)
         self.roiMgr.moveROIAfterSignal.connect(self.moveROIAfterCallback)
 
-        self.radius = 8
+        self.radius = 4
 
         self.m_borderWidth = 1
         self.m_penDefault = QPen(Qt.white, self.m_borderWidth)
@@ -1146,7 +1148,6 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     
     def endRotate(self, localPos:QPointF) -> None:
         self.transformComponent.rotatedSignal.emit(self, self.oldRotate, self.rotation())
-        self.forceSelect()
 
     def startResize(self, localPos:QPointF) -> None:
         self.oldPolygon = QPolygonF(self.polygon)
@@ -1163,7 +1164,6 @@ class CanvasCommonPathItem(QGraphicsPathItem):
             roiPosList.append(roiItem.pos())
         self.transformComponent.resizedSignal.emit(self, (self.oldPolygon, self.oldRoiPosList), (QPolygonF(self.polygon), roiPosList))
         self.refreshTransformOriginPoint()
-        self.forceSelect()
 
     def forceSelect(self):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
