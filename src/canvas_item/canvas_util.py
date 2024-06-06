@@ -666,14 +666,9 @@ class CanvasROI(QGraphicsRectItem):
         self.hoverCursor = hoverCursor
         self.id = id
         self.initUI()
-        self.isMoving = False
         self.setBrush(QBrush(Qt.NoBrush))
         self.setPen(Qt.GlobalColor.white)
         self.parent = parent
-
-        self.mousePressCallback = None
-        self.mouseReleaseCallback = None
-        self.mouseMoveCallback = None
 
     def type(self) -> int:
         return EnumCanvasROIType.CanvasRoi.value
@@ -687,30 +682,6 @@ class CanvasROI(QGraphicsRectItem):
         # option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         return super().paint(painter, option, widget)
 
-    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        self.isMoving = True
-        if self.mousePressCallback != None:
-            self.mousePressCallback(self, event)
-        return super().mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        self.isMoving = False
-        if self.mouseReleaseCallback != None:
-            self.mouseReleaseCallback(self, event)
-        return super().mouseReleaseEvent(event)
-
-    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        if self.isMoving:
-            if self.mouseMoveCallback != None:
-                self.mouseMoveCallback(self, event)
-        super().mouseMoveEvent(event)
-
-    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.RightButton:
-            parentItem:CanvasCommonPathItem = self.parentItem()
-            parentItem.roiMgr.removePoint(self)
-        return super().mouseDoubleClickEvent(event)
-
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         parentItem = self.parentItem()
         if parentItem != None:
@@ -718,7 +689,6 @@ class CanvasROI(QGraphicsRectItem):
         return super().wheelEvent(event)
 
 class CanvasROIManager(QObject):
-    removeROIAfterSignal = pyqtSignal(int)
     moveROIAfterSignal = pyqtSignal(int, QPointF)
     def __init__(self,parent=None, attachParent:QGraphicsItem=None):
         super().__init__(parent)
@@ -754,47 +724,14 @@ class CanvasROIManager(QObject):
 
         if self.canRoiItemEditable:
             roiItem = CanvasROI(cursor, id, self.attachParent)
-            roiItem.mousePressCallback = self.mousePressHandle
-            roiItem.mouseReleaseCallback = self.mouseReleaseHandle
-            roiItem.mouseMoveCallback = self.mouseMoveHandle
             rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
             rect.moveCenter(point)
             roiItem.setRect(rect)
+            roiItem.installSceneEventFilter(self.attachParent)
 
             self.roiItemList.append(roiItem)
             return roiItem
         return None
-
-    def insertPoint(self, insertIndex:int, point:QPointF, cursor:QCursor = Qt.SizeAllCursor) -> CanvasROI:
-        self.m_instId += 1
-        id = self.m_instId
-
-        roiItem = CanvasROI(cursor, id, self)
-        roiItem.mousePressCallback = self.mousePressHandle
-        roiItem.mouseReleaseCallback = self.mouseReleaseHandle
-        roiItem.mouseMoveCallback = self.mouseMoveHandle
-        rect = QRectF(QPointF(0, 0), QSizeF(self.roiRadius*2, self.roiRadius*2))
-        rect.moveCenter(point)
-        roiItem.setRect(rect)
-
-        self.roiItemList.insert(insertIndex, roiItem)
-        return roiItem
-
-    def removePoint(self, roiItem:CanvasROI):
-        if not self.canRoiItemEditable:
-            return
-
-        # 如果是移除最后一个操作点，说明该路径将被移除
-        if len(self.roiItemList) == 1:
-            scene = self.attachParent.scene()
-            scene.removeItem(self)
-            return
-
-        index = self.roiItemList.index(roiItem)
-        self.roiItemList.remove(roiItem)
-        self.attachParent.scene().removeItem(roiItem)
-
-        self.removeROIAfterSignal.emit(index)
 
     def movePointById(self, roiItem:CanvasROI, localPos:QPointF):
         index = self.roiItemList.index(roiItem)
@@ -871,8 +808,6 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         self.polygon = QPolygonF()
 
         self.roiMgr = CanvasROIManager(attachParent=self)
-
-        self.roiMgr.removeROIAfterSignal.connect(self.removeROIAfterCallback)
         self.roiMgr.moveROIAfterSignal.connect(self.moveROIAfterCallback)
 
         self.radius = 4
@@ -885,10 +820,6 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
         self.isPreview = 0
         self.transformComponent = TransformComponent()
-
-    def removeROIAfterCallback(self, index:int):
-        self.polygon.remove(index)
-        self.endResize(None)
 
     def moveROIAfterCallback(self, index:int, localPos:QPointF):
         self.prepareGeometryChange()
@@ -922,6 +853,20 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
         self.isPreview = 2
         return super().focusInEvent(event)
+
+    def sceneEventFilter(self, watched: QGraphicsItem, event0: QEvent) -> bool:
+        if isinstance(watched, CanvasROI):
+            roiItem:CanvasROI = watched
+            if event0.type() == QEvent.Type.GraphicsSceneMouseMove:
+                event:QGraphicsSceneMouseEvent = event0
+                self.roiMgr.mouseMoveHandle(roiItem, event)
+            elif event0.type() == QEvent.Type.GraphicsSceneMousePress:
+                event:QGraphicsSceneMouseEvent = event0
+                self.roiMgr.mousePressHandle(roiItem, event)
+            elif event0.type() == QEvent.Type.GraphicsSceneMouseRelease:
+                event:QGraphicsSceneMouseEvent = event0
+                self.roiMgr.mouseReleaseHandle(roiItem, event)
+        return super().sceneEventFilter(watched, event0)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         self.oldPos = self.pos()
