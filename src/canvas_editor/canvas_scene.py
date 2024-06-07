@@ -106,14 +106,14 @@ class CanvasScene(QGraphicsScene):
         finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]))
         pathItem1 = CanvasCommonPathItem(None, False)
         pathItem1.polygon = QPolygonF(finalPoints)
-        pathItem1.completeDraw()
         self.__startDraw(pathItem1)
+        pathItem1.completeDraw()
 
         pathItem2 = CanvasCommonPathItem(None, True)
         pathItem2.polygon = QPolygonF(finalPoints)
+        self.__startDraw(pathItem2)
         pathItem2.completeDraw()
         pathItem2.moveBy(300, 0)
-        self.__startDraw(pathItem2)
 
         pathItem3 = CanvasEditablePath(None, False)
         pathItem3.addPoint(QPointF(-100, -100), Qt.PointingHandCursor)

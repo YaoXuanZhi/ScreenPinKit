@@ -802,7 +802,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         super().__init__(parent)
         self.__initEditMode()
         self.isClosePath = isClosePath
-        self.setEditableState(False)
+        self.setAcceptHoverEvents(True)
 
         self.attachPath = QPainterPath()
         self.polygon = QPolygonF()
