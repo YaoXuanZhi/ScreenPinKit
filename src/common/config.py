@@ -147,6 +147,8 @@ class Config(QConfig):
         "NumberMarkerItemToolbar", "penColor", Qt.GlobalColor.gray)
     numberMarkerItemToolbarPenStyle = OptionsConfigItem(
         "NumberMarkerItemToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+    numberMarkerItemToolbarBrushColor = ColorConfigItem(
+        "NumberMarkerItemToolbar", "brushColor", Qt.GlobalColor.transparent)
 
     @property
     def numberMarkerItemToolbarFont(self):

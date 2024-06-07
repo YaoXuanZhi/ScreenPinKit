@@ -23,12 +23,14 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             "penColor" : QColor(Qt.GlobalColor.red),
             "penWidth" : 2,
             "penStyle" : Qt.PenStyle.SolidLine,
+            "brushColor" : QColor(Qt.GlobalColor.red),
         }
 
         self.usePen = QPen()
         self.usePen.setWidth(styleMap["penWidth"])
         self.usePen.setColor(styleMap["penColor"])
         self.usePen.setStyle(styleMap["penStyle"])
+        self.useBrushColor = styleMap["brushColor"]
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
@@ -47,6 +49,9 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         self.usePen.setColor(penColor)
         self.usePen.setWidth(penWidth)
         self.usePen.setStyle(penStyle)
+
+        self.useBrushColor = styleMap["brushColor"]
+
         self.update()
 
     def resetStyle(self, styleMap):
@@ -62,7 +67,7 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         textColor = styleMap["textColor"]
 
         painter.save()
-        painter.setBrush(Qt.NoBrush)
+        painter.setBrush(self.useBrushColor)
         painter.setPen(self.usePen)
         painter.drawEllipse(self.boundingRect())
 

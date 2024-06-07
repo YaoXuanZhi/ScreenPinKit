@@ -42,7 +42,8 @@ TEMPLATE_CONFIG = '''
         "penStyle": 1,
         "penWidth": 2,
         "fontFamily": "Microsoft YaHei",
-        "textColor": "#ffffffff"
+        "textColor": "#ffffffff",
+        "brushColor": "#ffff0000",
     },
     "PenToolbar": {
         "penColor": "#ffff0000",

@@ -18,6 +18,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
             "penColor" : cfg.get(cfg.numberMarkerItemToolbarPenColor),
             "penWidth" : cfg.get(cfg.numberMarkerItemToolbarPenWidth),
             "penStyle" : cfg.get(cfg.numberMarkerItemToolbarPenStyle),
+            "brushColor" : cfg.get(cfg.numberMarkerItemToolbarBrushColor),
         }
 
         self.penStyleInfos = [
@@ -27,6 +28,8 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
     def initUI(self):
         self.penStyleComBox, self.penColorPickerButton = self.initPenOptionUI()
+        self.addSeparator()
+        self.brushColorPickerButton = self.initColorOptionUI(self.tr("Brush"), self.styleMap["brushColor"])
         self.addSeparator()
         self.textColorPickerButton = self.initColorOptionUI(self.tr("Text color"), self.styleMap["textColor"])
         self.fontPickerButton = self.initFontOptionUI(self.tr("Font"), self.styleMap["font"])
@@ -75,6 +78,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
     def listenerEvent(self):
         self.penColorPickerButton.colorChanged.connect(self.penColorChangedHandle)
+        self.brushColorPickerButton.colorChanged.connect(self.brushColorChangedHandle)
         self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
         self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
@@ -86,6 +90,10 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
     def penColorChangedHandle(self, color:QColor):
         self.styleMap["penColor"] = color
+        self.refreshAttachItem()
+
+    def brushColorChangedHandle(self, color:QColor):
+        self.styleMap["brushColor"] = color
         self.refreshAttachItem()
 
     def initPenOptionUI(self):

@@ -497,6 +497,10 @@
         <translation>画笔</translation>
     </message>
     <message>
+        <source>Brush</source>
+        <translation>笔刷</translation>
+    </message>
+    <message>
         <source>Pen color</source>
         <translation>画笔颜色</translation>
     </message>
