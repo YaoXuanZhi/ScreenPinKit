@@ -11,6 +11,7 @@ class CanvasView(QGraphicsView):
         self.initUI()
 
     def initUI(self):
+        self.setMinimumSize(QSize(1, 1))
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.scene_width, self.scene_height = self.frameSize().width(), self.frameSize().height()
