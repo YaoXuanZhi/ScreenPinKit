@@ -133,11 +133,19 @@ class ToolbarInterface(QWidget):
             ],
             parent=numberMarkerItemToolbarGroup
         )
+        numberMarkerItemToolbarBrushColorCard = ColorSettingCard(
+            cfg.numberMarkerItemToolbarBrushColor,
+            ScreenShotIcon.BRUSH,
+            self.tr("Brush color"),
+            parent=numberMarkerItemToolbarGroup,
+            enableAlpha=True
+        )
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarFontCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarTextColorCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenWidthCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenColorCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenStyleCard)
+        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarBrushColorCard)
 
         numberMarkerItemToolbarFontCard.clicked.connect(self.__onNumberMarkerItemToolbarFontCardClicked)
         return numberMarkerItemToolbarGroup
