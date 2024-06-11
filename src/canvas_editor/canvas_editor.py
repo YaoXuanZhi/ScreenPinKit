@@ -3,6 +3,7 @@ from canvas_item.canvas_util import CanvasROIManager
 from .canvas_scene import CanvasScene, DrawActionEnum
 from .canvas_view import CanvasView
 from .canvas_commands import *
+import gc
 
 class CanvasEditor(QWidget):
     '''
@@ -54,6 +55,7 @@ class CanvasEditor(QWidget):
                 roiMgr.setShowState(False)
 
             item.setSelected(False)
+        gc.collect()
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum):
         if self.scene.currentDrawActionEnum == drawActionEnum:
