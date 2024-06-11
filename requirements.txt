@@ -3,3 +3,5 @@ scipy
 pillow<=9.4.0
 PyQt-Fluent-Widgets
 system_hotkey
+pygetwindow
+opencv-python

@@ -1,7 +1,6 @@
 import os, sys, subprocess, json, codecs
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 from PyQt5.QtCore import *
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from datetime import datetime
