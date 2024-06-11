@@ -13,9 +13,9 @@ class MainWindow(QWidget):
         self.screenPaintWindow = None
         self.initSystemTrayMenu()
         self.initHotKey()
-        self.initFreezeManager()
+        self.initPinWindowManager()
 
-    def initFreezeManager(self):
+    def initPinWindowManager(self):
         self.pinWindowMgr = PinWindowManager()
 
     def initSystemTrayMenu(self):
@@ -103,7 +103,7 @@ def main():
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)
 
-    wnd = MainWindow()
+    MainWindow()
 
     sys.exit(app.exec_())
 
