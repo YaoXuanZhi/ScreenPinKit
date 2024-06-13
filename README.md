@@ -59,6 +59,7 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 
 ## 打包单文件
 ```sh
+# Windows Defender可能会报毒，忽略即可打包出来
 pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinKit
 ```
 

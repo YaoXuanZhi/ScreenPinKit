@@ -1,0 +1,18 @@
+@startuml
+
+frame PainterInterface{
+    component PainterToolbarManager
+}
+
+frame MainWindow {
+    component KeyboardEx
+    frame ScreenShotWindow
+    frame ScreenPaintWindow
+    frame SettingWindow
+    component PinWindowManager {
+        frame PinEditorWindow
+    }
+}
+
+ScreenPaintWindow <-- PainterInterface
+PinEditorWindow <-- PainterInterface

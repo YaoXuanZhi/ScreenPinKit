@@ -11,24 +11,24 @@
   当然，在这个过程中，也留意到有个PixPin应用，该作者的开发动机同本人蛮接近的，经过一番调研后发现，他想做的东西无疑更大更全，而我只是想要个自用的称手工具而已，很多高级特性根本用不上，因此本项目就继续推进了
 - ## 功能特点
 	- 截图
-		- 选区截图，类似snipaste
-		- 多屏幕截图支持，类似snipaste
+		- DONE 选区截图，类似snipaste
+		- DONE 多屏幕截图支持，类似snipaste
 		- 自识别选区截图，类似snipaste
 		- 滚动截图，参考[Jamscreenshot](https://github.com/fandesfyf/Jamscreenshot)
 	- 贴图
-		- 将截图钉到屏幕上，类似snipaste
-		- 贴图闪屏效果支持
-		- 鼠标穿透支持
-	- 通用白板绘图（`截图标注`、`桌面标注`），考虑编写一个PyQt版本的通用绘图库，整体操作参考excalidraw的操作习惯，对svg支持友好
-		- 矩形
-		- 椭圆
-		- 文本
-		- 线条（含贝塞尔线条、折线）
-		- 橡皮擦
-		- 箭头
+		- DONE 将截图钉到屏幕上，类似snipaste
+		- DONE 贴图闪屏效果支持
+		- DONE 鼠标穿透支持
+	- DONE 通用白板绘图（`截图标注`、`桌面标注`），考虑编写一个PyQt版本的通用绘图库，整体操作参考excalidraw的操作习惯，对svg支持友好
+		- DONE 矩形
+		- DONE 椭圆
+		- DONE 文本
+		- DONE 线条（含贝塞尔线条、折线）
+		- DONE 橡皮擦
+		- DONE 箭头
 	- OCR&翻译
-	- 快捷键自定义
-	- 多语言支持
+	- DONE 快捷键自定义
+	- DONE 多语言支持
 	- 笔锋笔形支持
 		- [Qt 实现钢笔画线效果详细原理_qt 钢笔工具-CSDN博客](https://blog.csdn.net/luoyayun361/article/details/104340258)
 		- [Qt 实现画线笔锋效果详细原理_qt 划线-CSDN博客](https://blog.csdn.net/luoyayun361/article/details/104312253)
