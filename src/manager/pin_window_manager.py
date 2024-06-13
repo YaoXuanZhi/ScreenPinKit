@@ -54,7 +54,8 @@ class PinWindowManager():
             pinWnd.switchMouseThroughState()
         else:
             for wnd in self._windows:
-                wnd.setMouseThroughState(False)
+                if wnd != None:
+                    wnd.setMouseThroughState(False)
 
     def snip(self, screenPoint:QPoint, realSize:QSize, pixmap:QPixmap):
         self.clearScreenImages()
