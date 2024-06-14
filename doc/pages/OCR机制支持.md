@@ -3,3 +3,10 @@
 	- 用PaddleOCR、CnOCR来将文本识别出来，获得它的识别出来的文本框顶点坐标，然后每建立一个QGraphicsTextItem的时候，都针对这个Rect来测算它的合适字体，并且未选中的时候，让这个文本框是透明显示的，直到选中文本框才会显示出来
 - ### 遗留问题
 	- 目前还没有想到比较好的思路来实现一个类似微信图片OCR那样的文本选中功能，这块PixPin作者已经复刻过了
+	- 一个开源方案 https://github.com/ocrmypdf/OCRmyPDF
+		- [Windows下的安装教程](https://ocrmypdf.readthedocs.io/en/latest/installation.html#native-windows)
+			- https://www.cnblogs.com/edisp/p/16667455.html
+		- `ocrmypdf -l eng --rotate-pages --deskew --title "My PDF" --jobs 4 --output-type pdfa rotated_skew.pdf rotated_skew_ocr.pdf`
+			- 用这个命令，可以为官方tests示例添加上文本操作层，效果正是我想要的，先记下来，以后工作之余去分析它
+		- https://github.com/YaoXuanZhi/OCRmyPDF/tree/learn
+			- 已经搭建好了分析OcrMyPdf的调试运行环境了，后面有时间再进一步去分析学习
