@@ -25,6 +25,8 @@ class BubbleTipTailPosition(Enum):
     RIGHT_BOTTOM = 11
     NONE = 12
     AUTO = 13
+    TOP_LEFT_AUTO = 14
+    BOTTOM_LEFT_AUTO = 15
 
 class BubbleTipContent(QWidget):
     """ Bubble tip content """
@@ -239,6 +241,8 @@ class BubbleTipManager(QObject):
             BubbleTipTailPosition.RIGHT_TOP: RightTopTailBubbleTipManager,
             BubbleTipTailPosition.RIGHT_BOTTOM: RightBottomTailBubbleTipManager,
             BubbleTipTailPosition.AUTO: AutoTailBubbleTipManager,
+            BubbleTipTailPosition.TOP_LEFT_AUTO: TopLeftAutoTailBubbleTipManager,
+            BubbleTipTailPosition.BOTTOM_LEFT_AUTO: BottomLeftAutoTailBubbleTipManager,
             BubbleTipTailPosition.NONE: BubbleTipManager,
         }
 
@@ -300,6 +304,10 @@ class TopTailBubbleTipManager(BubbleTipManager):
 class BottomTailBubbleTipManager(BubbleTipManager):
     """ Bottom tail teaching tip manager """
 
+    def __init__(self):
+        super().__init__()
+        self._isCorrectedBound = False
+
     def doLayout(self, tip: BubbleTipContent):
         tip.hBoxLayout.setContentsMargins(0, 0, 0, tip.orientLength)
 
@@ -320,6 +328,24 @@ class BottomTailBubbleTipManager(BubbleTipManager):
         x = pos.x() + target.width()//2 - tip.sizeHint().width()//2
         y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom()
         return QPoint(x, y)
+
+    def tryCorrectBound(self, tip: BubbleTip):
+        minPosY = 0
+
+        target = tip.target
+
+        pos = target.mapToGlobal(QPoint())
+        y = pos.y() - tip.sizeHint().height() + tip.layout().contentsMargins().bottom() - tip.layout().contentsMargins().top()
+
+        self._isCorrectedBound = y < minPosY
+        if self._isCorrectedBound:
+            pos = target.mapToGlobal(QPoint(0, target.height()))
+            y = pos.y() - tip.layout().contentsMargins().top()
+
+        return y
+
+    def isCorrectedBound(self):
+        return self._isCorrectedBound
 
 class LeftTailBubbleTipManager(BubbleTipManager):
     """ Left tail teaching tip manager """
@@ -370,6 +396,27 @@ class RightTailBubbleTipManager(BubbleTipManager):
         pos = target.mapToGlobal(QPoint(0, 0))
         x = pos.x() - tip.sizeHint().width() + m.right()
         y = pos.y() - tip.view.sizeHint().height()//2 + target.height()//2 - m.top()
+        return QPoint(x, y)
+
+class TopLeftAutoTailBubbleTipManager(TopTailBubbleTipManager):
+    """ Top left tail teaching tip manager """
+
+    def draw(self, tip: BubbleTipContent, painter:QPainter):
+        w, h = tip.width(), tip.height()
+        pt = tip.hBoxLayout.contentsMargins().top()
+
+        path = QPainterPath()
+        path.addRoundedRect(1, pt, w - 2, h - pt - 1, 8, 8)
+        path.addPolygon(
+            QPolygonF([QPointF(20, pt), QPointF(27, 1), QPointF(34, pt)]))
+
+        painter.drawPath(path.simplified())
+
+    def _pos(self, tip: BubbleTip):
+        target = tip.target
+        pos = target.mapToGlobal(QPoint(0, target.height()))
+        x = pos.x() - tip.layout().contentsMargins().left()
+        y = self.tryCorrectBound(tip)
         return QPoint(x, y)
 
 
@@ -436,6 +483,27 @@ class AutoTailBubbleTipManager(TopTailBubbleTipManager):
         x = point.x()
         y = self.tryCorrectBound(tip)
 
+        return QPoint(x, y)
+
+class BottomLeftAutoTailBubbleTipManager(BottomTailBubbleTipManager):
+    """ Bottom left tail teaching tip manager """
+
+    def draw(self, tip: BubbleTipContent, painter: QPainter):
+        w, h = tip.width(), tip.height()
+        pb = tip.hBoxLayout.contentsMargins().bottom()
+
+        path = QPainterPath()
+        path.addRoundedRect(1, 1, w - 2, h - pb - 1, 8, 8)
+        path.addPolygon(
+            QPolygonF([QPointF(20, h - pb), QPointF(27, h - 1), QPointF(34, h - pb)]))
+
+        painter.drawPath(path.simplified())
+
+    def _pos(self, tip: BubbleTip):
+        target = tip.target
+        pos = target.mapToGlobal(QPoint())
+        x = pos.x() - tip.layout().contentsMargins().left()
+        y = self.tryCorrectBound(tip)
         return QPoint(x, y)
 
 class BottomLeftTailBubbleTipManager(BottomTailBubbleTipManager):

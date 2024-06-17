@@ -125,9 +125,10 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar = MarkerPenToolbar(parent=self.targetWidget)
 
         parent:BubbleTip = self.parent()
-        finalTailPosition = BubbleTipTailPosition.TOP_LEFT
+        finalTailPosition = BubbleTipTailPosition.TOP_LEFT_AUTO
         if parent.manager.isCorrectedBound():
-            finalTailPosition = BubbleTipTailPosition.BOTTOM_LEFT
+            finalTailPosition = BubbleTipTailPosition.BOTTOM_LEFT_AUTO
+
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
