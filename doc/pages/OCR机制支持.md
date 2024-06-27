@@ -10,3 +10,9 @@
 			- 用这个命令，可以为官方tests示例添加上文本操作层，效果正是我想要的，先记下来，以后工作之余去分析它
 		- https://github.com/YaoXuanZhi/OCRmyPDF/tree/learn
 			- 已经搭建好了分析OcrMyPdf的调试运行环境了，后面有时间再进一步去分析学习
+		- 开源的Pdf查看器
+			- https://github.com/turgu1/uPDF2
+			- https://github.com/JakubMelka/PDF4QT
+				- `Pdf4QtLibWidgets\sources\pdftexteditpseudowidget.cpp`
+				- `uPDF2\src\pdfviewer.cpp`
+				- 这个源文件包含了一个PDF文本选择功能
