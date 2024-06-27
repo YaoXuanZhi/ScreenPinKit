@@ -45,7 +45,9 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         font:QFont = self.styleMap["font"]
         textColor:QColor = self.styleMap["textColor"]
         penColor:QColor = self.styleMap["penColor"]
+        brushColor:QColor = self.styleMap["brushColor"]
         self.penColorPickerButton.setColor(penColor)
+        self.brushColorPickerButton.setColor(brushColor)
         self.textColorPickerButton.setColor(textColor)
         self.fontPickerButton.setTargetFont(font)
         self.opacitySlider.setValue(self.opacity)

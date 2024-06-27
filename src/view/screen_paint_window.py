@@ -52,6 +52,7 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
             return
         self.canvasEditor.initDrawLayer()
         self.canvasEditor.showCommandBar()
+        self.canvasEditor.selectItemAction.trigger()
 
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()
