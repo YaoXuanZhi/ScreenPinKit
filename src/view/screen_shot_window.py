@@ -61,6 +61,13 @@ class ScreenShotWindow(QWidget):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
+
+        self.delayTimer = QTimer(self)
+        self.delayTimer.timeout.connect(self.onDelayClose)
+        self.delayTimer.start(50)
+
+    def onDelayClose(self):
+        self.delayTimer.stop()
         self.clearScreenShot(False)
         self.close()
 
