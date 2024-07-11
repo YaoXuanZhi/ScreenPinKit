@@ -248,8 +248,7 @@ class PainterInterface(QWidget):
             self.drawWidget.clearDraw()
 
     def focusInEvent(self, event:QFocusEvent) -> None:
-        self.parentWidget().focused = True
-        self.parentWidget().update()
+        self.parentWidget().focusInEvent(event)
 
     def focusOutEvent(self, event:QFocusEvent) -> None:
         # 获取鼠标居于屏幕上的位置点
@@ -266,8 +265,7 @@ class PainterInterface(QWidget):
 
         # 经测试发现，焦点非常容易变化，但是我们在绘图区和工具区的操作引起的焦点丢失得屏蔽掉
         if not region.contains(pos):
-            self.parentWidget().focused = False
-            self.parentWidget().update()
+            self.parentWidget().focusOutEvent(event)
 
     def clearDrawFlag(self):
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
