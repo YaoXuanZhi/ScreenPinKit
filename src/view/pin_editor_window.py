@@ -16,7 +16,7 @@ class PinEditorWindow(PinWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent, screenPoint, physicalSize, physicalPixmap, closeCallback)
         self.contentLayout = QVBoxLayout(self)
-        self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
+        self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
         self.painterWidget = PainterInterface(self, physicalPixmap)
         self.contentLayout.addWidget(self.painterWidget)
@@ -132,7 +132,7 @@ class PinEditorWindow(PinWindow):
         # https://stackoverflow.com/questions/44287407/text-erased-from-screenshot-after-using-clipboard-getimage-on-windows-10/46400011#46400011
 
         if cfg.get(cfg.windowShadowStyleIsCopyWithShadow):
-            finalPixmap = self.grab()
+            finalPixmap = self.grabWithShaodw()
         else:
             finalPixmap = self.painterWidget.getFinalPixmap()
         QApplication.clipboard().setPixmap(finalPixmap)
@@ -151,7 +151,7 @@ class PinEditorWindow(PinWindow):
         savePath, _ = QFileDialog.getSaveFileName(self, "Save File", finalPath, "PNG(*.png)")
         if savePath != None:
             if cfg.get(cfg.windowShadowStyleIsSaveWithShadow):
-                finalPixmap = self.grab()
+                finalPixmap = self.grabWithShaodw()
             else:
                 finalPixmap = self.painterWidget.getFinalPixmap()
             finalPixmap.save(savePath, "png")
@@ -185,3 +185,9 @@ class PinEditorWindow(PinWindow):
             if self.painterWidget.tryQuitDraw():
                 self.close()
         super().keyPressEvent(event)
+
+    def setMouseThroughState(self, isThrough: bool):
+        self.painterWidget.completeDraw()
+        self.painterWidget.clearFocus()
+        self.focusOutEvent(QFocusEvent(QEvent.Type.FocusOut, Qt.FocusReason.NoFocusReason))
+        return super().setMouseThroughState(isThrough)
