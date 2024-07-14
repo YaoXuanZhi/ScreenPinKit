@@ -17,22 +17,22 @@ class PinWindow(DragWindow):
         self.defaultFlag()
 
         self.closeCallback = closeCallback
-        self.isUseRoundStyle = False
         self.painter = QPainter()
 
         self.show()
         self.shadowWindow = ShadowWindow(self.roundRadius, self.shadowWidth, self)
 
-    def defaultFlag(self):
+    def defaultFlag(self) -> None:
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
 
-    def setRoundStyle(self, isUse:bool):
-        self.isUseRoundStyle = isUse
-        self.shadowWindow.setRoundStyle(isUse)
+    def setRoundRadius(self, value):
+        self.shadowWindow.setRoundRadius(value)
+        self.roundRadius = value
+        self.update()
 
     def setShadowColor(self, focusColor:QColor, unFocusColor:QColor):
         self.shadowWindow.setShadowColor(focusColor, unFocusColor)
@@ -49,7 +49,7 @@ class PinWindow(DragWindow):
         self.painter.begin(self)
         self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
 
-        if self.isUseRoundStyle:
+        if self.roundRadius > 0:
             clipPath = QPainterPath()
             clipPath.addRoundedRect(QRectF(self.rect()), self.roundRadius, self.roundRadius)
             self.painter.setClipPath(clipPath)

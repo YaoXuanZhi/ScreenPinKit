@@ -27,7 +27,6 @@ class PinEditorWindow(PinWindow):
         self.painterWidget.initDrawLayer()
         self.painterWidget.drawWidget.setEditorEnabled(False)
 
-        self.setRoundStyle(cfg.get(cfg.windowShadowStyleUseRoundStyle))
         self.setShadowColor(cfg.get(cfg.windowShadowStyleFocusColor), cfg.get(cfg.windowShadowStyleUnFocusColor))
 
         self.initActions()
@@ -44,6 +43,10 @@ class PinEditorWindow(PinWindow):
         ])
         menu.view.setIconSize(QSize(20, 20))
         menu.exec(event.globalPos())
+
+    def defaultFlag(self) -> None:
+        super().defaultFlag()
+        self.roundRadius = cfg.get(cfg.windowShadowStyleRoundRadius)
 
     def showCommandBar(self):
         self.painterWidget.showCommandBar()
@@ -62,6 +65,15 @@ class PinEditorWindow(PinWindow):
 
         self.ocrStartSignal.connect(self.onOcrStart)
         self.ocrEndSignal.connect(self.onOcrEnd)
+        self.shadowWindow.blinkStopSignal.connect(self.onBlinkStop)
+        cfg.windowShadowStyleRoundRadius.valueChanged.connect(self.setRoundRadius)
+        cfg.windowShadowStyleUnFocusColor.valueChanged.connect(self.refreshShadowColor)
+        cfg.windowShadowStyleFocusColor.valueChanged.connect(self.refreshShadowColor)
+
+    def refreshShadowColor(self, _):
+        focusColor = cfg.get(cfg.windowShadowStyleFocusColor)
+        unFocusColor = cfg.get(cfg.windowShadowStyleUnFocusColor)
+        self.setShadowColor(focusColor, unFocusColor)
 
     def completeDraw(self):
         self.painterWidget.completeDraw()
@@ -126,6 +138,9 @@ class PinEditorWindow(PinWindow):
             self.ocrThread.quit()
             self.ocrThread = None
 
+    def onBlinkStop(self):
+        self.activateWindow()
+
     def copyToClipboard(self):
         # 因为Windows下剪贴板不支持透明度，其会将Image里的alpha值用255直接进行填充，相关讨论可以看下面这两个链接
         # https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency/46424800#46424800
@@ -178,6 +193,9 @@ class PinEditorWindow(PinWindow):
 
     def closeEvent(self, event) -> None:
         self.painterWidget.close()
+        cfg.windowShadowStyleRoundRadius.valueChanged.disconnect(self.setRoundRadius)
+        cfg.windowShadowStyleUnFocusColor.valueChanged.disconnect(self.refreshShadowColor)
+        cfg.windowShadowStyleFocusColor.valueChanged.disconnect(self.refreshShadowColor)
         super().closeEvent(event)
 
     def keyPressEvent(self, event) -> None:

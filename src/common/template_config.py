@@ -71,9 +71,9 @@ TEMPLATE_CONFIG = '''
     },
     "WindowShadowStyle": {
         "focusColor": "#00ff00ff",
+        "unFocusColor": "#007d7d7d",
         "isCopyWithShadow": false,
         "isSaveWithShadow": false,
-        "unFocusColor": "#007d7d7d",
-        "useRoundStyle": true
+        "roundRadius": 10
     }
 }'''
