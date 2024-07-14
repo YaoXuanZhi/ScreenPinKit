@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 from .mouse_through_window import *
 
 class ShadowWindow(MouseThroughWindow):
+    blinkStopSignal = pyqtSignal()
     def __init__(self, roundRadius:int, shadowWidth:float, parent:QWidget):
         super(ShadowWindow, self).__init__(parent)
         self.attachParent = parent
@@ -15,7 +16,6 @@ class ShadowWindow(MouseThroughWindow):
         self.unFocusColor = QColor(125, 125, 125, 50)
         self.focusColor = QColor(255, 0, 255, 50)
         self.focused = False
-        self.isUseRoundStyle = False
 
         # 根据吸附的窗口大小设置阴影窗口大小
         self.margins = QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
@@ -65,10 +65,10 @@ class ShadowWindow(MouseThroughWindow):
             self.blinkTimer.stop()
             self.blinkColor = None
             self.update()
-            self.activateWindow()
+            self.blinkStopSignal.emit()
 
-    def setRoundStyle(self, isUse:bool):
-        self.isUseRoundStyle = isUse
+    def setRoundRadius(self, value):
+        self.roundRadius = value
         self.update()
 
     def setShadowColor(self, focusColor:QColor, unFocusColor:QColor):
@@ -101,7 +101,7 @@ class ShadowWindow(MouseThroughWindow):
             i_path = QPainterPath()
             i_path.setFillRule(Qt.WindingFill)
             ref = QRectF(self.shadowWidth-i, self.shadowWidth-i, self.width()-(self.shadowWidth-i)*2, self.height()-(self.shadowWidth-i)*2)
-            if self.isUseRoundStyle:
+            if self.roundRadius > 0:
                 i_path.addRoundedRect(ref, self.roundRadius, self.roundRadius)
             else:
                 i_path.addRect(ref)
@@ -117,7 +117,7 @@ class ShadowWindow(MouseThroughWindow):
             self.painter.setPen(blinkPen)
             rect = QRect(0, 0, self.width(), self.height())
             rect = rect - self.margins
-            if self.isUseRoundStyle:
+            if self.roundRadius > 0:
                 self.painter.drawRoundedRect(rect, self.roundRadius, self.roundRadius)
             else:
                 self.painter.drawRect(rect)

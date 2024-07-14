@@ -85,11 +85,14 @@ class SettingInterface(ScrollArea):
             self.tr("Unfocus color"),
             parent=self.windowShadowStyleGroup,
         )
-        self.windowShadowStyleUseRoundStyleCard = SwitchSettingCard(
+        self.windowShadowStyleUseRoundStyleCard = OptionsSettingCard(
+            cfg.windowShadowStyleRoundRadius,
             ScreenShotIcon.ROUNDED_CORNER,
             self.tr('Use round style'),
             None,
-            configItem=cfg.windowShadowStyleUseRoundStyle,
+            texts=[
+                "0", "5", "10", "15", "20"
+            ],
             parent=self.windowShadowStyleGroup
         )
         self.windowShadowStyleIsSaveWithShadowCard = SwitchSettingCard(

@@ -71,8 +71,8 @@ class Config(QConfig):
         "WindowShadowStyle", "focusColor", Qt.GlobalColor.blue)
     windowShadowStyleUnFocusColor = ColorConfigItem(
         "WindowShadowStyle", "unFocusColor", Qt.GlobalColor.gray)
-    windowShadowStyleUseRoundStyle = ConfigItem(
-        "WindowShadowStyle", "useRoundStyle", False, BoolValidator())
+    windowShadowStyleRoundRadius = OptionsConfigItem(
+        "WindowShadowStyle", "roundRadius", 10, OptionsValidator([0, 5, 10, 15, 20]))
     windowShadowStyleIsSaveWithShadow = ConfigItem(
         "WindowShadowStyle", "isSaveWithShadow", False, BoolValidator())
     windowShadowStyleIsCopyWithShadow = ConfigItem(
