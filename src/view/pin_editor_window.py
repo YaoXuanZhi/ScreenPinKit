@@ -118,16 +118,21 @@ class PinEditorWindow(PinWindow):
             self.stateTooltip.setContent('OCR识别已结束')
             self.stateTooltip.setState(True)
             self.stateTooltip = None
+
         drop_score = 0.5
-        for idx, (box, txt) in enumerate(zip(boxes, txts)):
-            if scores is not None and scores[idx] < drop_score:
+        dpiScale = CanvasUtil.getDevicePixelRatio()
+
+        for i in range(0, len(boxes)):
+            txt = txts[i]
+            box = boxes[i]
+            if scores is not None and scores[i] < drop_score:
                 continue
-            
-            box = np.reshape(np.array(box), [-1, 1, 2]).astype(np.int64)
 
             polygon = QPolygonF()
-            for tuple in box:
-                finalPosition = self.painterWidget.drawWidget.view.mapToScene(QPointF(tuple[0][0], tuple[0][1]).toPoint())
+            for position in box:
+                achorPos = QPointF(position[0] / dpiScale, position[-1] / dpiScale).toPoint()
+                # finalPosition = self.drawWidget.view.mapToScene(achorPos)
+                finalPosition = achorPos
                 polygon.append(finalPosition)
 
             textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)

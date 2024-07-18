@@ -130,7 +130,7 @@ class MainWindow(DragWindow):
             self.contentLayout.setContentsMargins(0, 0, 0, 0)
         else:
             # 计算得到高分辨率缩放下最终尺寸
-            screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+            screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
             self.physicalPixmap.setDevicePixelRatio(screenDevicePixelRatio)
             realSize:QSizeF = self.physicalPixmap.size() / screenDevicePixelRatio
 

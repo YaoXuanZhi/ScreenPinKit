@@ -5,7 +5,7 @@ from view import *
 class PinWindowManager():
     def __init__(self):
         super().__init__()
-        self.screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+        self.screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
         self._windows:list[PinWindow] = []
 
         startupImagePath, screenX, screenY = self.findScreenImagePath()
@@ -32,7 +32,7 @@ class PinWindowManager():
 
     def autoFitScreenPixelRatioForPixmap(self, pixmap:QPixmap) -> QSize:
         '''自动适配屏幕缩放比例'''
-        screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+        screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
         pixmap.setDevicePixelRatio(screenDevicePixelRatio)
         realSize = pixmap.size() / screenDevicePixelRatio
         return realSize

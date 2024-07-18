@@ -251,6 +251,10 @@ class CanvasUtil:
         return False
 
     @staticmethod
+    def getDevicePixelRatio():
+        return QApplication.primaryScreen().devicePixelRatio()
+
+    @staticmethod
     def grabScreens():
         screens = QApplication.screens()
         w = h = p = 0
@@ -266,7 +270,7 @@ class CanvasUtil:
             h = max(h, pix.height())
             screenPixs.append(pix)
 
-        devicePixelRatio = screens[0].devicePixelRatio()
+        devicePixelRatio = CanvasUtil.getDevicePixelRatio()
 
         finalPixmap = QPixmap(w, h)
         finalPixmap.setDevicePixelRatio(devicePixelRatio)

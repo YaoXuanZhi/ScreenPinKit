@@ -38,7 +38,7 @@ class PainterInterface(QWidget):
         if self.physicalPixmap != None:
             basePixmap = self.physicalPixmap.copy()
             self.sceneBrush = QBrush(basePixmap)
-            screenDevicePixelRatio = QApplication.primaryScreen().grabWindow(0).devicePixelRatio()
+            screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
             transform = QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
             self.sceneBrush.setTransform(transform)
