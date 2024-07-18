@@ -21,6 +21,7 @@ class DrawingView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
         super().__init__(scene, parent)
         self.initUI()
+        self.currentItem = None
 
         self.zoomComponent = ZoomComponent()
         # self.zoomComponent.zoomClamp = True

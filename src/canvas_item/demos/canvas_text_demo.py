@@ -96,6 +96,7 @@ class DrawingView(QGraphicsView):
 
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         # self.setDragMode(QGraphicsView.RubberBandDrag)
+        self.currentItem = None
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         item = self.itemAt(event.pos())
