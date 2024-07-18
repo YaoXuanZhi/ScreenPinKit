@@ -1,5 +1,5 @@
 # coding=utf-8
-import os, random
+import os, random, time
 from canvas_item import *
 from canvas_item.canvas_util import CanvasUtil
 
@@ -367,8 +367,14 @@ class CanvasScene(QGraphicsScene):
                 self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
                 self.currentItem.update()
             elif self.currentDrawActionEnum in [DrawActionEnum.UsePen, DrawActionEnum.UseEraser]:
-                self.currentItem.polygon.append(targetPos)
-                self.currentItem.update()
+                now = time.time()
+                # 控制拾取点的间隔
+                if not hasattr(self, "pickupLastTime"):
+                    self.pickupLastTime = now
+                if now - self.pickupLastTime > 0.02:
+                    self.pickupLastTime = now
+                    self.currentItem.polygon.append(targetPos)
+                    self.currentItem.update()
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):

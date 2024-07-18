@@ -621,7 +621,7 @@ class CanvasUtil:
 
         # 过滤掉相距太近的点
         lastPoint = None
-        for i in range(0, targetPolygon.count()):
+        for i in range(0, targetPolygon.count() - 1):
             currentPoint = targetPolygon.at(i)
             if i == 0:
                 validPoints.append(currentPoint)
@@ -631,6 +631,8 @@ class CanvasUtil:
                 if distanceRuler.length() > minDistance:
                     validPoints.append(currentPoint)
             lastPoint = currentPoint
+
+        validPoints.append(targetPolygon.at(targetPolygon.count() - 1))
 
         # 最终生成的点队列
         finalPoints = []
