@@ -40,6 +40,7 @@ class PinEditorWindow(PinWindow):
             Action(ScreenShotIcon.COPY, self.tr("Copy"), triggered=self.copyToClipboard),
             Action(ScreenShotIcon.SAVE_AS, self.tr("Save as"), triggered=self.saveToDisk),
             Action(ScreenShotIcon.CLICK_THROUGH, self.tr("Mouse through"), triggered=self.clickThrough),
+            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
         ])
         menu.view.setIconSize(QSize(20, 20))
         menu.exec(event.globalPos())
@@ -56,9 +57,7 @@ class PinEditorWindow(PinWindow):
 
     def initActions(self):
         actions = [
-            QAction(self, triggered=self.copyToClipboard, shortcut="ctrl+c"),
             QAction(self, triggered=self.saveToDisk, shortcut="ctrl+s"),
-            QAction(self, triggered=self.startOcr, shortcut="ctrl+a"),
             QAction(self, triggered=self.completeDraw, shortcut="ctrl+w"),
         ]
         self.addActions(actions)
@@ -96,6 +95,7 @@ class PinEditorWindow(PinWindow):
         self.ocrState = 0
         self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
         self.ocrThread.start()
+        # self.onExecuteOcr(self.physicalPixmap)
 
     def onExecuteOcr(self, pixmap:QPixmap):
         print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
@@ -207,6 +207,10 @@ class PinEditorWindow(PinWindow):
         if event.key() == Qt.Key_Escape:
             if self.painterWidget.tryQuitDraw():
                 self.close()
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
+            self.copyToClipboard()
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+            self.startOcr()
         super().keyPressEvent(event)
 
     def setMouseThroughState(self, isThrough: bool):

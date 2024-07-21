@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from datetime import datetime
 try:
-    from paddleocr import PaddleOCR
-    import paddleocr.tools.infer.utility as utility
+    # from paddleocr import PaddleOCR
+    # import paddleocr.tools.infer.utility as utility
     IsSupportOcr = True
 except ImportError:
     IsSupportOcr = False
@@ -16,21 +16,19 @@ from PIL import Image
 import numpy as np
 
 class OcrService(QObject):
-    wechat_ocr_dir = "C:/Users/Administrator/AppData/Roaming/Tencent/WeChat/XPlugin/Plugins/WeChatOCR/7079/extracted/WeChatOCR.exe"
-    wechat_dir = "D:/Program Files/Tencent/WeChat/[3.9.10.19]"
-
     def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
 
         try:
-            args = utility.parse_args()
-            self.ocrModel = PaddleOCR(
-                det_model_dir=args.det_model_dir, 
-                rec_model_dir=args.rec_model_dir, 
-                cls_model_dir=args.cls_model_dir, 
-                rec_char_dict_path=args.rec_char_dict_path,
-                use_angle_cls=True
-                )
+            # args = utility.parse_args()
+            # self.ocrModel = PaddleOCR(
+            #     det_model_dir=args.det_model_dir, 
+            #     rec_model_dir=args.rec_model_dir, 
+            #     cls_model_dir=args.cls_model_dir, 
+            #     rec_char_dict_path=args.rec_char_dict_path,
+            #     use_angle_cls=True
+            #     )
+            self.ocrModel = 1
         except Exception:
             self.ocrModel = None
 
