@@ -124,6 +124,9 @@ class PainterToolBarManager(QObject):
             elif drawActionEnum == DrawActionEnum.UseMarkerPen:
                 self.canvasItemBar = MarkerPenToolbar(parent=self.targetWidget)
 
+        if self.canvasItemBar == None:
+            return
+
         parent:BubbleTip = self.parent()
         finalTailPosition = BubbleTipTailPosition.TOP_LEFT_AUTO
         if parent.manager.isCorrectedBound():
