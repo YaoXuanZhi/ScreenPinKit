@@ -79,16 +79,9 @@ class MainWindow(QWidget):
         sys.exit(0)
 
 def main():
-    # enable dpi scale
-    if cfg.get(cfg.dpiScale) == "Auto":
-        QApplication.setHighDpiScaleFactorRoundingPolicy(
-            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    else:
-        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-        os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))
-
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+    appDpiHelper = AppDpiHelper()
+    if not appDpiHelper.tryApplyDpiConfig():
+        return
 
     # create application
     app = QApplication(sys.argv)
@@ -105,7 +98,7 @@ def main():
 
     MainWindow()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == '__main__':
     main()
