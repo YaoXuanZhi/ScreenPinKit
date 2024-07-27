@@ -20,7 +20,7 @@ class ScreenShotWindow(QWidget):
         super().__init__()
         self.defaultFlag()
 
-        self.isUseHexColor = False
+        self.showColorMode = 0 # 0：Hex 1：RGB 2：HSV
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
         self.initPainterTool()
@@ -189,10 +189,14 @@ class ScreenShotWindow(QWidget):
         self.painter.drawRect(labelRectF)
 
     def getScreenColorStr(self):
-        if self.isUseHexColor:
+        if self.showColorMode == 0:
             return f"hex:{self.screenColor.name()}"
-        else:
-            return f"rgb:({self.screenColor.red()}, {self.screenColor.green()}, {self.screenColor.blue()})"
+        elif self.showColorMode == 1:
+            red, green, blue, _alpha = self.screenColor.getRgb()
+            return f"rgb:({red}, {green}, {blue})"
+        elif self.showColorMode == 2:
+            hue, saturation, value, _alpha = self.screenColor.getHsv()
+            return f"hsv: ({hue}, {saturation}, {value})"
 
     def paintCenterArea(self):
         (rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid) = self.getCenterInfos()
@@ -494,6 +498,11 @@ class ScreenShotWindow(QWidget):
 
     def keyPressEvent(self, event: QKeyEvent):
         if int(event.modifiers()) == Qt.Modifier.SHIFT:
-            self.isUseHexColor = not self.isUseHexColor
+            self.switchColorMode()
             self.update()
         super().keyPressEvent(event)
+
+    def switchColorMode(self):
+        self.showColorMode += 1
+        if self.showColorMode > 2:
+            self.showColorMode = 0
