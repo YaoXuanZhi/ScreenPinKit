@@ -44,16 +44,16 @@ class AppDpiHelper():
         '''尝试应用Dpi配置'''
 
         if "--debug" in sys.argv:
-            # os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-            # os.environ["QT_SCALE_FACTOR"] = "1.25"
+            os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+            os.environ["QT_SCALE_FACTOR"] = "1.25"
 
-            # enable dpi scale
-            # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
-            # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
-            QApplication.setHighDpiScaleFactorRoundingPolicy(
-                Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-            QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+            # # enable dpi scale
+            # # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
+            # # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
+            # QApplication.setHighDpiScaleFactorRoundingPolicy(
+            #     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+            # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+            # QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
             return True
         elif "--restarted" in sys.argv:

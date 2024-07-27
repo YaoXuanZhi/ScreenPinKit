@@ -60,6 +60,8 @@ class ScreenShotWindow(QWidget):
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
+            cropImage = cropPixmap.toImage().convertToFormat(QImage.Format.Format_RGB888)
+            cropPixmap = QPixmap.fromImage(cropImage)
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
 
         self.delayTimer = QTimer(self)
