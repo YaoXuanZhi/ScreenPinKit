@@ -1,10 +1,10 @@
 import os, sys, subprocess, json, codecs
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 from PyQt5.QtCore import *
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from datetime import datetime
+import hashlib
+
 try:
     # from paddleocr import PaddleOCR
     # import paddleocr.tools.infer.utility as utility
@@ -32,6 +32,36 @@ class OcrService(QObject):
         except Exception:
             self.ocrModel = None
 
+    def calculateHashForQPixmap(self, pixmap:QPixmap, cutLength=0, hashAlgorithm="sha256"):
+        '''计算QPixmap的哈希值，根据需要可以截取对应哈希结果长度'''
+        byteArray = Image.fromqpixmap(pixmap).tobytes()
+
+        # 创建哈希对象
+        hashObj = hashlib.new(hashAlgorithm)
+
+        # 更新哈希对象
+        hashObj.update(byteArray)
+
+        # 获取哈希值的十六进制表示
+        if cutLength > 0:
+            result = hashObj.hexdigest()[0:cutLength]
+        else:
+            result = hashObj.hexdigest()
+
+        return result
+
+    @staticmethod
+    def image2OcrPdfWithTextLayer(workDir:str, input:str, output:str):
+        '''
+        将图片转换为带文本层的PDF文档
+
+        使用OCRmyPDF实现，其内部使用img2pdf会将图片转换为pdf再进行OCR识别
+        '''
+        import time
+        ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_pdf.bat") 
+        fullCmd = f"{ocrRunnerBatPath} {input} {output}"
+        OcrService.executeSystemCommand(fullCmd)
+
     def ocr(self, pixmap:QPixmap):
         '''
         调用ocr模块来进行OCR识别
@@ -52,6 +82,36 @@ class OcrService(QObject):
         return boxes, txts, scores
 
     def ocrWithProcess(self, pixmap:QPixmap):
+        # return self.ocrWithProcessAsTextMeta(pixmap)
+        return self.ocrWithProcessAsPdfName(pixmap)
+
+    def ocrWithProcessAsPdfName(self, pixmap:QPixmap):
+        '''
+        借用命令行工具来进行OCR识别，并且将识别出来的带文本层的PDF文件名返回
+        @note 该函数会阻塞当前线程
+        '''
+        import time
+
+        workDir = os.path.dirname(__file__)
+
+        hashCode = self.calculateHashForQPixmap(pixmap, 8)
+        fileName = f"ocr_{hashCode}"
+        ocrTempDirPath = os.path.join(workDir, "ocr_temp")
+        if not os.path.exists(ocrTempDirPath):
+            os.mkdir(ocrTempDirPath)
+
+        imagePath = os.path.join(ocrTempDirPath, f"{fileName}.png")
+        if not os.path.exists(imagePath):
+            pixmap.save(imagePath)
+            time.sleep(1)
+
+        pdfPath = os.path.join(ocrTempDirPath, f"{fileName}.pdf")
+        if not os.path.exists(pdfPath):
+            OcrService.image2OcrPdfWithTextLayer(workDir, imagePath, pdfPath)
+            time.sleep(1)
+        return pdfPath
+
+    def ocrWithProcessAsTextMeta(self, pixmap:QPixmap):
         '''
         借用命令行工具来进行OCR识别，并且结果传递回来
         @note 该函数会阻塞当前线程
@@ -62,21 +122,23 @@ class OcrService(QObject):
 
         workDir = os.path.dirname(__file__)
 
-        now = datetime.now()
-        nowStr = now.strftime("%Y-%m-%d_%H-%M-%S")
-        fileName = f"ocr_{nowStr}"
+        hashCode = self.calculateHashForQPixmap(pixmap, 8)
+        fileName = f"ocr_{hashCode}"
         ocrTempDirPath = os.path.join(workDir, "ocr_temp")
         if not os.path.exists(ocrTempDirPath):
             os.mkdir(ocrTempDirPath)
-        imagePath = os.path.join(ocrTempDirPath, f"{fileName}.png")
-        pixmap.save(imagePath)
 
-        ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
-        fullCmd = f"{ocrRunnerBatPath} {imagePath}"
-        OcrService.executeSystemCommand(fullCmd)
+        imagePath = os.path.join(ocrTempDirPath, f"{fileName}.png")
+        if not os.path.exists(imagePath):
+            pixmap.save(imagePath)
+
+        ocrResultPath = f"{imagePath}.ocr"
+        if not os.path.exists(ocrResultPath):
+            ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
+            fullCmd = f"{ocrRunnerBatPath} {imagePath}"
+            OcrService.executeSystemCommand(fullCmd)
 
         # 读取缓存文件夹上的ocr识别结果 
-        ocrResultPath = f"{imagePath}.ocr"
         if os.path.exists(ocrResultPath):
             with codecs.open(ocrResultPath, mode="r", encoding="utf-8", errors='ignore') as f:
                 json_str = f.read()
@@ -87,10 +149,10 @@ class OcrService(QObject):
                 scores = json.loads(ocrResult["scores"])
                 f.close()
 
-        if os.path.exists(imagePath):
-            os.remove(imagePath)
-        if os.path.exists(ocrResultPath):
-            os.remove(ocrResultPath)
+        # if os.path.exists(imagePath):
+        #     os.remove(imagePath)
+        # if os.path.exists(ocrResultPath):
+        #     os.remove(ocrResultPath)
 
         return boxes, txts, scores
 

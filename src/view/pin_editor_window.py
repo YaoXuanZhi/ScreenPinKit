@@ -9,10 +9,12 @@ from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
 from ocr_service import *
 from .painter_interface import PainterInterface
+from pdf_viewer import *
 
 class PinEditorWindow(PinWindow):
     ocrStartSignal = pyqtSignal()
     ocrEndSignal = pyqtSignal(list, list, list)
+    ocrEnd2ndSignal = pyqtSignal(str)
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent, screenPoint, physicalSize, physicalPixmap, closeCallback)
         self.contentLayout = QVBoxLayout(self)
@@ -64,6 +66,7 @@ class PinEditorWindow(PinWindow):
 
         self.ocrStartSignal.connect(self.onOcrStart)
         self.ocrEndSignal.connect(self.onOcrEnd)
+        self.ocrEnd2ndSignal.connect(self.onOcrEnd2nd)
         self.shadowWindow.blinkStopSignal.connect(self.onBlinkStop)
         cfg.windowShadowStyleRoundRadius.valueChanged.connect(self.setRoundRadius)
         cfg.windowShadowStyleUnFocusColor.valueChanged.connect(self.refreshShadowColor)
@@ -101,9 +104,17 @@ class PinEditorWindow(PinWindow):
         print(f"ocr info [{OcrService.isSupported()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         ocrService = OcrService()
         self.ocrStartSignal.emit()
-        # boxes, txts, scores = ocrService.ocr(pixmap)
-        boxes, txts, scores = ocrService.ocrWithProcess(pixmap)
-        self.ocrEndSignal.emit(boxes, txts, scores)
+
+        # 添加异常处理
+        # result = ocrService.ocr(pixmap)
+        result = ocrService.ocrWithProcess(pixmap)
+        try:
+            (boxes, txts, scores) = result
+            self.ocrEndSignal.emit(boxes, txts, scores)
+        except Exception as e:
+            pdfName = result
+            self.ocrEnd2ndSignal.emit(pdfName)
+
         self.ocrState = 1
 
     def onOcrStart(self):
@@ -112,6 +123,39 @@ class PinEditorWindow(PinWindow):
             self.stateTooltip.setStyleSheet("background: transparent; border:0px;")
             self.stateTooltip.move(self.painterWidget.geometry().topRight() + QPoint(-self.stateTooltip.frameSize().width() - 20, self.stateTooltip.frameSize().height() - 20))
             self.stateTooltip.show()
+
+    def onOcrEnd2nd(self, pdfPath):
+        print(pdfPath)
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+
+        # 渲染Pdf
+        self.pdfViewerItem = CanvasPdfViewerItem()
+        self.pdfViewerItem.receiver.pdfRenderStartSlot.connect(self.onPdfRenderStart)
+        self.pdfViewerItem.receiver.pdfRenderEndSlot.connect(self.onPdfRenderEnd)
+        self.painterWidget.drawWidget.scene.addItem(self.pdfViewerItem)
+        self.pdfViewerItem.openFile(pdfPath)
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+        pass
+
+    def onPdfRenderStart(self):
+        self.pdfViewerItem.setOpacity(0)
+
+    def onPdfRenderEnd(self, _width, _height):
+        self.delayTimer = QTimer(self)
+        self.delayTimer.timeout.connect(self.onDelayExecute)
+        self.delayTimer.start(50)
+
+    def onDelayExecute(self):
+        self.delayTimer.stop()
+        self.pdfViewerItem.setOpacity(1)
+        # self.pdfViewerItem.setOpacity(0.5)
+        # self.pdfViewerItem.setOpacity(0.3)
 
     def onOcrEnd(self, boxes, txts, scores):
         if hasattr(self, "stateTooltip") and self.stateTooltip != None:

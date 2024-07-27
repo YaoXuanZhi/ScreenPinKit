@@ -42,6 +42,7 @@ class PdfWidget(QWidget):
         self.initUI()
 
     def initUI(self):
+        self.setStyleSheet("background: transparent; border:0px;")
         self.contentLayout = QHBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -77,6 +78,10 @@ class CanvasPdfViewerItem(QGraphicsWidget):
     @property
     def pdfViewerWidget(self):
         return self.containerWidget
+
+    @property
+    def receiver(self):
+        return self.containerWidget.receiver
 
     def openFile(self, pdfPath:str):
         self.containerWidget.openFile(pdfPath)
