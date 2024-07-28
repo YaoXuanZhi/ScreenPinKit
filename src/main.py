@@ -78,12 +78,18 @@ class MainWindow(QWidget):
     def exit(self):
         sys.exit(0)
 
+def fixWebEngineViewCrash():
+    # 修复QWebEngineView偶现卡死的问题，参考：https://bbs.csdn.net/topics/611959180
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
+    os.putenv("QMLSCENE_DEVICE", "softwarecontext")
+
 def main():
     appDpiHelper = AppDpiHelper()
     if not appDpiHelper.tryApplyDpiConfig():
         return
 
     # create application
+    fixWebEngineViewCrash()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
 
