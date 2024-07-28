@@ -154,8 +154,8 @@ class PinEditorWindow(PinWindow):
     def onDelayExecute(self):
         self.delayTimer.stop()
         self.pdfViewerItem.setOpacity(1)
-        # self.pdfViewerItem.setOpacity(0.5)
-        # self.pdfViewerItem.setOpacity(0.3)
+        self.showCommandBar()
+        self.painterWidget.selectItemAction.trigger()
 
     def onOcrEnd(self, boxes, txts, scores):
         if hasattr(self, "stateTooltip") and self.stateTooltip != None:
