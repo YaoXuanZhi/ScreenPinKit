@@ -443,6 +443,11 @@ See https://github.com/adobe-type-tools/cmap-resources
                 // 透传网页的复制事件
                 window.receiver.hookCopyText(window.getSelection().toString());
             }
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                window.receiver.hookEscPressed(window.getSelection().toString().length > 0);
+            }            
         });
 
         // 初始化QWebChannel

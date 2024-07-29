@@ -135,6 +135,7 @@ class PinEditorWindow(PinWindow):
         self.pdfViewerItem = CanvasPdfViewerItem()
         self.pdfViewerItem.receiver.pdfRenderStartSlot.connect(self.onPdfRenderStart)
         self.pdfViewerItem.receiver.pdfRenderEndSlot.connect(self.onPdfRenderEnd)
+        self.pdfViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
         self.painterWidget.drawWidget.scene.addItem(self.pdfViewerItem)
         self.pdfViewerItem.openFile(pdfPath)
 
@@ -142,6 +143,14 @@ class PinEditorWindow(PinWindow):
             self.ocrThread.quit()
             self.ocrThread = None
         pass
+
+    def onEscPressed(self, hasSelectedText):
+        if hasSelectedText:
+            if hasattr(self, "pdfViewerItem"):
+                self.pdfViewerItem.cancelSelectText()
+        else:
+            escapeEvent = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+            QApplication.sendEvent(self, escapeEvent)
 
     def onPdfRenderStart(self):
         self.pdfViewerItem.setOpacity(0)

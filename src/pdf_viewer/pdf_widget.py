@@ -9,6 +9,7 @@ from PyQt5.QtWebChannel import *
 class JavaScriptReceiver(QObject):
     pdfRenderEndSlot = pyqtSignal(float, float)
     pdfRenderStartSlot = pyqtSignal()
+    escPressedSlot = pyqtSignal(bool)
 
     @pyqtSlot(float, float)
     def pdfRenderEnd(self, renderWidth, renderHeight):
@@ -18,6 +19,10 @@ class JavaScriptReceiver(QObject):
     def hookCopyText(self, text):
         text = text.strip(" \n")
         QApplication.clipboard().setText(text)
+
+    @pyqtSlot(bool)
+    def hookEscPressed(self, hasSelectedText):
+        self.escPressedSlot.emit(hasSelectedText)
 
 class PdfWidget(QWidget):
     '''
@@ -67,6 +72,16 @@ class PdfWidget(QWidget):
         pdfPath = pdfPath.replace("\\", "/")
         self.webView.load(QUrl.fromUserInput(f'{self.pdfjs_web}?file={pdfPath}'))
 
+    def cancelSelectText(self):
+        script = """
+        if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+        } else if (document.selection) {
+            document.selection.empty();
+        }
+        """
+        self.webView.page().runJavaScript(script)
+
 class CanvasPdfViewerItem(QGraphicsWidget):
     def __init__(self, parent:QGraphicsItem = None) -> None:
         super().__init__(parent)
@@ -88,6 +103,9 @@ class CanvasPdfViewerItem(QGraphicsWidget):
 
     def onPdfRenderEnd(self, renderWidth, renderHeight):
         self.containerWidget.resize(QSize(int(renderWidth), int(renderHeight)))
+
+    def cancelSelectText(self):
+        self.containerWidget.cancelSelectText()
 
 class MyGraphicScene(QGraphicsScene):
     '''
