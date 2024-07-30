@@ -15,6 +15,7 @@ class PinEditorWindow(PinWindow):
     ocrStartSignal = pyqtSignal()
     ocrEndSignal = pyqtSignal(list, list, list)
     ocrEnd2ndSignal = pyqtSignal(str)
+    onOcrEnd3rdSignal = pyqtSignal(str)
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
         super().__init__(parent, screenPoint, physicalSize, physicalPixmap, closeCallback)
         self.contentLayout = QVBoxLayout(self)
@@ -67,6 +68,7 @@ class PinEditorWindow(PinWindow):
         self.ocrStartSignal.connect(self.onOcrStart)
         self.ocrEndSignal.connect(self.onOcrEnd)
         self.ocrEnd2ndSignal.connect(self.onOcrEnd2nd)
+        self.onOcrEnd3rdSignal.connect(self.onOcrEnd3rd)
         self.shadowWindow.blinkStopSignal.connect(self.onBlinkStop)
         cfg.windowShadowStyleRoundRadius.valueChanged.connect(self.setRoundRadius)
         cfg.windowShadowStyleUnFocusColor.valueChanged.connect(self.refreshShadowColor)
@@ -112,8 +114,10 @@ class PinEditorWindow(PinWindow):
             (boxes, txts, scores) = result
             self.ocrEndSignal.emit(boxes, txts, scores)
         except Exception as e:
-            pdfName = result
-            self.ocrEnd2ndSignal.emit(pdfName)
+            if result.endswith(".pdf"):
+                self.ocrEnd2ndSignal.emit(result)
+            elif result.endswith(".html"):
+                self.onOcrEnd3rdSignal.emit(result)
 
         self.ocrState = 1
 
@@ -152,6 +156,25 @@ class PinEditorWindow(PinWindow):
             escapeEvent = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
             QApplication.sendEvent(self, escapeEvent)
 
+    def onOcrEnd3rd(self, htmlPath):
+        print(htmlPath)
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+
+        # 渲染Html
+        self.webViewerItem = CanvasWebEngineViewItem()
+        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
+        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
+        self.painterWidget.drawWidget.scene.addItem(self.webViewerItem)
+        self.webViewerItem.openFile(htmlPath)
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+        pass
+
     def onPdfRenderStart(self):
         self.pdfViewerItem.setOpacity(0)
 
@@ -163,8 +186,18 @@ class PinEditorWindow(PinWindow):
     def onDelayExecute(self):
         self.delayTimer.stop()
         self.pdfViewerItem.setOpacity(1)
-        self.showCommandBar()
-        self.painterWidget.selectItemAction.trigger()
+
+    def onHtmlRenderStart(self):
+        self.webViewerItem.setOpacity(0)
+
+    def onHtmlRenderEnd(self, _width, _height):
+        self.delayTimer = QTimer(self)
+        self.delayTimer.timeout.connect(self.onDelayExecute2)
+        self.delayTimer.start(300)
+
+    def onDelayExecute2(self):
+        self.delayTimer.stop()
+        self.webViewerItem.setOpacity(1)
 
     def onOcrEnd(self, boxes, txts, scores):
         if hasattr(self, "stateTooltip") and self.stateTooltip != None:
@@ -172,6 +205,7 @@ class PinEditorWindow(PinWindow):
             self.stateTooltip.setState(True)
             self.stateTooltip = None
 
+        # 将ocr识别结果渲染出来
         drop_score = 0.5
         dpiScale = CanvasUtil.getDevicePixelRatio()
 

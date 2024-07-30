@@ -106,6 +106,7 @@ class PainterInterface(QWidget):
         view.addActions(finalDrawActions)
         view.addSeparator()
         view.addActions([
+            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.ocr),
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
             Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
             Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
@@ -242,6 +243,9 @@ class PainterInterface(QWidget):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)
+
+    def ocr(self):
+        print("开启ocr识别层")
 
     def clearDraw(self):
         if hasattr(self, "drawWidget"):

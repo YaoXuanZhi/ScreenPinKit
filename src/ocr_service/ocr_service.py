@@ -57,8 +57,16 @@ class OcrService(QObject):
 
         使用OCRmyPDF实现，其内部使用img2pdf会将图片转换为pdf再进行OCR识别
         '''
-        import time
         ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_pdf.bat") 
+        fullCmd = f"{ocrRunnerBatPath} {input} {output}"
+        OcrService.executeSystemCommand(fullCmd)
+
+    @staticmethod
+    def image2HtmlWithTextLayer(workDir:str, input:str, output:str):
+        '''
+        将图片转换为带文本层的Html文档
+        '''
+        ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_html.bat") 
         fullCmd = f"{ocrRunnerBatPath} {input} {output}"
         OcrService.executeSystemCommand(fullCmd)
 
@@ -83,14 +91,14 @@ class OcrService(QObject):
 
     def ocrWithProcess(self, pixmap:QPixmap):
         # return self.ocrWithProcessAsTextMeta(pixmap)
-        return self.ocrWithProcessAsPdfName(pixmap)
+        # return self.ocrWithProcessAsPdf(pixmap)
+        return self.ocrWithProcessAsHtml(pixmap)
 
-    def ocrWithProcessAsPdfName(self, pixmap:QPixmap):
+    def ocrWithProcessAsPdf(self, pixmap:QPixmap):
         '''
         借用命令行工具来进行OCR识别，并且将识别出来的带文本层的PDF文件名返回
         @note 该函数会阻塞当前线程
         '''
-        import time
 
         workDir = os.path.dirname(__file__)
 
@@ -103,12 +111,11 @@ class OcrService(QObject):
         imagePath = os.path.join(ocrTempDirPath, f"{fileName}.png")
         if not os.path.exists(imagePath):
             pixmap.save(imagePath)
-            time.sleep(1)
 
         pdfPath = os.path.join(ocrTempDirPath, f"{fileName}.pdf")
         if not os.path.exists(pdfPath):
             OcrService.image2OcrPdfWithTextLayer(workDir, imagePath, pdfPath)
-            time.sleep(1)
+
         return pdfPath
 
     def ocrWithProcessAsTextMeta(self, pixmap:QPixmap):
@@ -155,6 +162,30 @@ class OcrService(QObject):
         #     os.remove(ocrResultPath)
 
         return boxes, txts, scores
+
+    def ocrWithProcessAsHtml(self, pixmap:QPixmap):
+        '''
+        借用命令行工具来进行OCR识别，并且将识别出来的带文本层的Html文件名返回
+        @note 该函数会阻塞当前线程
+        '''
+
+        workDir = os.path.dirname(__file__)
+
+        hashCode = self.calculateHashForQPixmap(pixmap, 8)
+        fileName = f"ocr_{hashCode}"
+        ocrTempDirPath = os.path.join(workDir, "ocr_temp")
+        if not os.path.exists(ocrTempDirPath):
+            os.mkdir(ocrTempDirPath)
+
+        imagePath = os.path.join(ocrTempDirPath, f"{fileName}.png")
+        if not os.path.exists(imagePath):
+            pixmap.save(imagePath)
+
+        htmlPath = f"{imagePath}.html"
+        if not os.path.exists(htmlPath):
+            OcrService.image2HtmlWithTextLayer(workDir, imagePath, htmlPath)
+
+        return htmlPath
 
     @staticmethod
     def executeSystemCommand(cmd):
