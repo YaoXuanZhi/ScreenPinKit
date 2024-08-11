@@ -3,6 +3,8 @@ sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from datetime import datetime
+from canvas_item import CanvasUtil
 import hashlib
 
 try:
@@ -67,7 +69,8 @@ class OcrService(QObject):
         将图片转换为带文本层的Html文档
         '''
         ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_html.bat") 
-        fullCmd = f"{ocrRunnerBatPath} {input} {output}"
+        dpiScale = CanvasUtil.getDevicePixelRatio()
+        fullCmd = f"{ocrRunnerBatPath} {input} {output} {dpiScale}"
         OcrService.executeSystemCommand(fullCmd)
 
     def ocr(self, pixmap:QPixmap):
@@ -142,7 +145,7 @@ class OcrService(QObject):
         ocrResultPath = f"{imagePath}.ocr"
         if not os.path.exists(ocrResultPath):
             ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
-            fullCmd = f"{ocrRunnerBatPath} {imagePath}"
+            fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
             OcrService.executeSystemCommand(fullCmd)
 
         # 读取缓存文件夹上的ocr识别结果 
