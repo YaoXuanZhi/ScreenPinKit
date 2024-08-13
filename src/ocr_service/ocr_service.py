@@ -1,38 +1,33 @@
 import os, sys, subprocess, json, codecs
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+sys.path.insert(0, os.path.join( os.path.dirname(__file__), "."))
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from datetime import datetime
 from canvas_item import CanvasUtil
+from enum import Enum
 import hashlib
-
-try:
-    # from paddleocr import PaddleOCR
-    # import paddleocr.tools.infer.utility as utility
-    IsSupportOcr = True
-except ImportError:
-    IsSupportOcr = False
-
 from PIL import Image
 import numpy as np
+
+class EnumOcrMode(Enum):
+    NoSupport = 0
+    '''不支持'''
+
+    UseInSide = 1
+    '''内部OCR模块'''
+
+    UseOutSide = 2
+    '''外部OCR模块'''
+try:
+    import cv2
+    from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
+    _currentOcrMode = EnumOcrMode.UseInSide
+except ImportError:
+    _currentOcrMode = EnumOcrMode.UseOutSide
 
 class OcrService(QObject):
     def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
-
-        try:
-            # args = utility.parse_args()
-            # self.ocrModel = PaddleOCR(
-            #     det_model_dir=args.det_model_dir, 
-            #     rec_model_dir=args.rec_model_dir, 
-            #     cls_model_dir=args.cls_model_dir, 
-            #     rec_char_dict_path=args.rec_char_dict_path,
-            #     use_angle_cls=True
-            #     )
-            self.ocrModel = 1
-        except Exception:
-            self.ocrModel = None
 
     def calculateHashForQPixmap(self, pixmap:QPixmap, cutLength=0, hashAlgorithm="sha256"):
         '''计算QPixmap的哈希值，根据需要可以截取对应哈希结果长度'''
@@ -73,6 +68,21 @@ class OcrService(QObject):
         fullCmd = f"{ocrRunnerBatPath} {input} {output} {dpiScale}"
         OcrService.executeSystemCommand(fullCmd)
 
+    @staticmethod
+    def qpixmapToMatlike(qpixmap:QPixmap):
+        # 将 QPixmap 转换为 QImage
+        qimage = qpixmap.toImage()
+
+        # 获取 QImage 的宽度和高度
+        width = qimage.width()
+        height = qimage.height()
+
+        # 将 QImage 转换为 numpy 数组
+        byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
+        imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
+        imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
+        return imageArray
+
     def ocr(self, pixmap:QPixmap):
         '''
         调用ocr模块来进行OCR识别
@@ -81,18 +91,39 @@ class OcrService(QObject):
             无关乎创建多个PaddleOCR对象还是创建多线程来执行都崩，最终采取命令行方式绕过该崩溃
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
         '''
-        if self.ocrModel == None:
+        if OcrService.mode() == EnumOcrMode.NoSupport:
             return [], [], []
 
-        image = Image.fromqpixmap(pixmap)
-        nd_array = np.asfarray(image)
-        result = self.ocrModel.ocr(nd_array, cls=True)
-        boxes = [line[0] for line in result]
-        txts = [line[1][0] for line in result]
-        scores = [line[1][1] for line in result]
+        matlike = OcrService.qpixmapToMatlike(pixmap)
+
+        ocr_sys = OcrDetector(matlike, use_dnn = False, version=3)# 支持v2和v3版本的
+        dt_boxes = ocr_sys.get_boxes()
+        results, results_info = ocr_sys.recognition_img(dt_boxes)
+        match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
+
+        boxes = []
+        txts = []
+        scores = []
+
+        for info in match_text_boxes:
+            text = info['text']
+            left = float(info['box'][0][0])
+            top = float(info['box'][0][1])
+            right = float(info['box'][1][0])
+            bottom = float(info['box'][2][1])
+
+            left_top = [left, top]
+            right_top = [right, top]
+            right_bottom = [right, bottom]
+            left_bottom = [left, bottom]
+            boxes.append([left_top, right_top, right_bottom, left_bottom])
+            txts.append(text)
+            scores.append(0.97)
+
         return boxes, txts, scores
 
-    def ocrWithProcess(self, pixmap:QPixmap):
+    def ocrWithProcessOutSide(self, pixmap:QPixmap):
+        '''调用外部进程进行OCR'''
         # return self.ocrWithProcessAsTextMeta(pixmap)
         # return self.ocrWithProcessAsPdf(pixmap)
         return self.ocrWithProcessAsHtml(pixmap)
@@ -127,7 +158,7 @@ class OcrService(QObject):
         @note 该函数会阻塞当前线程
         '''
         boxes, txts, scores = [], [], []
-        if self.ocrModel == None:
+        if OcrService.mode() == EnumOcrMode.NoSupport:
             return boxes, txts, scores
 
         workDir = os.path.dirname(__file__)
@@ -144,7 +175,8 @@ class OcrService(QObject):
 
         ocrResultPath = f"{imagePath}.ocr"
         if not os.path.exists(ocrResultPath):
-            ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
+            # ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
+            ocrRunnerBatPath = os.path.join(workDir, "try_tessact_ocr_runner.bat") 
             fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
             OcrService.executeSystemCommand(fullCmd)
 
@@ -205,8 +237,9 @@ class OcrService(QObject):
             print("An error occurred while executing the command.", e)
 
     @staticmethod
-    def isSupported():
-        return IsSupportOcr
+    def mode():
+        return _currentOcrMode
+        # return EnumOcrMode.UseOutSide
 
 class OcrThread(QThread):
     ocrStartSignal = pyqtSignal()
