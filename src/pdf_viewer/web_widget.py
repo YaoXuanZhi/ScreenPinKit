@@ -132,6 +132,9 @@ class CanvasWebEngineViewItem(QGraphicsWidget):
     def openFile(self, htmlPath:str):
         self.containerWidget.openFile(htmlPath)
 
+    def setHtml(self, htmlContent:str):
+        self.containerWidget.setHtml(htmlContent)
+
     def onWebRenderEnd(self, renderWidth, renderHeight):
         self.containerWidget.resize(QSize(int(renderWidth), int(renderHeight)))
 
