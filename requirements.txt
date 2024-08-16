@@ -1,5 +1,7 @@
+--extra-index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
 PyQt5>=5.15.0
 scipy
-pillow<=9.4.0
+pillow<=9.5.0
 PyQt-Fluent-Widgets
+PyQtWebEngine
 system_hotkey
