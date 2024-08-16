@@ -7,8 +7,7 @@
 另外，该方案存在一些瑕疵，如下所示：
   1.PDF文档本身不包含透明度支持，无法将这个文本选择层封装成一个纯文本透明层，可以将原图像作文档背景，问题可绕过
   2.QWebEngineView模块加载PDF文档速度相对较慢，这个问题可忽略
-  3.OCR所生成的PDF文档与原图像相比，会有一定程度的模糊，算不上无感叠加上文本选择层
-  4.有个偶现问题，WebEngineView偶尔会出现卡死主程序的情况，重启程序就会好，得排查
+  3. OCR所生成的PDF文档与原图像相比，会有一定程度的模糊，算不上无感叠加上文本选择层
 
 改进建议：
 可以fork OcrMyPdf项目，增加一个生成纯透明文本层+原图像背景的PDF文档的功能支持
@@ -31,7 +30,6 @@ class JavaScriptReceiver(QObject):
 
     @pyqtSlot(str)
     def hookCopyText(self, text):
-        text = text.strip(" \n")
         QApplication.clipboard().setText(text)
 
     @pyqtSlot(bool)
@@ -70,12 +68,16 @@ class PdfWidget(QWidget):
         self.workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
         self.pdfjs_web = f"file:///{self.workDir}/pdfjs-3.4.120-legacy-dist/web/viewer.html"
         self.webView = QWebEngineView()
+        self.webView.settings().setAttribute(QWebEngineSettings.WebAttribute.PluginsEnabled, True)
+        self.webView.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
         self.contentLayout.addWidget(self.webView)
 
         # 创建QWebChannel并注册JavaScriptReceiver
         self.channel = QWebChannel()
         self.receiver = JavaScriptReceiver()
         self.channel.registerObject("receiver", self.receiver)
+        # 设置透明度
+        self.webView.page().setBackgroundColor(Qt.GlobalColor.transparent);
         self.webView.page().setWebChannel(self.channel)
 
         # 未知原因，这里必须先要加载一次网页，否则openFile()失效
@@ -85,6 +87,10 @@ class PdfWidget(QWidget):
         self.receiver.pdfRenderStartSlot.emit()
         pdfPath = pdfPath.replace("\\", "/")
         self.webView.load(QUrl.fromUserInput(f'{self.pdfjs_web}?file={pdfPath}'))
+
+    def setHtml(self, htmlConent:str):
+        self.receiver.pdfRenderStartSlot.emit()
+        self.webView.setHtml(htmlConent)
 
     def cancelSelectText(self):
         script = """
@@ -117,6 +123,9 @@ class CanvasPdfViewerItem(QGraphicsWidget):
 
     def onPdfRenderEnd(self, renderWidth, renderHeight):
         self.containerWidget.resize(QSize(int(renderWidth), int(renderHeight)))
+
+    def setHtml(self, htmlConent:str):
+        self.containerWidget.setHtml(htmlConent)
 
     def cancelSelectText(self):
         self.containerWidget.cancelSelectText()

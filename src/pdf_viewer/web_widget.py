@@ -1,6 +1,12 @@
 # coding=utf-8
 '''
-将图片转换为html，用html.js将其渲染出来，以此来实现一个文本选择层
+将图片转换为html，采用QWebEngineView模块将其加载显示，以此来实现一个纯文本选择层
+
+@Note：
+ - 1.直接生成html文件，通过各种span标签组合成结果
+ - 2.将结果生成一个svg文件，并且在网页上渲染出来，这里面有个问题，那就是如何判断字体大小和间距，优点是支持无损缩放
+ - 3.后面还可以让QGraphicsSvgItem支持一个文本选择机制，从而减少QWebEngine的依赖
+ - 4.为啥不采用QTextBrowerwidget控件来实现呢，因为它支持的html特性有限，设置的文本框固定坐标无效
 '''
 import os
 from PyQt5.QtWidgets import *
@@ -16,21 +22,14 @@ from PyQt5.QtWebChannel import *
 # 目前怀疑PixPin就是用到类似技术来实现的，然后每个PinWindow本质上就是一个跑着WebEngine的QWidget，
 # 然后开启了文本可选择的功能之后，就会执行ocr wasm功能在这个页面上新建一个文本选择层
 
-# 当前html_widget的实现，会导致外部依赖一个比较大的离线ocr包，当然，也可以直接忽略它们
+# 当前pdf_widget的实现，会导致外部依赖一个比较大的离线ocr包，当然，也可以直接忽略它们
 
-# https://wang-lu.com/html2htmlEX/doc/tb108wang.html
+# https://wang-lu.com/pdf2htmlEX/doc/tb108wang.html
 # 将图片OCR结果导出为一个相同样式的html文件，并且用QWidget渲染出来
 
 # https://blog.csdn.net/qq_41883423/article/details/138305024
 
 # https://segmentfault.com/a/1190000044774930
-
-import os
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtWebChannel import *
 
 class JavaScriptReceiver(QObject):
     htmlRenderEndSlot = pyqtSignal(float, float)
@@ -43,7 +42,6 @@ class JavaScriptReceiver(QObject):
 
     @pyqtSlot(str)
     def hookCopyText(self, text):
-        text = text.strip(" \n")
         QApplication.clipboard().setText(text)
 
     @pyqtSlot(bool)
@@ -52,20 +50,20 @@ class JavaScriptReceiver(QObject):
 
 class WebWidget(QWidget):
     '''
-    将Web.js封装成一个QWidget，以便被外部调用
-    注意：该QWidget的渲染已经被Web.js接管，比如鼠标点击、键盘事件、透明度设置等等
+    将Pdf.js封装成一个QWidget，以便被外部调用
+    注意：该QWidget的渲染已经被Pdf.js接管，比如鼠标点击、键盘事件、透明度设置等等
     '''
 
     class RenderMode(int):
         NormalMode = 0
         '''
-        普通渲染模式： 该QWidget大部分都已被Web.js接管，无法直接操作， 
-        如果你要修改样式，建议直接改动html.js里的web目录源码，不要在Python侧修改
+        普通渲染模式： 该QWidget大部分都已被Pdf.js接管，无法直接操作， 
+        如果你要修改样式，建议直接改动pdf.js里的web目录源码，不要在Python侧修改
         '''
 
         AdvanceMode = 1
         '''
-        高级渲染模式： 将Web.js封装成一个QGraphicItem，支持Python侧改动透明度等高级操作
+        高级渲染模式： 将Pdf.js封装成一个QGraphicItem，支持Python侧改动透明度等高级操作
         '''
 
     def __init__(self, parent=None):
@@ -79,15 +77,18 @@ class WebWidget(QWidget):
 
         # self.contentLayout.addWidget(QLineEdit("hello world"))
 
-        self.workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
-        self.htmljs_web = f"file:///{self.workDir}/htmljs-3.4.120-legacy-dist/web/viewer.html"
         self.webView = QWebEngineView()
+
+        # 开启pdf支持
+        self.webView.settings().setAttribute(QWebEngineSettings.WebAttribute.PluginsEnabled, True)
+        self.webView.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
         self.contentLayout.addWidget(self.webView)
 
         # 创建QWebChannel并注册JavaScriptReceiver
         self.channel = QWebChannel()
         self.receiver = JavaScriptReceiver()
         self.channel.registerObject("receiver", self.receiver)
+        # 设置透明度
         self.webView.page().setBackgroundColor(Qt.GlobalColor.transparent);
         self.webView.page().setWebChannel(self.channel)
 
@@ -119,11 +120,7 @@ class CanvasWebEngineViewItem(QGraphicsWidget):
         self.containerWidget = WebWidget()
         self.proxyWidget = QGraphicsProxyWidget(self)
         self.proxyWidget.setWidget(self.containerWidget)
-        self.htmlViewerWidget.receiver.htmlRenderEndSlot.connect(self.onWebRenderEnd)
-
-    @property
-    def htmlViewerWidget(self):
-        return self.containerWidget
+        self.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
 
     @property
     def receiver(self):
@@ -132,11 +129,11 @@ class CanvasWebEngineViewItem(QGraphicsWidget):
     def openFile(self, htmlPath:str):
         self.containerWidget.openFile(htmlPath)
 
-    def setHtml(self, htmlContent:str):
-        self.containerWidget.setHtml(htmlContent)
-
-    def onWebRenderEnd(self, renderWidth, renderHeight):
+    def onHtmlRenderEnd(self, renderWidth, renderHeight):
         self.containerWidget.resize(QSize(int(renderWidth), int(renderHeight)))
+
+    def setHtml(self, htmlConent:str):
+        self.containerWidget.setHtml(htmlConent)
 
     def cancelSelectText(self):
         self.containerWidget.cancelSelectText()
@@ -144,26 +141,23 @@ class CanvasWebEngineViewItem(QGraphicsWidget):
 class MyGraphicScene(QGraphicsScene):
     '''
     自定义一个QGraphicScene，通过代理Widget来调用WebWidget控件，目的是为了支持透明度设置
-    由于在Web.js中，其依附的QWidget的透明度设置失效，无法被正常使用，经过一番摸索之后发现，
+    由于在Pdf.js中，其依附的QWidget的透明度设置失效，无法被正常使用，经过一番摸索之后发现，
     可以借用QGraphicsItem的
     '''
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.htmlViewerItem = CanvasWebEngineViewItem()
-        self.addItem(self.htmlViewerItem)
-        self.htmlViewerWidget.receiver.htmlRenderStartSlot.connect(self.onWebRenderStart)
-        self.htmlViewerWidget.receiver.htmlRenderEndSlot.connect(self.onWebRenderEnd)
+        self.webViewerItem = CanvasWebEngineViewItem()
+        self.addItem(self.webViewerItem)
 
-    @property
-    def htmlViewerWidget(self):
-        return self.htmlViewerItem.htmlViewerWidget
+        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
+        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
 
-    def onWebRenderStart(self):
-        self.htmlViewerItem.setOpacity(0)
+    def onHtmlRenderStart(self):
+        self.webViewerItem.setOpacity(0)
 
-    def onWebRenderEnd(self, _width, _height):
-        self.htmlViewerItem.setOpacity(1)
+    def onHtmlRenderEnd(self, _width, _height):
+        self.webViewerItem.setOpacity(1)
 
 class MyGraphicView(QGraphicsView):
     def __init__(self, scene:QGraphicsScene, parent=None):
@@ -198,33 +192,29 @@ class WebWidgetWrapper(QObject):
         self.__renderMode = renderMode
 
         if self.__renderMode == WebWidget.RenderMode.NormalMode:
-            self.__htmlWidget = WebWidget()
+            self.__webWidget = WebWidget()
         elif self.__renderMode == WebWidget.RenderMode.AdvanceMode:
             self.__graphicScene = MyGraphicScene()
             self.__graphicView = MyGraphicView(self.__graphicScene)
 
     def openFile(self, filePath):
         '''打开html文件'''
-        self.htmlWidget.openFile(filePath)
-
-    def setHtml(self, htmlConent:str):
-        '''加载Html内容'''
-        self.htmlWidget.setHtml(htmlConent)
+        self.proxyWidget.openFile(filePath)
 
     @property
-    def htmlWidget(self):
+    def proxyWidget(self):
         if self.__renderMode == WebWidget.RenderMode.AdvanceMode:
-            return self.__graphicScene.htmlViewerWidget
+            return self.__graphicScene.webViewerItem.containerWidget
         else:
-            return self.contentView
+            return self.__webWidget
 
     @property
     def webView(self):
-        return self.htmlWidget.webView
+        return self.proxyWidget.webView
 
     @property
     def contentView(self):
         if self.__renderMode == WebWidget.RenderMode.AdvanceMode:
             return self.__graphicView
         else:
-            return self.__htmlWidget
+            return self.__webWidget

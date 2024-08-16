@@ -1,8 +1,11 @@
 # coding=utf-8
+import typing, os, threading
 from common import ScreenShotIcon
 from canvas_editor import *
 from canvas_item import *
 from toolbar import *
+from pdf_viewer import *
+from ocr_service import *
 
 # 绘制动作
 class DrawAction():
@@ -17,6 +20,10 @@ class DrawAction():
 
 # 绘图控件
 class PainterInterface(QWidget):
+    ocrStartSignal = pyqtSignal()
+    ocrEndSignal = pyqtSignal(list, list, list)
+    ocrEnd2ndSignal = pyqtSignal(str)
+    onOcrEnd3rdSignal = pyqtSignal(str)
     def __init__(self, parent=None, physicalPixmap:QPixmap=None):
         super().__init__(parent)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -42,6 +49,11 @@ class PainterInterface(QWidget):
             transform = QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
             self.sceneBrush.setTransform(transform)
+
+            self.ocrStartSignal.connect(self.onOcrStart)
+            self.ocrEndSignal.connect(self.onOcrEnd)
+            self.ocrEnd2ndSignal.connect(self.onOcrEnd2nd)
+            self.onOcrEnd3rdSignal.connect(self.onOcrEnd3rd)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.AUTO
@@ -106,7 +118,7 @@ class PainterInterface(QWidget):
         view.addActions(finalDrawActions)
         view.addSeparator()
         view.addActions([
-            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.ocr),
+            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
             Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
             Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
@@ -232,6 +244,19 @@ class PainterInterface(QWidget):
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.setCursor(cursor)
 
+        if drawActionEnum == DrawActionEnum.SelectItem:
+            if hasattr(self, "pdfViewerItem"):
+                self.pdfViewerItem.setEnabled(True)
+            if hasattr(self, "webViewerItem"):
+                self.webViewerItem.setEnabled(True)
+        else:
+            if hasattr(self, "pdfViewerItem"):
+                self.pdfViewerItem.setEnabled(False)
+                self.pdfViewerItem.cancelSelectText()
+            if hasattr(self, "webViewerItem"):
+                self.webViewerItem.setEnabled(False)
+                self.webViewerItem.cancelSelectText()
+
     def preHandleEraseToole(self, drawActionEnum:DrawActionEnum):
         eraseTools = [DrawActionEnum.UseEraser, DrawActionEnum.UseEraserRectItem]
         if self.currentDrawActionEnum in eraseTools and drawActionEnum in eraseTools:
@@ -243,9 +268,6 @@ class PainterInterface(QWidget):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)
-
-    def ocr(self):
-        print("开启ocr识别层")
 
     def clearDraw(self):
         if hasattr(self, "drawWidget"):
@@ -297,3 +319,155 @@ class PainterInterface(QWidget):
         if self.painterToolBarMgr != None and int(event.modifiers()) == Qt.ControlModifier:
             self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y())
         return super().wheelEvent(event)
+
+    def startOcr(self):
+        '''使用独立线程进行OCR识别'''
+        if hasattr(self, "ocrState"):
+            self.showCommandBar()
+            self.selectItemAction.trigger()
+            return
+        self.ocrState = 0
+        self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
+        self.ocrThread.start()
+        # self.onExecuteOcr(self.physicalPixmap)
+
+    def onExecuteOcr(self, pixmap:QPixmap):
+        print(f"ocr info [{OcrService.mode()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
+        ocrService = OcrService()
+        self.ocrStartSignal.emit()
+
+        # 添加异常处理
+        if OcrService.mode() == EnumOcrMode.UseInSide:
+            result = ocrService.ocr(pixmap)
+        else:
+            result = ocrService.ocrWithProcessOutSide(pixmap)
+        try:
+            (boxes, txts, scores) = result
+
+            # 将ocr结果通过QGraphicItem逐个渲染出来
+            # self.ocrEndSignal.emit(boxes, txts, scores)
+
+            # 将ocr结果转换为html再通过QWebEngineView显示
+            width = pixmap.size().width()
+            height = pixmap.size().height()
+            html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            # html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            self.onOcrEnd3rdSignal.emit(html_content)
+        except Exception as e:
+            if result.endswith(".pdf"):
+                self.ocrEnd2ndSignal.emit(result)
+            elif result.endswith(".html"):
+                self.onOcrEnd3rdSignal.emit(result)
+
+        self.ocrState = 1
+
+    def onOcrStart(self):
+        if not hasattr(self, "stateTooltip") or self.stateTooltip == None:
+            self.stateTooltip = StateToolTip(f'正在OCR识别[{OcrService.mode()}]', '客官请耐心等待哦~~', self)
+            self.stateTooltip.setStyleSheet("background: transparent; border:0px;")
+            self.stateTooltip.move(self.geometry().topRight() + QPoint(-self.stateTooltip.frameSize().width() - 20, self.stateTooltip.frameSize().height() - 20))
+            self.stateTooltip.show()
+
+    def onOcrEnd2nd(self, pdfPath):
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+
+        # 渲染Pdf
+        self.pdfViewerItem = CanvasPdfViewerItem()
+        self.pdfViewerItem.receiver.pdfRenderStartSlot.connect(self.onHtmlRenderStart)
+        self.pdfViewerItem.receiver.pdfRenderEndSlot.connect(self.onHtmlRenderEnd)
+        self.pdfViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
+        self.drawWidget.scene.addItem(self.pdfViewerItem)
+        self.pdfViewerItem.openFile(pdfPath)
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+        pass
+
+    def onOcrEnd3rd(self, htmlPath):
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+
+        # 渲染Html
+        self.webViewerItem = CanvasWebEngineViewItem()
+        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
+        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
+        self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
+        self.drawWidget.scene.addItem(self.webViewerItem)
+
+        if (htmlPath.endswith(".html")):
+            self.webViewerItem.openFile(htmlPath)
+        else:
+            self.webViewerItem.setHtml(htmlPath)
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+        pass
+
+    def onEscPressed(self, hasSelectedText):
+        if hasSelectedText:
+            if hasattr(self, "pdfViewerItem"):
+                self.pdfViewerItem.cancelSelectText()
+            if hasattr(self, "webViewerItem"):
+                self.webViewerItem.cancelSelectText()
+        else:
+            escapeEvent = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+            QApplication.sendEvent(self, escapeEvent)
+
+    def onHtmlRenderStart(self):
+        if hasattr(self, "pdfViewerItem"):
+            self.pdfViewerItem.setOpacity(0)
+        if hasattr(self, "webViewerItem"):
+            self.webViewerItem.setOpacity(0)
+
+    def onHtmlRenderEnd(self, _width, _height):
+        self.delayTimer = QTimer(self)
+        self.delayTimer.timeout.connect(self.onDelayExecute)
+        self.delayTimer.start(300)
+
+    def onDelayExecute(self):
+        self.delayTimer.stop()
+        if hasattr(self, "pdfViewerItem"):
+            self.pdfViewerItem.setOpacity(1)
+        if hasattr(self, "webViewerItem"):
+            self.webViewerItem.setOpacity(1)
+
+        self.showCommandBar()
+        self.selectItemAction.trigger()
+
+    def onOcrEnd(self, boxes, txts, scores):
+        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
+            self.stateTooltip.setContent('OCR识别已结束')
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+
+        # 将ocr识别结果渲染出来
+        drop_score = 0.5
+        dpiScale = CanvasUtil.getDevicePixelRatio()
+
+        for i in range(0, len(boxes)):
+            txt = txts[i]
+            box = boxes[i]
+            if scores is not None and scores[i] < drop_score:
+                continue
+
+            polygon = QPolygonF()
+            for position in box:
+                achorPos = QPointF(position[0] / dpiScale, position[-1] / dpiScale).toPoint()
+                # finalPosition = self.drawWidget.view.mapToScene(achorPos)
+                finalPosition = achorPos
+                polygon.append(finalPosition)
+
+            textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
+            self.drawWidget.scene.addItem(textItem)
+            self.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
