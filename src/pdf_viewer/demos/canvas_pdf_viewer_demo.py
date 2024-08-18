@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qframelesswindow import FramelessWindow
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
-from pdf_viewer import PdfWidgetWrapper, PdfWidget
+from pdf_viewer import *
 
 class PdfViewerWindow(FramelessWindow):
     def __init__(self, folderPath):
@@ -23,8 +23,7 @@ class PdfViewerWindow(FramelessWindow):
         # self.isShowSwitchUI = False
 
         # 显示Pdf
-        self.pdfWidgetWrapper = PdfWidgetWrapper(PdfWidget.RenderMode.AdvanceMode)
-        # self.pdfWidgetWrapper = PdfWidgetWrapper(PdfWidget.RenderMode.NormalMode)
+        self.pdfWidgetWrapper = OcrWidgetWrapper(PdfWidget(), OcrWidgetRenderMode.AdvanceMode)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
@@ -47,7 +46,7 @@ class PdfViewerWindow(FramelessWindow):
             self.tipButton.resize(200, 200)
             layout.addWidget(self.tipButton)
         else:
-            self.pdfWidgetWrapper.pdfWidget.receiver.pdfRenderEndSlot.connect(self.onRenderEnd)
+            self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onRenderEnd)
 
         self.showCurrentPdf()
 

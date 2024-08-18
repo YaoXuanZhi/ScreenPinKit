@@ -36,8 +36,8 @@ class MainWindow(QWidget):
         self.contentLayout = QHBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.pdfWidgetWrapper = PdfWidgetWrapper(PdfWidget.RenderMode.NormalMode)
-        self.pdfWidgetWrapper.pdfWidget.receiver.pdfRenderEndSlot.connect(self.onRenderEnd)
+        self.pdfWidgetWrapper = OcrWidgetWrapper(PdfWidget(), OcrWidgetRenderMode.NormalMode)
+        self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onRenderEnd)
         self.contentLayout.addWidget(self.pdfWidgetWrapper.contentView)
         self.pdfWidgetWrapper.openFile(f"{workDir}/resources/animals2_ocr.pdf")
 

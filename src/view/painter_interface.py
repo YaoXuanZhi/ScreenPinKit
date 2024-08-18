@@ -21,9 +21,8 @@ class DrawAction():
 # 绘图控件
 class PainterInterface(QWidget):
     ocrStartSignal = pyqtSignal()
-    ocrEndSignal = pyqtSignal(list, list, list)
-    ocrEnd2ndSignal = pyqtSignal(str)
-    onOcrEnd3rdSignal = pyqtSignal(str)
+    ocrEndInsideSignal = pyqtSignal(list, list, list)
+    onOcrEndOutsideSignal = pyqtSignal(str)
     def __init__(self, parent=None, physicalPixmap:QPixmap=None):
         super().__init__(parent)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -51,9 +50,8 @@ class PainterInterface(QWidget):
             self.sceneBrush.setTransform(transform)
 
             self.ocrStartSignal.connect(self.onOcrStart)
-            self.ocrEndSignal.connect(self.onOcrEnd)
-            self.ocrEnd2ndSignal.connect(self.onOcrEnd2nd)
-            self.onOcrEnd3rdSignal.connect(self.onOcrEnd3rd)
+            self.ocrEndInsideSignal.connect(self.onOcrEndInside)
+            self.onOcrEndOutsideSignal.connect(self.onOcrEndOutside)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.AUTO
@@ -117,8 +115,13 @@ class PainterInterface(QWidget):
 
         view.addActions(finalDrawActions)
         view.addSeparator()
+
+        if self.drawWidget.sceneBrush != None:
+            view.addActions([
+                Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.ocr)
+            ])
+
         view.addActions([
-            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
             Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
             Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
@@ -269,9 +272,18 @@ class PainterInterface(QWidget):
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)
 
+    def ocr(self):
+        self.startOcr()
+
     def clearDraw(self):
         if hasattr(self, "drawWidget"):
             self.drawWidget.clearDraw()
+            if hasattr(self, "pdfViewerItem"):
+                delattr(self, "pdfViewerItem")
+            if hasattr(self, "webViewerItem"):
+                delattr(self, "webViewerItem")
+            if hasattr(self, "ocrState"):
+                delattr(self, "ocrState")
 
     def focusInEvent(self, event:QFocusEvent) -> None:
         self.parentWidget().focusInEvent(event)
@@ -350,14 +362,14 @@ class PainterInterface(QWidget):
             # 将ocr结果转换为html再通过QWebEngineView显示
             width = pixmap.size().width()
             height = pixmap.size().height()
-            html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-            # html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-            self.onOcrEnd3rdSignal.emit(html_content)
+            # html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            self.onOcrEndOutsideSignal.emit(html_content)
         except Exception as e:
             if result.endswith(".pdf"):
-                self.ocrEnd2ndSignal.emit(result)
+                self.onOcrEndOutsideSignal.emit(result)
             elif result.endswith(".html"):
-                self.onOcrEnd3rdSignal.emit(result)
+                self.onOcrEndOutsideSignal.emit(result)
 
         self.ocrState = 1
 
@@ -368,42 +380,29 @@ class PainterInterface(QWidget):
             self.stateTooltip.move(self.geometry().topRight() + QPoint(-self.stateTooltip.frameSize().width() - 20, self.stateTooltip.frameSize().height() - 20))
             self.stateTooltip.show()
 
-    def onOcrEnd2nd(self, pdfPath):
-        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
-            self.stateTooltip.setContent('OCR识别已结束')
-            self.stateTooltip.setState(True)
-            self.stateTooltip = None
-
-        # 渲染Pdf
-        self.pdfViewerItem = CanvasPdfViewerItem()
-        self.pdfViewerItem.receiver.pdfRenderStartSlot.connect(self.onHtmlRenderStart)
-        self.pdfViewerItem.receiver.pdfRenderEndSlot.connect(self.onHtmlRenderEnd)
-        self.pdfViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
-        self.drawWidget.scene.addItem(self.pdfViewerItem)
-        self.pdfViewerItem.openFile(pdfPath)
-
-        if hasattr(self, "ocrThread"):
-            self.ocrThread.quit()
-            self.ocrThread = None
-        pass
-
-    def onOcrEnd3rd(self, htmlPath):
+    def onOcrEndOutside(self, input):
         if hasattr(self, "stateTooltip") and self.stateTooltip != None:
             self.stateTooltip.setContent('OCR识别已结束')
             self.stateTooltip.setState(True)
             self.stateTooltip = None
 
         # 渲染Html
-        self.webViewerItem = CanvasWebEngineViewItem()
+        if input.endswith(".pdf"):
+            self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
+        elif input.endswith(".html"):
+            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
+        else:
+            # 传了一个网页文本进来
+            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
         self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
         self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
         self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
         self.drawWidget.scene.addItem(self.webViewerItem)
 
-        if (htmlPath.endswith(".html")):
-            self.webViewerItem.openFile(htmlPath)
+        if (input.endswith(".html") or input.endswith(".pdf")):
+            self.webViewerItem.openFile(input)
         else:
-            self.webViewerItem.setHtml(htmlPath)
+            self.webViewerItem.setHtml(input)
 
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()
@@ -441,7 +440,7 @@ class PainterInterface(QWidget):
         self.showCommandBar()
         self.selectItemAction.trigger()
 
-    def onOcrEnd(self, boxes, txts, scores):
+    def onOcrEndInside(self, boxes, txts, scores):
         if hasattr(self, "stateTooltip") and self.stateTooltip != None:
             self.stateTooltip.setContent('OCR识别已结束')
             self.stateTooltip.setState(True)

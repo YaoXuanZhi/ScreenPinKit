@@ -1,7 +1,7 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-import sys, os, codecs
+import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -36,7 +36,7 @@ class MainWindow(FramelessWindow):
         self.contentLayout = QHBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.webWidgetWrapper = WebWidgetWrapper(WebWidget.RenderMode.NormalMode)
+        self.webWidgetWrapper = OcrWidgetWrapper(WebWidget(), OcrWidgetRenderMode.NormalMode)
         self.webWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
         self.contentLayout.addWidget(self.webWidgetWrapper.contentView)
 
