@@ -52,5 +52,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     ERROR_LIGHT = "error"
     ROUNDED_CORNER = "rounded_corner"
 
+    PLUGIN_MARKET = "whiteboard"
+
     def path(self, theme=Theme.AUTO):
         return f':/ScreenPinKit/resource/icons/{self.value}.svg'

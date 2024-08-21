@@ -13,17 +13,17 @@ class EnumOcrMode(Enum):
     NoSupport = 0
     '''不支持'''
 
-    UseInSide = 1
+    UseInside = 1
     '''内部OCR模块'''
 
-    UseOutSide = 2
+    UseOutside = 2
     '''外部OCR模块'''
+
 try:
-    import cv2
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
-    _currentOcrMode = EnumOcrMode.UseInSide
+    _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
-    _currentOcrMode = EnumOcrMode.UseOutSide
+    _currentOcrMode = EnumOcrMode.UseOutside
 
 class OcrService(QObject):
     def __init__(self, parent: QObject = None) -> None:
@@ -64,6 +64,7 @@ class OcrService(QObject):
         将图片转换为带文本层的Html文档
         '''
         ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_html.bat") 
+        # ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner_as_svghtml_test.bat") 
         dpiScale = CanvasUtil.getDevicePixelRatio()
         fullCmd = f"{ocrRunnerBatPath} {input} {output} {dpiScale}"
         OcrService.executeSystemCommand(fullCmd)
@@ -73,14 +74,18 @@ class OcrService(QObject):
         # 将 QPixmap 转换为 QImage
         qimage = qpixmap.toImage()
 
-        # 获取 QImage 的宽度和高度
-        width = qimage.width()
-        height = qimage.height()
+        # # 获取 QImage 的宽度和高度
+        # import cv2
+        # width = qimage.width()
+        # height = qimage.height()
 
-        # 将 QImage 转换为 numpy 数组
-        byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
-        imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
-        imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
+        # # 将 QImage 转换为 numpy 数组
+        # byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
+        # imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
+        # imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
+
+        image = Image.fromqimage(qimage)
+        imageArray = np.array(image)
         return imageArray
 
     def ocr(self, pixmap:QPixmap):
@@ -125,8 +130,8 @@ class OcrService(QObject):
     def ocrWithProcessOutSide(self, pixmap:QPixmap):
         '''调用外部进程进行OCR'''
         # return self.ocrWithProcessAsTextMeta(pixmap)
-        # return self.ocrWithProcessAsPdf(pixmap)
-        return self.ocrWithProcessAsHtml(pixmap)
+        return self.ocrWithProcessAsPdf(pixmap)
+        # return self.ocrWithProcessAsHtml(pixmap)
 
     def ocrWithProcessAsPdf(self, pixmap:QPixmap):
         '''
@@ -175,8 +180,8 @@ class OcrService(QObject):
 
         ocrResultPath = f"{imagePath}.ocr"
         if not os.path.exists(ocrResultPath):
-            # ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
-            ocrRunnerBatPath = os.path.join(workDir, "try_tessact_ocr_runner.bat") 
+            ocrRunnerBatPath = os.path.join(workDir, "try_ocr_runner.bat") 
+            # ocrRunnerBatPath = os.path.join(workDir, "try_tessact_ocr_runner.bat") 
             fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
             OcrService.executeSystemCommand(fullCmd)
 

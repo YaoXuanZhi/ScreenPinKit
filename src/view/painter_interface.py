@@ -6,6 +6,7 @@ from canvas_item import *
 from toolbar import *
 from pdf_viewer import *
 from ocr_service import *
+from plugin import *
 
 # 绘制动作
 class DrawAction():
@@ -349,7 +350,7 @@ class PainterInterface(QWidget):
         self.ocrStartSignal.emit()
 
         # 添加异常处理
-        if OcrService.mode() == EnumOcrMode.UseInSide:
+        if OcrService.mode() == EnumOcrMode.UseInside:
             result = ocrService.ocr(pixmap)
         else:
             result = ocrService.ocrWithProcessOutSide(pixmap)
@@ -357,13 +358,13 @@ class PainterInterface(QWidget):
             (boxes, txts, scores) = result
 
             # 将ocr结果通过QGraphicItem逐个渲染出来
-            # self.ocrEndSignal.emit(boxes, txts, scores)
+            # self.onOcrEndInside.emit(boxes, txts, scores)
 
             # 将ocr结果转换为html再通过QWebEngineView显示
             width = pixmap.size().width()
             height = pixmap.size().height()
-            # html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-            html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            # html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
             self.onOcrEndOutsideSignal.emit(html_content)
         except Exception as e:
             if result.endswith(".pdf"):
@@ -374,18 +375,10 @@ class PainterInterface(QWidget):
         self.ocrState = 1
 
     def onOcrStart(self):
-        if not hasattr(self, "stateTooltip") or self.stateTooltip == None:
-            self.stateTooltip = StateToolTip(f'正在OCR识别[{OcrService.mode()}]', '客官请耐心等待哦~~', self)
-            self.stateTooltip.setStyleSheet("background: transparent; border:0px;")
-            self.stateTooltip.move(self.geometry().topRight() + QPoint(-self.stateTooltip.frameSize().width() - 20, self.stateTooltip.frameSize().height() - 20))
-            self.stateTooltip.show()
+        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=OcrService.mode())
 
     def onOcrEndOutside(self, input):
-        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
-            self.stateTooltip.setContent('OCR识别已结束')
-            self.stateTooltip.setState(True)
-            self.stateTooltip = None
-
+        pluginMgr.handleEvent(GlobalEventEnum.OcrEndEvent, input=input)
         # 渲染Html
         if input.endswith(".pdf"):
             self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
@@ -441,10 +434,7 @@ class PainterInterface(QWidget):
         self.selectItemAction.trigger()
 
     def onOcrEndInside(self, boxes, txts, scores):
-        if hasattr(self, "stateTooltip") and self.stateTooltip != None:
-            self.stateTooltip.setContent('OCR识别已结束')
-            self.stateTooltip.setState(True)
-            self.stateTooltip = None
+        pluginMgr.handleEvent(GlobalEventEnum.OcrEndEvent)
 
         # 将ocr识别结果渲染出来
         drop_score = 0.5

@@ -34,6 +34,13 @@ class SettingInterface(ScrollArea):
             cfg.get(cfg.cacheFolder),
             self.generalGroup
         )
+        self.pluginsFolderCard = PushSettingCard(
+            self.tr('Choose folder'),
+            FIF.DOWNLOAD,
+            self.tr("Plugins directory"),
+            cfg.get(cfg.pluginsFolder),
+            self.generalGroup
+        )
 
         # personalization
         self.personalGroup = SettingCardGroup(self.tr('Personalization'), self.scrollWidget)
@@ -161,6 +168,7 @@ class SettingInterface(ScrollArea):
     def __initLayout(self):
         # add cards to group
         self.generalGroup.addSettingCard(self.cacheFolderCard)
+        self.generalGroup.addSettingCard(self.pluginsFolderCard)
 
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)
@@ -201,15 +209,25 @@ class SettingInterface(ScrollArea):
             parent=self.window()
         )
 
-    def __onDownloadFolderCardClicked(self):
-        """ download folder card clicked slot """
+    def __onCacheFolderCardClicked(self):
+        """ cache folder card clicked slot """
         folder = QFileDialog.getExistingDirectory(
             self, self.tr("Choose folder"), "./")
-        if not folder or cfg.get(cfg.downloadFolder) == folder:
+        if not folder or cfg.get(cfg.cacheFolder) == folder:
             return
 
-        cfg.set(cfg.downloadFolder, folder)
+        cfg.set(cfg.cacheFolder, folder)
         self.cacheFolderCard.setContent(folder)
+
+    def __onPluginsFolderCardClicked(self):
+        """ plugins folder card clicked slot """
+        folder = QFileDialog.getExistingDirectory(
+            self, self.tr("Choose folder"), "")
+        if not folder or cfg.get(cfg.pluginsFolder) == folder:
+            return
+
+        cfg.set(cfg.pluginsFolder, folder)
+        self.pluginsFolderCard.setContent(folder)
 
     def __onThemeChanged(self, theme: Theme):
         """ theme changed slot """
@@ -226,7 +244,10 @@ class SettingInterface(ScrollArea):
 
         # general
         self.cacheFolderCard.clicked.connect(
-            self.__onDownloadFolderCardClicked)
+            self.__onCacheFolderCardClicked)
+
+        self.pluginsFolderCard.clicked.connect(
+            self.__onPluginsFolderCardClicked)
 
         # about
         self.aboutCard.clicked.connect(self.checkUpdateSig)

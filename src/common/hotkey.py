@@ -1,4 +1,9 @@
 # coding:utf-8
+'''
+提供全局热键的注册功能
+
+后续看下需不需要改用pynput来解决system_hotkey的兼容性问题
+'''
 import time
 from PyQt5.QtCore import *
 from system_hotkey import *

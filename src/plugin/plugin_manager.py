@@ -1,10 +1,12 @@
 import os, sys
 import importlib
-from .plugin_interface import PluginInterface
+from .plugin_interface import PluginInterface, GlobalEventEnum
+from common import *
 
 class PluginManager:
     def __init__(self, plugin_dir):
-        self.plugin_dir = plugin_dir
+        # self.plugin_dir = plugin_dir
+        self.plugin_dir = "../plugins_demos"
         self.plugins = []
 
     def loadPlugins(self):
@@ -18,9 +20,13 @@ class PluginManager:
                 for attr_name in dir(module):
                     attr = getattr(module, attr_name)
                     if isinstance(attr, type) and issubclass(attr, PluginInterface) and attr != PluginInterface:
-                        self.plugins.append(attr())
+                        pluginInst = attr()
+                        self.plugins.append(pluginInst)
+                        pluginInst.onLoaded()
 
-    def executeAllPlugins(self):
+    def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
         for plugin0 in self.plugins:
             plugin:PluginInterface = plugin0
-            plugin.execute()
+            plugin.handleEvent(eventName, *args, **kwargs)
+
+pluginMgr = PluginManager(cfg.get(cfg.pluginsFolder))

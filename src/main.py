@@ -4,6 +4,7 @@ from view import *
 from manager import *
 from version import *
 from plugin import *
+from pdf_viewer import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -17,13 +18,11 @@ class MainWindow(QWidget):
         self.initHotKey()
         self.initPinWindowManager()
 
+    def initPluginManager(self):
+        pluginMgr.loadPlugins()
+
     def initPinWindowManager(self):
         self.pinWindowMgr = PinWindowManager()
-
-    def initPluginManager(self):
-        plugin_manager = PluginManager("../plugins_demos")
-        plugin_manager.loadPlugins()
-        plugin_manager.executeAllPlugins()
 
     def initSystemTrayMenu(self):
         trayMenuActions = [
@@ -37,11 +36,13 @@ class MainWindow(QWidget):
     def initHotKey(self):
         if self.keyObj == None:
             self.keyObj = KeyboardEx()
+        pluginMgr.handleEvent(GlobalEventEnum.GlobalHotKeyRegisterStart, keyboard=self.keyObj)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyShowClipboard), self.showClipboard)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenPaint), self.screenPaint)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenShot), self.screenShot)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyToggleMouseClickThrough), self.switchMouseThroughState)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeySwitchScreenPaintMode), self.switchScreenPaintMode)
+        pluginMgr.handleEvent(GlobalEventEnum.GlobalHotKeyRegisterEnd, keyboard=self.keyObj)
 
     def screenShot(self):
         if self.screenShotWindow == None:

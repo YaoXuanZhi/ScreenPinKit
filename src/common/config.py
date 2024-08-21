@@ -44,6 +44,12 @@ class Config(QConfig):
     imageNameFormat = ConfigItem(
         "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator())
 
+    pluginsFolder = ConfigItem(
+        "General", "PluginsFolder", "", FolderValidator())
+
+    depsFolder = ConfigItem(
+        "General", "DepsFolder", "", FolderValidator())
+
     # HotKey
     hotKeyScreenShot = ConfigItem(
         "HotKey", "ScreenShot", "", ConfigValidator(), restart=True)
