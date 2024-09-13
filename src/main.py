@@ -4,6 +4,7 @@ from view import *
 from manager import *
 from version import *
 from plugin import *
+from ocr_loader import *
 from pdf_viewer import *
 
 class MainWindow(QWidget):
@@ -20,6 +21,7 @@ class MainWindow(QWidget):
 
     def initPluginManager(self):
         pluginMgr.loadPlugins()
+        ocrLoaderMgr.initLoaders()
 
     def initPinWindowManager(self):
         self.pinWindowMgr = PinWindowManager()

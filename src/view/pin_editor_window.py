@@ -7,7 +7,6 @@ from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
-from ocr_service import *
 from .painter_interface import PainterInterface
 from pdf_viewer import *
 

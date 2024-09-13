@@ -5,8 +5,8 @@ from canvas_editor import *
 from canvas_item import *
 from toolbar import *
 from pdf_viewer import *
-from ocr_service import *
 from plugin import *
+from ocr_loader import *
 
 # 绘制动作
 class DrawAction():
@@ -345,37 +345,26 @@ class PainterInterface(QWidget):
         # self.onExecuteOcr(self.physicalPixmap)
 
     def onExecuteOcr(self, pixmap:QPixmap):
-        print(f"ocr info [{OcrService.mode()}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
-        ocrService = OcrService()
+        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnTuple"]
+        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnText"]
+
+        print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         self.ocrStartSignal.emit()
 
-        # 添加异常处理
-        if OcrService.mode() == EnumOcrMode.UseInside:
-            result = ocrService.ocr(pixmap)
-        else:
-            result = ocrService.ocrWithProcessOutSide(pixmap)
-        try:
-            (boxes, txts, scores) = result
+        result = self.ocrLoader.ocr(pixmap)
 
-            # 将ocr结果通过QGraphicItem逐个渲染出来
-            # self.onOcrEndInside.emit(boxes, txts, scores)
-
-            # 将ocr结果转换为html再通过QWebEngineView显示
-            width = pixmap.size().width()
-            height = pixmap.size().height()
-            html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-            # html_content = image_to_origin_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-            self.onOcrEndOutsideSignal.emit(html_content)
-        except Exception as e:
-            if result.endswith(".pdf"):
-                self.onOcrEndOutsideSignal.emit(result)
-            elif result.endswith(".html"):
-                self.onOcrEndOutsideSignal.emit(result)
+        if self.ocrLoader.returnType == EnumOcrReturnType.Tuple:
+            boxes, txts, scores = result
+            self.ocrEndInsideSignal.emit(boxes, txts, scores)
+        elif self.ocrLoader.returnType == EnumOcrReturnType.Text:
+            self.onOcrEndOutsideSignal.emit(result)
+        elif self.ocrLoader.returnType == EnumOcrReturnType.FileName:
+            self.onOcrEndOutsideSignal.emit(result)
 
         self.ocrState = 1
 
     def onOcrStart(self):
-        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=OcrService.mode())
+        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.mode)
 
     def onOcrEndOutside(self, input):
         pluginMgr.handleEvent(GlobalEventEnum.OcrEndEvent, input=input)
