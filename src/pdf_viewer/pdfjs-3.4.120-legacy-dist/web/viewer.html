@@ -447,7 +447,7 @@ See https://github.com/adobe-type-tools/cmap-resources
             if (event.key === 'Escape') {
                 event.preventDefault();
                 window.receiver.hookEscPressed(window.getSelection().toString().length > 0);
-            }            
+            }
         });
 
         // 初始化QWebChannel
@@ -468,8 +468,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                 var renderedWidth = viewport.width;
                 var renderedHeight = viewport.height;
 
-                window.receiver.pdfRenderEnd(renderedWidth, renderedHeight);
-                // pdfViewer.currentScaleValue = 1.0;
+                window.receiver.htmlRenderFinished(renderedWidth, renderedHeight);
             });
         });
     </script>

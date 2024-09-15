@@ -23,7 +23,8 @@ class OcrLoaderManager:
         self.__initLoadersInside()
         self.__initLoadersOutside()
 
-        folderPath = os.path.join(self.workDir, "outside_ocr_loaders")
+        folderPath = cfg.get(cfg.pluginsFolder)
+        folderPath = os.path.join(folderPath, "outside_ocr_loaders")
         self.__initLoadersByFolder(folderPath)
 
     def __initLoadersInside(self):
