@@ -107,5 +107,6 @@ pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinK
  - ☐ 插件市场
  - ☐ 更快的离线OCR识别支持
  - ☐ 完善OCR识别层的UI显示
+   >初步思路：将图片转换成pdf，此时窗口就是一个pdf viewer，然后支持多层文本选择就行了，使用pypdfium2等技术来进行pdf渲染，或者自己参考pdf文本选择的思路自行实现一套简化版机制也可
 
 </details>
