@@ -36,6 +36,10 @@
 ## 安装
 ```shell
 # 暂时只推荐在Python3.8、Python3.9上安装
+## 源码安装
+#cd src/
+#python setup.py install
+# pip安装
 pip install ScreenPinKit -i https://pypi.org/simple/
 
 ScreenPinKit
