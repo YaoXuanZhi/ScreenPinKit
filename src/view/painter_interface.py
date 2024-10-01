@@ -346,11 +346,11 @@ class PainterInterface(QWidget):
 
     def onExecuteOcr(self, pixmap:QPixmap):
         # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnTuple"]
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnText"]
+        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnText"]
         # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoaderAsPdf_ReturnFileName"]
         # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoaderAsHtml_ReturnFileName"]
         # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoader_ReturnTuple"]
-        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoader_ReturnText"]
+        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoader_ReturnText"]
 
         print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         self.ocrStartSignal.emit()

@@ -252,8 +252,10 @@ class CanvasUtil:
 
     @staticmethod
     def getDevicePixelRatio():
-        return float(os.environ["QT_SCALE_FACTOR"])
-        # return QApplication.primaryScreen().devicePixelRatio()
+        if os.environ.get("QT_SCALE_FACTOR"):
+            return float(os.environ["QT_SCALE_FACTOR"])
+        else:
+            return QApplication.primaryScreen().devicePixelRatio()
 
     @staticmethod
     def grabScreens():
