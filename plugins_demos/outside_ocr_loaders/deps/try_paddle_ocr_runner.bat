@@ -1,5 +1,7 @@
 @echo off
-set mine_root=D:\GreenSoftware\paddleocr_toolkit\
+if not defined mine_root (
+    set mine_root=D:\GreenSoftware\paddleocr_toolkit\
+)
 set venv_path=%mine_root%run_dir\paddleocr_env
 set inference_path=%mine_root%run_dir\inference
 set rec_char_dict_path=%mine_root%run_dir\ppocr_keys_v1.txt
