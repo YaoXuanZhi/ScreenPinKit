@@ -22,8 +22,8 @@ class DrawAction():
 # 绘图控件
 class PainterInterface(QWidget):
     ocrStartSignal = pyqtSignal()
-    ocrEndInsideSignal = pyqtSignal(list, list, list)
-    onOcrEndOutsideSignal = pyqtSignal(str)
+    ocrEndSuccessSignal = pyqtSignal(object)
+    ocrEndFailSignal = pyqtSignal(str)
     def __init__(self, parent=None, physicalPixmap:QPixmap=None):
         super().__init__(parent)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -51,8 +51,8 @@ class PainterInterface(QWidget):
             self.sceneBrush.setTransform(transform)
 
             self.ocrStartSignal.connect(self.onOcrStart)
-            self.ocrEndInsideSignal.connect(self.onOcrEndInside)
-            self.onOcrEndOutsideSignal.connect(self.onOcrEndOutside)
+            self.ocrEndSuccessSignal.connect(self.onOcrEndSuccess)
+            self.ocrEndFailSignal.connect(self.onOcrEndFail)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.AUTO
@@ -355,45 +355,18 @@ class PainterInterface(QWidget):
         print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         self.ocrStartSignal.emit()
 
-        result = self.ocrLoader.ocr(pixmap)
+        try:
+            result = self.ocrLoader.ocr(pixmap)
+            self.ocrEndSuccessSignal.emit(result)
 
-        if self.ocrLoader.returnType == EnumOcrReturnType.Tuple:
-            boxes, txts, scores = result
-            self.ocrEndInsideSignal.emit(boxes, txts, scores)
-        elif self.ocrLoader.returnType == EnumOcrReturnType.Text:
-            self.onOcrEndOutsideSignal.emit(result)
-        elif self.ocrLoader.returnType == EnumOcrReturnType.FileName:
-            self.onOcrEndOutsideSignal.emit(result)
+        except Exception as e:
+            message = "\n".join(e.args)
+            self.ocrEndFailSignal.emit(message)
 
         self.ocrState = 1
 
     def onOcrStart(self):
         pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.mode)
-
-    def onOcrEndOutside(self, input):
-        pluginMgr.handleEvent(GlobalEventEnum.OcrEndEvent, input=input)
-        # 渲染Html
-        if input.endswith(".pdf"):
-            self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
-        elif input.endswith(".html"):
-            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
-        else:
-            # 传了一个网页文本进来
-            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
-        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
-        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
-        self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
-        self.drawWidget.scene.addItem(self.webViewerItem)
-
-        if (input.endswith(".html") or input.endswith(".pdf")):
-            self.webViewerItem.openFile(input)
-        else:
-            self.webViewerItem.setHtml(input)
-
-        if hasattr(self, "ocrThread"):
-            self.ocrThread.quit()
-            self.ocrThread = None
-        pass
 
     def onEscPressed(self, hasSelectedText):
         if hasSelectedText:
@@ -426,9 +399,26 @@ class PainterInterface(QWidget):
         self.showCommandBar()
         self.selectItemAction.trigger()
 
-    def onOcrEndInside(self, boxes, txts, scores):
-        pluginMgr.handleEvent(GlobalEventEnum.OcrEndEvent)
+    def onOcrEndForReturnStr(self, input):
+        # 渲染Html
+        if input.endswith(".pdf"):
+            self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
+        elif input.endswith(".html"):
+            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
+        else:
+            # 传了一个网页文本进来
+            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
+        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
+        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
+        self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
+        self.drawWidget.scene.addItem(self.webViewerItem)
 
+        if (input.endswith(".html") or input.endswith(".pdf")):
+            self.webViewerItem.openFile(input)
+        else:
+            self.webViewerItem.setHtml(input)
+
+    def onOcrEndForReturnTuple(self, boxes, txts, scores):
         # 将ocr识别结果渲染出来
         drop_score = 0.5
         dpiScale = CanvasUtil.getDevicePixelRatio()
@@ -449,6 +439,28 @@ class PainterInterface(QWidget):
             textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
             self.drawWidget.scene.addItem(textItem)
             self.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
+
+    def onOcrEndSuccess(self, input):
+        pluginMgr.handleEvent(GlobalEventEnum.OcrEndSuccessEvent, parent_widget=self)
+
+        if isinstance(input, tuple):
+            (boxes, txts, scores) = input
+            self.onOcrEndForReturnTuple(boxes, txts, scores)
+        else:
+            self.onOcrEndForReturnStr(input)
+
+        # try:
+        #     (boxes, txts, scores) = input
+        #     self.onOcrEndForReturnTuple(boxes, txts, scores)
+        # except Exception as e:
+        #     self.onOcrEndForReturnStr(input)
+
+        if hasattr(self, "ocrThread"):
+            self.ocrThread.quit()
+            self.ocrThread = None
+
+    def onOcrEndFail(self, message):
+        pluginMgr.handleEvent(GlobalEventEnum.OcrEndFailEvent, parent_widget=self, message=message)
 
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()

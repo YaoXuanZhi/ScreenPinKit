@@ -5,12 +5,14 @@ from enum import Enum
 class GlobalEventEnum(Enum):
     OcrStartEvent = 1
     '''OCR开始事件'''
-    OcrEndEvent = 2
+    OcrEndSuccessEvent = 2
     '''OCR结束事件'''
+    OcrEndFailEvent = 3
+    '''OCR失败事件'''
 
-    GlobalHotKeyRegisterStart = 3
+    GlobalHotKeyRegisterStart = 13
     '''全局热键开始注册'''
-    GlobalHotKeyRegisterEnd = 4
+    GlobalHotKeyRegisterEnd = 14
     '''全局热键结束注册'''
 
 class PluginInterface(ABC):

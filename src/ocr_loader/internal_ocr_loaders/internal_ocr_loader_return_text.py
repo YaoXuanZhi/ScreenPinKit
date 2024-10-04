@@ -8,7 +8,7 @@ try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
     _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
-    _currentOcrMode = EnumOcrMode.UseOutside
+    _currentOcrMode = EnumOcrMode.NoSupport
 
 def qpixmapToMatlike(qpixmap:QPixmap):
     # 将 QPixmap 转换为 QImage
@@ -61,7 +61,7 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
         '''
         if _currentOcrMode == EnumOcrMode.NoSupport:
-            return [], [], []
+            raise Exception("请执行pip install -r requirement_ocr_support.txt，再重启应用")
 
         matlike = qpixmapToMatlike(pixmap)
 
