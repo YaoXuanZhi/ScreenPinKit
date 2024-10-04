@@ -19,6 +19,7 @@ class OsHelper:
         except subprocess.CalledProcessError as e:
             # 如果命令执行出错，打印错误信息
             print("An error occurred while executing the command.", e)
+            raise e
 
     @staticmethod
     def calculateHashForQPixmap(pixmap:QPixmap, cutLength=0, hashAlgorithm="sha256"):

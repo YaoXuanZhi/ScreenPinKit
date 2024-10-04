@@ -449,12 +449,6 @@ class PainterInterface(QWidget):
         else:
             self.onOcrEndForReturnStr(input)
 
-        # try:
-        #     (boxes, txts, scores) = input
-        #     self.onOcrEndForReturnTuple(boxes, txts, scores)
-        # except Exception as e:
-        #     self.onOcrEndForReturnStr(input)
-
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()
             self.ocrThread = None

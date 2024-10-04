@@ -21,11 +21,14 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
         return EnumOcrReturnType.Text
 
     def ocr(self, pixmap:QPixmap):
-        boxes, txts, scores = self.__ocr(pixmap)
-        width = pixmap.size().width()
-        height = pixmap.size().height()
-        html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
-        return html_content
+        try:
+            boxes, txts, scores = self.__ocr(pixmap)
+            width = pixmap.size().width()
+            height = pixmap.size().height()
+            htmlContent = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            return htmlContent
+        except Exception as e:
+            raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")
 
     def __ocr(self, pixmap:QPixmap):
         '''
@@ -50,7 +53,6 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
             ocrRunnerBatPath = os.path.join(workDir, "deps/try_paddle_ocr_runner.bat") 
             # ocrRunnerBatPath = os.path.join(workDir, "deps/try_tessact_ocr_runner.bat") 
             fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
-            print(fullCmd)
             OsHelper.executeSystemCommand(fullCmd)
 
         # 读取缓存文件夹上的ocr识别结果 

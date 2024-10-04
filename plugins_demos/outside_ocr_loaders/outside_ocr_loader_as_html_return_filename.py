@@ -49,7 +49,9 @@ class OutsideOcrLoaderAsHtml_ReturnFileName(OcrLoaderInterface):
             pixmap.save(imagePath)
 
         htmlPath = f"{imagePath}.html"
-        if not os.path.exists(htmlPath):
-            self.image2HtmlWithTextLayer(workDir, imagePath, htmlPath)
-
-        return htmlPath
+        try:
+            if not os.path.exists(htmlPath):
+                self.image2HtmlWithTextLayer(workDir, imagePath, htmlPath)
+            return htmlPath
+        except Exception as e:
+            raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")

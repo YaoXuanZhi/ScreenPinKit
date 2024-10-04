@@ -21,6 +21,12 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
         return EnumOcrReturnType.Tuple
 
     def ocr(self, pixmap:QPixmap):
+        try:
+            return self.__ocr(pixmap)
+        except Exception as e:
+            raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")
+
+    def __ocr(self, pixmap:QPixmap):
         '''
         借用命令行工具来进行OCR识别，并且结果传递回来
         @note 该函数会阻塞当前线程
@@ -43,7 +49,6 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
             ocrRunnerBatPath = os.path.join(workDir, "deps/try_paddle_ocr_runner.bat") 
             # ocrRunnerBatPath = os.path.join(workDir, "deps/try_tessact_ocr_runner.bat") 
             fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
-            print(fullCmd)
             OsHelper.executeSystemCommand(fullCmd)
 
         # 读取缓存文件夹上的ocr识别结果 

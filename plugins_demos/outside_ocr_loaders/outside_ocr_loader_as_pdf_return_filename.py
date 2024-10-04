@@ -59,7 +59,10 @@ class OutsideOcrLoaderAsPdf_ReturnFileName(OcrLoaderInterface):
             pixmap.save(imagePath)
 
         pdfPath = os.path.join(ocrTempDirPath, f"{fileName}.pdf")
-        if not os.path.exists(pdfPath):
-            self.image2OcrPdfWithTextLayer(workDir, imagePath, pdfPath)
 
-        return pdfPath
+        try:
+            if not os.path.exists(pdfPath):
+                self.image2OcrPdfWithTextLayer(workDir, imagePath, pdfPath)
+            return pdfPath
+        except Exception as e:
+            raise Exception("请检查ocrmypdf的相关运行环境是否配置好了")
