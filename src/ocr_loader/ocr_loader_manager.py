@@ -1,7 +1,7 @@
 import os, sys, glob, importlib
-from enum import Enum
 from .ocr_loader_interface import OcrLoaderInterface
 from common import *
+from canvas_item import *
 
 class OcrThread(QThread):
     ocrStartSignal = pyqtSignal()
@@ -23,17 +23,13 @@ class OcrLoaderManager:
         self.__initLoadersInside()
         self.__initLoadersOutside()
 
-        folderPath = cfg.get(cfg.pluginsFolder)
-        folderPath = os.path.join(folderPath, "outside_ocr_loaders")
-        self.__initLoadersByFolder(folderPath)
-
     def __initLoadersInside(self):
         folderPath = os.path.dirname(__file__)
         folderPath = os.path.join(self.workDir, "internal_ocr_loaders")
         self.__initLoadersByFolder(folderPath)
 
     def __initLoadersOutside(self):
-        plugin_dir = cfg.get(cfg.pluginsFolder)
+        plugin_dir = cfg.get(cfg.ocrLoaderFolder)
         self.__initLoadersByFolder(plugin_dir)
 
     def __initLoadersByFolder(self, folderPath):

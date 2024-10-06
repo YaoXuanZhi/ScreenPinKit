@@ -36,6 +36,11 @@ class OcrLoaderInterface(ABC):
 
     @property
     @abstractmethod
+    def displayName(self):
+        return "displayName"
+
+    @property
+    @abstractmethod
     def desc(self):
         return "desc"
 

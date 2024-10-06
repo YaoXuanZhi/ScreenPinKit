@@ -9,6 +9,10 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
         return "OutsideOcrLoader_ReturnText"
 
     @property
+    def displayName(self):
+        return "PaddleOCR-返回文本"
+
+    @property
     def desc(self):
         return "采用外部OCR来进行OCR识别，返回Text"
 

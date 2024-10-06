@@ -19,6 +19,10 @@ class OutsideOcrLoaderAsPdf_ReturnFileName(OcrLoaderInterface):
         return "OutsideOcrLoaderAsPdf_ReturnFileName"
 
     @property
+    def displayName(self):
+        return "OcrMyPdf-返回pdf文件名"
+
+    @property
     def desc(self):
         return "采用外部OCR来进行OCR识别，返回FileName"
 

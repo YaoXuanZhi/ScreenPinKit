@@ -344,13 +344,16 @@ class PainterInterface(QWidget):
         self.ocrThread.start()
         # self.onExecuteOcr(self.physicalPixmap)
 
+    def checkOcrLoaderValid(self):
+        '''纠正OCR加载器配置失效情况'''
+        ocrLoaderName = cfg.get(cfg.useOcrLoaderType)
+        if not ocrLoaderName in ocrLoaderMgr.loaderDict:
+            keys = list(ocrLoaderMgr.loaderDict.keys())
+            cfg.set(cfg.useOcrLoaderType, keys[0])
+
     def onExecuteOcr(self, pixmap:QPixmap):
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnTuple"]
-        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["InternalOcrLoader_ReturnText"]
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoaderAsPdf_ReturnFileName"]
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoaderAsHtml_ReturnFileName"]
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoader_ReturnTuple"]
-        # self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict["OutsideOcrLoader_ReturnText"]
+        self.checkOcrLoaderValid()
+        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict[cfg.get(cfg.useOcrLoaderType)]
 
         print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
         self.ocrStartSignal.emit()
@@ -366,7 +369,8 @@ class PainterInterface(QWidget):
         self.ocrState = 1
 
     def onOcrStart(self):
-        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.mode)
+        # pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.mode)
+        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.displayName)
 
     def onEscPressed(self, hasSelectedText):
         if hasSelectedText:

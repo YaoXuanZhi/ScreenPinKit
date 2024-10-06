@@ -12,6 +12,7 @@ from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QWidget, QLabel, QFontDialog, QFileDialog
 from .hotkey_setting_card_group import HotkeySettingCardGroup
 from .toolbar_setting_card_group import ToolbarSettingCardGroup
+from .ocr_loader_card_group import OcrLoaderSettingGroup
 
 class SettingInterface(ScrollArea):
     """ Setting interface """
@@ -117,6 +118,9 @@ class SettingInterface(ScrollArea):
             parent=self.windowShadowStyleGroup
         )
 
+        # OcrLoaderSetting
+        self.ocrLoaderSettingGroup = OcrLoaderSettingGroup(self.tr("OcrLoaderSetting"), self.scrollWidget)
+
         # hotkey
         self.hotkeyGroup = HotkeySettingCardGroup(self.tr("Global Hotkey"), self.scrollWidget)
 
@@ -190,6 +194,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.generalGroup)
         self.expandLayout.addWidget(self.personalGroup)
+        self.expandLayout.addWidget(self.ocrLoaderSettingGroup)
         self.expandLayout.addWidget(self.windowShadowStyleGroup)
         self.expandLayout.addWidget(self.toolbarGroup)
         self.expandLayout.addWidget(self.hotkeyGroup)

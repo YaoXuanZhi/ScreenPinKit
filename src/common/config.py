@@ -156,6 +156,13 @@ class Config(QConfig):
     numberMarkerItemToolbarBrushColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "brushColor", QColor(255, 0, 0, 128))
 
+    # OcrLoaderSetting
+    # 注意，OCRLoader采取的是动态加载方式，这里只是用于占位
+    useOcrLoaderType = OptionsConfigItem(
+        "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnText")
+    ocrLoaderFolder = ConfigItem(
+        "OcrLoaderConfig", "OcrLoaderFolder", "outside_ocr_loaders", FolderValidator())
+
     @property
     def numberMarkerItemToolbarFont(self):
         font = QFont(self.numberMarkerItemToolbarFontFamily.value)

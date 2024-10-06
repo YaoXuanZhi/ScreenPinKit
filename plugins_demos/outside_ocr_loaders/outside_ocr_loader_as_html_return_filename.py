@@ -9,6 +9,10 @@ class OutsideOcrLoaderAsHtml_ReturnFileName(OcrLoaderInterface):
         return "OutsideOcrLoaderAsHtml_ReturnFileName"
 
     @property
+    def displayName(self):
+        return "PaddleOCR-返回html文件名"
+
+    @property
     def desc(self):
         return "采用外部OCR来进行OCR识别，返回Tuple"
 

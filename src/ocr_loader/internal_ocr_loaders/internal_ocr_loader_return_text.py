@@ -34,6 +34,10 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         return "InternalOcrLoader_ReturnText"
 
     @property
+    def displayName(self):
+        return "Paddle2Onnx-返回Text"
+
+    @property
     def desc(self):
         return "采用PaddleOCR的ONNX模型进行OCR识别，返回Text"
 

@@ -34,6 +34,10 @@ class InternalOcrLoader_ReturnTuple(OcrLoaderInterface):
         return "InternalOcrLoader_ReturnTuple"
 
     @property
+    def displayName(self):
+        return "Paddle2Onnx-返回Tuple"
+
+    @property
     def desc(self):
         return "采用PaddleOCR的ONNX模型进行OCR识别，返回Tuple"
 

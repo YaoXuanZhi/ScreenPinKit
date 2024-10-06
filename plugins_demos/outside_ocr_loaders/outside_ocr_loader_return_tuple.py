@@ -9,6 +9,10 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
         return "OutsideOcrLoader_ReturnTuple"
 
     @property
+    def displayName(self):
+        return "PaddleOCR-返回Tuple"
+
+    @property
     def desc(self):
         return "采用外部OCR来进行OCR识别，返回Tuple"
 
