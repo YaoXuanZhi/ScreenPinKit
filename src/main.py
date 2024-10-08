@@ -3,6 +3,7 @@ from common import *
 from view import *
 from manager import *
 from version import *
+from plugin import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -14,6 +15,7 @@ class MainWindow(QWidget):
         self.initSystemTrayMenu()
         self.initHotKey()
         self.initPinWindowManager()
+        init_plugin_manager()
 
     def initPinWindowManager(self):
         self.pinWindowMgr = PinWindowManager()
@@ -106,6 +108,11 @@ def main():
     MainWindow()
 
     sys.exit(app.exec_())
+
+def init_plugin_manager():
+    plugin_manager = PluginManager("plugins_demos")
+    plugin_manager.load_plugins()
+    plugin_manager.execute_all_plugins()
 
 if __name__ == '__main__':
     main()
