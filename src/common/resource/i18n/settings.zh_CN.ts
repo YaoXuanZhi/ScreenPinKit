@@ -20,6 +20,10 @@
         <translation>缓存目录</translation>
     </message>
     <message>
+        <source>Plugins directory</source>
+        <translation>插件目录</translation>
+    </message>
+    <message>
         <source>Personalization</source>
         <translation>个性化</translation>
     </message>
@@ -52,6 +56,10 @@
         <translation>跟随系统设置</translation>
     </message>
     <message>
+        <source>OcrLoaderSetting</source>
+        <translation>OCR设置</translation>
+    </message>
+    <message>
         <source>Interface zoom</source>
         <translation>界面缩放</translation>
     </message>
@@ -75,7 +83,7 @@
         <source>Check for updates when the application starts</source>
         <translation>在应用程序启动时检查更新</translation>
     </message>
-        <message>
+    <message>
         <source>The new version will be more stable and have more features</source>
         <translation>新版本将更加稳定并拥有更多功能（建议启用此选项）</translation>
     </message>
@@ -98,6 +106,18 @@
     <message>
         <source>Help us improve ScreenPinKit by providing feedback</source>
         <translation>通过提供反馈帮助我们改进 ScreenPinKit</translation>
+    </message>
+    <message>
+        <source>Restart application</source>
+        <translation>重启应用</translation>
+    </message>
+    <message>
+        <source>Restart</source>
+        <translation>重启</translation>
+    </message>
+    <message>
+        <source>Restart the program to apply certain settings</source>
+        <translation>重启程序以便让某些设置项生效</translation>
     </message>
     <message>
         <source>Check update</source>
@@ -849,6 +869,28 @@
     <message>
         <source>Toggle mouse cick-through</source>
         <translation>鼠标穿透开关</translation>
+    </message>
+</context>
+<context>
+    <name>OcrLoaderSettingGroup</name>
+    <message>
+        <source>Choose folder</source>
+        <translation>选择文件夹</translation>
+    </message>
+    <message>
+        <source>OcrLoader directory</source>
+        <translation>OCR加载器目录</translation>
+    </message>
+    <message>
+        <source>Use ocrloader type</source>
+        <translation>OCR加载器类型</translation>
+    </message>
+</context>
+<context>
+    <name>OcrLoaderTypeSettingCard</name>
+    <message>
+        <source>Use ocrloader type</source>
+        <translation>OCR加载器类型</translation>
     </message>
 </context>
 </TS>

@@ -14,7 +14,7 @@ class OcrLoaderTypeSettingCard(OptionsSettingCard):
         print(ocrLoaderMgr.loaderDict)
         configItem = cfg.useOcrLoaderType
         icon = ScreenShotIcon.OCR
-        title = parent.tr('Use OcrLoader') 
+        title = parent.tr('Use ocrloader type') 
         content = None
         texts = OcrLoaderTypeSettingCard.getLoaderDisplayNames()
         texts2 = OcrLoaderTypeSettingCard.getLoaderNames()
