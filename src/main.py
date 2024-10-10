@@ -4,6 +4,7 @@ from view import *
 from manager import *
 from version import *
 from plugin import *
+from pdf_viewer import *
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -16,6 +17,7 @@ class MainWindow(QWidget):
         self.initHotKey()
         self.initPinWindowManager()
         init_plugin_manager()
+        self.showPdfViewerWindow()
 
     def initPinWindowManager(self):
         self.pinWindowMgr = PinWindowManager()
@@ -58,6 +60,11 @@ class MainWindow(QWidget):
     def showSettingWindow(self):
         if self.settingWindow == None:
             self.settingWindow = SettingWindow()
+        self.settingWindow.show()
+
+    def showPdfViewerWindow(self):
+        if self.settingWindow == None:
+            self.settingWindow = PdfViewerWindow()
         self.settingWindow.show()
 
     def switchScreenPaintMode(self):
@@ -110,7 +117,7 @@ def main():
     sys.exit(app.exec_())
 
 def init_plugin_manager():
-    plugin_manager = PluginManager("plugins_demos")
+    plugin_manager = PluginManager("../plugins_demos")
     plugin_manager.load_plugins()
     plugin_manager.execute_all_plugins()
 
