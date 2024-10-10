@@ -6,6 +6,7 @@ import numpy as np
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
+    from PaddleOCRModel.html_builder import image_to_svg_html
     _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
     _currentOcrMode = EnumOcrMode.NoSupport

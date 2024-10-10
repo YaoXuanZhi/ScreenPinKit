@@ -4,7 +4,7 @@ from PIL import Image, ImageFont
 import cv2
 import numpy as np
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), ".."))
-from html_builder import image_to_html as build_svg_html
+from html_builder import image_to_svg_html as build_svg_html
 
 def image_to_html(input, output, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''

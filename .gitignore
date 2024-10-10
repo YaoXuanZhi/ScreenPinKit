@@ -2,3 +2,4 @@
 /doc/logseq/bak
 __pycache__
 ocr_temp
+/src/ocr_loader/internal_ocr_loaders/PaddleOCRModel/testocr.png
