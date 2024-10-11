@@ -119,7 +119,7 @@ class PainterInterface(QWidget):
 
         if self.drawWidget.sceneBrush != None:
             view.addActions([
-                Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.ocr)
+                Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr)
             ])
 
         view.addActions([
@@ -272,9 +272,6 @@ class PainterInterface(QWidget):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum 
         self.setCursor(cursor)
-
-    def ocr(self):
-        self.startOcr()
 
     def clearDraw(self):
         if hasattr(self, "drawWidget"):

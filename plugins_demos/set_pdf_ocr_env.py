@@ -14,5 +14,5 @@ class SetPdfOcrEnv(PluginInterface):
         if eventName == GlobalEventEnum.OcrStartEvent:
             # os.environ["venv_path"] = "D:/InstallSoftware/Miniconda3/envs/ocrmypdf_env/"
             # os.environ["tesseract_path"] = "D:/OpenSource/ScreenPinKit/deps/Tesseract-OCR"
-            print("修改Pdf-Ocr环境变量成功")
+            # print("修改Pdf-Ocr环境变量成功")
             pass

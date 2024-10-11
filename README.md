@@ -32,10 +32,15 @@
 
 ![Interface](https://raw.githubusercontent.com/YaoXuanZhi/ScreenPinKit/main/images/Interface.png)
 
+![OCR](https://raw.githubusercontent.com/YaoXuanZhi/ScreenPinKit/main/images/ocr.png)
 
 ## 安装
 ```shell
 # 暂时只推荐在Python3.8、Python3.9上安装
+## 源码安装
+#cd src/
+#python setup.py install
+# pip安装
 pip install ScreenPinKit -i https://pypi.org/simple/
 
 ScreenPinKit
@@ -73,6 +78,7 @@ pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinK
 | 截图窗口 | Ctrl+T | 将截图选区转换为屏幕贴图 |
 | 截图窗口 | Shift | 切换放大镜上的颜色格式(rgb/hex) |
 | 截图窗口 | C | 复制当前拾取到的颜色格式 |
+| 贴图窗口 | Ctrl+A | OCR识别 |
 | 贴图窗口 | Alt+F | 切换鼠标穿透状态 |
 | 贴图窗口 | Ctrl+C | 复制当前贴图到剪贴板上 |
 | 贴图窗口 | Ctrl+S | 将当前贴图保存到磁盘上 |
@@ -101,7 +107,9 @@ pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinK
  - ☐ 无感设置快捷键
  - ☐ 无感切换语言
  - ☐ 插件市场
- - ☐ 更快的离线OCR识别支持
- - ☐ 完善OCR识别层的UI显示
+   - ✔ 添加插件系统
+   - ☐ 添加插件市场UI
+ - ✔ 更快的离线OCR识别支持
+ - ✔ 完善OCR识别层的UI显示
 
 </details>
