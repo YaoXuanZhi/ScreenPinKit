@@ -29,7 +29,7 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
             boxes, txts, scores = self.__ocr(pixmap)
             width = pixmap.size().width()
             height = pixmap.size().height()
-            htmlContent = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+            htmlContent = build_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
             return htmlContent
         except Exception as e:
             raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")

@@ -2,39 +2,39 @@ import html, os
 from PIL import ImageFont
 import numpy as np
 
-def image_to_svg_html(width, height, boxes, txts, dpi_scale=1):
+def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
+    """
+    计算最适合固定文本框的字体大小
+    :param text: 要显示的文本
+    :param font_path: 字体文件路径
+    :param max_width: 文本框的最大宽度
+    :param max_height: 文本框的最大高度
+    :param initial_font_size: 初始字体大小
+    :return: 最适合的字体大小
+    """
+
+    font_size = initial_font_size
+
+    while True:
+        font = ImageFont.truetype(font_path, font_size)
+        text_width, text_height = font.getsize(text)
+
+        if text_width <= max_width and text_height <= max_height:
+            font_size += 1
+        else:
+            break
+
+    return font_size
+
+def build_svg_html(width, height, boxes, txts, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
     # box = [x, y, w, h]
 
     width = width / dpi_scale
     height = height / dpi_scale
 
-    def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
-        """
-        计算最适合固定文本框的字体大小
-        :param text: 要显示的文本
-        :param font_path: 字体文件路径
-        :param max_width: 文本框的最大宽度
-        :param max_height: 文本框的最大高度
-        :param initial_font_size: 初始字体大小
-        :return: 最适合的字体大小
-        """
-
-        font_size = initial_font_size
-
-        while True:
-            font = ImageFont.truetype(font_path, font_size)
-            text_width, text_height = font.getsize(text)
-
-            if text_width <= max_width and text_height <= max_height:
-                font_size += 1
-            else:
-                break
-
-        return font_size
-
     # 构建 HTML 内容
-    html_content = f"""
+    htmlContent = f"""
     <html>
     <head>
         <title>OCR Result</title>
@@ -119,21 +119,21 @@ def image_to_svg_html(width, height, boxes, txts, dpi_scale=1):
         # """
 
         # 正式版
-        html_content += f"""
+        htmlContent += f"""
         <text x="{x}" y="{y+h/2}" width="{w}" height="{h}" text-anchor="start" dominant-baseline="middle" font-family="Arial" font-size="{best_font_size}" fill="none" textLength="{w}" lengthAdjust="spacingAndGlyphs">
             {text}
         </text>
         """
 
-    html_content += """
+    htmlContent += """
         </svg>
     </body>
     </html>
     """
 
-    return html_content
+    return htmlContent
 
-def image_to_origin_html(width, height, boxes, txts, dpi_scale=1):
+def build_origin_html(width, height, boxes, txts, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
     # box = [x, y, w, h]
 
@@ -141,7 +141,7 @@ def image_to_origin_html(width, height, boxes, txts, dpi_scale=1):
     height = height / dpi_scale
 
     # 构建 HTML 内容
-    html_content = f"""
+    htmlContent = f"""
     <html>
     <head>
         <title>OCR Result</title>
@@ -334,15 +334,51 @@ def image_to_origin_html(width, height, boxes, txts, dpi_scale=1):
         h = h / dpi_scale
         text = html.escape(text)
 
-        html_content += f"""
+        htmlContent += f"""
         <div class="container" style="left: {x}px; top: {y}px; width: {w}px; height: {h}px;">
             <span class="text">{text}</span>
         </div>
         """
 
-    html_content += """
+    htmlContent += """
     </body>
     </html>
     """
 
-    return html_content
+    return htmlContent
+
+def build_svg_content(width, height, boxes, txts, dpi_scale=1):
+    # 构建 HTML 内容
+    svgContent = f"""
+<svg width="100%" height="100%" viewBox="0 0 {width} {height}" preserveAspectRatio="xMaxYMax slice" xmlns="http://www.w3.org/2000/svg">
+    """
+
+    # 遍历 OCR 结果，生成 HTML 文本层
+    for i in range(0, len(boxes)):
+        text = txts[i]
+        box = boxes[i]
+        [left_top, right_top, right_bottom, left_bottom] = box
+
+        x, y = left_top
+        w = right_top[0] - left_top[0]
+        h = left_bottom[-1] - left_top[-1]
+
+        x = x / dpi_scale
+        y = y / dpi_scale
+        w = w / dpi_scale
+        h = h / dpi_scale
+        text = html.escape(text)
+
+        best_font_size = calculate_best_font_size(text, "arial.ttf", w, h, 2)
+
+        svgContent += f"""
+    <rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" stroke="gray"/>
+    <text x="{x}" y="{y+h}" width="{w}" height="{h}" font-family="Arial" font-size="{best_font_size}" fill="blue" textLength="{w}" lengthAdjust="spacingAndGlyphs">
+        {text}
+    </text>
+        """
+
+    svgContent += """
+</svg>
+    """
+    return svgContent

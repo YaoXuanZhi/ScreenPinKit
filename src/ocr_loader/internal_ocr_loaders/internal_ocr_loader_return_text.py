@@ -6,7 +6,6 @@ import numpy as np
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
-    from PaddleOCRModel.html_builder import image_to_svg_html
     _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
     _currentOcrMode = EnumOcrMode.NoSupport
@@ -54,7 +53,7 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         boxes, txts, scores = self.__ocr(pixmap)
         width = pixmap.size().width()
         height = pixmap.size().height()
-        html_content = image_to_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
+        html_content = build_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=CanvasUtil.getDevicePixelRatio())
         return html_content
 
     def __ocr(self, pixmap:QPixmap):

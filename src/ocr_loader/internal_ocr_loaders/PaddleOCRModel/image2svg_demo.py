@@ -4,10 +4,10 @@ from PIL import Image, ImageFont
 import cv2
 import numpy as np
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), ".."))
-from html_builder import build_svg_html as build_svg_html
+from html_builder import build_svg_content
 
-def image2svghtml(input, output, dpi_scale=1):
-    '''将图片进行OCR识别后，将结果转换成html'''
+def image2svg(input, output, dpi_scale=1):
+    '''将图片进行OCR识别后，将结果转换成svg'''
     # 打开图片
     image = Image.open(input)
 
@@ -15,7 +15,6 @@ def image2svghtml(input, output, dpi_scale=1):
     width, height = image.size
 
     # 使用 PaddleOCR 进行 OCR 识别
-    # result = ocr.ocr(input, cls=True)
     with open(input, 'rb') as f:
         img_bytes = f.read()
         # 从字节数组读取图像
@@ -49,15 +48,15 @@ def image2svghtml(input, output, dpi_scale=1):
         txts.append(text)
         scores.append(0.97)
 
-    html_content = build_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=dpi_scale)
+    svgContent = build_svg_content(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=dpi_scale)
     with open(output, 'w', encoding='utf-8') as f:
-        f.write(html_content)
+        f.write(svgContent)
 
 def main(args):
     input_path = args.input_path
     output_path = args.output_path
     dpi_scale = args.dpi_scale
-    image2svghtml(input_path, output_path, dpi_scale)
+    image2svg(input_path, output_path, dpi_scale)
 
 def parse_args():
     parser = argparse.ArgumentParser()
