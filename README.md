@@ -111,5 +111,6 @@ pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinK
    - ☐ 添加插件市场UI
  - ✔ 更快的离线OCR识别支持
  - ✔ 完善OCR识别层的UI显示
+   >优化方向：目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本
 
 </details>
