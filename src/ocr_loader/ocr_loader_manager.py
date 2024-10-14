@@ -2,6 +2,8 @@ import os, sys, glob, importlib
 from .ocr_loader_interface import OcrLoaderInterface
 from common import *
 from canvas_item import *
+# 该模块的引用会传递到loader实现上
+from misc import *
 
 class CustomLoader(importlib.abc.Loader):
     def __init__(self, module_code):
@@ -30,16 +32,13 @@ class OcrLoaderManager:
         self.__initLoadersOutside()
 
     def __initLoadersInside(self):
-        folderPath = os.getcwd()
-        folderPath = os.path.join(folderPath, "internal_ocr_loaders")
-        self.__initLoadersByFolder(folderPath)
-
-        # if os.environ.get("debug"):
-        #     folderPath = os.getcwd()
-        #     folderPath = os.path.join(folderPath, "internal_ocr_loaders")
-        #     self.__initLoadersByFolder(folderPath)
-        # else:
-        #     self.__initLoadersByFilePath("internal_ocr_loader_return_text", ":/InternalData/resource/internal_ocr_loaders/internal_ocr_loader_return_text.py")
+        import cv2
+        import onnxruntime
+        import pyclipper
+        from shapely.geometry import Polygon
+        # 打包指令：pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
+        self.__initLoadersByModuleName("internal_ocr_loader_return_text")
+        self.__initLoadersByModuleName("internal_ocr_loader_return_tuple")
 
     def __initLoadersOutside(self):
         plugin_dir = cfg.get(cfg.ocrLoaderFolder)
@@ -78,9 +77,15 @@ class OcrLoaderManager:
             filename = os.path.basename(filePath)
             module_name = filename[:-3]
             module_path = f"{module_name}"
-            module = importlib.import_module(module_path)
-            self.__filterInterface(module)
-                
+            try:
+                module = importlib.import_module(module_path)
+                self.__filterInterface(module)
+            except Exception:
+                pass
+
+    def __initLoadersByModuleName(self, moduleName):
+        module = importlib.import_module(moduleName)
+        self.__filterInterface(module)
 
     def __filterInterface(self, module):
         for attr_name in dir(module):

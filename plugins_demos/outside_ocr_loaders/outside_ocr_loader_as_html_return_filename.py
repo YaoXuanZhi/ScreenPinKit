@@ -24,14 +24,12 @@ class OutsideOcrLoaderAsHtml_ReturnFileName(OcrLoaderInterface):
     def returnType(self):
         return EnumOcrReturnType.FileName
 
-    def image2HtmlWithTextLayer(self, workDir:str, input:str, output:str):
+    def image2HtmlWithTextLayer(self, workDir:str, input:str, output:str, dpiScale:float):
         '''
         将图片转换为带文本层的Html文档
         '''
         ocrRunnerBatPath = os.path.join(workDir, "deps/try_ocr_runner_as_html.bat") 
-        dpiScale = CanvasUtil.getDevicePixelRatio()
         fullCmd = f"{ocrRunnerBatPath} {input} {output} {dpiScale}"
-        print(fullCmd)
         OsHelper.executeSystemCommand(fullCmd)
 
     def ocr(self, pixmap:QPixmap):
@@ -55,7 +53,8 @@ class OutsideOcrLoaderAsHtml_ReturnFileName(OcrLoaderInterface):
         htmlPath = f"{imagePath}.html"
         try:
             if not os.path.exists(htmlPath):
-                self.image2HtmlWithTextLayer(workDir, imagePath, htmlPath)
+                dpiScale = pixmap.devicePixelRatioF()
+                self.image2HtmlWithTextLayer(workDir, imagePath, htmlPath, dpiScale)
             return htmlPath
         except Exception as e:
             raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")

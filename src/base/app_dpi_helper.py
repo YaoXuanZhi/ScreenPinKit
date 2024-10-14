@@ -43,26 +43,31 @@ class AppDpiHelper():
     def tryApplyDpiConfig():
         '''尝试应用Dpi配置'''
 
-        if "--debug" in sys.argv:
-            os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-            os.environ["QT_SCALE_FACTOR"] = "1.25"
+        # enable dpi scale
+        # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
+        # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+        return True
 
-            os.environ["debug"] = "1"
+        # 如果采用了这种方式，pyinstaller打打包参数不能传入--onefile
+        # 由于pyinstaller --onefile打包生成的.exe其临时解压文件夹名字是一样的，首次啥进程的时候
+        # 自动删除%tmp%下的临时文件夹但此时又进行了一次程序重启行为，会导致该行为异常，
+        # 因此不能使用--onefile参数
+        # if "--debug" in sys.argv:
+        #     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+        #     os.environ["QT_SCALE_FACTOR"] = "1.25"
 
-            # # enable dpi scale
-            # # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
-            # # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
-            # QApplication.setHighDpiScaleFactorRoundingPolicy(
-            #     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-            # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-            # QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+        #     os.environ["debug"] = "1"
 
-            return True
-        elif "--restarted" in sys.argv:
-            scaleFactor = AppDpiHelper.extractDpiScale(sys.argv)
-            os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-            os.environ["QT_SCALE_FACTOR"] = f"{scaleFactor}"
-            return True
-        else:
-            AppDpiHelper.checkDpiAndRestartApplication()
-            return False
+        #     return True
+        # elif "--restarted" in sys.argv:
+        #     scaleFactor = AppDpiHelper.extractDpiScale(sys.argv)
+        #     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+        #     os.environ["QT_SCALE_FACTOR"] = f"{scaleFactor}"
+        #     return True
+        # else:
+        #     AppDpiHelper.checkDpiAndRestartApplication()
+        #     return False

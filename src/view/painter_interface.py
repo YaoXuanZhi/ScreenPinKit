@@ -343,19 +343,20 @@ class PainterInterface(QWidget):
 
     def checkOcrLoaderValid(self):
         '''纠正OCR加载器配置失效情况'''
+        if len(ocrLoaderMgr.loaderDict) == 0:
+            raise Exception("没有可支持的OCR加载器，无法进行OCR识别")
         ocrLoaderName = cfg.get(cfg.useOcrLoaderType)
         if not ocrLoaderName in ocrLoaderMgr.loaderDict:
             keys = list(ocrLoaderMgr.loaderDict.keys())
             cfg.set(cfg.useOcrLoaderType, keys[0])
 
     def onExecuteOcr(self, pixmap:QPixmap):
-        self.checkOcrLoaderValid()
-        self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict[cfg.get(cfg.useOcrLoaderType)]
-
-        print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
-        self.ocrStartSignal.emit()
-
         try:
+            self.checkOcrLoaderValid()
+            self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict[cfg.get(cfg.useOcrLoaderType)]
+            print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
+            self.ocrStartSignal.emit()
+
             result = self.ocrLoader.ocr(pixmap)
             self.ocrEndSuccessSignal.emit(result)
 

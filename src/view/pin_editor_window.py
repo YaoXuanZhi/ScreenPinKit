@@ -8,7 +8,6 @@ from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
 from .painter_interface import PainterInterface
-from pdf_viewer import *
 
 class PinEditorWindow(PinWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):

@@ -5,7 +5,8 @@ from manager import *
 from version import *
 from plugin import *
 from ocr_loader import *
-from pdf_viewer import *
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'internal_ocr_loaders'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'internal_plugins'))
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):

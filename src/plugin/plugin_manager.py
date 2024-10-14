@@ -20,17 +20,7 @@ class PluginManager:
         self.__loadPluginsOutside()
 
     def __loadPluginsInside(self):
-        folderPath = os.getcwd()
-        folderPath = os.path.join(folderPath, "internal_plugins")
-        sys.path.append(folderPath)
-        self.__loadPluginsByFolder(folderPath)
-        # if os.environ.get("debug"):
-        #     folderPath = os.getcwd()
-        #     folderPath = os.path.join(folderPath, "internal_plugins")
-        #     sys.path.append(folderPath)
-        #     self.__loadPluginsByFolder(folderPath)
-        # else:
-        #     self.__loadPluginsByFilePath("ocr_progress_display", ":/InternalData/resource/internal_plugins/ocr_progress_display.py")
+        self.__loadPluginByModuleName("ocr_progress_display")
 
     def __loadPluginsOutside(self):
         folderPath = cfg.get(cfg.pluginsFolder)
@@ -69,8 +59,15 @@ class PluginManager:
             filename = os.path.basename(filePath)
             module_name = filename[:-3]
             module_path = f"{module_name}"
-            module = importlib.import_module(module_path)
-            self.__filterInterface(module)
+            try:
+                module = importlib.import_module(module_path)
+                self.__filterInterface(module)
+            except Exception:
+                pass
+
+    def __loadPluginByModuleName(self, moduleName):
+        module = importlib.import_module(moduleName)
+        self.__filterInterface(module)
 
     def __filterInterface(self, module):
         for attr_name in dir(module):

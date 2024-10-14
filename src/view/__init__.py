@@ -8,3 +8,4 @@ from .screen_paint_window import *
 from .painter_interface import *
 from .pin_editor_window import *
 from .toolbar_setting_card_group import *
+from .ocr_loader_card_group import *

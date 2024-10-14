@@ -260,7 +260,7 @@ class CanvasScene(QGraphicsScene):
                         targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
                         self.currentItem.setPos(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
-                        folderPath = os.path.join(os.path.dirname(__file__), "../canvas_item/demos/resources")
+                        folderPath = os.path.join(os.getcwd(), "canvas_item/demos/resources")
                         def getSvgFiles(folderPath):
                             result = []
                             for filePath in os.listdir(folderPath):

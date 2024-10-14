@@ -65,7 +65,12 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 ## 打包单文件
 ```sh
 # Windows Defender可能会报毒，忽略即可打包出来
-pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinKit
+cd src
+# 显式打包OCR环境，需要在ocr_loader_manager.py里显式导入相关依赖模块
+pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
+
+# 隐式包含内置OCR环境
+# pyinstaller --onefile --hidden-import=cv2 --hidden-import=onnxruntime --hidden-import=pyclipper --hidden-import=shapely --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
 ```
 
 ## 使用教程
@@ -102,15 +107,21 @@ pyinstaller --onefile --icon=../images/logo.png --windowed main.py -n ScreenPinK
 <details>
 <summary>TodoList</summary>
 
- - ☐ 修复system_hotkey的异常表现
-   >经测试，在python3.10下会抛异常，并且在python3.8上其异常也不能被正常捕获，考虑到它已经有将近3年不维护了，需要做对它做全方位的兼容性处理
- - ☐ 无感设置快捷键
- - ☐ 无感切换语言
- - ☐ 插件市场
-   - ✔ 添加插件系统
-   - ☐ 添加插件市场UI
- - ✔ 更快的离线OCR识别支持
- - ✔ 完善OCR识别层的UI显示
-   >优化方向：目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本
+## 修复system_hotkey的异常表现
+经测试，在python3.10下会抛异常，并且在python3.8上其异常也不能被正常捕获，考虑到它已经有将近3年不维护了，需要做对它做全方位的兼容性处理
+
+## ☐ 无感设置快捷键
+## ☐ 无感切换语言
+## ❑ 插件市场
+  - ✔ 添加插件系统
+  - ☐ 添加插件市场UI
+
+## ✔ 更快的离线OCR识别支持
+## ❑ 完善OCR识别层的UI显示
+目前已采用QWebEngineView来实现了OCR文本层，但该方案资源占用较大，另外文本层选择的效果也不够理想，还需要继续迭代
+
+### 优化方向
+  - ☐ 目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本 
+  - ☐ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
 
 </details>
