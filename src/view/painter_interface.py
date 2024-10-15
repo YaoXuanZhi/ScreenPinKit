@@ -276,12 +276,6 @@ class PainterInterface(QWidget):
     def clearDraw(self):
         if hasattr(self, "drawWidget"):
             self.drawWidget.clearDraw()
-            if hasattr(self, "pdfViewerItem"):
-                delattr(self, "pdfViewerItem")
-            if hasattr(self, "webViewerItem"):
-                delattr(self, "webViewerItem")
-            if hasattr(self, "ocrState"):
-                delattr(self, "ocrState")
 
     def focusInEvent(self, event:QFocusEvent) -> None:
         self.parentWidget().focusInEvent(event)

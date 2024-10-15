@@ -186,7 +186,10 @@ class CanvasScene(QGraphicsScene):
             item.transformComponent.resizedSignal.connect(self.itemResizedSignal)
 
     def clearDraw(self):
-        self.clear()
+        for item0 in self.itemList:
+            item:QGraphicsItem = item0
+            self.removeItem(item)
+
         self.currentItem = None
         self.lastAddItem = None
         self.itemList = []

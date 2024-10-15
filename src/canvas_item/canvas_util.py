@@ -148,8 +148,8 @@ class CanvasEllipseItem(QGraphicsEllipseItem):
    
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         self.lastCursor = self.cursor()
-        # self.setCursor(self.interfaceCursor)
-        self.setSvgCursor()
+        self.setCursor(self.interfaceCursor)
+        # self.setSvgCursor()
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:

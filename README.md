@@ -67,7 +67,7 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 # Windows Defender可能会报毒，忽略即可打包出来
 cd src
 # 显式打包OCR环境，需要在ocr_loader_manager.py里显式导入相关依赖模块
-pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
+pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
 
 # 隐式包含内置OCR环境
 # pyinstaller --onefile --hidden-import=cv2 --hidden-import=onnxruntime --hidden-import=pyclipper --hidden-import=shapely --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
