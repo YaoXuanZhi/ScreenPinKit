@@ -163,7 +163,7 @@ class Config(QConfig):
     useOcrLoaderType = OptionsConfigItem(
         "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnText")
     ocrLoaderFolder = ConfigItem(
-        "OcrLoaderConfig", "OcrLoaderFolder", "outside_ocr_loaders", FolderValidator())
+        "OcrLoaderConfig", "OcrLoaderFolder", "", FolderValidator())
 
     @property
     def numberMarkerItemToolbarFont(self):
