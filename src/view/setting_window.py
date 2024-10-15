@@ -12,6 +12,13 @@ class SettingWindow(FramelessWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
+        self.initActions()
+
+    def initActions(self):
+        actions = [
+            QAction(parent=self, triggered=self.close, shortcut="esc"),
+        ]
+        self.addActions(actions)
 
     def initUI(self):
         self.setTitleBar(StandardTitleBar(self))

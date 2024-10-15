@@ -24,6 +24,10 @@
         <translation>插件目录</translation>
     </message>
     <message>
+        <source>Auto find window</source>
+        <translation>自动检测窗口</translation>
+    </message>
+    <message>
         <source>Personalization</source>
         <translation>个性化</translation>
     </message>

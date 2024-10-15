@@ -5,3 +5,4 @@ pillow<=9.5.0
 PyQt-Fluent-Widgets
 PyQtWebEngine
 system_hotkey
+pygetwindow

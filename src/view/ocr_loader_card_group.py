@@ -11,7 +11,6 @@ class OcrLoaderTypeSettingCard(OptionsSettingCard):
     """ Toolbar card with a push button """
 
     def __init__(self, parent: QWidget = None) -> None:
-        print(ocrLoaderMgr.loaderDict)
         configItem = cfg.useOcrLoaderType
         icon = ScreenShotIcon.OCR
         title = parent.tr('Use ocrloader type') 

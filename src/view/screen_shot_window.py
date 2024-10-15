@@ -1,5 +1,6 @@
 # coding=utf-8
 from canvas_item import *
+from common import *
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
@@ -20,11 +21,15 @@ class ScreenShotWindow(QWidget):
         super().__init__()
         self.defaultFlag()
 
+        self.mousePos:QPointF = QCursor.pos()
+        self.previewRect = QRect()
+        self._mouseHitType = ScreenShotWindow.Unknown
         self.showColorMode = 0 # 0：Hex 1：RGB 2：HSV
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
         self.initPainterTool()
         self.initActions()
+        self.initFindRectManager()
         # self.setWindowOpacity(0.5)
 
     def initActions(self):
@@ -35,6 +40,9 @@ class ScreenShotWindow(QWidget):
             QAction(parent=self, triggered=self.pickUpScreenColor, shortcut="c"),
         ]
         self.addActions(actions)
+
+    def initFindRectManager(self):
+        self.findRectMgr = FindRectManager()
 
     def defaultFlag(self):
         self.setMouseTracking(True)
@@ -52,10 +60,10 @@ class ScreenShotWindow(QWidget):
         self.close()
 
     def snip(self):
-        if not self.hasScreenShot:
-            return
-
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
+        if not self.hasScreenShot:
+            if cfg.get(cfg.isAutoFindWindow):
+                cropRect = QRectF(self.previewRect)
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
@@ -64,14 +72,8 @@ class ScreenShotWindow(QWidget):
             cropPixmap = QPixmap.fromImage(cropImage)
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
 
-        self.delayTimer = QTimer(self)
-        self.delayTimer.timeout.connect(self.onDelayClose)
-        self.delayTimer.start(50)
-
-    def onDelayClose(self):
-        self.delayTimer.stop()
-        self.clearScreenShot(False)
-        self.close()
+            self.clearScreenShot(False)
+            self.close()
 
     def initPainterTool(self):
         self.painter = QPainter()
@@ -149,7 +151,7 @@ class ScreenShotWindow(QWidget):
         if self.hasScreenShot or self.isCapturing:
             return
         screenSizeF = QSizeF(self.screenPixmap.width() / self.screenPixmap.devicePixelRatioF(), self.screenPixmap.height() / self.screenPixmap.devicePixelRatioF())
-        pos = QCursor.pos()
+        pos = self.mousePos
         glassPixmap, screenColor = self.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
         self.screenColor = screenColor
         # 限制放大镜显示不超出屏幕外
@@ -284,7 +286,7 @@ class ScreenShotWindow(QWidget):
 
     def setBeginAdjustPoint(self, pointf):
         '''判断开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），用于判断调整大小的意图方向'''
-        self._mousePos = self.getMousePosBy(pointf, self._pt_start, self._pt_end)
+        self._mouseHitType = self.getMousePosBy(pointf, self._pt_start, self._pt_end)
 
     def getMousePosBy(self, pointf:QPointF, pt_start:QPointF, pt_end:QPointF):
         (rt_center, square_topLeft, square_topRight, square_bottomLeft, square_bottomRight, 
@@ -316,30 +318,33 @@ class ScreenShotWindow(QWidget):
         rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         startPointF = rt_center.topLeft()
         endPointF = rt_center.bottomRight()
-        if self._mousePos == ScreenShotWindow.TopLeft:
+        if self._mouseHitType == ScreenShotWindow.TopLeft:
             startPointF = pointf
-        elif self._mousePos == ScreenShotWindow.TopMid:
+        elif self._mouseHitType == ScreenShotWindow.TopMid:
             startPointF.setY(pointf.y())
-        elif self._mousePos == ScreenShotWindow.TopRight:
+        elif self._mouseHitType == ScreenShotWindow.TopRight:
             startPointF.setY(pointf.y())
             endPointF.setX(pointf.x())
-        elif self._mousePos == ScreenShotWindow.LeftMid:
+        elif self._mouseHitType == ScreenShotWindow.LeftMid:
             startPointF.setX(pointf.x())
-        elif self._mousePos == ScreenShotWindow.RightMid:
+        elif self._mouseHitType == ScreenShotWindow.RightMid:
             endPointF.setX(pointf.x())
-        elif self._mousePos == ScreenShotWindow.BottomLeft:
+        elif self._mouseHitType == ScreenShotWindow.BottomLeft:
             startPointF.setX(pointf.x())
             endPointF.setY(pointf.y())
-        elif self._mousePos == ScreenShotWindow.BottomMid:
+        elif self._mouseHitType == ScreenShotWindow.BottomMid:
             endPointF.setY(pointf.y())
-        elif self._mousePos == ScreenShotWindow.BottomRight:
+        elif self._mouseHitType == ScreenShotWindow.BottomRight:
             endPointF = pointf
         else:  # 'ScreenShotWindow.Unknown'
             return
         self.setCenterArea(startPointF, endPointF)
 
     def getCenterInfos(self):
-        rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
+        if cfg.get(cfg.isAutoFindWindow) and self._pt_start == self._pt_end:
+            rt_center = QRectF(self.previewRect)
+        else:
+            rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         # 中央区域上下左右边框的中点，用于调整大小
         pt_centerTopMid = (rt_center.topLeft() + rt_center.topRight()) / 2
         pt_centerBottomMid = (rt_center.bottomLeft() + rt_center.bottomRight()) / 2
@@ -392,7 +397,10 @@ class ScreenShotWindow(QWidget):
             maskPixmap.fill(self.color_black)
             self.painter.drawPixmap(0, 0, maskPixmap)
         else:  # 绘制截图区域的周边区域遮罩层，以凸显截图区域
-            cropRect = self.normalizeRectF(self._pt_start, self._pt_end).toRect()
+            if cfg.get(cfg.isAutoFindWindow) and self._pt_start == self._pt_end:
+                cropRect = self.previewRect
+            else:
+                cropRect = self.normalizeRectF(self._pt_start, self._pt_end).toRect()
             fullScreenRegion = QRegion(self.rect())
             cropRegion = QRegion(cropRect)
             finalRegion = fullScreenRegion.subtracted(cropRegion)
@@ -404,7 +412,7 @@ class ScreenShotWindow(QWidget):
         canvasPixmap = self.screenPixmap.copy()
         self.painter.begin(canvasPixmap)
 
-        if self.hasScreenShot:
+        if self.hasScreenShot or cfg.get(cfg.isAutoFindWindow):
             # 绘制截图区域的周边区域遮罩层
             self.paintMaskLayer(fullScreen=False)
             # 绘制中央截图区域
@@ -431,7 +439,7 @@ class ScreenShotWindow(QWidget):
                     self.setBeginAdjustPoint(pos)
 
                     # 如果在非截图区进行点击，那么直接拓展截图区
-                    if self._mousePos == ScreenShotWindow.Unknown:
+                    if self._mouseHitType == ScreenShotWindow.Unknown:
                         self.expandScreenShotArea(pos)
             else:
                 self.setCenterArea(pos, pos)
@@ -451,16 +459,22 @@ class ScreenShotWindow(QWidget):
         else:
             self.close()
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event:QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             self.isCapturing = False
             self.isMoving = False
             self.isAdjusting = False
 
-    def mouseMoveEvent(self, event):
+            if cfg.get(cfg.isAutoFindWindow) and self._pt_start == self._pt_end:
+                self.setCenterArea(self.previewRect.topLeft(), self.previewRect.bottomRight() + QPoint(1, 1))
+                self.hasScreenShot = True
+                self.isAdjusting = True
+                self.update()
+
+    def mouseMoveEvent(self, event:QMouseEvent):
         pos = event.pos()
         if self.isVisible():
-            self.mouse_pos:QPointF = pos
+            self.mousePos:QPointF = pos
         if self.isCapturing:
             self.hasScreenShot = True
             self._pt_end = pos
@@ -468,13 +482,15 @@ class ScreenShotWindow(QWidget):
             self.moveCenterAreaTo(pos)
         elif self.isAdjusting:
             self.adjustCenterAreaBy(pos)
+        if cfg.get(cfg.isAutoFindWindow):
+            self.previewRect = self.findRectMgr.findTargetRect(self.mousePos)
         self.update()
         if self.hasScreenShot:
             self.setCursor(self.getMouseShapeBy(pos))
         else:
             self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
 
-    def mouseDoubleClickEvent(self, event):
+    def mouseDoubleClickEvent(self, event:QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             if self.isMousePosInCenterRectF(event.pos()):
                 self.close()

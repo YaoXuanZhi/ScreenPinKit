@@ -83,7 +83,7 @@ class MainWindow(QWidget):
         self.pinWindowMgr.switchMouseThroughState()
 
     def onScreenShotWindowClosed(self):
-        self.screenShotWindow.destroy()
+        self.screenShotWindow.deleteLater()
         self.screenShotWindow = None
 
     def exit(self):

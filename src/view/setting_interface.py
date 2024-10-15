@@ -42,6 +42,13 @@ class SettingInterface(ScrollArea):
             cfg.get(cfg.pluginsFolder),
             self.generalGroup
         )
+        self.isAutoFindWindowCard = SwitchSettingCard(
+            ScreenShotIcon.COPY,
+            self.tr('Auto find window'),
+            None,
+            configItem=cfg.isAutoFindWindow,
+            parent=self.generalGroup
+        )
 
         # personalization
         self.personalGroup = SettingCardGroup(self.tr('Personalization'), self.scrollWidget)
@@ -173,6 +180,7 @@ class SettingInterface(ScrollArea):
         # add cards to group
         self.generalGroup.addSettingCard(self.cacheFolderCard)
         self.generalGroup.addSettingCard(self.pluginsFolderCard)
+        self.generalGroup.addSettingCard(self.isAutoFindWindowCard)
 
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)

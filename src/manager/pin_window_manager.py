@@ -39,7 +39,7 @@ class PinWindowManager():
 
     def handleWindowClose(self, index:int):
         widget:QWidget = self._windows[index]
-        widget.destroy()
+        widget.deleteLater()
         self._windows[index] = None
 
     def switchMouseThroughState(self):

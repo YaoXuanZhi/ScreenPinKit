@@ -33,7 +33,7 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
             htmlContent = build_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=dpiScale)
             return htmlContent
         except Exception as e:
-            raise Exception("请检查paddleocr_toolkit的相关运行环境是否配置好了")
+            raise Exception(f"请检查paddleocr_toolkit的相关运行环境是否配置好了 {e}")
 
     def __ocr(self, pixmap:QPixmap):
         '''

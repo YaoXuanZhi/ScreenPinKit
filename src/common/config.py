@@ -43,6 +43,8 @@ class Config(QConfig):
         "General", "CacheFolder", "./cache", FolderValidator())
     imageNameFormat = ConfigItem(
         "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator())
+    isAutoFindWindow = ConfigItem(
+        "General", "IsAutoFindWindow", True, BoolValidator())
 
     pluginsFolder = ConfigItem(
         "General", "PluginsFolder", "", FolderValidator())
