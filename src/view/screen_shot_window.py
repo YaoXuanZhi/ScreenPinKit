@@ -27,6 +27,7 @@ class ScreenShotWindow(QWidget):
         self.showColorMode = 0 # 0：Hex 1：RGB 2：HSV
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
+        self._pixelFactor = 20
         self.initPainterTool()
         self.initActions()
         self.initFindRectManager()
@@ -129,7 +130,7 @@ class ScreenShotWindow(QWidget):
         '''绘制放大镜内的图像(含纵横十字线)
         pos:鼠标光标位置
         glassSize:放大镜边框大小'''
-        pixmapRect = QRect(0, 0, 20, 20)  # 以鼠标光标为中心的正方形区域，最好是偶数
+        pixmapRect = QRect(0, 0, self._pixelFactor, self._pixelFactor)  # 以鼠标光标为中心的正方形区域，最好是偶数
         pixmapRect.moveCenter(pos)
         glassPixmap = self.screenPixmap.copy(self.physicalRectF(pixmapRect).toRect())
         glassPixmap.setDevicePixelRatio(1.0)
@@ -427,6 +428,16 @@ class ScreenShotWindow(QWidget):
         self.painter.drawPixmap(0, 0, canvasPixmap)
         self.painter.end()
 
+    def wheelEvent(self, a0):
+        if a0.angleDelta().y() > 0:
+            self._pixelFactor = self._pixelFactor - 2
+        else:
+            self._pixelFactor = self._pixelFactor + 2
+
+        self._pixelFactor = max(2, min(self._pixelFactor, 80))
+        self.update()
+        return super().wheelEvent(a0)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             pos = event.pos()
@@ -516,7 +527,19 @@ class ScreenShotWindow(QWidget):
         if int(event.modifiers()) == Qt.Modifier.SHIFT:
             self.switchColorMode()
             self.update()
+        self.moveMouseWithArrowKeys(event)
         super().keyPressEvent(event)
+
+    def moveMouseWithArrowKeys(self, event: QKeyEvent):
+        lastPos = QCursor.pos()
+        if event.key() == Qt.Key_Up:
+            QCursor.setPos(lastPos + QPoint(0, -1))
+        elif event.key() == Qt.Key_Down:
+            QCursor.setPos(lastPos + QPoint(0, 1))
+        elif event.key() == Qt.Key_Left:
+            QCursor.setPos(lastPos + QPoint(-1, 0))
+        elif event.key() == Qt.Key_Right:
+            QCursor.setPos(lastPos + QPoint(1, 0))
 
     def switchColorMode(self):
         self.showColorMode += 1
