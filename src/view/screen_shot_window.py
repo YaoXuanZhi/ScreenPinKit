@@ -53,6 +53,8 @@ class ScreenShotWindow(QWidget):
 
     def copyToClipboard(self):
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
+        if cropRect.size() == QSizeF(0, 0) and cfg.get(cfg.isAutoFindWindow):
+            cropRect = QRectF(self.previewRect)
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)

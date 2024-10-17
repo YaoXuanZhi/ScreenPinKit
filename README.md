@@ -123,5 +123,19 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 ### 优化方向
   - ☐ 目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本 
   - ☐ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
+    - https://github.com/hiroi-sora/GapTree_Sort_Algorithm
+
+## ☐ 支持图片翻译功能
+类似日漫汉化之类的效果，将图片上的文本涂抹掉，然后填充回翻译后的文本，考虑下以插件形式提供该功能
+
+#### 参考资料
+ - https://ocr.wdku.net/index_pictranslation
+ - https://www.basiccat.org/zh/imagetrans/
+ - https://www.basiccat.org/zh/tagged/#imagetrans
+ - https://www.appinn.com/cotrans-manga-image-translator-regular-edition/#google_vignette
+ - https://github.com/KUR-creative/SickZil-Machine
+ - https://www.bilibili.com/read/cv7181027/
+ - https://github.com/zyddnys/manga-image-translator
+ - https://github.com/jtl1207/comic-translation
 
 </details>
