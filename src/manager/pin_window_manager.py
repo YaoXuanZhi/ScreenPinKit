@@ -1,12 +1,13 @@
 import os, glob, re
 from base import *
 from view import *
+from misc import *
 
 class PinWindowManager():
     def __init__(self):
         super().__init__()
         self.screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
-        self._windows:list[PinWindow] = []
+        self._windowsDict = {}
 
         startupImagePath, screenX, screenY = self.findScreenImagePath()
         if startupImagePath != None and os.path.exists(startupImagePath):
@@ -15,9 +16,9 @@ class PinWindowManager():
             self.addPinWindow(QPoint(screenX, screenY), realSize,  imgpix)
 
     def addPinWindow(self, screenPoint:QPoint, realSize:QSize, pixmap:QPixmap):
-        index = len(self._windows)
-        # self._windows.append(PinWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(index)))
-        self._windows.append(PinEditorWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(index)))
+        hashCode = OsHelper.calculateHashForQPixmap(pixmap, 8)
+        if not hashCode in self._windowsDict:
+            self._windowsDict[hashCode] = PinEditorWindow(None, screenPoint, realSize, pixmap, lambda: self.handleWindowClose(hashCode))
 
     def showClipboard(self):
         '''将剪贴板上的图像数据作为冻结窗口'''
@@ -37,23 +38,24 @@ class PinWindowManager():
         realSize = pixmap.size() / screenDevicePixelRatio
         return realSize
 
-    def handleWindowClose(self, index:int):
-        widget:QWidget = self._windows[index]
+    def handleWindowClose(self, hashCode:str):
+        widget:QWidget = self._windowsDict.pop(hashCode)
         widget.deleteLater()
-        self._windows[index] = None
 
     def switchMouseThroughState(self):
         '''鼠标穿透策略：优先判断获取焦点窗口的'''
         pinWnd:PinWindow = None
         screenPos = QCursor.pos()
-        for wnd in self._windows:
+        for wnd0 in self._windowsDict.items():
+            wnd:PinWindow = wnd0
             if wnd != None and wnd.geometry().contains(screenPos):
                 pinWnd = wnd
                 break
         if pinWnd != None:
             pinWnd.switchMouseThroughState()
         else:
-            for wnd in self._windows:
+            for wnd in self._windowsDict.items():
+                wnd:PinWindow = wnd0
                 if wnd != None:
                     wnd.setMouseThroughState(False)
 
