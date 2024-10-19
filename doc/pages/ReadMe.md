@@ -13,7 +13,7 @@
 	- 截图
 		- DONE 选区截图，类似snipaste
 		- DONE 多屏幕截图支持，类似snipaste
-		- 自识别选区截图，类似snipaste
+		- DONE 自识别选区截图，类似snipaste
 		- 滚动截图，参考[Jamscreenshot](https://github.com/fandesfyf/Jamscreenshot)
 	- 贴图
 		- DONE 将截图钉到屏幕上，类似snipaste
@@ -26,7 +26,20 @@
 		- DONE 线条（含贝塞尔线条、折线）
 		- DONE 橡皮擦
 		- DONE 箭头
-	- OCR&翻译
+	- DONE OCR识别
+		- 支持PaddleOCR
+		- 支持OcrMyPdf
+	- 图片翻译
+		- 类似日漫汉化之类的效果，将图片上的文本涂抹掉，然后填充回翻译后的文本，考虑下以插件形式提供该功能
+		- 参考资料
+			- https://ocr.wdku.net/index_pictranslation
+			- https://www.basiccat.org/zh/imagetrans/
+			- https://www.basiccat.org/zh/tagged/#imagetrans
+			- https://www.appinn.com/cotrans-manga-image-translator-regular-edition/#google_vignette
+			- https://github.com/KUR-creative/SickZil-Machine
+			- https://www.bilibili.com/read/cv7181027/
+			- https://github.com/zyddnys/manga-image-translator
+			- https://github.com/jtl1207/comic-translation
 	- DONE 快捷键自定义
 	- DONE 多语言支持
 	- 笔锋笔形支持

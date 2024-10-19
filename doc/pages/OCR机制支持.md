@@ -16,3 +16,5 @@
 				- `Pdf4QtLibWidgets\sources\pdftexteditpseudowidget.cpp`
 				- `uPDF2\src\pdfviewer.cpp`
 				- 这个源文件包含了一个PDF文本选择功能
+- ### 解决方案
+	- 可以使用QWebEngineView来渲染PDF，现在浏览器内核都可以直接打开PDF文件了，但使用的是浏览器默认PDF样式，无法定制，而借助[PDF.js - Home](https://mozilla.github.io/pdf.js/)，则定制pdfViewer样式
