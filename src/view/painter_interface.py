@@ -249,14 +249,9 @@ class PainterInterface(QWidget):
         self.setCursor(cursor)
 
         if drawActionEnum == DrawActionEnum.SelectItem:
-            if hasattr(self, "pdfViewerItem"):
-                self.pdfViewerItem.setEnabled(True)
             if hasattr(self, "webViewerItem"):
                 self.webViewerItem.setEnabled(True)
         else:
-            if hasattr(self, "pdfViewerItem"):
-                self.pdfViewerItem.setEnabled(False)
-                self.pdfViewerItem.cancelSelectText()
             if hasattr(self, "webViewerItem"):
                 self.webViewerItem.setEnabled(False)
                 self.webViewerItem.cancelSelectText()
@@ -366,8 +361,6 @@ class PainterInterface(QWidget):
 
     def onEscPressed(self, hasSelectedText):
         if hasSelectedText:
-            if hasattr(self, "pdfViewerItem"):
-                self.pdfViewerItem.cancelSelectText()
             if hasattr(self, "webViewerItem"):
                 self.webViewerItem.cancelSelectText()
         else:
@@ -375,8 +368,6 @@ class PainterInterface(QWidget):
             QApplication.sendEvent(self, escapeEvent)
 
     def onHtmlRenderStart(self):
-        if hasattr(self, "pdfViewerItem"):
-            self.pdfViewerItem.setOpacity(0)
         if hasattr(self, "webViewerItem"):
             self.webViewerItem.setOpacity(0)
 
@@ -387,15 +378,13 @@ class PainterInterface(QWidget):
 
     def onDelayExecute(self):
         self.delayTimer.stop()
-        if hasattr(self, "pdfViewerItem"):
-            self.pdfViewerItem.setOpacity(1)
         if hasattr(self, "webViewerItem"):
             self.webViewerItem.setOpacity(1)
 
         self.showCommandBar()
         self.selectItemAction.trigger()
 
-    def onOcrEndForReturnStr(self, input):
+    def onOcrEndForReturnStr(self, input:str):
         # 渲染Html
         if input.endswith(".pdf"):
             self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
@@ -404,10 +393,14 @@ class PainterInterface(QWidget):
         else:
             # 传了一个网页文本进来
             self.webViewerItem = CanvasOcrViewerItem(WebWidget())
+
         self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
         self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
         self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
+
         self.drawWidget.scene.addItem(self.webViewerItem)
+        # 让OCR文本层位于最底部
+        self.webViewerItem.setZValue(-1)
 
         if (input.endswith(".html") or input.endswith(".pdf")):
             self.webViewerItem.openFile(input)
