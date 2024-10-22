@@ -25,8 +25,8 @@ class EnumOcrReturnType(Enum):
     FileName = 2
     '''OCR结果之后返回临时文件名'''
 
-    Tuple = 3
-    '''OCR结果之后返回Tuple'''
+    Json = 3
+    '''OCR结果之后返回Json'''
 
 class OcrLoaderInterface(ABC):
     @property

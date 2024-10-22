@@ -8,7 +8,7 @@ try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
     _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
-    _currentOcrMode = EnumOcrMode.UseOutside
+    _currentOcrMode = EnumOcrMode.NoSupport
 
 def qpixmapToMatlike(qpixmap:QPixmap):
     # 将 QPixmap 转换为 QImage
@@ -28,18 +28,18 @@ def qpixmapToMatlike(qpixmap:QPixmap):
     imageArray = np.array(image)
     return imageArray
 
-class InternalOcrLoader_ReturnTuple(OcrLoaderInterface):
+class InternalOcrLoader_ReturnTextPlus(OcrLoaderInterface):
     @property
     def name(self):
-        return "InternalOcrLoader_ReturnTuple"
+        return "InternalOcrLoader_ReturnTextPlus"
 
     @property
     def displayName(self):
-        return "Paddle2Onnx-返回Tuple"
+        return "Paddle2Onnx-返回TextPlus"
 
     @property
     def desc(self):
-        return "采用PaddleOCR的ONNX模型进行OCR识别，返回Tuple"
+        return "采用PaddleOCR的ONNX模型进行OCR识别，返回版面分析后的Text"
 
     @property
     def mode(self):
@@ -47,9 +47,21 @@ class InternalOcrLoader_ReturnTuple(OcrLoaderInterface):
 
     @property
     def returnType(self):
-        return EnumOcrReturnType.Tuple
+        return EnumOcrReturnType.Text
 
     def ocr(self, pixmap:QPixmap):
+        boxes, texts, scores = self.__ocr(pixmap)
+        width = pixmap.size().width()
+        height = pixmap.size().height()
+        boxInfos = []
+        for i, box in enumerate(boxes):
+            text = texts[i]
+            score = scores[i]
+            boxInfos.append({"box": box, "text": text, "score": score})
+        htmlContent = build_svg_html_by_gap_tree_sort(width=width, height=height, box_infos=boxInfos, dpi_scale=CanvasUtil.getDevicePixelRatio())
+        return htmlContent
+
+    def __ocr(self, pixmap:QPixmap):
         '''
         调用ocr模块来进行OCR识别
         @note 由于ocr操作耗时较长，该函数会阻塞当前线程
@@ -58,7 +70,7 @@ class InternalOcrLoader_ReturnTuple(OcrLoaderInterface):
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
         '''
         if _currentOcrMode == EnumOcrMode.NoSupport:
-            return [], [], []
+            raise Exception("请执行pip install -r requirement_ocr_support.txt，再重启应用")
 
         matlike = qpixmapToMatlike(pixmap)
 

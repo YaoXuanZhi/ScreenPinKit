@@ -46,7 +46,7 @@ class PinWindowManager():
         '''鼠标穿透策略：优先判断获取焦点窗口的'''
         pinWnd:PinWindow = None
         screenPos = QCursor.pos()
-        for wnd0 in self._windowsDict.items():
+        for wnd0 in self._windowsDict.values():
             wnd:PinWindow = wnd0
             if wnd != None and wnd.geometry().contains(screenPos):
                 pinWnd = wnd
@@ -54,7 +54,7 @@ class PinWindowManager():
         if pinWnd != None:
             pinWnd.switchMouseThroughState()
         else:
-            for wnd in self._windowsDict.items():
+            for wnd in self._windowsDict.values():
                 wnd:PinWindow = wnd0
                 if wnd != None:
                     wnd.setMouseThroughState(False)

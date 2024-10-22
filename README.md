@@ -62,6 +62,22 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 
 ```
 
+## 开发
+```sh
+conda create -n pyqt5_env python=3.9
+conda activate pyqt5_env
+git clone https://github.com/YaoXuanZhi/ScreenPinKit ScreenPinKit
+cd ScreenPinKit
+pip install -r requirements.txt
+# 安装Paddle2Onnx相关依赖
+pip install -r requirements_ocr_support.txt
+git submodule update
+
+# 启动主程序
+cd src
+python main.py
+```
+
 ## 打包单文件
 ```sh
 # Windows Defender可能会报毒，忽略即可打包出来
@@ -122,7 +138,7 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 
 ### 优化方向
   - ☐ 目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本 
-  - ☐ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
+  - ✔ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
     - https://github.com/hiroi-sora/GapTree_Sort_Algorithm
 
 ## ☐ 支持图片翻译功能

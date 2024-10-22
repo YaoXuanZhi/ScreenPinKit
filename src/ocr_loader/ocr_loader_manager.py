@@ -38,7 +38,8 @@ class OcrLoaderManager:
         from shapely.geometry import Polygon
         # 打包指令：pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
         self.__initLoadersByModuleName("internal_ocr_loader_return_text")
-        self.__initLoadersByModuleName("internal_ocr_loader_return_tuple")
+        self.__initLoadersByModuleName("internal_ocr_loader_return_text_plus")
+        self.__initLoadersByModuleName("internal_ocr_loader_return_json")
 
     def __initLoadersOutside(self):
         plugin_dir = cfg.get(cfg.ocrLoaderFolder)

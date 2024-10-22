@@ -43,20 +43,16 @@ def main(args):
     input = args.input_path
     output = args.output_path
     ocrService = OcrService(args)
-    boxes, txts, scores = ocrService.ocr(input)
+    boxes, texts, scores0 = ocrService.ocr(input)
+    scores = np.array(scores0, dtype=np.float32).tolist()
 
-    # 将ocr结果保存到json文件上
-    jsonResult = {"boxes": [], "txts": [], "scores": []}
-    # box = [[leftTop] [rightTop] [rightBottom] [leftBottom]]
-    jsonResult["boxes"] = json.dumps(boxes)
-    jsonResult["txts"] = json.dumps(txts)
-
-    # 假设这是你的包含float32类型的NumPy数组
-    my_array = np.array(scores, dtype=np.float32)
-
-    # 将NumPy数组转换为Python原生的list
-    python_list = my_array.tolist()
-    jsonResult["scores"] = json.dumps(python_list)
+    data = []
+    for i in range(len(boxes)):
+        box = boxes[i]
+        text = texts[i]
+        score = scores[i]
+        data.append({"box": box, "text": text, "score": score})
+    jsonResult = {"code" : 100, "data" : data}
 
     # 将json文件保存到被识别图片的同级目录上
     with open(output, 'w', encoding="utf-8") as f:

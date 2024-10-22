@@ -1,6 +1,7 @@
-import html, os
+import html
 from PIL import ImageFont
-import numpy as np
+from .GapTree_Sort_Algorithm.preprocessing import linePreprocessing
+from .GapTree_Sort_Algorithm.gap_tree import GapTree
 
 def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
     """
@@ -26,15 +27,15 @@ def calculate_best_font_size(text, font_path, max_width, max_height, initial_fon
 
     return font_size
 
-def build_svg_html(width, height, boxes, txts, dpi_scale=1):
+def build_svg_html(width, height, box_infos, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
-    # box = [x, y, w, h]
+    # box_info = {"box":[x, y, w, h], "text":text}
 
     width = width / dpi_scale
     height = height / dpi_scale
 
     # 构建 HTML 内容
-    htmlContent = f"""
+    html_content = f"""
     <html>
     <head>
         <title>OCR Result</title>
@@ -86,9 +87,9 @@ def build_svg_html(width, height, boxes, txts, dpi_scale=1):
     """
 
     # 遍历 OCR 结果，生成 HTML 文本层
-    for i in range(0, len(boxes)):
-        text = txts[i]
-        box = boxes[i]
+    for info in box_infos:
+        text = info["text"]
+        box = info["box"]
         [left_top, right_top, right_bottom, left_bottom] = box
 
         x, y = left_top
@@ -119,29 +120,29 @@ def build_svg_html(width, height, boxes, txts, dpi_scale=1):
         # """
 
         # 正式版
-        htmlContent += f"""
+        html_content += f"""
         <text x="{x}" y="{y+h/2}" width="{w}" height="{h}" text-anchor="start" dominant-baseline="middle" font-family="Arial" font-size="{best_font_size}" fill="none" textLength="{w}" lengthAdjust="spacingAndGlyphs">
             {text}
         </text>
         """
 
-    htmlContent += """
+    html_content += """
         </svg>
     </body>
     </html>
     """
 
-    return htmlContent
+    return html_content
 
-def build_origin_html(width, height, boxes, txts, dpi_scale=1):
+def build_origin_html(width, height, box_infos, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
-    # box = [x, y, w, h]
+    # box_info = {"box":[x, y, w, h], "text":text}
 
     width = width / dpi_scale
     height = height / dpi_scale
 
     # 构建 HTML 内容
-    htmlContent = f"""
+    html_content = f"""
     <html>
     <head>
         <title>OCR Result</title>
@@ -319,9 +320,9 @@ def build_origin_html(width, height, boxes, txts, dpi_scale=1):
     """
 
     # 遍历 OCR 结果，生成 HTML 文本层
-    for i in range(0, len(boxes)):
-        text = txts[i]
-        box = boxes[i]
+    for info in box_infos:
+        text = info["text"]
+        box = info["box"]
         [left_top, right_top, right_bottom, left_bottom] = box
 
         x, y = left_top
@@ -334,29 +335,29 @@ def build_origin_html(width, height, boxes, txts, dpi_scale=1):
         h = h / dpi_scale
         text = html.escape(text)
 
-        htmlContent += f"""
+        html_content += f"""
         <div class="container" style="left: {x}px; top: {y}px; width: {w}px; height: {h}px;">
             <span class="text">{text}</span>
         </div>
         """
 
-    htmlContent += """
+    html_content += """
     </body>
     </html>
     """
 
-    return htmlContent
+    return html_content
 
-def build_svg_content(width, height, boxes, txts, dpi_scale=1):
+def build_svg_content(width, height, box_infos, dpi_scale=1):
     # 构建 HTML 内容
-    svgContent = f"""
+    svg_content = f"""
 <svg width="100%" height="100%" viewBox="0 0 {width} {height}" preserveAspectRatio="xMaxYMax slice" xmlns="http://www.w3.org/2000/svg">
     """
 
     # 遍历 OCR 结果，生成 HTML 文本层
-    for i in range(0, len(boxes)):
-        text = txts[i]
-        box = boxes[i]
+    for info in box_infos:
+        text = info["text"]
+        box = info["box"]
         [left_top, right_top, right_bottom, left_bottom] = box
 
         x, y = left_top
@@ -371,14 +372,36 @@ def build_svg_content(width, height, boxes, txts, dpi_scale=1):
 
         best_font_size = calculate_best_font_size(text, "arial.ttf", w, h, 2)
 
-        svgContent += f"""
+        svg_content += f"""
     <rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" stroke="gray"/>
     <text x="{x}" y="{y+h}" width="{w}" height="{h}" font-family="Arial" font-size="{best_font_size}" fill="blue" textLength="{w}" lengthAdjust="spacingAndGlyphs">
         {text}
     </text>
         """
 
-    svgContent += """
+    svg_content += """
 </svg>
     """
-    return svgContent
+    return svg_content
+
+def handle_gap_tree_sort_for_box_infos(box_infos):
+    '''
+    进行版面分析，将各个boxInfo进行重新排序
+    提取自https://github.com/hiroi-sora/GapTree_Sort_Algorithm/blob/main/test.py
+    '''
+    bboxes = linePreprocessing(box_infos)
+
+    for i, tb in enumerate(box_infos):
+        tb["bbox"] = bboxes[i]  # 写入标准化的bbox
+
+    gtree = GapTree(lambda tb: tb["bbox"])
+    sortedBoxInfos = gtree.sort(box_infos)  # 输入文本块，获得排序后结果
+    return sortedBoxInfos
+
+def build_svg_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
+    sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    return build_svg_html(width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)
+
+def build_origin_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
+    sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    return build_origin_html(width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)

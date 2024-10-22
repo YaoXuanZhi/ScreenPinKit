@@ -1,0 +1,3 @@
+[submodule "src/ocr_loader/GapTree_Sort_Algorithm"]
+	path = src/ocr_loader/GapTree_Sort_Algorithm
+	url = https://github.com/hiroi-sora/GapTree_Sort_Algorithm

@@ -30,9 +30,7 @@ def main(args):
     namespace = {'alto': 'http://www.loc.gov/standards/alto/ns-v3#'}
 
     # 遍历 TextLine 标签
-    boxes = []
-    txts = []
-    scores = []
+    data = []
     for text_line in root.findall('.//alto:TextLine', namespace): 
         text = ""
         # 遍历 TextLine 的子标签下的所有String标签
@@ -49,22 +47,11 @@ def main(args):
         right_top = [left + width, top]
         right_bottom = [left + width, top + height]
         left_bottom = [left, top + height]
-        boxes.append([left_top, right_top, right_bottom, left_bottom])
-        txts.append(text)
-        scores.append(0.97)
+        score = 0.97
+        box = [left_top, right_top, right_bottom, left_bottom]
+        data.append({"box": box, "text": text, "score": score})
 
-    # 将ocr结果保存到json文件上
-    jsonResult = {"boxes": [], "txts": [], "scores": []}
-    # box = [[leftTop] [rightTop] [rightBottom] [leftBottom]]
-    jsonResult["boxes"] = json.dumps(boxes)
-    jsonResult["txts"] = json.dumps(txts)
-
-    # 假设这是你的包含float32类型的NumPy数组
-    my_array = np.array(scores, dtype=np.float32)
-
-    # 将NumPy数组转换为Python原生的list
-    python_list = my_array.tolist()
-    jsonResult["scores"] = json.dumps(python_list)
+    jsonResult = {"code" : 100, "data" : data}
 
     # 将json文件保存到被识别图片的同级目录上
     with open(output_path, 'w', encoding="utf-8") as f:

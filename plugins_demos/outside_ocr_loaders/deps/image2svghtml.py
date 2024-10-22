@@ -1,7 +1,7 @@
 import argparse
 from paddleocr import PaddleOCR
 from PIL import Image
-from html_builder import image_to_svg_html as build_html
+from html_builder import build_svg_html as build_html
 
 def image_to_html(ocr, input, output, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
@@ -14,20 +14,16 @@ def image_to_html(ocr, input, output, dpi_scale=1):
     # 使用 PaddleOCR 进行 OCR 识别
     result = ocr.ocr(input, cls=True)
 
-    boxes = []
-    txts = []
-
+    boxInfos = []
     # 遍历 OCR 结果，生成 HTML 文本层
     for line in result:
         (box, word) = line
         text, _ = word
-        left_top, right_top, right_bottom, left_bottom = box
-        boxes.append([left_top, right_top, right_bottom, left_bottom])
-        txts.append(text)
+        boxInfos.append({"box": box, "text": text, "score": 0.97})
 
-    html_content = build_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=dpi_scale)
+    htmlContent = build_html(width=width, height=height, box_infos=boxInfos, dpi_scale=dpi_scale)
     with open(output, 'w', encoding='utf-8') as f:
-        f.write(html_content)
+        f.write(htmlContent)
 
 def main(args):
     # 初始化 PaddleOCR

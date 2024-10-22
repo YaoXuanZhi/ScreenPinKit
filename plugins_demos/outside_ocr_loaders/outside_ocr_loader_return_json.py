@@ -3,18 +3,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
 from misc import *
 
-class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
+class OutsideOcrLoader_ReturnJson(OcrLoaderInterface):
     @property
     def name(self):
-        return "OutsideOcrLoader_ReturnTuple"
+        return "OutsideOcrLoader_ReturnJson"
 
     @property
     def displayName(self):
-        return "PaddleOCR-返回Tuple"
+        return "PaddleOCR-返回Json"
 
     @property
     def desc(self):
-        return "采用外部OCR来进行OCR识别，返回Tuple"
+        return "采用外部OCR来进行OCR识别，返回Json"
 
     @property
     def mode(self):
@@ -22,7 +22,7 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
 
     @property
     def returnType(self):
-        return EnumOcrReturnType.Tuple
+        return EnumOcrReturnType.Json
 
     def ocr(self, pixmap:QPixmap):
         try:
@@ -35,7 +35,6 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
         借用命令行工具来进行OCR识别，并且结果传递回来
         @note 该函数会阻塞当前线程
         '''
-        boxes, txts, scores = [], [], []
         workDir = os.path.dirname(__file__)
 
         hashCode = OsHelper.calculateHashForQPixmap(pixmap, 8)
@@ -48,10 +47,9 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
         if not os.path.exists(imagePath):
             pixmap.save(imagePath)
 
-        ocrResultPath = f"{imagePath}.ocr"
+        ocrResultPath = f"{imagePath}.json"
         if not os.path.exists(ocrResultPath):
             ocrRunnerBatPath = os.path.join(workDir, "deps/try_paddle_ocr_runner.bat") 
-            # ocrRunnerBatPath = os.path.join(workDir, "deps/try_tessact_ocr_runner.bat") 
             fullCmd = f"{ocrRunnerBatPath} {imagePath} {ocrResultPath}"
             OsHelper.executeSystemCommand(fullCmd)
 
@@ -60,15 +58,6 @@ class OutsideOcrLoader_ReturnTuple(OcrLoaderInterface):
             with codecs.open(ocrResultPath, mode="r", encoding="utf-8", errors='ignore') as f:
                 json_str = f.read()
                 ocrResult = json.loads(json_str)
+                return ocrResult
 
-                boxes = json.loads(ocrResult["boxes"])
-                txts = json.loads(ocrResult["txts"])
-                scores = json.loads(ocrResult["scores"])
-                f.close()
-
-        # if os.path.exists(imagePath):
-        #     os.remove(imagePath)
-        # if os.path.exists(ocrResultPath):
-        #     os.remove(ocrResultPath)
-
-        return boxes, txts, scores
+        return {"code": 404, "data":[]}

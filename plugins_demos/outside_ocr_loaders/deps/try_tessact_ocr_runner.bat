@@ -4,7 +4,7 @@ if not defined venv_path (
 )
 
 if not defined tesseract_path (
-    set tesseract_path=E:\OpenSources\ScreenPinKit\deps\Tesseract-OCR
+    set tesseract_path=D:\GreenSoftware\Tesseract-OCR
 )
 
 set path=%venv_path%;%venv_path%\Scripts;%tesseract_path%;%path%

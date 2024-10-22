@@ -26,11 +26,12 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
 
     def ocr(self, pixmap:QPixmap):
         try:
-            boxes, txts, scores = self.__ocr(pixmap)
+            jsonObj = self.__ocr(pixmap)
             width = pixmap.size().width()
             height = pixmap.size().height()
             dpiScale = pixmap.devicePixelRatioF()
-            htmlContent = build_svg_html(width=width, height=height, boxes=boxes, txts=txts, dpi_scale=dpiScale)
+            boxInfos = jsonObj["data"]
+            htmlContent = build_svg_html_by_gap_tree_sort(width=width, height=height, box_infos=boxInfos, dpi_scale=dpiScale)
             return htmlContent
         except Exception as e:
             raise Exception(f"请检查paddleocr_toolkit的相关运行环境是否配置好了 {e}")
@@ -40,7 +41,6 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
         借用命令行工具来进行OCR识别，并且结果传递回来
         @note 该函数会阻塞当前线程
         '''
-        boxes, txts, scores = [], [], []
         workDir = os.path.dirname(__file__)
 
         hashCode = OsHelper.calculateHashForQPixmap(pixmap, 8)
@@ -53,7 +53,7 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
         if not os.path.exists(imagePath):
             pixmap.save(imagePath)
 
-        ocrResultPath = f"{imagePath}.ocr"
+        ocrResultPath = f"{imagePath}.json"
         if not os.path.exists(ocrResultPath):
             ocrRunnerBatPath = os.path.join(workDir, "deps/try_paddle_ocr_runner.bat") 
             # ocrRunnerBatPath = os.path.join(workDir, "deps/try_tessact_ocr_runner.bat") 
@@ -65,15 +65,6 @@ class OutsideOcrLoader_ReturnText(OcrLoaderInterface):
             with codecs.open(ocrResultPath, mode="r", encoding="utf-8", errors='ignore') as f:
                 json_str = f.read()
                 ocrResult = json.loads(json_str)
+                return ocrResult
 
-                boxes = json.loads(ocrResult["boxes"])
-                txts = json.loads(ocrResult["txts"])
-                scores = json.loads(ocrResult["scores"])
-                f.close()
-
-        # if os.path.exists(imagePath):
-        #     os.remove(imagePath)
-        # if os.path.exists(ocrResultPath):
-        #     os.remove(ocrResultPath)
-
-        return boxes, txts, scores
+        return {"code": 404, "data":[]}

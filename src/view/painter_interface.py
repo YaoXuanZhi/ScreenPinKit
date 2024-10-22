@@ -407,15 +407,17 @@ class PainterInterface(QWidget):
         else:
             self.webViewerItem.setHtml(input)
 
-    def onOcrEndForReturnTuple(self, boxes, txts, scores):
+    def onOcrEndForReturnJson(self, input:dict):
+        boxInfos = input["data"]
         # 将ocr识别结果渲染出来
         drop_score = 0.5
         dpiScale = CanvasUtil.getDevicePixelRatio()
 
-        for i in range(0, len(boxes)):
-            txt = txts[i]
-            box = boxes[i]
-            if scores is not None and scores[i] < drop_score:
+        for info in boxInfos:
+            text = info["text"]
+            box = info["box"]
+            score = info["score"]
+            if score is not None and score < drop_score:
                 continue
 
             polygon = QPolygonF()
@@ -425,16 +427,15 @@ class PainterInterface(QWidget):
                 finalPosition = achorPos
                 polygon.append(finalPosition)
 
-            textItem = CanvasOcrTextItem(polygon.boundingRect(), txt)
+            textItem = CanvasOcrTextItem(polygon.boundingRect(), text)
             self.drawWidget.scene.addItem(textItem)
             self.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
 
     def onOcrEndSuccess(self, input):
         pluginMgr.handleEvent(GlobalEventEnum.OcrEndSuccessEvent, parent_widget=self)
 
-        if isinstance(input, tuple):
-            (boxes, txts, scores) = input
-            self.onOcrEndForReturnTuple(boxes, txts, scores)
+        if isinstance(input, dict):
+            self.onOcrEndForReturnJson(input)
         else:
             self.onOcrEndForReturnStr(input)
 

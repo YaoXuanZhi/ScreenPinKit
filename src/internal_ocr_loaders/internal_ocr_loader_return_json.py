@@ -8,7 +8,7 @@ try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
     _currentOcrMode = EnumOcrMode.UseInside
 except ImportError:
-    _currentOcrMode = EnumOcrMode.NoSupport
+    _currentOcrMode = EnumOcrMode.UseOutside
 
 def qpixmapToMatlike(qpixmap:QPixmap):
     # 将 QPixmap 转换为 QImage
@@ -28,18 +28,18 @@ def qpixmapToMatlike(qpixmap:QPixmap):
     imageArray = np.array(image)
     return imageArray
 
-class InternalOcrLoader_ReturnText(OcrLoaderInterface):
+class InternalOcrLoader_ReturnJson(OcrLoaderInterface):
     @property
     def name(self):
-        return "InternalOcrLoader_ReturnText"
+        return "InternalOcrLoader_ReturnJson"
 
     @property
     def displayName(self):
-        return "Paddle2Onnx-返回Text"
+        return "Paddle2Onnx-返回Json"
 
     @property
     def desc(self):
-        return "采用PaddleOCR的ONNX模型进行OCR识别，返回Text"
+        return "采用PaddleOCR的ONNX模型进行OCR识别，返回Json"
 
     @property
     def mode(self):
@@ -47,18 +47,9 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
 
     @property
     def returnType(self):
-        return EnumOcrReturnType.Text
+        return EnumOcrReturnType.Json
 
     def ocr(self, pixmap:QPixmap):
-        jsonObj = self.__ocr(pixmap)
-        boxInfos = jsonObj["data"]
-        width = pixmap.size().width()
-        height = pixmap.size().height()
-        dpiScale = CanvasUtil.getDevicePixelRatio()
-        htmlContent = build_svg_html(width=width, height=height, box_infos=boxInfos, dpi_scale=dpiScale)
-        return htmlContent
-
-    def __ocr(self, pixmap:QPixmap):
         '''
         调用ocr模块来进行OCR识别
         @note 由于ocr操作耗时较长，该函数会阻塞当前线程
@@ -67,7 +58,7 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
         '''
         if _currentOcrMode == EnumOcrMode.NoSupport:
-            raise Exception("请执行pip install -r requirement_ocr_support.txt，再重启应用")
+            return [], [], []
 
         matlike = qpixmapToMatlike(pixmap)
 
