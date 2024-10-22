@@ -49,7 +49,22 @@ ScreenPinKit
 > **Warning**
 > 该应用使用了第三方库system_hotkey来注册全局快捷键，但是由于该包已经有3年以上不维护了，推荐在python3.8上安装并运行
 
-## 运行示例
+## 开发
+```sh
+conda create -n pyqt5_env python=3.9
+conda activate pyqt5_env
+git clone https://github.com/YaoXuanZhi/ScreenPinKit ScreenPinKit
+cd ScreenPinKit
+pip install -r requirements.txt
+git submodule update --init
+
+cd src
+python main.py
+```
+
+![OCR](https://raw.githubusercontent.com/YaoXuanZhi/ScreenPinKit/main/images/source_code_installation_animation.svg)
+
+### 运行示例
 使用 pip 安装好 ScreenPinKit 包并下载好此仓库的代码之后，就可以运行 src 目录下的任意示例程序，比如：
 
 ```sh
@@ -62,23 +77,7 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 
 ```
 
-## 开发
-```sh
-conda create -n pyqt5_env python=3.9
-conda activate pyqt5_env
-git clone https://github.com/YaoXuanZhi/ScreenPinKit ScreenPinKit
-cd ScreenPinKit
-pip install -r requirements.txt
-# 安装Paddle2Onnx相关依赖
-pip install -r requirements_ocr_support.txt
-git submodule update
-
-# 启动主程序
-cd src
-python main.py
-```
-
-## 打包单文件
+## 打包分发
 ```sh
 # Windows Defender可能会报毒，忽略即可打包出来
 cd src
