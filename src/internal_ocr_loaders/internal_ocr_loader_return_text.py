@@ -6,9 +6,9 @@ import numpy as np
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
-    _currentOcrMode = EnumOcrMode.UseInside
-except ImportError:
-    _currentOcrMode = EnumOcrMode.NoSupport
+    _importErrorMsg = None
+except ImportError as e:
+    _importErrorMsg = "\n".join(e.args)
 
 def qpixmapToMatlike(qpixmap:QPixmap):
     # 将 QPixmap 转换为 QImage
@@ -66,8 +66,8 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
             无关乎创建多个PaddleOCR对象还是创建多线程来执行都崩，最终采取命令行方式绕过该崩溃
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
         '''
-        if _currentOcrMode == EnumOcrMode.NoSupport:
-            raise Exception("请执行pip install -r requirement_ocr_support.txt，再重启应用")
+        if _importErrorMsg != None:
+            raise Exception(_importErrorMsg)
 
         matlike = qpixmapToMatlike(pixmap)
 
