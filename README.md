@@ -153,4 +153,20 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
  - https://github.com/zyddnys/manga-image-translator
  - https://github.com/jtl1207/comic-translation
 
+## ☐ 增加配色预设
+让箭头、矩形等工具增加配色预设功能，考虑按下Alt键，直接弹出一个浮动轮盘菜单，用来让用户快捷选择预设或者自定义颜色
+
+## ☐ 兼容Linux Desktop系统，比如Ubuntu
+由于采用了Qt，它是一个跨平台的GUI，因此理论上是可以兼容Linux Desktop的，但需要做以下适配，比如热键注册之类需要调整
+
+```sh
+# Ubuntu默认没有安装openssh-server，这会导致Vscode Remote-SSH无法使用，需要手动安装
+sudo apt-get install openssh-server
+
+# 安装Qt依赖库
+sudo apt install qtwayland5
+sudo apt install libxcb-*
+conda install -c conda-forge gcc 
+```
+
 </details>

@@ -69,6 +69,13 @@ def build_svg_html(width, height, box_infos, dpi_scale=1):
 
             // 监听 keydown 事件
             document.addEventListener('keydown', function(event) {{
+                if (event.ctrlKey && event.key === 'c') {{
+                    //由于WebEngineView的复制结果并不符合预期，因此屏蔽掉再额外做处理
+                    event.preventDefault();
+                    // 透传网页的复制事件
+                    window.receiver.hookCopyText(window.getSelection().toString());
+                }}
+
                 if (event.key === 'Escape') {{
                     event.preventDefault();
                     window.receiver.hookEscPressed(window.getSelection().toString().length > 0);
