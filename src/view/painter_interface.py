@@ -34,6 +34,8 @@ class PainterInterface(QWidget):
         self.sceneBrush:QBrush = None
         self.painterToolBarMgr:PainterToolBarManager = None
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
+        self.hotkey = QWidgetHotKey()
+        self.hotkey.setHotkeyListenerEx("space", 3, self.clearDraw)
         self.initLayout()
 
     def initLayout(self):
@@ -271,6 +273,10 @@ class PainterInterface(QWidget):
     def clearDraw(self):
         if hasattr(self, "drawWidget"):
             self.drawWidget.clearDraw()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        self.hotkey.keyPressEvent(event)
+        super().keyPressEvent(event)
 
     def focusInEvent(self, event:QFocusEvent) -> None:
         self.parentWidget().focusInEvent(event)

@@ -137,6 +137,9 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 
 ### 优化方向
   - ☐ 目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本 
+    >基本上要将PDFTextLayout及其配套的类都重写一遍，工作量并不小
+    >PDFCharacterPointer.py PDFTextBlock.py PDFTextLayout.py PDFTextLine.py PDFTextSelection.py PDFTextSelectionColoredltem.py TextCharacter.py
+    - https://github.com/openwebos/qt/blob/master/src/svg/qgraphicssvgitem.cpp
   - ✔ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
     - https://github.com/hiroi-sora/GapTree_Sort_Algorithm
 
