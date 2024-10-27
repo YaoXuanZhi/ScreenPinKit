@@ -55,6 +55,7 @@ class SceneUserNotifyEnum(Enum):
 class CanvasScene(QGraphicsScene):
     itemMovedSignal = pyqtSignal(QGraphicsItem, QPointF, QPointF)
     itemDeleteSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
+    itemDeleteAllSignal = pyqtSignal(QGraphicsScene, list)
     itemAddSignal = pyqtSignal(QGraphicsScene, QGraphicsItem)
     itemRotatedSignal = pyqtSignal(QGraphicsItem, float, float)
     itemResizedSignal = pyqtSignal(QGraphicsItem, tuple, tuple)
@@ -186,9 +187,7 @@ class CanvasScene(QGraphicsScene):
             item.transformComponent.resizedSignal.connect(self.itemResizedSignal)
 
     def clearDraw(self):
-        for item0 in self.itemList:
-            item:QGraphicsItem = item0
-            self.removeItem(item)
+        self.itemDeleteAllSignal.emit(self, self.itemList)
 
         self.currentItem = None
         self.lastAddItem = None

@@ -44,11 +44,36 @@ class DeleteCommand(QUndoCommand):
         self.item.setSelected(False)
         self.scene.itemList.append(self.item)
         self.scene.addItem(self.item)
+        if isinstance(self.item, CanvasCommonPathItem):
+            self.item.completeDraw()
         self.scene.update()
 
     def redo(self):
+        if isinstance(self.item, CanvasCommonPathItem):
+            self.item.roiMgr.clearRoiItems()
         self.scene.itemList.remove(self.item)
         self.scene.removeItem(self.item)
+
+class DeleteAllCommand(QUndoCommand):
+    def __init__(self, canvasScene:CanvasScene, items:list, parent=None):
+        super().__init__(parent)
+        self.scene = canvasScene
+        self.itemList = list(items)
+
+    def undo(self):
+        for item in self.itemList:
+            self.scene.itemList.append(item)
+            self.scene.addItem(item)
+            if isinstance(item, CanvasCommonPathItem):
+                item.completeDraw()
+        self.scene.update()
+
+    def redo(self):
+        for item in self.itemList:
+            if isinstance(item, CanvasCommonPathItem):
+                item.roiMgr.clearRoiItems()
+            self.scene.itemList.remove(item)
+            self.scene.removeItem(item)
 
 class RotateCommand(QUndoCommand):
     def __init__(self, canvasItem:QGraphicsItem, oldRotate:QPointF, newRotate:QPointF, parent=None):

@@ -43,8 +43,8 @@ class CanvasEditor(QWidget):
         self.scene.setNofityEvent(callBack)
 
     def clearDraw(self):
-        self.undoStack.clear()
         self.scene.clearDraw()
+        # self.undoStack.clear()
 
     def quitDraw(self):
         self.setEditorEnabled(False)
@@ -89,6 +89,7 @@ class CanvasEditor(QWidget):
     def initUndoFramework(self):
         self.scene.itemMovedSignal.connect(self.itemMoved)
         self.scene.itemDeleteSignal.connect(self.itemDelete)
+        self.scene.itemDeleteAllSignal.connect(self.itemDeleteAll)
         self.scene.itemAddSignal.connect(self.itemAdd)
         self.scene.itemRotatedSignal.connect(self.itemRotated)
         self.scene.itemResizedSignal.connect(self.itemResized)
@@ -111,6 +112,9 @@ class CanvasEditor(QWidget):
 
     def itemDelete(self, canvasScene:QGraphicsScene, canvasItem:QGraphicsItem):
         self.undoStack.push(DeleteCommand(canvasScene, canvasItem))
+
+    def itemDeleteAll(self, canvasScene:QGraphicsScene, items:list):
+        self.undoStack.push(DeleteAllCommand(canvasScene, items))
 
     def itemRotated(self, canvasItem:QGraphicsItem, oldValue:float, newValue:float):
         self.undoStack.push(RotateCommand(canvasItem, oldValue, newValue))

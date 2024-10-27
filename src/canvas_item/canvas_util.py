@@ -756,6 +756,12 @@ class CanvasROIManager(QObject):
             else:
                 roiItem.hide()
 
+    def clearRoiItems(self):
+        for roiItem in self.roiItemList:
+            self.attachParent.scene().removeItem(roiItem)
+
+        self.roiItemList = []
+
     def initRoiItems(self, polygon:QPolygonF):
         if polygon.count() > 0:
             for i in range(0, polygon.count()):
