@@ -22,6 +22,10 @@ class KeyboardListener(QObject):
         self._handleSignal.connect(self.handleKeyCallback)
         self._hotkeyBinds = {}
 
+    @property
+    def hotkeyBinds(self):
+        return self._hotkeyBinds
+
     def handleKeyCallback(self, hotkeyTuple:tuple):
         if hotkeyTuple in self._hotkeyBinds:
             self._hotkeyBinds[hotkeyTuple]()
