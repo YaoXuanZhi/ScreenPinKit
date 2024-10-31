@@ -1,0 +1,53 @@
+<RCC>
+    <qresource prefix="">
+        <file>icons/logo.svg</file>
+        <file>icons/snap.svg</file>
+        <file>icons/quit.svg</file>
+        <file>icons/setting.svg</file>
+        <file>icons/whiteboard.svg</file>
+        <file>icons/copy.svg</file>
+        <file>icons/text.svg</file>
+        <file>icons/eraser.svg</file>
+        <file>icons/pen.svg</file>
+        <file>icons/save_as.svg</file>
+        <file>icons/finished.svg</file>
+        <file>icons/delete_all.svg</file>
+        <file>icons/brush.svg</file>
+        <file>icons/undo.svg</file>
+        <file>icons/redo.svg</file>
+        <file>icons/ocr.svg</file>
+        <file>icons/guide.svg</file>
+        <file>icons/click_through.svg</file>
+        <file>icons/arrow.svg</file>
+        <file>icons/marker_pen.svg</file>
+        <file>icons/star.svg</file>
+        <file>icons/rectangle.svg</file>
+        <file>icons/line_strip.svg</file>
+        <file>icons/polygon.svg</file>
+        <file>icons/select_item.svg</file>
+        <file>icons/mosaic.svg</file>
+        <file>icons/locked.svg</file>
+        <file>icons/unlocked.svg</file>
+        <file>icons/circle.svg</file>
+        <file>icons/shape.svg</file>
+        <file>icons/fill_region.svg</file>
+        <file>icons/triangle.svg</file>
+        <file>icons/bold.svg</file>
+        <file>icons/italic.svg</file>
+        <file>icons/full_dot.svg</file>
+        <file>icons/full_rectangle.svg</file>
+        <file>icons/blur.svg</file>
+        <file>icons/pin.svg</file>
+        <file>icons/number_marker.svg</file>
+        <file>icons/warning.svg</file>
+        <file>icons/success.svg</file>
+        <file>icons/error.svg</file>
+        <file>icons/rounded_corner.svg</file>
+
+        <file>qss/dark/setting_interface.qss</file>
+        <file>qss/light/setting_interface.qss</file>
+
+        <file>i18n/settings.zh_CN.qm</file>
+        <file>fonts/cangerjinxie01-9128-W03.otf</file>
+    </qresource>
+</RCC>

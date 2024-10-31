@@ -108,7 +108,7 @@ def main():
     locale = cfg.get(cfg.language).value
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
-    settingTranslator.load(locale, "settings", ".", ":/ScreenPinKit/resource/i18n")
+    settingTranslator.load(locale, "settings", ".", ":/i18n")
 
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)

@@ -11,4 +11,4 @@ class StyleSheet(StyleSheetBase, Enum):
 
     def path(self, theme=Theme.AUTO):
         theme = qconfig.theme if theme == Theme.AUTO else theme
-        return f":/ScreenPinKit/resource/qss/{theme.value.lower()}/{self.value}.qss"
+        return f":/qss/{theme.value.lower()}/{self.value}.qss"

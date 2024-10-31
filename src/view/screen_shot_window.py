@@ -1,6 +1,7 @@
 # coding=utf-8
 from canvas_item import *
 from common import *
+from misc import *
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
@@ -197,14 +198,7 @@ class ScreenShotWindow(QWidget):
         self.painter.drawRect(finalFrame.boundingRect() + QMargins(1, 1, 1, 1))
 
     def getScreenColorStr(self):
-        if self.showColorMode == 0:
-            return f"hex:{self.screenColor.name()}"
-        elif self.showColorMode == 1:
-            red, green, blue, _alpha = self.screenColor.getRgb()
-            return f"rgb:({red}, {green}, {blue})"
-        elif self.showColorMode == 2:
-            hue, saturation, value, _alpha = self.screenColor.getHsv()
-            return f"hsv: ({hue}, {saturation}, {value})"
+        return OsHelper.getColorStrByQColor(self.screenColor, self.showColorMode)
 
     def paintCenterArea(self):
         (rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid) = self.getCenterInfos()

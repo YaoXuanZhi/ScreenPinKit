@@ -24,9 +24,29 @@ class PinWindowManager():
         '''将剪贴板上的图像数据作为冻结窗口'''
         clipboard = QApplication.clipboard()
         mimeData = clipboard.mimeData()
+        pixmap = None
         if mimeData.hasImage():
             image = clipboard.image()
             pixmap = QPixmap.fromImage(image)
+        elif mimeData.hasUrls():
+            imgPath = clipboard.text().replace("file:///", "")
+            extension = Path(imgPath).suffix
+            supportImgs = [".png", ".jpg", ".jpeg"]
+            if extension in supportImgs:
+                pixmap = QPixmap(imgPath)
+        elif mimeData.hasText():
+            text = clipboard.text()
+            fontPath = ":/fonts/cangerjinxie01-9128-W03.otf"
+
+            maybeColor = OsHelper.tryTextToQColor(text)
+            if maybeColor != None:
+                # 颜色文本
+                pixmap = OsHelper.colorToImageEx(targetColor=maybeColor, fontPath=fontPath, fontSize=18)
+            else:
+                # 普通文本
+                pixmap = OsHelper.textToImage(text=text, fontPath=fontPath, fontSize=14)
+
+        if pixmap != None:
             realSize = self.autoFitScreenPixelRatioForPixmap(pixmap)
             screenPoint = QCursor().pos() - QPoint(realSize.width() / 2, realSize.height() / 2)
             self.addPinWindow(screenPoint, realSize, pixmap)

@@ -6,6 +6,8 @@ from PIL import Image
 import numpy as np
 
 class OsHelper:
+    offsetPos = QPoint(20, 20)
+
     @staticmethod
     def executeSystemCommand(cmd):
         '''
@@ -58,3 +60,110 @@ class OsHelper:
         image = Image.fromqimage(qimage)
         imageArray = np.array(image)
         return imageArray
+
+    @staticmethod
+    def loadFontFamilyFromQrc(font_path) -> str:
+        qfile = QFile(font_path)
+        if not qfile.open(QIODevice.ReadOnly):
+            raise IOError("Failed to open font file from QRC")
+    
+        font_data = qfile.readAll()
+        qfile.close()
+    
+        font_id = QFontDatabase.addApplicationFontFromData(font_data)
+        if font_id == -1:
+            raise IOError("Failed to load font from QRC")
+    
+        font_families = QFontDatabase.applicationFontFamilies(font_id)
+        if not font_families:
+            raise IOError("Failed to get font family from QRC")
+    
+        return font_families[0]
+
+    @staticmethod
+    def textToImage(text, fontPath, fontSize=24, textColor=Qt.GlobalColor.black, bgColor=Qt.GlobalColor.white):
+        '''将文本转换成图像，返回QPixmap'''
+        image = QImage(1, 1, QImage.Format_ARGB32)
+    
+        painter = QPainter(image)
+    
+        fontFamily = OsHelper.loadFontFamilyFromQrc(fontPath)
+        font = QFont(fontFamily, fontSize)
+        painter.setFont(font)
+    
+        # 获取文本的边界矩形
+        rect = painter.boundingRect(image.rect(), Qt.AlignLeft, text)
+    
+        painter.end()
+    
+        # 调整图像大小以适应文本
+        image = QImage(rect.width() + OsHelper.offsetPos.x() * 2 , rect.height() + OsHelper.offsetPos.y() * 2, QImage.Format_ARGB32)
+    
+        image.fill(bgColor)
+    
+        painter = QPainter(image)
+        painter.setFont(font)
+    
+        painter.setPen(QColor(textColor))
+    
+        rect.moveTopLeft(OsHelper.offsetPos)
+        painter.drawText(rect, Qt.AlignLeft, text)
+    
+        painter.end()
+    
+        return QPixmap.fromImage(image)
+
+    @staticmethod
+    def getColorStrByQColor(color:QColor, showColorMode:int) -> str:
+        '''将QColor转换成字符串，ShowColorMode: 0:hex, 1:rgb, 2:hsv'''
+        if showColorMode == 0:
+            return f"hex: {color.name()}"
+        elif showColorMode == 1:
+            return f"rgb: ({color.red()}, {color.green()}, {color.blue()})"
+        elif showColorMode == 2:
+            return f"hsv: ({color.hue()}, {color.saturation()}, {color.value()})"
+
+    @staticmethod
+    def tryTextToQColor(text:str) -> QColor:
+        '''将颜色文本转换为QColor并返回'''
+        colorPrefixs = ["hex:", "rgb:", "hsv:"]
+        result = None
+        for prefix in colorPrefixs:
+            if text.startswith(prefix):
+                content = text.replace(prefix, "")
+                content = content.strip(" ()")
+
+                if prefix == "hex:":
+                    result = QColor()
+                    result.setNamedColor(content)
+                elif prefix == "rgb:":
+                    r, g, b = map(int, content.split(','))
+                    result = QColor.fromRgb(r, g, b)
+                elif prefix == "hsv:":
+                    h, s, v = map(int, content.split(','))
+                    result = QColor.fromHsv(h, s, v)
+        return result
+
+    @staticmethod
+    def colorToImageEx(targetColor:QColor, fontPath:str, fontSize:int=24, textColor:QColor=Qt.GlobalColor.black, bgColor:QColor=Qt.GlobalColor.white):
+        '''将颜色数值转换成图像，返回QPixmap'''
+        hexStr = OsHelper.getColorStrByQColor(targetColor, 0)
+        rgbStr = OsHelper.getColorStrByQColor(targetColor, 1)
+        hsvStr = OsHelper.getColorStrByQColor(targetColor, 2)
+        text = f"{hexStr}\n\n{rgbStr}\n\n{hsvStr}"
+        pixmap = OsHelper.textToImage(text, fontPath, fontSize, textColor, bgColor)
+
+        painter = QPainter(pixmap)
+        boundPen = QPen(targetColor)
+        boundPen.setStyle(Qt.PenStyle.SolidLine)
+        boundPen.setWidthF(5)
+        painter.setPen(boundPen)
+
+        colorBound = pixmap.rect() - QMargins(
+            OsHelper.offsetPos.x()/2, OsHelper.offsetPos.y()/2, 
+            OsHelper.offsetPos.x()/2, OsHelper.offsetPos.y()/2
+            )
+        painter.drawRect(colorBound)
+    
+        painter.end()
+        return pixmap

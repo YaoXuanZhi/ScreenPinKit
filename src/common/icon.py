@@ -55,4 +55,4 @@ class ScreenShotIcon(FluentIconBase, Enum):
     PLUGIN_MARKET = "whiteboard"
 
     def path(self, theme=Theme.AUTO):
-        return f':/ScreenPinKit/resource/icons/{self.value}.svg'
+        return f':/icons/{self.value}.svg'
