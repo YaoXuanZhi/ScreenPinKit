@@ -7,11 +7,10 @@ from .drag_window import *
 from .shadow_window import *
 
 class PinWindow(DragWindow):
-    def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
+    def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, closeCallback:typing.Callable):
         super().__init__(parent)
         self.shadowWidth = 10
         self.roundRadius = 20
-        self.physicalPixmap = physicalPixmap
         self.setGeometry(screenPoint.x(), screenPoint.y(), physicalSize.width(), physicalSize.height())
 
         self.defaultFlag()
@@ -44,18 +43,6 @@ class PinWindow(DragWindow):
 
     def isAllowDrag(self):
         return True
-
-    def paintEvent(self, event):
-        self.painter.begin(self)
-        self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
-
-        if self.roundRadius > 0:
-            clipPath = QPainterPath()
-            clipPath.addRoundedRect(QRectF(self.rect()), self.roundRadius, self.roundRadius)
-            self.painter.setClipPath(clipPath)
-        self.painter.drawPixmap(0, 0, self.physicalPixmap)
-
-        self.painter.end()
 
     def closeEvent(self, event) -> None:
         self.shadowWindow.close()

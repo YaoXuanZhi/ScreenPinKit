@@ -121,3 +121,7 @@ class CanvasEditor(QWidget):
 
     def itemResized(self, canvasItem:QGraphicsItem, oldValue:QPolygonF, newValue:QPolygonF):
         self.undoStack.push(ResizeCommand(canvasItem, oldValue, newValue))
+
+    def resizeEvent(self, a0:QResizeEvent):
+        super().resizeEvent(a0)
+        self.view.resize(self.size())

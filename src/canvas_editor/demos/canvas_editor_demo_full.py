@@ -13,19 +13,23 @@ from base import *
 class MainWindow(DragWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.shadowWidth = 10
+        self.roundRadius = 20
         self.defaultFlag()
         self.initUI()
         self.initActions()
         self.initSystemTrayMenu()
         self.show()
-        self.painter = QPainter()
-        self.focusColor = QColor(255, 0, 255, 50)
+        self.shadowWindow = ShadowWindow(self.roundRadius, self.shadowWidth, self)
 
     def defaultFlag(self):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+
+    def closeEvent(self, event) -> None:
+        self.shadowWindow.close()
 
     def initSystemTrayMenu(self):
         self.systemTrayIcon = QSystemTrayIcon()
@@ -61,7 +65,7 @@ class MainWindow(DragWindow):
             QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip), shortcut="alt+2"),
             QAction("绘制多边形", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape), shortcut="alt+3"),
             QAction("绘制箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+4"),
-            QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+7"),
+            QAction("切换到选择工具", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem), shortcut="alt+9"),
         ]
 
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
@@ -111,16 +115,21 @@ class MainWindow(DragWindow):
     def isMouseThrough(self):
         return (self.windowFlags() | Qt.WindowType.WindowTransparentForInput) == self.windowFlags()
 
+    def focusInEvent(self, event:QFocusEvent) -> None:
+        self.shadowWindow.focusInEvent(event)
+
+    def focusOutEvent(self, event:QFocusEvent) -> None:
+        self.shadowWindow.focusOutEvent(event)
+
     def initUI(self):
         self.contentLayout = QVBoxLayout(self)
-        self.shadowWidth = 10
         sceneBrush = None
 
         # 桌面标注模式
         self.physicalPixmap = QPixmap()
 
         # 截图标注模式
-        imagePath = os.path.join(os.path.dirname(__file__), "screen 451-180.png")
+        imagePath = os.path.join(os.path.dirname(__file__), "screen 58-115.png")
         self.physicalPixmap = QPixmap(imagePath)
 
         finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
@@ -142,9 +151,9 @@ class MainWindow(DragWindow):
             transform = QtGui.QTransform()
             transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
             sceneBrush.setTransform(transform)
-        self.canvasEditor = CanvasEditor(None, sceneBrush)
-        self.canvasEditor.initUI()
+        self.canvasEditor = CanvasEditor(self, sceneBrush)
         self.contentLayout.addWidget(self.canvasEditor)
+        self.canvasEditor.initUI()
         self.canvasEditor.scene.initNodes()
 
     def isAllowDrag(self):
@@ -152,36 +161,32 @@ class MainWindow(DragWindow):
             return False
         return not self.canvasEditor.isEditorEnabled()
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
-        if self.physicalPixmap.isNull():
-            return super().paintEvent(a0)
 
-        self.painter.begin(self)
-        self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
 
-    	# 阴影
-        path = QPainterPath()
-        path.setFillRule(Qt.WindingFill)
-        self.painter.fillPath(path, QBrush(Qt.white))
-        color = self.focusColor
+    def resizeEvent(self, event):
+       super().resizeEvent(event)
+       self.canvasEditor.resize(self.size())
 
-        for i in range(10):
-            i_path = QPainterPath()
-            i_path.setFillRule(Qt.WindingFill)
-            ref = QRectF(self.shadowWidth-i, self.shadowWidth-i, self.width()-(self.shadowWidth-i)*2, self.height()-(self.shadowWidth-i)*2)
-            # i_path.addRect(ref)
-            i_path.addRoundedRect(ref, 5, 5)
-            color.setAlpha(int(150 - i**0.5*50))
-            # color.setAlpha(150 - math.sqrt(i) * 50)
-            self.painter.setPen(color)
-            self.painter.drawPath(i_path)
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        if event.angleDelta().y() > 0:
+            self._lastScaleFactor = self._lastScaleFactor + 0.2
+        else:
+            self._lastScaleFactor = self._lastScaleFactor - 0.2
+        self._lastScaleFactor = max(0.2, min(2, self._lastScaleFactor))
+        self.__setWindowScaleFactor(self._lastScaleFactor)
+        return super().wheelEvent(event)
 
-        self.painter.end()
+    def __setWindowScaleFactor(self, newScaleFactor):
+        '''设置窗口的缩放比例'''
+        scaledWidth = int(self._originSize.width() * newScaleFactor)
+        scaledHeight = int(self._originSize.height() * newScaleFactor)
 
-        self.painter.begin(self)
-        frameRect:QRectF = self.rect() - QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
-        self.painter.drawPixmap(frameRect, self.physicalPixmap)
-        self.painter.end()
+        self.resize(scaledWidth, scaledHeight)
+
+    def showEvent(self, a0):
+        self._originSize = self.size()
+        self._lastScaleFactor = 1
+        return super().showEvent(a0)
 
 if __name__ == '__main__':
     import sys

@@ -11,7 +11,7 @@ from .painter_interface import PainterInterface
 
 class PinEditorWindow(PinWindow):
     def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
-        super().__init__(parent, screenPoint, physicalSize, physicalPixmap, closeCallback)
+        super().__init__(parent, screenPoint, physicalSize, closeCallback)
         self.contentLayout = QVBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -96,7 +96,7 @@ class PinEditorWindow(PinWindow):
         if cfg.get(cfg.windowShadowStyleIsCopyWithShadow):
             finalPixmap = self.grabWithShaodw()
         else:
-            finalPixmap = self.painterWidget.getFinalPixmap()
+            finalPixmap = self.grab()
         QApplication.clipboard().setPixmap(finalPixmap)
 
     def saveToDisk(self):
@@ -129,14 +129,30 @@ class PinEditorWindow(PinWindow):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             if self.isAllowDrag():
-                self.close()
+                if int(event.modifiers()) == Qt.ControlModifier:
+                    if self._lastScaleFactor == 1:
+                        self._lastScaleFactor = 0.2
+                    else:
+                        self._lastScaleFactor = 1
+                    self.__setWindowScaleFactor(self._lastScaleFactor)
+                else:
+                    self.close()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:
             self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         else:
-            return super().wheelEvent(event)
+            if not self.isAllowDrag():
+                return super().wheelEvent(event)
+
+            # 缩放窗口大小
+            if event.angleDelta().y() > 0:
+                self._lastScaleFactor = self._lastScaleFactor + 0.1
+            else:
+                self._lastScaleFactor = self._lastScaleFactor - 0.1
+            self._lastScaleFactor = max(0.2, min(2, self._lastScaleFactor))
+            self.__setWindowScaleFactor(self._lastScaleFactor)
 
     def closeEvent(self, event) -> None:
         self.painterWidget.close()
@@ -162,3 +178,15 @@ class PinEditorWindow(PinWindow):
         self.painterWidget.clearFocus()
         self.focusOutEvent(QFocusEvent(QEvent.Type.FocusOut, Qt.FocusReason.NoFocusReason))
         return super().setMouseThroughState(isThrough)
+
+    def __setWindowScaleFactor(self, newScaleFactor:float):
+        '''设置窗口的缩放比例'''
+        scaledWidth = int(self._originSize.width() * newScaleFactor)
+        scaledHeight = int(self._originSize.height() * newScaleFactor)
+
+        self.resize(scaledWidth, scaledHeight)
+
+    def showEvent(self, a0):
+        self._originSize = self.size()
+        self._lastScaleFactor = 1
+        return super().showEvent(a0)

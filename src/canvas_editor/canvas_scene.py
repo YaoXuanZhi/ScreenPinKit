@@ -74,7 +74,7 @@ class CanvasScene(QGraphicsScene):
         self._lastSelectedItem = None
 
         self.selectionChanged.connect(self.selectionChangedHandle)
-        # self.setBackgroundBrush(self.bgBrush)
+        self.setBackgroundBrush(self.bgBrush)
 
     def selectionChangedHandle(self):
         selectItem = None
@@ -198,13 +198,11 @@ class CanvasScene(QGraphicsScene):
 
     def captureCurrentScenePixmap(self) -> QPixmap:
         '''捕获当前场景快照'''
-        basePixmap = self.bgBrush.texture().copy()
-        painter = QPainter()
-        painter.begin(basePixmap)
         view = self.views()[0]
-        painter.drawPixmap(view.geometry(), view.grab())
-        painter.end()
-        return basePixmap
+        shotGrab = view.grab()
+        finalSize = self.bgBrush.texture().size()
+        shotGrab = shotGrab.scaled(finalSize.width(), finalSize.height(), Qt.KeepAspectRatio)
+        return shotGrab
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
