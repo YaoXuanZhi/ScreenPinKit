@@ -167,3 +167,31 @@ class OsHelper:
     
         painter.end()
         return pixmap
+
+    @staticmethod
+    def ConvertToRoundedPixmap(pixmap:QPixmap, radius:float):
+        '''让图像裁剪出圆角边缘'''
+        finalPixmap = QPixmap(pixmap.size())
+
+        # 注意，由于dpi缩放的影响，需要将其转换为逻辑坐标才能绘制正确
+        finalPixmap.setDevicePixelRatio(pixmap.devicePixelRatioF())
+        dpiScale = pixmap.devicePixelRatioF()
+        logicRect = QRectF(0, 0, pixmap.size().width() / dpiScale, pixmap.size().height() / dpiScale)
+
+        # 填充为透明背景
+        finalPixmap.fill(Qt.transparent)
+
+        painter = QPainter(finalPixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # 设置裁剪区域
+        path = QPainterPath()
+        path.addRoundedRect(logicRect, radius, radius)
+        painter.setClipPath(path)
+
+        # 复制图像
+        painter.drawPixmap(0, 0, pixmap)
+
+        painter.end()
+
+        return finalPixmap
