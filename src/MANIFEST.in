@@ -1,0 +1,3 @@
+include internal_plugins/*.py
+recursive-include pdf_viewer *.*
+recursive-include internal_ocr_loaders *.*

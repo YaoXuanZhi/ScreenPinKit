@@ -48,12 +48,12 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
         self.setMouseThroughState(True)
 
     def showEvent(self, a0: QShowEvent) -> None:
+        self.activateWindow()
         if self.canvasEditor.drawWidget != None and not self.canvasEditor.drawWidget.isEditorEnabled():
             return
         self.canvasEditor.initDrawLayer()
         self.canvasEditor.showCommandBar()
         self.canvasEditor.selectItemAction.trigger()
-        self.activateWindow()
 
     def zoomHandle(self, zoomFactor):
         finalValue = self.windowOpacity()

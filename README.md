@@ -103,6 +103,9 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 | 贴图窗口 | Ctrl+C | 复制当前贴图到剪贴板上 |
 | 贴图窗口 | Ctrl+S | 将当前贴图保存到磁盘上 |
 | 贴图窗口 | Ctrl+W | 完成绘图 |
+| 贴图窗口 | Ctrl+Z | 撤销 |
+| 贴图窗口 | Ctrl+Y | 重做 |
+| 贴图窗口 | 3次Space | 清除绘图 |
 | 屏幕标注窗口 | Alt+L | 隐藏/显示屏幕标注内容 |
 | 屏幕标注窗口 | Ctrl+W | 完成绘图 |
 
@@ -164,7 +167,7 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 
 ```sh
 # Ubuntu默认没有安装openssh-server，这会导致Vscode Remote-SSH无法使用，需要手动安装
-sudo apt-get install openssh-server
+# sudo apt-get install openssh-server
 
 # 安装Qt依赖库
 sudo apt install qtwayland5
