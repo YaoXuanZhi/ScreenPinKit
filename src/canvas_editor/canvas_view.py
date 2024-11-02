@@ -16,7 +16,7 @@ class CanvasView(QGraphicsView):
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setStyleSheet("background: transparent; border:0px;")
+        self.setStyleSheet("background: transparent; border:0px; padding: 0px; margin: 0px;")
         self.setRenderHint(QPainter.Antialiasing)
 
     def isCanDrag(self):
@@ -39,9 +39,18 @@ class CanvasView(QGraphicsView):
             return
         return super().wheelEvent(event)
 
-    def showEvent(self, event):
-        self.scene().setSceneRect(0, 0, self.frameSize().width(), self.frameSize().height())
-
     def resizeEvent(self, event:QResizeEvent):
         super().resizeEvent(event)
-        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+
+        if not hasattr(self, "isInit"):
+            self.isInit = True
+            self.scene().setSceneRect(0, 0, self.frameSize().width(), self.frameSize().height())
+            self.originFrameSize = self.frameSize()
+        
+        currentFrameSize = self.frameSize()
+
+        # 有个奇怪问题，会多出几个像素的位置，暂时采用修正方式来处理
+        val = 4
+        val = val * self.originFrameSize.width() / currentFrameSize.width()
+        correctOffset = QMarginsF(0, 0, val, val)
+        self.fitInView(self.sceneRect() - correctOffset, Qt.AspectRatioMode.IgnoreAspectRatio)

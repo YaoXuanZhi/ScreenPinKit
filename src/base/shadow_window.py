@@ -6,9 +6,8 @@ from PyQt5.QtWidgets import *
 from .mouse_through_window import *
 
 class ShadowWindow(MouseThroughWindow):
-    blinkStopSignal = pyqtSignal()
     def __init__(self, roundRadius:int, shadowWidth:float, parent:QWidget):
-        super(ShadowWindow, self).__init__(parent)
+        super().__init__(parent)
         self.attachParent = parent
         self.roundRadius = roundRadius
         self.shadowWidth = shadowWidth
@@ -65,7 +64,8 @@ class ShadowWindow(MouseThroughWindow):
             self.blinkTimer.stop()
             self.blinkColor = None
             self.update()
-            self.blinkStopSignal.emit()
+            if self.parentWidget() != None:
+                self.parentWidget().activateWindow()
 
     def setRoundRadius(self, value):
         self.roundRadius = value

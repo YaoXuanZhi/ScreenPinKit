@@ -74,7 +74,8 @@ class CanvasScene(QGraphicsScene):
         self._lastSelectedItem = None
 
         self.selectionChanged.connect(self.selectionChangedHandle)
-        self.setBackgroundBrush(self.bgBrush)
+        if self.bgBrush != None:
+            self.setBackgroundBrush(self.bgBrush)
 
     def selectionChangedHandle(self):
         selectItem = None
