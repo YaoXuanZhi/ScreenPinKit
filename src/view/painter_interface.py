@@ -122,9 +122,11 @@ class PainterInterface(QWidget):
         view.addSeparator()
 
         if self.drawWidget.sceneBrush != None:
-            view.addActions([
+            extraActions = [
                 Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr)
-            ])
+            ]
+            pluginMgr.handleEvent(GlobalEventEnum.RegisterToolbarMenuEvent, actions=extraActions, pixmap=self.physicalPixmap, parent=self)
+            view.addActions(extraActions)
 
         view.addActions([
             Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
@@ -236,7 +238,11 @@ class PainterInterface(QWidget):
         return basePixmap
         
     def copyToClipboard(self):
-        finalPixmap = self.getFinalPixmap()
+        kv = {
+            "pixmap" : self.getFinalPixmap()
+        }
+        pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
+        finalPixmap = kv["pixmap"]
         QApplication.clipboard().setPixmap(finalPixmap)
 
     def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):

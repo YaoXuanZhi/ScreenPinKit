@@ -2,6 +2,7 @@
 from canvas_item import *
 from common import *
 from misc import *
+from plugin import *
 
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
@@ -59,7 +60,12 @@ class ScreenShotWindow(QWidget):
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
-            QApplication.clipboard().setPixmap(cropPixmap)
+            kv = {
+                "pixmap" : cropPixmap
+            }
+            pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
+            finalPixmap = kv["pixmap"]
+            QApplication.clipboard().setPixmap(finalPixmap)
         self.clearScreenShot(False)
         self.close()
 

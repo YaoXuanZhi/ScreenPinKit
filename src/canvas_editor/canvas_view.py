@@ -17,7 +17,7 @@ class CanvasView(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("background: transparent; border:0px; padding: 0px; margin: 0px;")
-        self.setRenderHint(QPainter.Antialiasing)
+        self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
 
     def isCanDrag(self):
         '''判断当前是否可以拖曳图元'''
@@ -44,8 +44,8 @@ class CanvasView(QGraphicsView):
 
         if not hasattr(self, "isInit"):
             self.isInit = True
-            self.scene().setSceneRect(0, 0, self.frameSize().width(), self.frameSize().height())
             self.originFrameSize = self.frameSize()
+            self.scene().setSceneRect(0, 0, self.originFrameSize.width(), self.originFrameSize.height())
         
         currentFrameSize = self.frameSize()
 

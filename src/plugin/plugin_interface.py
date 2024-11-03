@@ -10,6 +10,17 @@ class GlobalEventEnum(Enum):
     OcrEndFailEvent = 3
     '''OCR失败事件'''
 
+    ImageCopyingEvent = 4
+    '''图片复制中事件'''
+    ImageSavingEvent = 5
+    '''图片保存中事件'''
+
+    RegisterContextMenuEvent = 6
+    '''注册右键弹出菜单事件'''
+
+    RegisterToolbarMenuEvent = 7
+    '''注册工具栏菜单事件'''
+
     GlobalHotKeyRegisterStart = 13
     '''全局热键开始注册'''
     GlobalHotKeyRegisterEnd = 14

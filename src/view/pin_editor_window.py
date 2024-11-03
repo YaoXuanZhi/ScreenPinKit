@@ -7,6 +7,7 @@ from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
+from plugin import *
 from .painter_interface import PainterInterface
 
 class PinEditorWindow(PinWindow):
@@ -32,13 +33,16 @@ class PinEditorWindow(PinWindow):
         if self.painterWidget.currentDrawActionEnum != DrawActionEnum.DrawNone:
             return
         menu = RoundMenu(parent=self)
-        menu.addActions([
+        actions = [
             Action(ScreenShotIcon.WHITE_BOARD, self.tr("Show toolbar"), triggered=self.showCommandBar),
             Action(ScreenShotIcon.COPY, self.tr("Copy"), triggered=self.copyToClipboard),
             Action(ScreenShotIcon.SAVE_AS, self.tr("Save as"), triggered=self.saveToDisk),
             Action(ScreenShotIcon.CLICK_THROUGH, self.tr("Mouse through"), triggered=self.clickThrough),
             Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
-        ])
+        ]
+        pluginMgr.handleEvent(GlobalEventEnum.RegisterContextMenuEvent, actions=actions, pixmap=self.painterWidget.physicalPixmap, parent=self)
+        menu.addActions(actions)
+
         menu.view.setIconSize(QSize(20, 20))
         menu.exec(event.globalPos())
 
@@ -97,6 +101,12 @@ class PinEditorWindow(PinWindow):
             finalPixmap = self.grabWithShaodw()
         else:
             finalPixmap = self.grab()
+
+        kv = {
+            "pixmap" : finalPixmap
+        }
+        pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
+        finalPixmap = kv["pixmap"]
         QApplication.clipboard().setPixmap(finalPixmap)
 
     def saveToDisk(self):
@@ -116,6 +126,12 @@ class PinEditorWindow(PinWindow):
                 finalPixmap = self.grabWithShaodw()
             else:
                 finalPixmap = self.painterWidget.getFinalPixmap()
+
+            kv = {
+                "pixmap" : finalPixmap
+            }
+            pluginMgr.handleEvent(GlobalEventEnum.ImageSavingEvent, kv=kv, parent=self)
+            finalPixmap = kv["pixmap"]
             finalPixmap.save(savePath, "png")
 
     def isAllowDrag(self):
