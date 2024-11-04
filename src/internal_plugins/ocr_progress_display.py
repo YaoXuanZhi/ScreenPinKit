@@ -1,5 +1,5 @@
 from plugin import *
-from qfluentwidgets import (InfoBar, InfoBarPosition, StateToolTip)
+from qfluentwidgets import (InfoBar, InfoBarIcon, InfoBarPosition, StateToolTip, FluentIcon as FIF, TransparentToolButton)
 
 class OCRProgressDisplay(PluginInterface):
     @property
@@ -32,7 +32,8 @@ class OCRProgressDisplay(PluginInterface):
             parentWidget:QWidget = kwargs["parent_widget"]
             input:str = kwargs["message"]
             if hasattr(parentWidget, "stateTooltip") and parentWidget.stateTooltip != None:
-                InfoBar.error(
+                infoBar = InfoBar(
+                    icon=InfoBarIcon.ERROR,
                     title='OCR 失败',
                     content=input,
                     orient=Qt.Horizontal,
@@ -41,6 +42,18 @@ class OCRProgressDisplay(PluginInterface):
                     duration=-1,    # won't disappear automatically
                     parent=parentWidget,
                 )
+                copyButton = TransparentToolButton(FIF.COPY, parentWidget)
+                copyButton.setFixedSize(36, 36)
+                copyButton.setIconSize(QSize(12, 12))
+                copyButton.setCursor(Qt.PointingHandCursor)
+                copyButton.setVisible(True)
+                copyButton.clicked.connect(lambda: self.copyText(infoBar))
+                infoBar.addWidget(copyButton)
+                infoBar.show()
                 parentWidget.stateTooltip.setContent('OCR识别失败')
                 parentWidget.stateTooltip.setState(True)
                 parentWidget.stateTooltip = None
+
+    def copyText(self, infoBar:InfoBar):
+        text = infoBar.contentLabel.text()
+        QApplication.clipboard().setText(text)
