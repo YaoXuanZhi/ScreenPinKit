@@ -1,5 +1,6 @@
 --extra-index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
 opencv-python==4.10.0.84
+opencv-contrib-python==4.10.0.84
 onnxruntime==1.19.2
 pyclipper
 shapely==2.0.6

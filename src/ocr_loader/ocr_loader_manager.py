@@ -36,6 +36,8 @@ class OcrLoaderManager:
         import onnxruntime
         import pyclipper
         from shapely.geometry import Polygon
+        from cv2.wechat_qrcode import WeChatQRCode
+        import qrcode
         # 打包指令：pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
         self.__initLoadersByModuleName("internal_ocr_loader_return_text")
         self.__initLoadersByModuleName("internal_ocr_loader_return_text_plus")

@@ -62,7 +62,8 @@ class PluginManager:
             try:
                 module = importlib.import_module(module_path)
                 self.__filterInterface(module)
-            except Exception:
+            except Exception as e:
+                print("\n".join(e.args))
                 pass
 
     def __loadPluginByModuleName(self, moduleName):
