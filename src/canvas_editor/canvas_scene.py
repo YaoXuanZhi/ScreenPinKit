@@ -79,12 +79,12 @@ class CanvasScene(QGraphicsScene):
 
     def selectionChangedHandle(self):
         selectItem = None
-        if len(self.selectedItems()) > 0:
-            selectItem = self.selectedItems()[0]
-            if CanvasUtil.isRoiItem(selectItem):
-                return
-        # else:
-        #     return
+        if len(self.selectedItems()) == 0:
+            return
+
+        selectItem = self.selectedItems()[0]
+        if CanvasUtil.isRoiItem(selectItem):
+            selectItem = selectItem.parentItem()
 
         if self._itemNotifyCallBack != None:
             if self.currentDrawActionEnum == DrawActionEnum.SelectItem and selectItem == None:
