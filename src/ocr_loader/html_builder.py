@@ -5,7 +5,7 @@ from .GapTree_Sort_Algorithm.gap_tree import GapTree
 
 def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
     """
-    计算最适合固定文本框的字体大小
+    通过ImageFont计算最适合固定文本框的字体大小
     :param text: 要显示的文本
     :param font_path: 字体文件路径
     :param max_width: 文本框的最大宽度
@@ -27,7 +27,44 @@ def calculate_best_font_size(text, font_path, max_width, max_height, initial_fon
 
     return font_size
 
-def build_svg_html(width, height, box_infos, dpi_scale=1):
+def calculate_best_font_size_by_qpainter(text, font_family, max_width, max_height, initial_font_size=5):
+    """
+    通过QPainter计算最适合固定文本框的字体大小
+    :param text: 要显示的文本
+    :param font_path: 字体文件路径
+    :param max_width: 文本框的最大宽度
+    :param max_height: 文本框的最大高度
+    :param initial_font_size: 初始字体大小
+    :return: 最适合的字体大小
+    @Note
+        获得的字体偏小，不建议采用
+    """
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QImage, QPainter, QFont
+    image = QImage(1, 1, QImage.Format_ARGB32)
+    
+    painter = QPainter(image)
+
+    font_size = initial_font_size
+    font = QFont(font_family, font_size)
+
+    while True:
+        font.setPointSize(font_size)
+        painter.setFont(font)
+    
+        # 获取文本的边界矩形
+        rect = painter.boundingRect(image.rect(), Qt.AlignLeft, text)
+        text_width = rect.width()
+        text_height = rect.height()
+
+        if text_width <= max_width and text_height <= max_height:
+            font_size += 1
+        else:
+            break
+    painter.end()
+    return font_size
+
+def build_svg_html(font_path, width, height, box_infos, dpi_scale=1):
     '''将图片进行OCR识别后，将结果转换成html'''
     # box_info = {"box":[x, y, w, h], "text":text}
 
@@ -109,7 +146,7 @@ def build_svg_html(width, height, box_infos, dpi_scale=1):
         h = h / dpi_scale
         text = html.escape(text)
 
-        best_font_size = calculate_best_font_size(text, "arial.ttf", w, h, 2)
+        best_font_size = calculate_best_font_size(text, font_path, w, h, 2)
 
         # # 调试专用
         # html_content += f"""
@@ -355,7 +392,7 @@ def build_origin_html(width, height, box_infos, dpi_scale=1):
 
     return html_content
 
-def build_svg_content(width, height, box_infos, dpi_scale=1):
+def build_svg_content(font_path, width, height, box_infos, dpi_scale=1):
     # 构建 HTML 内容
     svg_content = f"""
 <svg width="100%" height="100%" viewBox="0 0 {width} {height}" preserveAspectRatio="xMaxYMax slice" xmlns="http://www.w3.org/2000/svg">
@@ -377,7 +414,7 @@ def build_svg_content(width, height, box_infos, dpi_scale=1):
         h = h / dpi_scale
         text = html.escape(text)
 
-        best_font_size = calculate_best_font_size(text, "arial.ttf", w, h, 2)
+        best_font_size = calculate_best_font_size(text, font_path, w, h, 2)
 
         svg_content += f"""
     <rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" stroke="gray"/>
@@ -405,9 +442,9 @@ def handle_gap_tree_sort_for_box_infos(box_infos):
     sortedBoxInfos = gtree.sort(box_infos)  # 输入文本块，获得排序后结果
     return sortedBoxInfos
 
-def build_svg_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
+def build_svg_html_by_gap_tree_sort(font_path, width, height, box_infos, dpi_scale=1):
     sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
-    return build_svg_html(width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)
+    return build_svg_html(font_path=font_path, width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)
 
 def build_origin_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
     sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)

@@ -195,3 +195,13 @@ class OsHelper:
         painter.end()
 
         return finalPixmap
+
+    def get_web_engine_font_family():
+        from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+        settings = QWebEngineSettings.globalSettings()
+        return settings.fontFamily(QWebEngineSettings.FantasyFont)    
+
+    def get_system_font_family():
+        font_db = QFontDatabase()
+        font_family = font_db.families()[0]
+        return font_family

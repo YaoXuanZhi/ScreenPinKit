@@ -58,7 +58,8 @@ class InternalOcrLoader_ReturnTextPlus(OcrLoaderInterface):
             text = texts[i]
             score = scores[i]
             boxInfos.append({"box": box, "text": text, "score": score})
-        htmlContent = build_svg_html_by_gap_tree_sort(width=width, height=height, box_infos=boxInfos, dpi_scale=CanvasUtil.getDevicePixelRatio())
+        font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PaddleOCRModel/arial.ttf')
+        htmlContent = build_svg_html_by_gap_tree_sort(font_path=font_path, width=width, height=height, box_infos=boxInfos, dpi_scale=CanvasUtil.getDevicePixelRatio())
         return htmlContent
 
     def __ocr(self, pixmap:QPixmap):

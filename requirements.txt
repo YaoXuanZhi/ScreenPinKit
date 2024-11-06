@@ -5,8 +5,9 @@ pillow<=9.5.0
 PyQt-Fluent-Widgets
 PyQtWebEngine
 system_hotkey
-pygetwindow
 opencv-python==4.10.0.84
+opencv-contrib-python==4.10.0.84
+qrcode==8.0
 onnxruntime==1.19.2
 pyclipper
 shapely==2.0.6

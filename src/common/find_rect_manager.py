@@ -1,12 +1,10 @@
 # coding:utf-8
 # 提取自https://github.com/fandesfyf/Jamscreenshot/blob/master/jamscreenshot.py
-import cv2, typing
+import typing
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PIL import Image
-import pygetwindow
-from pygetwindow import BaseWindow
 import numpy as np
 from canvas_item.canvas_util import CanvasUtil
 
@@ -21,9 +19,9 @@ class FindRectManager():
         self.screenRect = finalGeometry
         self.area_threshold = 200
         self.rects = self.getRectsByCv()
-        # self.rects = self.getRects()
 
     def getRectsByCv(self):
+        import cv2
         ndArray = np.array(self.image)
         gray = cv2.cvtColor(ndArray, cv2.COLOR_BGR2GRAY)
         th = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 5, 2)  # 自动阈值
@@ -37,16 +35,6 @@ class FindRectManager():
                 result.append(QRect(x/self.devicePixelRatio, y/self.devicePixelRatio, w/self.devicePixelRatio, h/self.devicePixelRatio))
 
         result.append(self.screenRect)
-        return result
-
-    def getRects(self) -> typing.List[QRect]:
-        allWindows = pygetwindow.getAllWindows()
-
-        result = []
-        for window in allWindows:
-            if isinstance(window, BaseWindow):
-                rect = QRect(QPoint(window.left, window.top), QPoint(window.right, window.bottom))
-                result.append(rect)
         return result
 
     def findTargetRect(self, mousePos:typing.Union[QPointF, QPoint]):

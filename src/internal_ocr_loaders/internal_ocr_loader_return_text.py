@@ -55,7 +55,8 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         width = pixmap.size().width()
         height = pixmap.size().height()
         dpiScale = CanvasUtil.getDevicePixelRatio()
-        htmlContent = build_svg_html(width=width, height=height, box_infos=boxInfos, dpi_scale=dpiScale)
+        font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PaddleOCRModel/arial.ttf')
+        htmlContent = build_svg_html(font_path=font_path, width=width, height=height, box_infos=boxInfos, dpi_scale=dpiScale)
         return htmlContent
 
     def __ocr(self, pixmap:QPixmap):
