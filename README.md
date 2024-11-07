@@ -173,6 +173,9 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 sudo apt install qtwayland5
 sudo apt install libxcb-*
 conda install -c conda-forge gcc 
+
+# Ubuntu需要xpyb - XCB 的 Python 版本
+pip install xpybutil
 ```
 
 </details>

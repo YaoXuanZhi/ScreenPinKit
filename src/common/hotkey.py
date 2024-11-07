@@ -8,12 +8,7 @@ import time
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-try:
-    from system_hotkey import SystemHotkey
-    _isSystemHotkey = True
-except:
-    import keyboard
-    _isSystemHotkey = False
+from system_hotkey import *
 
 class KeyboardListener(QObject):
     _handleSignal = pyqtSignal(tuple)
@@ -109,35 +104,25 @@ class KeyboardListener(QObject):
 class KeyboardEx(KeyboardListener):
     def __init__(self, parent=None):
         super().__init__(parent)
-        if _isSystemHotkey:
-            self.hk = SystemHotkey()
+        self.hk = SystemHotkey()
 
     def reset(self):
         super().reset()
-        if _isSystemHotkey:
-            self.hk.unregister()
-        else:
-            keyboard.unhook_all()
+        self.hk.unregister()
 
     def addHotKey(self, hotkeyStr:str, callback:callable, overwrite=False):
         hotkey = self.hotkeyToKeyNames(hotkeyStr)
         if len(hotkey) == 0:
             return
         finalTuple = tuple(hotkey)
-        if _isSystemHotkey:
-            self.hk.register(hotkey, callback=lambda _: self._handleSignal.emit(finalTuple), overwrite=overwrite)
-        else:
-            keyboard.add_hotkey(hotkeyStr, callback=lambda: self._handleSignal.emit(finalTuple), suppress=overwrite)
+        self.hk.register(hotkey, callback=lambda _: self._handleSignal.emit(finalTuple), overwrite=overwrite)
         self.setHotkeyListener(hotkeyStr, callback)
 
     def addHotKeyEx(self, hotkeyStr:str, times, callback):
         hotkey = self.hotkeyToKeyNames(hotkeyStr)
         if len(hotkey) == 0:
             return
-        if _isSystemHotkey:
-            self.hk.register(hotkey, callback=lambda _: self.updatePressTime(hotkeyStr))
-        else:
-            keyboard.add_hotkey(hotkey, callback=lambda: self.updatePressTime(hotkeyStr))
+        self.hk.register(hotkey, callback=lambda _: self.updatePressTime(hotkeyStr))
         self.setHotkeyListenerEx(hotkeyStr, times, callback)
 
 class QWidgetHotKey(KeyboardListener):
