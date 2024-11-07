@@ -51,6 +51,14 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
         self.activateWindow()
         if self.canvasEditor.drawWidget != None and not self.canvasEditor.drawWidget.isEditorEnabled():
             return
+
+        self.delayTimer = QTimer(self)
+        self.delayTimer.timeout.connect(self.onDelayCallBack)
+        self.delayTimer.start(30)
+
+    def onDelayCallBack(self):
+        self.delayTimer.stop()
+
         self.canvasEditor.initDrawLayer()
         self.canvasEditor.showCommandBar()
         self.canvasEditor.selectItemAction.trigger()
