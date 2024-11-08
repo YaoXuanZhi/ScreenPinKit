@@ -129,7 +129,7 @@ class ScreenShotWindow(QWidget):
         self.screenPixmap = finalPixmap
         self.setGeometry(finalGeometry)
         self.clearScreenShot()
-        self.show()
+        self.showFullScreen()
         self.activateWindow()
 
     def normalizeRectF(self, topLeftPoint, bottomRightPoint):
