@@ -27,10 +27,12 @@ class ShadowWindow(MouseThroughWindow):
         self.setMouseThroughState(True)
         self.initBlink()
         self.show()
+        self.resetRoundClip()
 
     def eventFilter(self, obj, event: QEvent):
         if event.type() == QEvent.Type.Resize:
             self.setGeometry(self.attachParent.geometry() + self.margins)
+            self.resetRoundClip()
         elif event.type() == QEvent.Type.Move:
             self.move(self.attachParent.geometry().topLeft() - QPoint(self.shadowWidth, self.shadowWidth))
         elif event.type() == QEvent.Type.FocusIn:
@@ -69,7 +71,35 @@ class ShadowWindow(MouseThroughWindow):
 
     def setRoundRadius(self, value):
         self.roundRadius = value
+        self.resetRoundClip()
         self.update()
+
+    def resetRoundClip(self):
+        self.applyRoundClip(self.attachParent, self.roundRadius)
+
+    def applyRoundClip(self, targetWidget:QWidget, roundRadius):
+        '''裁剪窗口为圆角'''
+        # 创建一个QBitmap对象，用于定义窗口的遮罩
+        maskBitmap = QBitmap(targetWidget.size())
+        maskBitmap.fill(Qt.GlobalColor.color0)  # 填充为黑色（透明）
+
+        # 创建一个QPainter对象，用于绘制遮罩
+        painter = QPainter(maskBitmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # 设置画笔和画刷
+        painter.setPen(Qt.GlobalColor.color1)  # 设置画笔颜色为白色（不透明）
+        painter.setBrush(Qt.GlobalColor.color1)  # 设置画刷颜色为白色（不透明）
+
+        # 绘制圆角矩形
+        rect = QRect(0, 0, targetWidget.width(), targetWidget.height())
+        painter.drawRoundedRect(rect, roundRadius, roundRadius)  # 20是圆角的半径
+
+        # 结束绘制
+        painter.end()
+
+        # 设置遮罩
+        targetWidget.setMask(maskBitmap)
 
     def setShadowColor(self, focusColor:QColor, unFocusColor:QColor):
         self.focusColor = focusColor
