@@ -13,6 +13,7 @@ from .canvas_shape_item import CanvasShapeItem, CanvasShapeEnum
 from .canvas_pen_item import CanvasPenItem
 from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem
+from .canvas_eraser_item import CanvasShadowEraserRectItem
 from .canvas_ocr_text_item import CanvasOcrTextItem
 from .canvas_effect_item import CanvasEffectRectItem
 from .canvas_mask_item import CanvasMaskItem

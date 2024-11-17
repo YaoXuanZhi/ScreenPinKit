@@ -52,13 +52,21 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
     def excludeControllers(self) -> list:
         return [EnumPosType.ControllerPosTT]
 
+    def boundingRect(self) -> QRectF:
+        self.attachPath.clear()
+
+        # self.buildShapePath(self.attachPath, self.polygon, self.isClosePath)
+        self.attachPath.addRoundedRect(self.polygon.boundingRect(), 6, 6)
+
+        return self.attachPath.boundingRect()
+
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         partRect = self.sceneBoundingRect().toRect()
         if partRect.width() < self.minSize.width() or partRect.height() < self.minSize.height():
             return
 
-        # self.customPaintByClip(painter, targetPath)
-        self.customPaintByCopy(painter, targetPath)
+        self.customPaintByClip(painter, targetPath)
+        # self.customPaintByCopy(painter, targetPath)
         return
 
         styleMap = self.styleAttribute.getValue().value()
@@ -98,3 +106,10 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
+
+    def applyShadow(self):
+        shadowEffect = QGraphicsDropShadowEffect()
+        shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        shadowEffect.setOffset(0, 0)  # 阴影的偏移量
+        self.setGraphicsEffect(shadowEffect)

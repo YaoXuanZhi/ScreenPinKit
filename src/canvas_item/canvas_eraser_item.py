@@ -41,6 +41,7 @@ class CanvasEraserItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(CanvasCommonPathItem.ShadowEffectMode, False)
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         painter.setPen(self.usePen)
@@ -72,6 +73,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(CanvasCommonPathItem.ShadowEffectMode, False)
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasEraserRectItem.value
@@ -81,8 +83,8 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 
     def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
         # bug:目前实现方式在该图元旋转时会出现bug
-        # return self.customPaintByClip(painter, targetPath)
-        return self.customPaintByCopy(painter, targetPath)
+        # self.customPaintByClip(painter, targetPath)
+        self.customPaintByCopy(painter, targetPath)
 
     def physicalRectF(self, rectf:QRectF):
         pixelRatio = self.bgPixmap.devicePixelRatio()
@@ -109,3 +111,66 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 
     def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
         CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
+
+# class CanvasShadowEraserRectItem(CanvasEraserRectItem):
+#     def initializedEvent(self):
+#         self.applyShadow()
+
+#     def applyShadow(self):
+#         shadowEffect = QGraphicsDropShadowEffect()
+#         shadowEffect.setBlurRadius(30)  # 阴影的模糊半径
+#         shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
+#         shadowEffect.setOffset(0, 0)  # 阴影的偏移量
+#         self.setGraphicsEffect(shadowEffect)
+
+#     def setEditableState(self, isEditable: bool):
+#         pass
+
+#     def type(self) -> int:
+#         return EnumCanvasItemType.CanvasShadowEraserRectItem.value
+
+class CanvasShadowEraserRectItem(QGraphicsRectItem):
+    def __init__(self, bgBrush, parent = None):
+        super().__init__(parent)
+        self.bgBrush = bgBrush
+        self.bgPixmap = self.bgBrush.texture()
+        self.attachPath = QPainterPath()
+        self.polygon = QPolygonF()
+        self.applyShadow()
+
+    def boundingRect(self) -> QRectF:
+        self.attachPath.clear()
+        self.attachPath.addRoundedRect(self.polygon.boundingRect(), 6, 6)
+        return self.attachPath.boundingRect()
+
+    def shape(self) -> QPainterPath:
+        return self.attachPath
+
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasShadowEraserRectItem.value
+
+    def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
+        # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
+
+        # 裁剪出当前区域
+        painter.setClipPath(targetPath)
+        topLeft = self.mapFromScene(QPoint(0, 0))
+
+        # 始终将背景贴到整个view上
+        painter.drawPixmap(topLeft, self.bgPixmap)
+
+    def applyShadow(self):
+        shadowEffect = QGraphicsDropShadowEffect()
+        shadowEffect.setBlurRadius(30)  # 阴影的模糊半径
+        shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
+        shadowEffect.setOffset(0, 0)  # 阴影的偏移量
+        self.setGraphicsEffect(shadowEffect)
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+        self.customPaintByClip(painter, self.attachPath)
+
+    def setEditableState(self, isEditable: bool):
+        pass
+
+    def completeDraw(self):
+        pass

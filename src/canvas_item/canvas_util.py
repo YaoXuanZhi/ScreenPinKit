@@ -24,6 +24,7 @@ class EnumCanvasItemType(Enum):
     canvasPolygonItem = QGraphicsItem.UserType + 10
     CanvasStarItem = QGraphicsItem.UserType + 11
     CanvasSvgItem = QGraphicsItem.UserType + 12
+    CanvasShadowEraserRectItem = QGraphicsItem.UserType + 13
 
 class EnumPosType(Enum):
     ControllerPosTL = "左上角"
@@ -256,6 +257,31 @@ class CanvasUtil:
             return float(os.environ["QT_SCALE_FACTOR"])
         else:
             return QApplication.primaryScreen().devicePixelRatio()
+
+    @staticmethod
+    def applyRoundClip(targetWidget:QWidget, roundRadius:float):
+        '''裁剪窗口为圆角'''
+        # 创建一个QBitmap对象，用于定义窗口的遮罩
+        maskBitmap = QBitmap(targetWidget.size())
+        maskBitmap.fill(Qt.color0)  # 填充为黑色（透明）
+
+        # 创建一个QPainter对象，用于绘制遮罩
+        painter = QPainter(maskBitmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # 设置画笔和画刷
+        painter.setPen(Qt.color1)  # 设置画笔颜色为白色（不透明）
+        painter.setBrush(Qt.color1)  # 设置画刷颜色为白色（不透明）
+
+        # 绘制圆角矩形
+        rect = QRect(0, 0, targetWidget.width(), targetWidget.height())
+        painter.drawRoundedRect(rect, roundRadius, roundRadius)  # 20是圆角的半径
+
+        # 结束绘制
+        painter.end()
+
+        # 设置遮罩
+        targetWidget.setMask(maskBitmap)
 
     @staticmethod
     def grabScreens():
@@ -788,6 +814,7 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     BorderEditableMode = 1 << 2 # 边界可编辑模式
     HitTestMode = 1 << 3 # 测试点击模式
     AdvanceSelectMode = 1 << 4 # 高级选择模式
+    ShadowEffectMode = 1 << 5 # 阴影效果模式
 
     def setEditMode(self, flag, isEnable:bool):
         if isEnable:
@@ -810,8 +837,11 @@ class CanvasCommonPathItem(QGraphicsPathItem):
     def isRoiPreviewerMode(self) -> bool:
         return self.editMode | CanvasCommonPathItem.RoiPreviewerMode == self.editMode
 
+    def isShadowEffectMode(self) -> bool:
+        return self.editMode | CanvasCommonPathItem.ShadowEffectMode == self.editMode
+
     def __initEditMode(self):
-        self.editMode = CanvasCommonPathItem.RoiEditableMode | CanvasCommonPathItem.BorderEditableMode | CanvasCommonPathItem.HitTestMode | CanvasCommonPathItem.AdvanceSelectMode
+        self.editMode = CanvasCommonPathItem.RoiEditableMode | CanvasCommonPathItem.BorderEditableMode | CanvasCommonPathItem.HitTestMode | CanvasCommonPathItem.AdvanceSelectMode | CanvasCommonPathItem.ShadowEffectMode
 
     def __init__(self, parent: QWidget = None, isClosePath:bool = False) -> None:
         super().__init__(parent)
@@ -985,7 +1015,22 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         painter.setPen(self.m_penDefault if not self.hasFocusWrapper() or not self.isHitTestMode() else self.m_penSelected)
         painter.drawPath(targetPath)
 
+    def applyShadow(self):
+        shadowEffect = QGraphicsDropShadowEffect()
+        shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        shadowEffect.setOffset(5, 5)  # 阴影的偏移量
+        self.setGraphicsEffect(shadowEffect)
+
+    def initializedEvent(self):
+        if self.isShadowEffectMode():
+            self.applyShadow()
+
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget) -> None:
+        if not hasattr(self, "initialized"):
+            self.initialized = True
+            self.initializedEvent()
+
         self.devicePixelRatio = painter.device().devicePixelRatioF()
         painter.save()
         self.customPaint(painter, self.attachPath)
