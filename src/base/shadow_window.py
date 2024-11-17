@@ -5,8 +5,9 @@ from PyQt5.QtGui import QShowEvent
 from PyQt5.QtWidgets import *
 from .mouse_through_window import *
 
+
 class ShadowWindow(MouseThroughWindow):
-    def __init__(self, roundRadius:int, shadowWidth:float, parent:QWidget):
+    def __init__(self, roundRadius: int, shadowWidth: float, parent: QWidget):
         super().__init__(parent)
         self.attachParent = parent
         self.roundRadius = roundRadius
@@ -17,7 +18,9 @@ class ShadowWindow(MouseThroughWindow):
         self.focused = False
 
         # 根据吸附的窗口大小设置阴影窗口大小
-        self.margins = QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
+        self.margins = QMargins(
+            self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth
+        )
         self.setGeometry(self.attachParent.geometry() + self.margins)
 
         self.defaultFlag()
@@ -34,7 +37,10 @@ class ShadowWindow(MouseThroughWindow):
             self.setGeometry(self.attachParent.geometry() + self.margins)
             self.resetRoundClip()
         elif event.type() == QEvent.Type.Move:
-            self.move(self.attachParent.geometry().topLeft() - QPoint(self.shadowWidth, self.shadowWidth))
+            self.move(
+                self.attachParent.geometry().topLeft()
+                - QPoint(self.shadowWidth, self.shadowWidth)
+            )
         elif event.type() == QEvent.Type.FocusIn:
             self.focused = True
             self.update()
@@ -49,7 +55,11 @@ class ShadowWindow(MouseThroughWindow):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window)
 
     def initBlink(self):
-        self.blinkColors = [Qt.GlobalColor.red, Qt.GlobalColor.yellow, Qt.GlobalColor.green]
+        self.blinkColors = [
+            Qt.GlobalColor.red,
+            Qt.GlobalColor.yellow,
+            Qt.GlobalColor.green,
+        ]
         self.blinkTimers = 0
         self.blinkColor = self.blinkColors[self.blinkTimers]
 
@@ -77,8 +87,8 @@ class ShadowWindow(MouseThroughWindow):
     def resetRoundClip(self):
         self.applyRoundClip(self.attachParent, self.roundRadius)
 
-    def applyRoundClip(self, targetWidget:QWidget, roundRadius):
-        '''裁剪窗口为圆角'''
+    def applyRoundClip(self, targetWidget: QWidget, roundRadius):
+        """裁剪窗口为圆角"""
         # 创建一个QBitmap对象，用于定义窗口的遮罩
         maskBitmap = QBitmap(targetWidget.size())
         maskBitmap.fill(Qt.GlobalColor.color0)  # 填充为黑色（透明）
@@ -101,16 +111,16 @@ class ShadowWindow(MouseThroughWindow):
         # 设置遮罩
         targetWidget.setMask(maskBitmap)
 
-    def setShadowColor(self, focusColor:QColor, unFocusColor:QColor):
+    def setShadowColor(self, focusColor: QColor, unFocusColor: QColor):
         self.focusColor = focusColor
         self.unFocusColor = unFocusColor
         self.update()
 
-    def focusInEvent(self, event:QFocusEvent) -> None:
+    def focusInEvent(self, event: QFocusEvent) -> None:
         self.focused = True
         self.update()
 
-    def focusOutEvent(self, event:QFocusEvent) -> None:
+    def focusOutEvent(self, event: QFocusEvent) -> None:
         self.focused = False
         self.update()
 
@@ -118,7 +128,7 @@ class ShadowWindow(MouseThroughWindow):
         self.painter.begin(self)
         self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
 
-    	# 阴影
+        # 阴影
         path = QPainterPath()
         path.setFillRule(Qt.WindingFill)
         self.painter.fillPath(path, QBrush(Qt.white))
@@ -130,19 +140,26 @@ class ShadowWindow(MouseThroughWindow):
         for i in range(10):
             i_path = QPainterPath()
             i_path.setFillRule(Qt.WindingFill)
-            ref = QRectF(self.shadowWidth-i, self.shadowWidth-i, self.width()-(self.shadowWidth-i)*2, self.height()-(self.shadowWidth-i)*2)
+            ref = QRectF(
+                self.shadowWidth - i,
+                self.shadowWidth - i,
+                self.width() - (self.shadowWidth - i) * 2,
+                self.height() - (self.shadowWidth - i) * 2,
+            )
             if self.roundRadius > 0:
                 i_path.addRoundedRect(ref, self.roundRadius, self.roundRadius)
             else:
                 i_path.addRect(ref)
-            color.setAlpha(int(150 - i**0.5*50))
+            color.setAlpha(int(150 - i**0.5 * 50))
             self.painter.setPen(color)
             self.painter.drawPath(i_path)
 
         # 绘制闪烁边框
         if self.blinkColor != None:
             blinkPen = QPen(self.blinkColor)  # 实线，浅蓝色
-            blinkPen.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+            blinkPen.setStyle(
+                Qt.PenStyle.SolidLine
+            )  # 实线SolidLine，虚线DashLine，点线DotLine
             blinkPen.setWidthF(self.borderLineWidth)  # 0表示线宽为1
             self.painter.setPen(blinkPen)
             rect = QRect(0, 0, self.width(), self.height())

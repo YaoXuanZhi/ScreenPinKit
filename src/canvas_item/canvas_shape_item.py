@@ -1,6 +1,7 @@
 # coding=utf-8
 from .canvas_util import *
 
+
 class CanvasShapeEnum(Enum):
     Ellipse = "Ellipse"
     Triangle = "Triangle"
@@ -8,25 +9,31 @@ class CanvasShapeEnum(Enum):
     Star = "Star"
     # NPolygon = "N边形"
 
+
 class CanvasShapeItem(CanvasCommonPathItem):
-    '''
+    """
     绘图工具-闭合形状
     @note 滚轮可以控制描边宽度
-    '''
-    def __init__(self, parent: QWidget = None, shapeType:CanvasShapeEnum = CanvasShapeEnum.Rectangle) -> None:
+    """
+
+    def __init__(
+        self,
+        parent: QWidget = None,
+        shapeType: CanvasShapeEnum = CanvasShapeEnum.Rectangle,
+    ) -> None:
         super().__init__(parent)
         self.__initEditMode()
         self.__initStyle(shapeType)
         self.sides = 3
 
-    def __initStyle(self, shapeType:CanvasShapeEnum):
-        #todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
+    def __initStyle(self, shapeType: CanvasShapeEnum):
+        # todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
         styleMap = {
-            "brushColor" : QColor(255, 0, 0, 100),
-            "penColor" : QColor(255, 0, 0),
-            "penWidth" : 2,
-            "penStyle" : Qt.PenStyle.SolidLine,
-            "shape" : shapeType,
+            "brushColor": QColor(255, 0, 0, 100),
+            "penColor": QColor(255, 0, 0),
+            "penWidth": 2,
+            "penStyle": Qt.PenStyle.SolidLine,
+            "shape": shapeType,
         }
 
         self.usePen = QPen()
@@ -48,7 +55,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
         self.styleAttribute.setValue(QVariant(styleMap))
 
     def __initEditMode(self):
-        '''仅保Roi操作点'''
+        """仅保Roi操作点"""
         # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.HitTestMode, False)
@@ -68,8 +75,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
 
         self.update()
 
-
-    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:
         painter.setBrush(self.useBrushColor)
         painter.setPen(self.usePen)
         painter.drawPath(targetPath)
@@ -97,7 +103,9 @@ class CanvasShapeItem(CanvasCommonPathItem):
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
         shapeType = self.useShape
         if shapeType == CanvasShapeEnum.Ellipse:
             CanvasUtil.buildEllipsePath(targetPath, targetPolygon)

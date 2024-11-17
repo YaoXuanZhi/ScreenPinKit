@@ -2,11 +2,13 @@
 from .canvas_util import *
 from .after_effect_util import *
 
+
 class CanvasEffectRectItem(CanvasCommonPathItem):
-    '''
+    """
     绘图工具-特效图元
-    '''
-    def __init__(self, sourcePixmap:QPixmap, parent: QWidget = None) -> None:
+    """
+
+    def __init__(self, sourcePixmap: QPixmap, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.sourcePixmap = sourcePixmap
         self.effectedPixmap = None
@@ -18,15 +20,17 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
 
     def __initEditMode(self):
         # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
-        self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
-        self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
-        self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
+        self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
+        self.setEditMode(
+            CanvasCommonPathItem.HitTestMode, False
+        )  # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def __initStyle(self):
         # 由于图元和工具栏是采用动态方式绑定的，必须确保绑定时触发一次valueChangedSignal
         styleMap = {
-            "strength" : 5,
-            "effectType" : AfterEffectType.Unknown,
+            "strength": 5,
+            "effectType": AfterEffectType.Unknown,
         }
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
@@ -44,7 +48,7 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
         effectType = styleMap["effectType"]
         self.effectWorker.startEffect(effectType, self.sourcePixmap, strength)
 
-    def onEffectFinished(self, finalPixmap:QPixmap):
+    def onEffectFinished(self, finalPixmap: QPixmap):
         self.effectedPixmap = finalPixmap
         self.effectedPixmap.setDevicePixelRatio(self.sourcePixmap.devicePixelRatio())
         self.update()
@@ -60,9 +64,12 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
 
         return self.attachPath.boundingRect()
 
-    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:
         partRect = self.sceneBoundingRect().toRect()
-        if partRect.width() < self.minSize.width() or partRect.height() < self.minSize.height():
+        if (
+            partRect.width() < self.minSize.width()
+            or partRect.height() < self.minSize.height()
+        ):
             return
 
         self.customPaintByClip(painter, targetPath)
@@ -78,18 +85,22 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
         sourceRect = QRectF(0, 0, partPixmap.width(), partPixmap.height())
         painter.drawPixmap(self.boundingRect(), effectPixmap, sourceRect)
 
-    def physicalRectF(self, rectf:QRectF):
+    def physicalRectF(self, rectf: QRectF):
         pixelRatio = self.sourcePixmap.devicePixelRatio()
-        return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
-                      rectf.width() * pixelRatio, rectf.height() * pixelRatio)
+        return QRectF(
+            rectf.x() * pixelRatio,
+            rectf.y() * pixelRatio,
+            rectf.width() * pixelRatio,
+            rectf.height() * pixelRatio,
+        )
 
-    def customPaintByCopy(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaintByCopy(self, painter: QPainter, targetPath: QPainterPath) -> None:
         if self.effectedPixmap == None:
             return
         physicalRect = self.physicalRectF(self.sceneBoundingRect())
         painter.drawPixmap(self.boundingRect(), self.effectedPixmap, physicalRect)
 
-    def customPaintByClip(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaintByClip(self, painter: QPainter, targetPath: QPainterPath) -> None:
         if self.effectedPixmap == None:
             return
         # 实现思路：假设该图元本来就能显示一个完整的背景，然后当前显示区是其裁剪所得的，类似头像裁剪框之类的思路
@@ -104,7 +115,9 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
     def getStretchableRect(self) -> QRect:
         return self.polygon.boundingRect()
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
         CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
 
     def applyShadow(self):

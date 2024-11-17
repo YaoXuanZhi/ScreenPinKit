@@ -54,12 +54,11 @@ class Browser(QWebEngineView):
         super().__init__()
 
         self.url = QUrl.fromLocalFile(os.getcwd() + os.path.sep)
-        self.page().setBackgroundColor(Qt.GlobalColor.transparent);
+        self.page().setBackgroundColor(Qt.GlobalColor.transparent)
         self.page().setHtml(html, baseUrl=self.url)
 
 
 class Window(QMainWindow):
-
     def __init__(self, html):
         super().__init__()
         self.html = html
@@ -91,5 +90,6 @@ def main():
     window.show()
     sys.exit(app.exec())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

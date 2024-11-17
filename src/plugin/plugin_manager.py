@@ -4,12 +4,14 @@ import importlib
 from .plugin_interface import PluginInterface, GlobalEventEnum
 from common import *
 
+
 class CustomLoader(importlib.abc.Loader):
     def __init__(self, module_code):
         self.module_code = module_code
 
     def exec_module(self, module):
         exec(self.module_code, module.__dict__)
+
 
 class PluginManager:
     def __init__(self):
@@ -73,14 +75,19 @@ class PluginManager:
     def __filterInterface(self, module):
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if isinstance(attr, type) and issubclass(attr, PluginInterface) and attr != PluginInterface:
+            if (
+                isinstance(attr, type)
+                and issubclass(attr, PluginInterface)
+                and attr != PluginInterface
+            ):
                 pluginInst = attr()
                 self.plugins.append(pluginInst)
                 pluginInst.onLoaded()
 
     def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
         for plugin0 in self.plugins:
-            plugin:PluginInterface = plugin0
+            plugin: PluginInterface = plugin0
             plugin.handleEvent(eventName, *args, **kwargs)
+
 
 pluginMgr = PluginManager()

@@ -3,8 +3,9 @@ from canvas_item import *
 from canvas_item.canvas_util import CanvasUtil
 from base import *
 
+
 class ScreenShotView(QGraphicsView):
-    def __init__(self, scene:QGraphicsScene, parent=None):
+    def __init__(self, scene: QGraphicsScene, parent=None):
         super().__init__(scene, parent)
         self.initStyle()
 
@@ -16,15 +17,17 @@ class ScreenShotView(QGraphicsView):
         self.setStyleSheet("background: transparent; border:0px;")
         self.setRenderHint(QPainter.Antialiasing)
 
+
 class ScreenShotScene(QGraphicsScene):
     exitSignal = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.sceneRectChanged.connect(self.onSceneRectChanged)
-        self.maskLayer:QGraphicsItem = None
-        self.currentItem:CanvasCommonPathItem = None
-        self.lastAddItem:CanvasCommonPathItem = None
-        self.isApplyExpandArea:bool = False
+        self.maskLayer: QGraphicsItem = None
+        self.currentItem: CanvasCommonPathItem = None
+        self.lastAddItem: CanvasCommonPathItem = None
+        self.isApplyExpandArea: bool = False
 
     def reset(self):
         if self.lastAddItem != None:
@@ -36,14 +39,14 @@ class ScreenShotScene(QGraphicsScene):
     def isCapturing(self):
         return self.lastAddItem != None
 
-    def onSceneRectChanged(self, _rect:QRectF):
+    def onSceneRectChanged(self, _rect: QRectF):
         rect = self.sceneRect()
         if self.maskLayer == None:
             self.maskLayer = CanvasMaskItem(QColor(0, 0, 0, 150))
             self.addItem(self.maskLayer)
         self.maskLayer.setRect(rect)
 
-    def applyExpandArea(self, pos:QPointF):
+    def applyExpandArea(self, pos: QPointF):
         self.isApplyExpandArea = True
         # finalPolygon = QPolygonF(self.lastAddItem.polygon)
         # finalPolygon.append(pos)
@@ -54,7 +57,9 @@ class ScreenShotScene(QGraphicsScene):
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         if self.currentItem != None:
             targetPos = event.scenePos()
-            self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+            self.currentItem.polygon.replace(
+                self.currentItem.polygon.count() - 1, targetPos
+            )
             self.currentItem.update()
         super().mouseMoveEvent(event)
 
@@ -118,10 +123,12 @@ class ScreenShotScene(QGraphicsScene):
         else:
             self.exitSignal.emit()
 
+
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
     closedSignal = pyqtSignal()
-    def __init__(self, parent:QWidget = None):
+
+    def __init__(self, parent: QWidget = None):
         super().__init__(parent)
         self.defaultFlag()
         self.initUI()
@@ -134,7 +141,11 @@ class ScreenShotWindow(QWidget):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def initUI(self):
         self.scene = ScreenShotScene()
@@ -154,12 +165,16 @@ class ScreenShotWindow(QWidget):
         ]
         self.addActions(actions)
 
-    def toPhysicalRectF(self, rectf:QRectF):
-        '''计算划定的截图区域的（缩放倍率1.0的）原始矩形（会变大）
-        rectf：划定的截图区域的矩形。可为QRect或QRectF'''
+    def toPhysicalRectF(self, rectf: QRectF):
+        """计算划定的截图区域的（缩放倍率1.0的）原始矩形（会变大）
+        rectf：划定的截图区域的矩形。可为QRect或QRectF"""
         pixelRatio = self.screenPixmap.devicePixelRatio()
-        return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
-                      rectf.width() * pixelRatio, rectf.height() * pixelRatio)
+        return QRectF(
+            rectf.x() * pixelRatio,
+            rectf.y() * pixelRatio,
+            rectf.width() * pixelRatio,
+            rectf.height() * pixelRatio,
+        )
 
     def copyToClipboard(self):
         if not self.scene.isCapturing():
@@ -197,7 +212,9 @@ class ScreenShotWindow(QWidget):
         self.scene.setSceneRect(rect)
         sceneBrush = QBrush(self.screenPixmap.copy())
         transform = QtGui.QTransform()
-        transform.scale(1/finalPixmap.devicePixelRatioF(), 1/finalPixmap.devicePixelRatioF())
+        transform.scale(
+            1 / finalPixmap.devicePixelRatioF(), 1 / finalPixmap.devicePixelRatioF()
+        )
         sceneBrush.setTransform(transform)
         self.scene.setBackgroundBrush(sceneBrush)
         self.scene.reset()

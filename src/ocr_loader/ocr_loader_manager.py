@@ -2,8 +2,10 @@ import os, sys, glob, importlib
 from .ocr_loader_interface import OcrLoaderInterface
 from common import *
 from canvas_item import *
+
 # 该模块的引用会传递到loader实现上
 from misc import *
+
 
 class CustomLoader(importlib.abc.Loader):
     def __init__(self, module_code):
@@ -12,16 +14,19 @@ class CustomLoader(importlib.abc.Loader):
     def exec_module(self, module):
         exec(self.module_code, module.__dict__)
 
+
 class OcrThread(QThread):
     ocrStartSignal = pyqtSignal()
     ocrEndSignal = pyqtSignal(list, list, list)
-    def __init__(self, action:QAction, pixmap:QPixmap) -> None:
+
+    def __init__(self, action: QAction, pixmap: QPixmap) -> None:
         super().__init__()
         self.action = action
         self.pixmap = pixmap
-        
+
     def run(self):
         self.action(self.pixmap)
+
 
 class OcrLoaderManager:
     def __init__(self):
@@ -38,6 +43,7 @@ class OcrLoaderManager:
         from shapely.geometry import Polygon
         from cv2.wechat_qrcode import WeChatQRCode
         import qrcode
+
         # 打包指令：pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
         self.__initLoadersByModuleName("internal_ocr_loader_return_text")
         self.__initLoadersByModuleName("internal_ocr_loader_return_text_plus")
@@ -93,10 +99,15 @@ class OcrLoaderManager:
     def __filterInterface(self, module):
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if isinstance(attr, type) and issubclass(attr, OcrLoaderInterface) and attr != OcrLoaderInterface:
+            if (
+                isinstance(attr, type)
+                and issubclass(attr, OcrLoaderInterface)
+                and attr != OcrLoaderInterface
+            ):
                 loaderInst = attr()
                 if loaderInst.name in self.loaderDict:
                     continue
                 self.loaderDict[loaderInst.name] = loaderInst
+
 
 ocrLoaderMgr = OcrLoaderManager()

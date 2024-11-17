@@ -1,5 +1,5 @@
 # coding=utf-8
-'''
+"""
 将图片转换为pdf，用pdf.js将其渲染出来，以此来实现一个文本选择层
 
 @Note
@@ -11,17 +11,21 @@
 
 改进建议：
 可以fork OcrMyPdf项目，增加一个生成纯透明文本层+原图像背景的PDF文档的功能支持
-'''
+"""
+
 import os
 from .ocr_widget_interface import *
+
 
 class PdfWidget(OcrWidgetInterface):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
-        self.pdfjs_web = f"file:///{self.workDir}/pdfjs-3.4.120-legacy-dist/web/viewer.html"
+        self.pdfjs_web = (
+            f"file:///{self.workDir}/pdfjs-3.4.120-legacy-dist/web/viewer.html"
+        )
 
     def openFile(self, pdfPath):
         self.receiver.htmlRenderStartSlot.emit()
         pdfPath = pdfPath.replace("\\", "/")
-        self.webView.load(QUrl.fromUserInput(f'{self.pdfjs_web}?file={pdfPath}'))
+        self.webView.load(QUrl.fromUserInput(f"{self.pdfjs_web}?file={pdfPath}"))

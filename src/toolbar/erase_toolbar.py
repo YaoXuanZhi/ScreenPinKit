@@ -3,29 +3,49 @@ from common import ScreenShotIcon, cfg
 from canvas_editor import DrawActionEnum
 from .canvas_item_toolbar import *
 
+
 class EraseToolbar(CanvasItemToolBar):
     eraseTypeChangedSignal = pyqtSignal(DrawActionEnum)
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
     def initDefaultStyle(self):
         self.styleMap = {
-            "width" : cfg.get(cfg.eraseToolbarWidth),
+            "width": cfg.get(cfg.eraseToolbarWidth),
         }
 
     def initUI(self):
         self.addSeparator()
         eraseActions = [
-            Action(ScreenShotIcon.FULL_Dot, self.tr("Eraser pen"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraser)),
-            Action(ScreenShotIcon.FULL_RECTANGLE, self.tr("Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
-            Action(ScreenShotIcon.SHADOW_ERASER, self.tr("Shadow Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseShadowEraserRectItem)),
-            ]
+            Action(
+                ScreenShotIcon.FULL_Dot,
+                self.tr("Eraser pen"),
+                triggered=lambda: self.eraseTypeChangedSignal.emit(
+                    DrawActionEnum.UseEraser
+                ),
+            ),
+            Action(
+                ScreenShotIcon.FULL_RECTANGLE,
+                self.tr("Eraser frame"),
+                triggered=lambda: self.eraseTypeChangedSignal.emit(
+                    DrawActionEnum.UseEraserRectItem
+                ),
+            ),
+            Action(
+                ScreenShotIcon.SHADOW_ERASER,
+                self.tr("Shadow Eraser frame"),
+                triggered=lambda: self.eraseTypeChangedSignal.emit(
+                    DrawActionEnum.UseShadowEraserRectItem
+                ),
+            ),
+        ]
 
         self.actionGroup = QActionGroup(self)
         for action in eraseActions:
             action.setCheckable(True)
             self.actionGroup.addAction(action)
-        
+
         self.addActions(eraseActions)
 
         eraseActions[0].trigger()
@@ -38,7 +58,7 @@ class EraseToolbar(CanvasItemToolBar):
         if self.canvasItem != None and hasattr(self.canvasItem, "resetStyle"):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def wheelZoom(self, angleDelta:int):
+    def wheelZoom(self, angleDelta: int):
         finalValue = self.styleMap["width"]
         (minValue, maxValue) = cfg.eraseToolbarWidth.range
 

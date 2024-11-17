@@ -4,20 +4,27 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from canvas_item import *
+
 
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+
 class DrawingView(QGraphicsView):
-    def __init__(self, scene:QGraphicsScene, parent=None):
+    def __init__(self, scene: QGraphicsScene, parent=None):
         super().__init__(scene, parent)
         self.initUI()
 
     def initUI(self):
-        self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing | QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
+        self.setRenderHints(
+            QPainter.Antialiasing
+            | QPainter.HighQualityAntialiasing
+            | QPainter.TextAntialiasing
+            | QPainter.SmoothPixmapTransform
+        )
 
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
 
@@ -25,7 +32,12 @@ class DrawingView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.scene_width, self.scene_height = 64000, 64000
-        self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
+        self.scene().setSceneRect(
+            -self.scene_width // 2,
+            -self.scene_height // 2,
+            self.scene_width,
+            self.scene_height,
+        )
 
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         # self.setDragMode(QGraphicsView.RubberBandDrag)
@@ -50,7 +62,9 @@ class DrawingView(QGraphicsView):
     def mouseMoveEvent(self, event):
         if self.currentItem != None and not self.isCanDrag():
             targetPos = self.mapToScene(event.pos())
-            self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+            self.currentItem.polygon.replace(
+                self.currentItem.polygon.count() - 1, targetPos
+            )
             self.currentItem.update()
             return
         super().mouseMoveEvent(event)
@@ -72,16 +86,17 @@ class DrawingView(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def isCanDrag(self):
-        '''判断当前是否可以拖曳图元'''
+        """判断当前是否可以拖曳图元"""
         matchMode = self.dragMode()
-        return (matchMode | QGraphicsView.RubberBandDrag == matchMode)
+        return matchMode | QGraphicsView.RubberBandDrag == matchMode
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
-        if(event.button() == Qt.RightButton):
+        if event.button() == Qt.RightButton:
             self.setDragMode(QGraphicsView.RubberBandDrag)
-        elif (event.button() == Qt.LeftButton):
+        elif event.button() == Qt.LeftButton:
             self.setDragMode(self.dragMode() & ~QGraphicsView.RubberBandDrag)
         return super().mouseDoubleClickEvent(event)
+
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -104,10 +119,14 @@ class MainWindow(QWidget):
 
         return super().paintEvent(a0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
+
     # enable dpi scale
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 

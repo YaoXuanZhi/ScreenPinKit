@@ -6,10 +6,19 @@ from PyQt5.QtGui import *
 from qfluentwidgets import *
 from canvas_item.canvas_util import *
 
-class ComboBoxSettingCardPlus(SettingCard):
-    """ Setting card with a combo box """
 
-    def __init__(self, configItem: OptionsConfigItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, options=None, parent=None):
+class ComboBoxSettingCardPlus(SettingCard):
+    """Setting card with a combo box"""
+
+    def __init__(
+        self,
+        configItem: OptionsConfigItem,
+        icon: Union[str, QIcon, FluentIconBase],
+        title,
+        content=None,
+        options=None,
+        parent=None,
+    ):
         """
         Parameters
         ----------
@@ -45,7 +54,7 @@ class ComboBoxSettingCardPlus(SettingCard):
         for text, enum in options:
             if matchValue == enum:
                 break
-            currentIndex = currentIndex + 1 
+            currentIndex = currentIndex + 1
         self.comboBox.setCurrentIndex(currentIndex)
 
         self.comboBox.currentIndexChanged.connect(self._onCurrentIndexChanged)

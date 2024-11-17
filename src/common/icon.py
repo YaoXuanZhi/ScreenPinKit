@@ -3,6 +3,7 @@ from enum import Enum
 
 from qfluentwidgets import FluentIconBase, getIconColor, Theme
 
+
 class ScreenShotIcon(FluentIconBase, Enum):
     LOGO = "logo"
     SNAP = "snap"
@@ -56,4 +57,4 @@ class ScreenShotIcon(FluentIconBase, Enum):
     PLUGIN_MARKET = "whiteboard"
 
     def path(self, theme=Theme.AUTO):
-        return f':/icons/{self.value}.svg'
+        return f":/icons/{self.value}.svg"

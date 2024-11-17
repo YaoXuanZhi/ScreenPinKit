@@ -1,5 +1,5 @@
 # coding=utf-8
-'''
+"""
 将图片转换为html，采用QWebEngineView模块将其加载显示，以此来实现一个纯文本选择层
 
 @Note：
@@ -14,8 +14,10 @@
    >直接通过浏览器的ocr识别来实现，会不会更省事
    - [在vue项目中本地使用Tesseract.js](https://www.jianshu.com/p/a2ab00692859)
    - [如何直接选中复制图片中的文字：前端OCR实现指南](https://blog.csdn.net/qq_41883423/article/details/138305024)
-'''
+"""
+
 from .ocr_widget_interface import *
+
 
 class WebWidget(OcrWidgetInterface):
     def __init__(self, parent=None):
@@ -24,4 +26,4 @@ class WebWidget(OcrWidgetInterface):
     def openFile(self, htmlPath):
         self.receiver.htmlRenderStartSlot.emit()
         htmlPath = htmlPath.replace("\\", "/")
-        self.webView.load(QUrl.fromUserInput(f'file:///{htmlPath}'))
+        self.webView.load(QUrl.fromUserInput(f"file:///{htmlPath}"))

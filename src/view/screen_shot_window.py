@@ -4,6 +4,7 @@ from common import *
 from misc import *
 from plugin import *
 
+
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
     closedSignal = pyqtSignal()
@@ -23,10 +24,10 @@ class ScreenShotWindow(QWidget):
         super().__init__()
         self.defaultFlag()
 
-        self.mousePos:QPointF = QCursor.pos()
+        self.mousePos: QPointF = QCursor.pos()
         self.previewRect = QRect()
         self._mouseHitType = ScreenShotWindow.Unknown
-        self.showColorMode = 0 # 0：Hex 1：RGB 2：HSV
+        self.showColorMode = 0  # 0：Hex 1：RGB 2：HSV
         self._pt_start = QPointF()  # 划定截图区域时鼠标左键按下的位置（topLeft）
         self._pt_end = QPointF()  # 划定截图区域时鼠标左键松开的位置（bottomRight）
         self._pixelFactor = 20
@@ -51,7 +52,11 @@ class ScreenShotWindow(QWidget):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def copyToClipboard(self):
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
@@ -60,9 +65,7 @@ class ScreenShotWindow(QWidget):
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
-            kv = {
-                "pixmap" : cropPixmap
-            }
+            kv = {"pixmap": cropPixmap}
             pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
             finalPixmap = kv["pixmap"]
             QApplication.clipboard().setPixmap(finalPixmap)
@@ -78,7 +81,9 @@ class ScreenShotWindow(QWidget):
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
             screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
-            cropImage = cropPixmap.toImage().convertToFormat(QImage.Format.Format_RGB888)
+            cropImage = cropPixmap.toImage().convertToFormat(
+                QImage.Format.Format_RGB888
+            )
             cropPixmap = QPixmap.fromImage(cropImage)
             self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
 
@@ -89,17 +94,27 @@ class ScreenShotWindow(QWidget):
         self.painter = QPainter()
         self.color_transparent = Qt.GlobalColor.transparent
         self.color_black = QColor(0, 0, 0, 150)  # 黑色背景
-        self.color_lightBlue = QColor(30, 120, 255, 255)  # 浅蓝色。深蓝色Qt.GlobalColor.blue
-        self.color_lightWhite = QColor(255, 255, 255, 255)  # 浅蓝色。深蓝色Qt.GlobalColor.blue
-        self.font_normal = QtGui.QFont('Times New Roman', 11, QtGui.QFont.Weight.Normal)
-        self.font_textInput = QtGui.QFont('微软雅黑', 16, QtGui.QFont.Weight.Normal)  # 工具条文字工具默认字体
+        self.color_lightBlue = QColor(
+            30, 120, 255, 255
+        )  # 浅蓝色。深蓝色Qt.GlobalColor.blue
+        self.color_lightWhite = QColor(
+            255, 255, 255, 255
+        )  # 浅蓝色。深蓝色Qt.GlobalColor.blue
+        self.font_normal = QtGui.QFont("Times New Roman", 11, QtGui.QFont.Weight.Normal)
+        self.font_textInput = QtGui.QFont(
+            "微软雅黑", 16, QtGui.QFont.Weight.Normal
+        )  # 工具条文字工具默认字体
         self.pen_transparent = QPen(Qt.PenStyle.NoPen)  # 没有笔迹，画不出线条
         self.pen_white = QPen(Qt.GlobalColor.white)
         self.pen_SolidLine_lightBlue = QPen(self.color_lightBlue)  # 实线，浅蓝色
-        self.pen_SolidLine_lightBlue.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+        self.pen_SolidLine_lightBlue.setStyle(
+            Qt.PenStyle.SolidLine
+        )  # 实线SolidLine，虚线DashLine，点线DotLine
         self.pen_SolidLine_lightBlue.setWidthF(4)  # 0表示线宽为1
         self.pen_SolidLine_lightWhite = QPen(self.color_lightWhite)  # 实线，浅蓝色
-        self.pen_SolidLine_lightWhite.setStyle(Qt.PenStyle.SolidLine)  # 实线SolidLine，虚线DashLine，点线DotLine
+        self.pen_SolidLine_lightWhite.setStyle(
+            Qt.PenStyle.SolidLine
+        )  # 实线SolidLine，虚线DashLine，点线DotLine
         self.pen_SolidLine_lightWhite.setWidthF(2)  # 0表示线宽为1
 
     def clearScreenShot(self, isGotoScreeShot=True):
@@ -115,7 +130,7 @@ class ScreenShotWindow(QWidget):
             self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
 
     def expandScreenShotArea(self, pos):
-        '''根据所处的非截图区域的朝向，拓展已划定的截取区域'''
+        """根据所处的非截图区域的朝向，拓展已划定的截取区域"""
         finalPolygon = QPolygonF(self.normalizeRectF(self._pt_start, self._pt_end))
         finalPolygon.append(pos)
         finalRect = finalPolygon.boundingRect()
@@ -136,14 +151,18 @@ class ScreenShotWindow(QWidget):
         return QRectF(topLeftPoint, bottomRightPoint).normalized()
 
     def paintMagnifyingGlassPixmap(self, pos, glassSize):
-        '''绘制放大镜内的图像(含纵横十字线)
+        """绘制放大镜内的图像(含纵横十字线)
         pos:鼠标光标位置
-        glassSize:放大镜边框大小'''
-        pixmapRect = QRect(0, 0, self._pixelFactor, self._pixelFactor)  # 以鼠标光标为中心的正方形区域，最好是偶数
+        glassSize:放大镜边框大小"""
+        pixmapRect = QRect(
+            0, 0, self._pixelFactor, self._pixelFactor
+        )  # 以鼠标光标为中心的正方形区域，最好是偶数
         pixmapRect.moveCenter(pos)
         glassPixmap = self.screenPixmap.copy(self.physicalRectF(pixmapRect).toRect())
         glassPixmap.setDevicePixelRatio(1.0)
-        glassPixmap = glassPixmap.scaled(glassSize, glassSize, Qt.AspectRatioMode.KeepAspectRatio)
+        glassPixmap = glassPixmap.scaled(
+            glassSize, glassSize, Qt.AspectRatioMode.KeepAspectRatio
+        )
         screenColor = glassPixmap.toImage().pixelColor(glassPixmap.rect().center())
         # 在放大后的QPixmap上画纵横十字线
         if not hasattr(self, "_painter"):
@@ -152,17 +171,26 @@ class ScreenShotWindow(QWidget):
         halfWidth = glassPixmap.width() / 2
         halfHeight = glassPixmap.height() / 2
         self._painter.setPen(self.pen_SolidLine_lightBlue)
-        self._painter.drawLine(QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight))
-        self._painter.drawLine(QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height()))
+        self._painter.drawLine(
+            QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight)
+        )
+        self._painter.drawLine(
+            QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height())
+        )
         self._painter.end()
         return glassPixmap, screenColor
 
     def paintMagnifyingGlass(self, glassSize=150, offset=30, labelHeight=60):
         if self.hasScreenShot or self.isCapturing:
             return
-        screenSizeF = QSizeF(self.screenPixmap.width() / self.screenPixmap.devicePixelRatioF(), self.screenPixmap.height() / self.screenPixmap.devicePixelRatioF())
+        screenSizeF = QSizeF(
+            self.screenPixmap.width() / self.screenPixmap.devicePixelRatioF(),
+            self.screenPixmap.height() / self.screenPixmap.devicePixelRatioF(),
+        )
         pos = self.mousePos
-        glassPixmap, screenColor = self.paintMagnifyingGlassPixmap(pos, glassSize)  # 画好纵横十字线后的放大镜内QPixmap
+        glassPixmap, screenColor = self.paintMagnifyingGlassPixmap(
+            pos, glassSize
+        )  # 画好纵横十字线后的放大镜内QPixmap
         self.screenColor = screenColor
         # 限制放大镜显示不超出屏幕外
         glassRect = glassPixmap.rect()
@@ -179,7 +207,12 @@ class ScreenShotWindow(QWidget):
         self.painter.drawPixmap(glassRect.topLeft(), glassPixmap)
         tempRect = QRectF(QPointF(0, 0), pos)
         physicalPoint = self.physicalRectF(tempRect, False).toRect().bottomRight()
-        labelRectF = QRectF(glassRect.bottomLeft().x(), glassRect.bottomLeft().y(), glassSize, labelHeight)
+        labelRectF = QRectF(
+            glassRect.bottomLeft().x(),
+            glassRect.bottomLeft().y(),
+            glassSize,
+            labelHeight,
+        )
         finalFrame = QRegion()
         finalFrame.setRects([glassRect, labelRectF.toRect()])
         self.painter.setPen(self.pen_transparent)
@@ -187,13 +220,17 @@ class ScreenShotWindow(QWidget):
         self.painter.setPen(self.pen_white)
         self.painter.setFont(self.font_normal)
         labelRectF = labelRectF - QMarginsF(12, 10, 12, 10)
-        self.painter.drawText(labelRectF,
-                              Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
-                              f"({physicalPoint.x()}, {physicalPoint.y()})")
+        self.painter.drawText(
+            labelRectF,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+            f"({physicalPoint.x()}, {physicalPoint.y()})",
+        )
 
-        self.painter.drawText(labelRectF,
-                            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
-                            self.getScreenColorStr())
+        self.painter.drawText(
+            labelRectF,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+            self.getScreenColorStr(),
+        )
 
         labelRectF = labelRectF + QMarginsF(0, 5, 0, 5)
         self.painter.setBrush(Qt.NoBrush)
@@ -207,7 +244,13 @@ class ScreenShotWindow(QWidget):
         return OsHelper.getColorStrByQColor(self.screenColor, self.showColorMode)
 
     def paintCenterArea(self):
-        (rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid) = self.getCenterInfos()
+        (
+            rt_center,
+            pt_centerTopMid,
+            pt_centerBottomMid,
+            pt_centerLeftMid,
+            pt_centerRightMid,
+        ) = self.getCenterInfos()
 
         # 绘制已选定的截图区域
         self.painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
@@ -220,16 +263,22 @@ class ScreenShotWindow(QWidget):
         if rt_center.width() >= 100 and rt_center.height() >= 100:
             # 选区操作点
             points = [
-                rt_center.topLeft(), rt_center.topRight(), 
-                rt_center.bottomLeft(), rt_center.bottomRight(),
-                pt_centerLeftMid, pt_centerRightMid,
-                pt_centerTopMid, pt_centerBottomMid,
+                rt_center.topLeft(),
+                rt_center.topRight(),
+                rt_center.bottomLeft(),
+                rt_center.bottomRight(),
+                pt_centerLeftMid,
+                pt_centerRightMid,
+                pt_centerTopMid,
+                pt_centerBottomMid,
             ]
             blueDotRadius = QPointF(5, 5)  # 椭圆蓝点
             self.painter.setPen(self.pen_SolidLine_lightWhite)
             self.painter.setBrush(self.color_lightBlue)
             for point in points:
-                self.painter.drawEllipse(QRectF(point - blueDotRadius, point + blueDotRadius))
+                self.painter.drawEllipse(
+                    QRectF(point - blueDotRadius, point + blueDotRadius)
+                )
 
         # 显示截图区域宽高
         if rt_center.topLeft().y() > 20:
@@ -239,41 +288,43 @@ class ScreenShotWindow(QWidget):
         self.painter.setPen(self.pen_white)
         self.painter.setFont(self.font_normal)
         physicalCenterRect = self.physicalRectF(rt_center).toRect()
-        self.painter.drawText(labelPos, f"{physicalCenterRect.width()} x {physicalCenterRect.height()}")
+        self.painter.drawText(
+            labelPos, f"{physicalCenterRect.width()} x {physicalCenterRect.height()}"
+        )
 
     def setCenterArea(self, start, end):
         self._pt_start = start
         self._pt_end = end
 
     def squareAreaByCenter(self, pointf):
-        '''以QPointF为中心的正方形QRectF'''
+        """以QPointF为中心的正方形QRectF"""
         rectf = QRectF(0, 0, 15, 15)
         rectf.moveCenter(pointf)
         return rectf
 
     def squareAreaByHorizontal(self, pointf, width):
-        '''以QPointF为中心的矩形QRectF'''
+        """以QPointF为中心的矩形QRectF"""
         rectf = QRectF(0, 0, width, 15)
         rectf.moveCenter(pointf)
         return rectf
 
     def squareAreaByVertical(self, pointf, height):
-        '''以QPointF为中心的矩形QRectF'''
+        """以QPointF为中心的矩形QRectF"""
         rectf = QRectF(0, 0, 15, height)
         rectf.moveCenter(pointf)
         return rectf
 
     def setBeginDragPoint(self, pointf):
-        '''计算开始拖拽位置距离截图区域左上角的向量'''
+        """计算开始拖拽位置距离截图区域左上角的向量"""
         rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         self._drag_vector = pointf - rt_center.topLeft()
 
     def getNewPosAfterDrag(self, pointf):
-        '''计算拖拽后截图区域左上角的新位置'''
+        """计算拖拽后截图区域左上角的新位置"""
         return pointf - self._drag_vector
 
     def moveCenterAreaTo(self, pointf):
-        '''限制拖拽不能超出屏幕范围'''
+        """限制拖拽不能超出屏幕范围"""
         rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         rt_center.moveTo(self.getNewPosAfterDrag(pointf))
         startPointF = rt_center.topLeft()
@@ -291,12 +342,21 @@ class ScreenShotWindow(QWidget):
         self.setCenterArea(rt_center.topLeft(), rt_center.bottomRight())
 
     def setBeginAdjustPoint(self, pointf):
-        '''判断开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），用于判断调整大小的意图方向'''
+        """判断开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），用于判断调整大小的意图方向"""
         self._mouseHitType = self.getMousePosBy(pointf, self._pt_start, self._pt_end)
 
-    def getMousePosBy(self, pointf:QPointF, pt_start:QPointF, pt_end:QPointF):
-        (rt_center, square_topLeft, square_topRight, square_bottomLeft, square_bottomRight, 
-         square_topMid, square_bottomMid, square_leftMid, square_rightMid) = self.getSquareInfos()
+    def getMousePosBy(self, pointf: QPointF, pt_start: QPointF, pt_end: QPointF):
+        (
+            rt_center,
+            square_topLeft,
+            square_topRight,
+            square_bottomLeft,
+            square_bottomRight,
+            square_topMid,
+            square_bottomMid,
+            square_leftMid,
+            square_rightMid,
+        ) = self.getSquareInfos()
 
         if square_topLeft.contains(pointf):
             return ScreenShotWindow.TopLeft
@@ -320,7 +380,7 @@ class ScreenShotWindow(QWidget):
             return ScreenShotWindow.Unknown
 
     def adjustCenterAreaBy(self, pointf):
-        '''根据开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），判断调整大小的意图方向，判定新的开始、结束位置'''
+        """根据开始调整截图区域大小时鼠标左键在哪个区（不可能是中央区域），判断调整大小的意图方向，判定新的开始、结束位置"""
         rt_center = self.normalizeRectF(self._pt_start, self._pt_end)
         startPointF = rt_center.topLeft()
         endPointF = rt_center.bottomRight()
@@ -356,10 +416,22 @@ class ScreenShotWindow(QWidget):
         pt_centerBottomMid = (rt_center.bottomLeft() + rt_center.bottomRight()) / 2
         pt_centerLeftMid = (rt_center.topLeft() + rt_center.bottomLeft()) / 2
         pt_centerRightMid = (rt_center.topRight() + rt_center.bottomRight()) / 2
-        return rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid
+        return (
+            rt_center,
+            pt_centerTopMid,
+            pt_centerBottomMid,
+            pt_centerLeftMid,
+            pt_centerRightMid,
+        )
 
     def getSquareInfos(self):
-        rt_center, pt_centerTopMid, pt_centerBottomMid, pt_centerLeftMid, pt_centerRightMid = self.getCenterInfos()
+        (
+            rt_center,
+            pt_centerTopMid,
+            pt_centerBottomMid,
+            pt_centerLeftMid,
+            pt_centerRightMid,
+        ) = self.getCenterInfos()
 
         # 以截图区域左上、上中、右上、左中、右中、左下、下中、右下为中心的正方形区域，用于调整大小
         square_topLeft = self.squareAreaByCenter(rt_center.topLeft())
@@ -369,18 +441,40 @@ class ScreenShotWindow(QWidget):
 
         # 挪到四侧边缘操作检测区域，而不是采用边缘中心点的方式
         square_topMid = self.squareAreaByHorizontal(pt_centerTopMid, rt_center.width())
-        square_bottomMid = self.squareAreaByHorizontal(pt_centerBottomMid, rt_center.width())
+        square_bottomMid = self.squareAreaByHorizontal(
+            pt_centerBottomMid, rt_center.width()
+        )
         square_leftMid = self.squareAreaByVertical(pt_centerLeftMid, rt_center.height())
-        square_rightMid = self.squareAreaByVertical(pt_centerRightMid, rt_center.height())
+        square_rightMid = self.squareAreaByVertical(
+            pt_centerRightMid, rt_center.height()
+        )
 
-        return rt_center, square_topLeft, square_topRight, square_bottomLeft, square_bottomRight, square_topMid, square_bottomMid, square_leftMid, square_rightMid
-
+        return (
+            rt_center,
+            square_topLeft,
+            square_topRight,
+            square_bottomLeft,
+            square_bottomRight,
+            square_topMid,
+            square_bottomMid,
+            square_leftMid,
+            square_rightMid,
+        )
 
     def getMouseShapeBy(self, pointf):
-        (rt_center, square_topLeft, square_topRight, square_bottomLeft, square_bottomRight, 
-         square_topMid, square_bottomMid, square_leftMid, square_rightMid) = self.getSquareInfos()
+        (
+            rt_center,
+            square_topLeft,
+            square_topRight,
+            square_bottomLeft,
+            square_bottomRight,
+            square_topMid,
+            square_bottomMid,
+            square_leftMid,
+            square_rightMid,
+        ) = self.getSquareInfos()
 
-        '''根据鼠标位置返回对应的鼠标样式'''
+        """根据鼠标位置返回对应的鼠标样式"""
         if rt_center.contains(pointf):
             return Qt.CursorShape.SizeAllCursor  # 十字有箭头
         elif square_topLeft.contains(pointf) or square_bottomRight.contains(pointf):
@@ -475,22 +569,25 @@ class ScreenShotWindow(QWidget):
         else:
             self.close()
 
-    def mouseReleaseEvent(self, event:QMouseEvent):
+    def mouseReleaseEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             self.isCapturing = False
             self.isMoving = False
             self.isAdjusting = False
 
             if cfg.get(cfg.isAutoFindWindow) and self._pt_start == self._pt_end:
-                self.setCenterArea(self.previewRect.topLeft(), self.previewRect.bottomRight() + QPoint(1, 1))
+                self.setCenterArea(
+                    self.previewRect.topLeft(),
+                    self.previewRect.bottomRight() + QPoint(1, 1),
+                )
                 self.hasScreenShot = True
                 self.isAdjusting = True
                 self.update()
 
-    def mouseMoveEvent(self, event:QMouseEvent):
+    def mouseMoveEvent(self, event: QMouseEvent):
         pos = event.pos()
         if self.isVisible():
-            self.mousePos:QPointF = pos
+            self.mousePos: QPointF = pos
         if self.isCapturing:
             self.hasScreenShot = True
             self._pt_end = pos
@@ -506,14 +603,14 @@ class ScreenShotWindow(QWidget):
         else:
             self.setCursor(Qt.CursorShape.CrossCursor)  # 设置鼠标样式 十字
 
-    def mouseDoubleClickEvent(self, event:QMouseEvent):
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             if self.isMousePosInCenterRectF(event.pos()):
                 self.close()
 
-    def physicalRectF(self, rectf:QRectF, isExpand = True):
-        '''计算划定的截图区域的（缩放倍率1.0的）原始矩形（会变大）
-        rectf：划定的截图区域的矩形。可为QRect或QRectF'''
+    def physicalRectF(self, rectf: QRectF, isExpand=True):
+        """计算划定的截图区域的（缩放倍率1.0的）原始矩形（会变大）
+        rectf：划定的截图区域的矩形。可为QRect或QRectF"""
         if isExpand:
             if self.screenPixmap.devicePixelRatio() > 1:
                 pixelRatio = self.screenPixmap.devicePixelRatio() + 0.001
@@ -521,8 +618,12 @@ class ScreenShotWindow(QWidget):
                 pixelRatio = self.screenPixmap.devicePixelRatio() + 0.0005
         else:
             pixelRatio = self.screenPixmap.devicePixelRatio()
-        return QRectF(rectf.x() * pixelRatio, rectf.y() * pixelRatio,
-                      rectf.width() * pixelRatio, rectf.height() * pixelRatio)
+        return QRectF(
+            rectf.x() * pixelRatio,
+            rectf.y() * pixelRatio,
+            rectf.width() * pixelRatio,
+            rectf.height() * pixelRatio,
+        )
 
     def closeEvent(self, a0: QCloseEvent) -> None:
         self.closedSignal.emit()

@@ -2,8 +2,11 @@
 from canvas_item import *
 from .canvas_scene import *
 
+
 class MoveCommand(QUndoCommand):
-    def __init__(self, canvasItem:QGraphicsItem, oldPos:QPointF, newPos:QPointF, parent=None):
+    def __init__(
+        self, canvasItem: QGraphicsItem, oldPos: QPointF, newPos: QPointF, parent=None
+    ):
         super().__init__(parent)
         self.attachItem = canvasItem
         self.oldPos = oldPos
@@ -15,8 +18,11 @@ class MoveCommand(QUndoCommand):
     def redo(self):
         self.attachItem.setPos(self.newPos)
 
+
 class AddCommand(QUndoCommand):
-    def __init__(self, canvasScene:CanvasScene, canvasItem:QGraphicsItem, parent=None):
+    def __init__(
+        self, canvasScene: CanvasScene, canvasItem: QGraphicsItem, parent=None
+    ):
         super().__init__(parent)
         self.scene = canvasScene
         self.item = canvasItem
@@ -34,8 +40,11 @@ class AddCommand(QUndoCommand):
         self.scene.clearSelection()
         self.scene.update()
 
+
 class DeleteCommand(QUndoCommand):
-    def __init__(self, canvasScene:CanvasScene, canvasItem:QGraphicsItem, parent=None):
+    def __init__(
+        self, canvasScene: CanvasScene, canvasItem: QGraphicsItem, parent=None
+    ):
         super().__init__(parent)
         self.scene = canvasScene
         self.item = canvasItem
@@ -54,8 +63,9 @@ class DeleteCommand(QUndoCommand):
         self.scene.itemList.remove(self.item)
         self.scene.removeItem(self.item)
 
+
 class DeleteAllCommand(QUndoCommand):
-    def __init__(self, canvasScene:CanvasScene, items:list, parent=None):
+    def __init__(self, canvasScene: CanvasScene, items: list, parent=None):
         super().__init__(parent)
         self.scene = canvasScene
         self.itemList = list(items)
@@ -75,8 +85,15 @@ class DeleteAllCommand(QUndoCommand):
             self.scene.itemList.remove(item)
             self.scene.removeItem(item)
 
+
 class RotateCommand(QUndoCommand):
-    def __init__(self, canvasItem:QGraphicsItem, oldRotate:QPointF, newRotate:QPointF, parent=None):
+    def __init__(
+        self,
+        canvasItem: QGraphicsItem,
+        oldRotate: QPointF,
+        newRotate: QPointF,
+        parent=None,
+    ):
         super().__init__(parent)
         self.attachItem = canvasItem
         self.oldRotate = oldRotate
@@ -88,8 +105,15 @@ class RotateCommand(QUndoCommand):
     def redo(self):
         self.attachItem.setRotation(self.newRotate)
 
+
 class ResizeCommand(QUndoCommand):
-    def __init__(self, canvasItem:CanvasCommonPathItem, oldValue:tuple, newValue:tuple, parent=None):
+    def __init__(
+        self,
+        canvasItem: CanvasCommonPathItem,
+        oldValue: tuple,
+        newValue: tuple,
+        parent=None,
+    ):
         super().__init__(parent)
         self.attachItem = canvasItem
         (oldPolygon, oldRoiPosList) = oldValue

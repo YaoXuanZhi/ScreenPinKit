@@ -2,6 +2,7 @@
 from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
+
 class EffectToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -9,8 +10,8 @@ class EffectToolbar(CanvasItemToolBar):
 
     def initDefaultStyle(self):
         self.styleMap = {
-            "strength" : cfg.get(cfg.effectToolbarStrength),
-            "effectType" : cfg.get(cfg.effectToolbarEffectType),
+            "strength": cfg.get(cfg.effectToolbarStrength),
+            "effectType": cfg.get(cfg.effectToolbarEffectType),
         }
 
         self.effectTypeInfos = [
@@ -22,7 +23,7 @@ class EffectToolbar(CanvasItemToolBar):
         ]
 
     def refreshStyleUI(self):
-        strength:int = self.styleMap["strength"]
+        strength: int = self.styleMap["strength"]
         self.strengthSlider.setValue(strength)
 
         currentEffectType = self.styleMap["effectType"]
@@ -30,17 +31,19 @@ class EffectToolbar(CanvasItemToolBar):
         for _, _, effectType in self.effectTypeInfos:
             if effectType == currentEffectType:
                 break
-            currentIndex = currentIndex + 1 
+            currentIndex = currentIndex + 1
         self.effectTypeComBox.setCurrentIndex(currentIndex)
 
     def initUI(self):
         self.effectTypeComBox = self.initEffectOptionUI()
         (minValue, maxValue) = cfg.effectToolbarStrength.range
-        self.strengthSlider = self.initSliderOptionUI(self.tr("Effect strength"), self.styleMap["strength"], minValue, maxValue)
+        self.strengthSlider = self.initSliderOptionUI(
+            self.tr("Effect strength"), self.styleMap["strength"], minValue, maxValue
+        )
         self.addSeparator()
 
     def initEffectOptionUI(self):
-        '''特效选项'''
+        """特效选项"""
         effectTypeComBox = ComboBox(self)
         for text, icon, enum in self.effectTypeInfos:
             effectTypeComBox.addItem(text=text, icon=icon, userData=enum)
@@ -51,20 +54,20 @@ class EffectToolbar(CanvasItemToolBar):
         self.strengthSlider.valueChanged.connect(self.strengthValueChangedHandle)
         self.effectTypeComBox.currentIndexChanged.connect(self.effectTypeComBoxHandle)
 
-    def onEffectTypeChanged(self, effectType:AfterEffectType):
+    def onEffectTypeChanged(self, effectType: AfterEffectType):
         self.styleMap["effectType"] = effectType
         self.refreshAttachItem()
 
-    def strengthValueChangedHandle(self, value:float):
+    def strengthValueChangedHandle(self, value: float):
         self.styleMap["strength"] = value
         self.refreshAttachItem()
 
     def effectTypeComBoxHandle(self, index):
-        comBox:ComboBox = self.effectTypeComBox
+        comBox: ComboBox = self.effectTypeComBox
         self.styleMap["effectType"] = comBox.currentData()
         self.refreshAttachItem()
 
-    def wheelZoom(self, angleDelta:int):
+    def wheelZoom(self, angleDelta: int):
         finalValue = self.strengthSlider.value()
         (minValue, maxValue) = cfg.effectToolbarStrength.range
         if angleDelta > 1:

@@ -2,6 +2,7 @@
 from .system_tray_icon import *
 from .setting_window import *
 from .screen_shot_window import *
+
 # from .screen_shot_window_old import *
 # from .screen_shot_window_reference import *
 from .screen_paint_window import *

@@ -3,6 +3,7 @@ import os, random, time
 from canvas_item import *
 from canvas_item.canvas_util import CanvasUtil
 
+
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
     EditText = "编辑文字"
@@ -20,6 +21,7 @@ class DrawActionEnum(Enum):
     SelectItem = "选择对象"
     UseEffectTool = "特效工具"
 
+
 class DrawActionInfo(QObject):
     def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
@@ -32,7 +34,9 @@ class DrawActionInfo(QObject):
         self.map[DrawActionEnum.UsePen] = self.tr("UsePencil")
         self.map[DrawActionEnum.UseEraser] = self.tr("UseEraser")
         self.map[DrawActionEnum.UseEraserRectItem] = self.tr("UseEraserRectItem")
-        self.map[DrawActionEnum.UseShadowEraserRectItem] = self.tr("UseShadowEraserRectItem")
+        self.map[DrawActionEnum.UseShadowEraserRectItem] = self.tr(
+            "UseShadowEraserRectItem"
+        )
         self.map[DrawActionEnum.UseMarkerPen] = self.tr("UseMarkerPen")
         self.map[DrawActionEnum.UseNumberMarker] = self.tr("UseNumberMarker")
         self.map[DrawActionEnum.PasteSvg] = self.tr("PasteSvg")
@@ -42,17 +46,19 @@ class DrawActionInfo(QObject):
         self.map[DrawActionEnum.SelectItem] = self.tr("SelectItem")
         self.map[DrawActionEnum.UseEffectTool] = self.tr("UseEffectTool")
 
-    def getInfo(self, drawActionEnum:DrawActionEnum):
+    def getInfo(self, drawActionEnum: DrawActionEnum):
         if drawActionEnum in self.map:
             return self.map[drawActionEnum]
         else:
             return self.tr("UnknownTool")
+
 
 class SceneUserNotifyEnum(Enum):
     StartDrawedEvent = "已开始绘制"
     EndDrawedEvent = "已结束绘制"
     SelectItemChangedEvent = "选中图元已改变"
     SelectNothing = "啥也没选中"
+
 
 class CanvasScene(QGraphicsScene):
     itemMovedSignal = pyqtSignal(QGraphicsItem, QPointF, QPointF)
@@ -62,7 +68,7 @@ class CanvasScene(QGraphicsScene):
     itemRotatedSignal = pyqtSignal(QGraphicsItem, float, float)
     itemResizedSignal = pyqtSignal(QGraphicsItem, tuple, tuple)
 
-    def __init__(self, parent=None, backgroundBrush:QBrush = None):
+    def __init__(self, parent=None, backgroundBrush: QBrush = None):
         super().__init__(parent)
         self._currentDrawActionEnum = DrawActionEnum.DrawNone
         self._isLockedTool = True
@@ -71,7 +77,7 @@ class CanvasScene(QGraphicsScene):
         self.lastAddItem = None
         self.bgBrush = backgroundBrush
 
-        self.itemList:list = []
+        self.itemList: list = []
         self._itemNotifyCallBack = None
         self._lastSelectedItem = None
 
@@ -89,25 +95,31 @@ class CanvasScene(QGraphicsScene):
             selectItem = selectItem.parentItem()
 
         if self._itemNotifyCallBack != None:
-            if self.currentDrawActionEnum == DrawActionEnum.SelectItem and selectItem == None:
+            if (
+                self.currentDrawActionEnum == DrawActionEnum.SelectItem
+                and selectItem == None
+            ):
                 self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, selectItem)
             else:
-                self._itemNotifyCallBack(SceneUserNotifyEnum.SelectItemChangedEvent, selectItem)
+                self._itemNotifyCallBack(
+                    SceneUserNotifyEnum.SelectItemChangedEvent, selectItem
+                )
         self._lastSelectedItem = selectItem
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
         arrowStyleMap = {
-            "arrowLength" : 32.0,
-            "arrowAngle" : 0.5,
-            "arrowBodyLength" : 18,
-            "arrowBodyAngle" : 0.2,
-
-            "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
-            "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
+            "arrowLength": 32.0,
+            "arrowAngle": 0.5,
+            "arrowBodyLength": 18,
+            "arrowBodyAngle": 0.2,
+            "arrowBrush": QBrush(QColor(255, 0, 0, 100)),
+            "arrowPen": QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
         }
         # finalPoints = CanvasUtil.buildArrowPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]), arrowStyleMap)
-        finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]))
+        finalPoints = CanvasUtil.buildStarPath(
+            QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()])
+        )
         pathItem1 = CanvasCommonPathItem(None, False)
         pathItem1.polygon = QPolygonF(finalPoints)
         self.__startDraw(pathItem1)
@@ -126,25 +138,29 @@ class CanvasScene(QGraphicsScene):
         pathItem3.update()
         self.__startDraw(pathItem3)
 
-    def setNofityEvent(self, callBack:callable = None):
+    def setNofityEvent(self, callBack: callable = None):
         self._itemNotifyCallBack = callBack
 
     @property
-    def currentDrawActionEnum(self): return self._currentDrawActionEnum
+    def currentDrawActionEnum(self):
+        return self._currentDrawActionEnum
+
     @currentDrawActionEnum.setter
-    def currentDrawActionEnum(self, value): 
+    def currentDrawActionEnum(self, value):
         if self._currentDrawActionEnum == value:
             return
         self._currentDrawActionEnum = value
         self.setEditableState(value == DrawActionEnum.SelectItem)
 
     @property
-    def isLockedTool(self): return self._isLockedTool
+    def isLockedTool(self):
+        return self._isLockedTool
+
     @isLockedTool.setter
-    def isLockedTool(self, value): 
+    def isLockedTool(self, value):
         self._isLockedTool = value
 
-    def __startDraw(self, item:QGraphicsObject):
+    def __startDraw(self, item: QGraphicsObject):
         if self.lastAddItem != None:
             self.lastAddItem.setEditableState(False)
         self.addItem(item)
@@ -157,13 +173,15 @@ class CanvasScene(QGraphicsScene):
             # 由于折线图元绘制过程中强制退出时，需要回收一个预览操作点，需要额外处理
             if isinstance(self.currentItem, CanvasLineStripItem):
                 if self.currentItem.polygon.count() > 2:
-                    self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
+                    self.currentItem.polygon.remove(
+                        self.currentItem.polygon.count() - 1
+                    )
                 else:
                     isOk = False
             self.__completeDraw(self.currentItem, isOk)
         self.lastAddItem = None
 
-    def __completeDraw(self, item:CanvasCommonPathItem, isOk:bool = True):
+    def __completeDraw(self, item: CanvasCommonPathItem, isOk: bool = True):
         if isOk:
             item.completeDraw()
             self.itemAddSignal.emit(self, item)
@@ -200,19 +218,21 @@ class CanvasScene(QGraphicsScene):
         return self.currentItem == None
 
     def captureCurrentScenePixmap(self) -> QPixmap:
-        '''捕获当前场景快照'''
+        """捕获当前场景快照"""
         view = self.views()[0]
         shotGrab = view.grab()
         finalSize = self.bgBrush.texture().size()
-        shotGrab = shotGrab.scaled(finalSize.width(), finalSize.height(), Qt.KeepAspectRatio)
+        shotGrab = shotGrab.scaled(
+            finalSize.width(), finalSize.height(), Qt.KeepAspectRatio
+        )
         return shotGrab
 
     def switchLockState(self):
         self.isLockedTool = not self.isLockedTool
 
-    def setEditableState(self, isEditable:bool):
+    def setEditableState(self, isEditable: bool):
         for item0 in self.itemList:
-            item:CanvasCommonPathItem = item0
+            item: CanvasCommonPathItem = item0
             item.setEditableState(isEditable)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent):
@@ -229,12 +249,15 @@ class CanvasScene(QGraphicsScene):
 
     # 参考https://excalidraw.com/上面的操作方式
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
-        view:QGraphicsView = self.views()[0]
+        view: QGraphicsView = self.views()[0]
         targetPos = event.scenePos()
         item = self.itemAt(event.scenePos(), view.transform())
 
         isSkip = False
-        if self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
+        if self.currentDrawActionEnum in [
+            DrawActionEnum.DrawNone,
+            DrawActionEnum.SelectItem,
+        ]:
             isSkip = True
         if item == self.lastAddItem and item != None:
             isSkip = True
@@ -252,35 +275,53 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem = CanvasTextItem()
                         self.currentItem.switchEditableBox()
                         self.__startDraw(self.currentItem)
-                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        targetPos.setX(
+                            targetPos.x() - self.currentItem.boundingRect().width() / 2
+                        )
+                        targetPos.setY(
+                            targetPos.y() - self.currentItem.boundingRect().height() / 2
+                        )
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
                         self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 25, 25))
                         self.__startDraw(self.currentItem)
-                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        targetPos.setX(
+                            targetPos.x() - self.currentItem.boundingRect().width() / 2
+                        )
+                        targetPos.setY(
+                            targetPos.y() - self.currentItem.boundingRect().height() / 2
+                        )
                         self.currentItem.setPos(targetPos)
                     elif self.currentDrawActionEnum == DrawActionEnum.PasteSvg:
-                        folderPath = os.path.join(os.getcwd(), "canvas_item/demos/resources")
+                        folderPath = os.path.join(
+                            os.getcwd(), "canvas_item/demos/resources"
+                        )
+
                         def getSvgFiles(folderPath):
                             result = []
                             for filePath in os.listdir(folderPath):
                                 if filePath.endswith(".svg"):
                                     result.append(os.path.join(folderPath, filePath))
                             return result
+
                         svgPaths = getSvgFiles(folderPath)
                         index = random.randint(0, len(svgPaths) - 1)
                         svgPath = svgPaths[index]
                         if index % 2 == 0:
                             self.currentItem = CanvasSvgItem(QRectF(), svgPath)
                         else:
-                            self.currentItem = CanvasSvgItem(QRectF(0, 0, 100, 100), svgPath)
+                            self.currentItem = CanvasSvgItem(
+                                QRectF(0, 0, 100, 100), svgPath
+                            )
 
                         self.__startDraw(self.currentItem)
-                        targetPos.setX(targetPos.x() - self.currentItem.boundingRect().width() / 2)
-                        targetPos.setY(targetPos.y() - self.currentItem.boundingRect().height() / 2)
+                        targetPos.setX(
+                            targetPos.x() - self.currentItem.boundingRect().width() / 2
+                        )
+                        targetPos.setY(
+                            targetPos.y() - self.currentItem.boundingRect().height() / 2
+                        )
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UsePen:
@@ -304,10 +345,15 @@ class CanvasScene(QGraphicsScene):
                                 self.__startDraw(self.currentItem)
                                 self.currentItem.polygon.append(targetPos)
                                 self.currentItem.polygon.append(targetPos)
-                    elif self.currentDrawActionEnum == DrawActionEnum.UseShadowEraserRectItem:
+                    elif (
+                        self.currentDrawActionEnum
+                        == DrawActionEnum.UseShadowEraserRectItem
+                    ):
                         if self.currentItem == None:
                             if self.bgBrush != None:
-                                self.currentItem = CanvasShadowEraserRectItem(self.bgBrush)
+                                self.currentItem = CanvasShadowEraserRectItem(
+                                    self.bgBrush
+                                )
                                 self.__startDraw(self.currentItem)
                                 self.currentItem.polygon.append(targetPos)
                                 self.currentItem.polygon.append(targetPos)
@@ -347,7 +393,10 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.polygon.append(targetPos)
                         self.currentItem.update()
             if event.button() == Qt.RightButton:
-                if self.currentItem == None and self.currentDrawActionEnum == DrawActionEnum.UseEffectTool:
+                if (
+                    self.currentItem == None
+                    and self.currentDrawActionEnum == DrawActionEnum.UseEffectTool
+                ):
                     lastPixmap = self.captureCurrentScenePixmap()
                     self.currentItem = CanvasEffectRectItem(lastPixmap)
                     self.__startDraw(self.currentItem)
@@ -358,26 +407,39 @@ class CanvasScene(QGraphicsScene):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem] and self.currentItem != None:
+        if (
+            not self.currentDrawActionEnum
+            in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]
+            and self.currentItem != None
+        ):
             targetPos = event.scenePos()
 
             if self.currentDrawActionEnum == DrawActionEnum.DrawShape:
-                self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
-                isForceEqual = int(event.modifiers()) == Qt.KeyboardModifier.ShiftModifier
+                self.currentItem.polygon.replace(
+                    self.currentItem.polygon.count() - 1, targetPos
+                )
+                isForceEqual = (
+                    int(event.modifiers()) == Qt.KeyboardModifier.ShiftModifier
+                )
                 if isForceEqual:
                     self.currentItem.forceSquare()
                 self.currentItem.update()
             elif self.currentDrawActionEnum in [
-                DrawActionEnum.DrawLineStrip, 
-                DrawActionEnum.DrawArrow, 
-                DrawActionEnum.UseMarkerPen, 
-                DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.UseShadowEraserRectItem, 
+                DrawActionEnum.DrawLineStrip,
+                DrawActionEnum.DrawArrow,
+                DrawActionEnum.UseMarkerPen,
+                DrawActionEnum.UseEraserRectItem,
+                DrawActionEnum.UseShadowEraserRectItem,
                 DrawActionEnum.UseEffectTool,
-                ]:
-                self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+            ]:
+                self.currentItem.polygon.replace(
+                    self.currentItem.polygon.count() - 1, targetPos
+                )
                 self.currentItem.update()
-            elif self.currentDrawActionEnum in [DrawActionEnum.UsePen, DrawActionEnum.UseEraser]:
+            elif self.currentDrawActionEnum in [
+                DrawActionEnum.UsePen,
+                DrawActionEnum.UseEraser,
+            ]:
                 now = time.time()
                 # 控制拾取点的间隔
                 if not hasattr(self, "pickupLastTime"):
@@ -389,16 +451,26 @@ class CanvasScene(QGraphicsScene):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.currentItem != None:
-
-            if self.currentDrawActionEnum in [DrawActionEnum.DrawLineStrip] and event.button() == Qt.RightButton:
+        if (
+            self.currentDrawActionEnum != DrawActionEnum.DrawNone
+            and self.currentItem != None
+        ):
+            if (
+                self.currentDrawActionEnum in [DrawActionEnum.DrawLineStrip]
+                and event.button() == Qt.RightButton
+            ):
                 if event.button() == Qt.RightButton and self.currentItem != None:
                     isOk = False
                     if self.currentItem.polygon.count() > 2:
-                        self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
+                        self.currentItem.polygon.remove(
+                            self.currentItem.polygon.count() - 1
+                        )
                         isOk = True
                     self.__completeDraw(self.currentItem, isOk)
-            elif self.currentDrawActionEnum in [DrawActionEnum.UsePen, DrawActionEnum.UseEraser]:
+            elif self.currentDrawActionEnum in [
+                DrawActionEnum.UsePen,
+                DrawActionEnum.UseEraser,
+            ]:
                 if event.button() == Qt.LeftButton:
                     self.__completeDraw(self.currentItem)
             elif self.currentDrawActionEnum in [DrawActionEnum.UseNumberMarker]:
@@ -407,13 +479,13 @@ class CanvasScene(QGraphicsScene):
                     self.currentItem.setSelected(False)
                     self.__completeDraw(self.currentItem)
             elif self.currentDrawActionEnum in [
-                DrawActionEnum.DrawArrow, 
-                DrawActionEnum.UseMarkerPen, 
-                DrawActionEnum.UseEraserRectItem, 
-                DrawActionEnum.UseShadowEraserRectItem, 
-                DrawActionEnum.DrawShape, 
+                DrawActionEnum.DrawArrow,
+                DrawActionEnum.UseMarkerPen,
+                DrawActionEnum.UseEraserRectItem,
+                DrawActionEnum.UseShadowEraserRectItem,
+                DrawActionEnum.DrawShape,
                 DrawActionEnum.UseEffectTool,
-                ]:
+            ]:
                 if event.button() == Qt.LeftButton:
                     isOk = False
                     if self.currentItem.polygon.at(0) != self.currentItem.polygon.at(1):
@@ -427,15 +499,23 @@ class CanvasScene(QGraphicsScene):
             for item in self.selectedItems():
                 finalItem = item
                 # 需要兼容边缘操作点和ROI操作点
-                while not hasattr(finalItem, "completeDraw") and finalItem.parentItem() != None:
+                while (
+                    not hasattr(finalItem, "completeDraw")
+                    and finalItem.parentItem() != None
+                ):
                     finalItem = finalItem.parentItem()
 
                 if hasattr(finalItem, "completeDraw"):
-                    if not isinstance(finalItem, CanvasTextItem) or not finalItem.isCanEditable():
+                    if (
+                        not isinstance(finalItem, CanvasTextItem)
+                        or not finalItem.isCanEditable()
+                    ):
                         self.itemDeleteSignal.emit(self, finalItem)
 
                         if self._itemNotifyCallBack != None:
-                            self._itemNotifyCallBack(SceneUserNotifyEnum.SelectNothing, None)
+                            self._itemNotifyCallBack(
+                                SceneUserNotifyEnum.SelectNothing, None
+                            )
 
                         break
 

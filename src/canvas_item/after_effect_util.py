@@ -5,10 +5,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PIL import ImageFilter, Image
 
+
 class AfterEffectType(Enum):
-    '''
+    """
     图像后处理效果类型
-    '''
+    """
+
     Unknown = "Unknown"
     Blur = "Blur"
     Mosaic = "Mosaic"
@@ -16,22 +18,26 @@ class AfterEffectType(Enum):
     Find_Edges = "Find_Edges"
     Contour = "Contour"
 
+
 class AfterEffectUtilByPIL:
-    '''
+    """
     基于PIL实现的图像后处理效果
-    '''
-    @staticmethod
-    def gaussianBlur(pixmap:QPixmap, blurRadius = 5):
-        '''高斯模糊'''
-        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.GaussianBlur(radius=blurRadius))
+    """
 
     @staticmethod
-    def mosaic(pixmap:QPixmap, blockSize = 2, pixelateFactor = 1):
-        '''
+    def gaussianBlur(pixmap: QPixmap, blurRadius=5):
+        """高斯模糊"""
+        return AfterEffectUtilByPIL.effectUtilByPIL(
+            pixmap, ImageFilter.GaussianBlur(radius=blurRadius)
+        )
+
+    @staticmethod
+    def mosaic(pixmap: QPixmap, blockSize=2, pixelateFactor=1):
+        """
         马赛克效果
         由于那种逐个像素遍历的处理太低效了，最终采取了网友分享的思路：
         https://blog.csdn.net/qq_38563206/article/details/136030277
-        '''
+        """
         width = pixmap.width()
         height = pixmap.height()
         tempImage = pixmap.toImage()
@@ -39,34 +45,44 @@ class AfterEffectUtilByPIL:
             tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
 
         image = Image.fromqimage(tempImage)
-    
+
         # 计算图像的宽度和高度
         width, height = image.size
-    
+
         # 计算马赛克块的数量
         num_blocks_width = max(width // blockSize, 1)
         num_blocks_height = max(height // blockSize, 1)
-    
+
         # 缩小图像，创建马赛克效果
         blockSourceImage = image.resize((num_blocks_width, num_blocks_height))
         # 放大图像，增加马赛克强度
-        finalImage = blockSourceImage.resize((width // pixelateFactor, height // pixelateFactor), Image.NEAREST)
+        finalImage = blockSourceImage.resize(
+            (width // pixelateFactor, height // pixelateFactor), Image.NEAREST
+        )
         finalImage = finalImage.resize((width, height), Image.NEAREST)
-        return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+        return QPixmap.fromImage(
+            QImage(
+                finalImage.tobytes(),
+                width,
+                height,
+                3 * width,
+                QImage.Format.Format_RGB888,
+            )
+        )
 
     @staticmethod
-    def detail(pixmap:QPixmap):
-        '''图像突出'''
+    def detail(pixmap: QPixmap):
+        """图像突出"""
         return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.DETAIL)
 
     @staticmethod
-    def findEdges(pixmap:QPixmap):
-        '''边缘提取'''
+    def findEdges(pixmap: QPixmap):
+        """边缘提取"""
         return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.FIND_EDGES)
 
     @staticmethod
-    def contour(pixmap:QPixmap):
-        '''轮廓提取'''
+    def contour(pixmap: QPixmap):
+        """轮廓提取"""
         return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
 
     # @staticmethod
@@ -98,11 +114,11 @@ class AfterEffectUtilByPIL:
     #     return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
 
     @staticmethod
-    def effectUtilByPIL(pixmap:QPixmap, effectFilter:ImageFilter.MultibandFilter):
-        '''
+    def effectUtilByPIL(pixmap: QPixmap, effectFilter: ImageFilter.MultibandFilter):
+        """
         PIL图像处理
         这篇博客介绍得比较完整：https://www.cnblogs.com/traditional/p/11111770.html
-        '''
+        """
         width = pixmap.width()
         height = pixmap.height()
         tempImage = pixmap.toImage()
@@ -112,12 +128,20 @@ class AfterEffectUtilByPIL:
         image = Image.fromqimage(tempImage)
 
         # 图像处理
-        finalImage =  image.filter(effectFilter)
+        finalImage = image.filter(effectFilter)
 
-        return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
+        return QPixmap.fromImage(
+            QImage(
+                finalImage.tobytes(),
+                width,
+                height,
+                3 * width,
+                QImage.Format.Format_RGB888,
+            )
+        )
 
     @staticmethod
-    def effectDemos(pixmap:QPixmap):
+    def effectDemos(pixmap: QPixmap):
         # 图像模糊
         # return ImageEffectUtil.effectUtilByPIL(pixmap, ImageFilter.BLUR)
 
@@ -129,6 +153,7 @@ class AfterEffectUtilByPIL:
 
         # 轮廓提取
         return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
+
 
 # class AfterEffectUtilByCv:
 #     '''
@@ -167,7 +192,7 @@ class AfterEffectUtilByPIL:
 #         ndArray = np.array(image)
 
 #         AfterEffectUtilByCv._mosaicEffectByCv(ndArray, 0, 0, width, height, blockSize)
-    
+
 #         return QPixmap.fromImage(QImage(ndArray, width, height, 3*width, QImage.Format.Format_RGB888))
 
 #     @staticmethod
@@ -185,16 +210,20 @@ class AfterEffectUtilByPIL:
 #         blurred = cv2.GaussianBlur(ndArray, (blurRadius, blurRadius), 0)
 #         return QPixmap.fromImage(QImage(blurred.data, width, height, 3*width, QImage.Format.Format_RGB888))
 
+
 class EffectWorker(QThread):
-    '''图像后处理线程'''
+    """图像后处理线程"""
+
     effectFinishedSignal = pyqtSignal(QPixmap)
     isRunning = 0
 
     def __init__(self) -> None:
         super().__init__()
-        self.setStackSize(1024*1024)
+        self.setStackSize(1024 * 1024)
 
-    def startEffect(self, effectType:AfterEffectType, sourcePixmap:QPixmap, strength:int):
+    def startEffect(
+        self, effectType: AfterEffectType, sourcePixmap: QPixmap, strength: int
+    ):
         if self.isRunning:
             return
         self.effectType = effectType
@@ -206,9 +235,13 @@ class EffectWorker(QThread):
         self.isRunning = 1
         try:
             if self.effectType == AfterEffectType.Blur:
-                finalPixmap = AfterEffectUtilByPIL.gaussianBlur(self.sourcePixmap, self.strength)
+                finalPixmap = AfterEffectUtilByPIL.gaussianBlur(
+                    self.sourcePixmap, self.strength
+                )
             elif self.effectType == AfterEffectType.Mosaic:
-                finalPixmap = AfterEffectUtilByPIL.mosaic(self.sourcePixmap, 5, self.strength)
+                finalPixmap = AfterEffectUtilByPIL.mosaic(
+                    self.sourcePixmap, 5, self.strength
+                )
             elif self.effectType == AfterEffectType.Detail:
                 finalPixmap = AfterEffectUtilByPIL.detail(self.sourcePixmap)
             elif self.effectType == AfterEffectType.Find_Edges:

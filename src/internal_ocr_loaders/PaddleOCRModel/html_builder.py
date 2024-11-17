@@ -2,7 +2,10 @@ import html, os
 from PIL import ImageFont
 import numpy as np
 
-def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
+
+def calculate_best_font_size(
+    text, font_path, max_width, max_height, initial_font_size=5
+):
     """
     计算最适合固定文本框的字体大小
     :param text: 要显示的文本
@@ -26,8 +29,9 @@ def calculate_best_font_size(text, font_path, max_width, max_height, initial_fon
 
     return font_size
 
+
 def build_svg_html(width, height, boxes, txts, dpi_scale=1):
-    '''将图片进行OCR识别后，将结果转换成html'''
+    """将图片进行OCR识别后，将结果转换成html"""
     # box = [x, y, w, h]
 
     width = width / dpi_scale
@@ -133,8 +137,9 @@ def build_svg_html(width, height, boxes, txts, dpi_scale=1):
 
     return htmlContent
 
+
 def build_origin_html(width, height, boxes, txts, dpi_scale=1):
-    '''将图片进行OCR识别后，将结果转换成html'''
+    """将图片进行OCR识别后，将结果转换成html"""
     # box = [x, y, w, h]
 
     width = width / dpi_scale
@@ -346,6 +351,7 @@ def build_origin_html(width, height, boxes, txts, dpi_scale=1):
     """
 
     return htmlContent
+
 
 def build_svg_content(width, height, boxes, txts, dpi_scale=1):
     # 构建 HTML 内容

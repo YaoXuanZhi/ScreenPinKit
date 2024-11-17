@@ -2,18 +2,19 @@
 from common import cfg
 from .canvas_item_toolbar import *
 
+
 class ArrowToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()
 
     def initDefaultStyle(self):
-        self.opacity:int = 100
+        self.opacity: int = 100
         self.styleMap = {
-            "brushColor" : cfg.get(cfg.arrowToolbarBrushColor),
-            "penColor" : cfg.get(cfg.arrowToolbarPenColor),
-            "penWidth" : cfg.get(cfg.arrowToolbarPenWidth),
-            "penStyle" : cfg.get(cfg.arrowToolbarPenStyle),
+            "brushColor": cfg.get(cfg.arrowToolbarBrushColor),
+            "penColor": cfg.get(cfg.arrowToolbarPenColor),
+            "penWidth": cfg.get(cfg.arrowToolbarPenWidth),
+            "penStyle": cfg.get(cfg.arrowToolbarPenStyle),
         }
 
         self.penStyleInfos = [
@@ -24,9 +25,13 @@ class ArrowToolbar(CanvasItemToolBar):
     def initUI(self):
         self.penStyleComboBox, self.penColorPickerButton = self.initPenOptionUI()
         self.addSeparator()
-        self.brushColorPickerButton = self.initColorOptionUI(self.tr("Brush"), self.styleMap["brushColor"])
+        self.brushColorPickerButton = self.initColorOptionUI(
+            self.tr("Brush"), self.styleMap["brushColor"]
+        )
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
+        self.opacitySlider = self.initSliderOptionUI(
+            self.tr("Opacity"), self.opacity, 10, 100
+        )
 
     def listenerEvent(self):
         self.penStyleComboBox.currentIndexChanged.connect(self.penStyleComboBoxHandle)
@@ -35,8 +40,8 @@ class ArrowToolbar(CanvasItemToolBar):
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 
     def refreshStyleUI(self):
-        penColor:QColor = self.styleMap["penColor"]
-        brushColor:QColor = self.styleMap["brushColor"]
+        penColor: QColor = self.styleMap["penColor"]
+        brushColor: QColor = self.styleMap["brushColor"]
         self.opacitySlider.setValue(self.opacity)
         self.penColorPickerButton.setColor(penColor)
         self.brushColorPickerButton.setColor(brushColor)
@@ -46,23 +51,23 @@ class ArrowToolbar(CanvasItemToolBar):
         for _, penStyle in self.penStyleInfos:
             if penStyle == currentPenStyle:
                 break
-            currentIndex = currentIndex + 1 
+            currentIndex = currentIndex + 1
         self.penStyleComboBox.setCurrentIndex(currentIndex)
 
     def penStyleComboBoxHandle(self, index):
-        comBox:ComboBox = self.penStyleComboBox
+        comBox: ComboBox = self.penStyleComboBox
         self.styleMap["penStyle"] = comBox.currentData()
         self.refreshAttachItem()
 
-    def penColorChangedHandle(self, color:QColor):
+    def penColorChangedHandle(self, color: QColor):
         self.styleMap["penColor"] = color
         self.refreshAttachItem()
 
-    def brushColorChangedHandle(self, color:QColor):
+    def brushColorChangedHandle(self, color: QColor):
         self.styleMap["brushColor"] = color
         self.refreshAttachItem()
 
-    def opacityValueChangedHandle(self, value:float):
+    def opacityValueChangedHandle(self, value: float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
@@ -73,7 +78,7 @@ class ArrowToolbar(CanvasItemToolBar):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
     def initPenOptionUI(self):
-        '''画笔选项'''
+        """画笔选项"""
 
         optionName = self.tr("Pen")
 
@@ -83,7 +88,9 @@ class ArrowToolbar(CanvasItemToolBar):
             penStyleComBox.addItem(text=text, userData=enum)
 
         # 颜色选项
-        colorPickerButton = ColorPickerButtonEx(Qt.GlobalColor.yellow, optionName, self, enableAlpha=True)
+        colorPickerButton = ColorPickerButtonEx(
+            Qt.GlobalColor.yellow, optionName, self, enableAlpha=True
+        )
         colorPickerButton.setCheckable(True)
         colorPickerButton.setFixedSize(30, 30)
 

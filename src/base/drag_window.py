@@ -4,9 +4,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from .mouse_through_window import MouseThroughWindow
 
+
 class DragWindow(MouseThroughWindow):
-    '''拖曳移动窗口类'''
-    def __init__(self, parent:QWidget = None):
+    """拖曳移动窗口类"""
+
+    def __init__(self, parent: QWidget = None):
         super().__init__(parent)
         self.drag = False
 
@@ -42,4 +44,6 @@ class DragWindow(MouseThroughWindow):
         if self.isVisible():
             if self.drag:
                 self.setCursor(QCursor(Qt.CursorShape.SizeAllCursor))
-                self.move(event.x() + self.x() - self.posX, event.y() + self.y() - self.posY)
+                self.move(
+                    event.x() + self.x() - self.posX, event.y() + self.y() - self.posY
+                )

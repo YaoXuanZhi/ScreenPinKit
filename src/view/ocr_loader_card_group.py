@@ -7,25 +7,28 @@ from extend_widgets import *
 from ocr_loader import *
 from qfluentwidgets import FluentIcon as FIF
 
+
 class OcrLoaderTypeSettingCard(OptionsSettingCard):
-    """ Toolbar card with a push button """
+    """Toolbar card with a push button"""
 
     def __init__(self, parent: QWidget = None) -> None:
         configItem = cfg.useOcrLoaderType
         icon = ScreenShotIcon.OCR
-        title = parent.tr('Use ocrloader type') 
+        title = parent.tr("Use ocrloader type")
         content = None
         texts = OcrLoaderTypeSettingCard.getLoaderDisplayNames()
         texts2 = OcrLoaderTypeSettingCard.getLoaderNames()
         cfg.useOcrLoaderType.defaultValue = texts2[0]
         cfg.useOcrLoaderType.validator = OptionsValidator(texts2)
-        super().__init__(configItem, icon, title, content=content, texts=texts, parent=parent)
+        super().__init__(
+            configItem, icon, title, content=content, texts=texts, parent=parent
+        )
 
     @staticmethod
     def getLoaderDisplayNames():
         texts = []
         for val0 in ocrLoaderMgr.loaderDict.values():
-            loader:OcrLoaderInterface = val0
+            loader: OcrLoaderInterface = val0
             texts.append(loader.displayName)
         return texts
 
@@ -33,22 +36,23 @@ class OcrLoaderTypeSettingCard(OptionsSettingCard):
     def getLoaderNames():
         texts = []
         for val0 in ocrLoaderMgr.loaderDict.values():
-            loader:OcrLoaderInterface = val0
+            loader: OcrLoaderInterface = val0
             texts.append(loader.name)
         return texts
 
+
 class OcrLoaderSettingGroup(SettingCardGroup):
-    """ Setting card group """
+    """Setting card group"""
 
     def __init__(self, title: str, parent=None):
         super().__init__(title, parent=parent)
         self.ocrLoaderTypeCard = OcrLoaderTypeSettingCard(self)
         self.ocrLoaderFolderCard = PushSettingCard(
-            self.tr('Choose folder'),
+            self.tr("Choose folder"),
             FIF.DOWNLOAD,
             self.tr("OcrLoader directory"),
             cfg.get(cfg.ocrLoaderFolder),
-            self
+            self,
         )
         self.addSettingCard(self.ocrLoaderFolderCard)
         self.addSettingCard(self.ocrLoaderTypeCard)
@@ -56,13 +60,11 @@ class OcrLoaderSettingGroup(SettingCardGroup):
         self.__connectSignalToSlot()
 
     def __connectSignalToSlot(self):
-        self.ocrLoaderFolderCard.clicked.connect(
-            self.__onOcrLoaderFolderCardClicked)
+        self.ocrLoaderFolderCard.clicked.connect(self.__onOcrLoaderFolderCardClicked)
 
     def __onOcrLoaderFolderCardClicked(self):
-        """ ocrloader folder card clicked slot """
-        folder = QFileDialog.getExistingDirectory(
-            self, self.tr("Choose folder"), "")
+        """ocrloader folder card clicked slot"""
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "")
         if not folder or cfg.get(cfg.ocrLoaderFolder) == folder:
             return
 

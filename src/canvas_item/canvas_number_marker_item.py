@@ -1,13 +1,16 @@
 # coding=utf-8
 from .canvas_util import *
 
+
 class CanvasNumberMarkerItem(QGraphicsRectItem):
-    '''
+    """
     绘图工具-索引标识
     @note 滚轮可以改变索引值
-    '''
+    """
+
     markderIndex = 0
-    def __init__(self, rect: QRectF, parent:QGraphicsItem = None) -> None:
+
+    def __init__(self, rect: QRectF, parent: QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
         self.__initStyle()
         self.setDefaultFlag()
@@ -26,12 +29,12 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     def __initStyle(self):
         defaultFont = QFont()
         styleMap = {
-            "font" : defaultFont,
-            "textColor" : QColor(Qt.GlobalColor.white),
-            "penColor" : QColor(Qt.GlobalColor.red),
-            "penWidth" : 2,
-            "penStyle" : Qt.PenStyle.SolidLine,
-            "brushColor" : QColor(Qt.GlobalColor.red),
+            "font": defaultFont,
+            "textColor": QColor(Qt.GlobalColor.white),
+            "penColor": QColor(Qt.GlobalColor.red),
+            "penWidth": 2,
+            "penStyle": Qt.PenStyle.SolidLine,
+            "brushColor": QColor(Qt.GlobalColor.red),
         }
 
         self.usePen = QPen()
@@ -47,7 +50,8 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         return EnumCanvasItemType.CanvasMarkerItem.value
 
     @property
-    def showText(self): return f"{self.index}"
+    def showText(self):
+        return f"{self.index}"
 
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
@@ -69,7 +73,9 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     def setDefaultFlag(self):
         self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
+    def paint(
+        self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget
+    ):
         styleMap = self.styleAttribute.getValue().value()
         font = styleMap["font"]
         textColor = styleMap["textColor"]
@@ -91,8 +97,8 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
 
         painter.restore()
 
-    def setEditableState(self, isEditable:bool):
-        '''设置可编辑状态'''
+    def setEditableState(self, isEditable: bool):
+        """设置可编辑状态"""
         self.setFlag(QGraphicsItem.ItemIsMovable, isEditable)
         self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
         self.setFlag(QGraphicsItem.ItemIsFocusable, isEditable)

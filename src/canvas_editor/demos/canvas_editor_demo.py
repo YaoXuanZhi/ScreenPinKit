@@ -4,9 +4,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from canvas_item import *
+
 
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
@@ -23,6 +24,7 @@ class DrawActionEnum(Enum):
     DrawStar = "绘制五角星"
     DrawPolygonalLine = "绘制折线"
 
+
 class DrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,24 +33,25 @@ class DrawingScene(QGraphicsScene):
 
         self.currentItem = None
 
-        self.itemList:list = []
+        self.itemList: list = []
 
     def initNodes(self):
         targetRect = QRectF(QPointF(0, 0), QSizeF(100, 100))
         targetPoint = self.views()[0].rect().center()
-        targetRect.moveCenter(targetPoint/-2)
+        targetRect.moveCenter(targetPoint / -2)
 
         arrowStyleMap = {
-            "arrowLength" : 32.0,
-            "arrowAngle" : 0.5,
-            "arrowBodyLength" : 18,
-            "arrowBodyAngle" : 0.2,
-
-            "arrowBrush" : QBrush(QColor(255, 0, 0, 100)),
-            "arrowPen" : QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
+            "arrowLength": 32.0,
+            "arrowAngle": 0.5,
+            "arrowBodyLength": 18,
+            "arrowBodyAngle": 0.2,
+            "arrowBrush": QBrush(QColor(255, 0, 0, 100)),
+            "arrowPen": QPen(QColor(255, 0, 0), 2, Qt.SolidLine),
         }
         # finalPoints = CanvasUtil.buildArrowPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]), arrowStyleMap)
-        finalPoints = CanvasUtil.buildStarPath(QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()]))
+        finalPoints = CanvasUtil.buildStarPath(
+            QPainterPath(), QPolygonF([targetRect.topLeft(), targetRect.bottomRight()])
+        )
         pathItem1 = CanvasCommonPathItem(None, False)
         pathItem1.polygon = QPolygonF(finalPoints)
         pathItem1.setEditableState(True)
@@ -70,22 +73,26 @@ class DrawingScene(QGraphicsScene):
         pathItem3.update()
         self.addItem(pathItem3)
 
-    def setEditableState(self, isEditable:bool):
+    def setEditableState(self, isEditable: bool):
         for item0 in self.itemList:
             if issubclass(type(item0), CanvasCommonPathItem):
-                item:CanvasCommonPathItem = item0
+                item: CanvasCommonPathItem = item0
                 item.setEditableState(isEditable)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
-        view:DrawingView = self.views()[0]
+        view: DrawingView = self.views()[0]
         pos = view.mapFromScene(event.scenePos())
         item = view.itemAt(pos)
         if item != None and self.currentItem != item:
             return super().mousePressEvent(event)
         if self.currentDrawActionEnum != DrawActionEnum.DrawNone:
             if event.button() == Qt.LeftButton:
-
-                if not view.isCanDrag() and (not item or self.currentItem == item or not issubclass(type(item), CanvasROI) or issubclass(type(item), CanvasCommonPathItem)):
+                if not view.isCanDrag() and (
+                    not item
+                    or self.currentItem == item
+                    or not issubclass(type(item), CanvasROI)
+                    or issubclass(type(item), CanvasCommonPathItem)
+                ):
                     targetPos = event.scenePos()
 
                     if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
@@ -120,13 +127,19 @@ class DrawingScene(QGraphicsScene):
                 targetPos = event.scenePos()
 
                 if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
-                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.polygon.replace(
+                        self.currentItem.polygon.count() - 1, targetPos
+                    )
                     self.currentItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
-                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.polygon.replace(
+                        self.currentItem.polygon.count() - 1, targetPos
+                    )
                     self.currentItem.update()
                 elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
-                    self.currentItem.polygon.replace(self.currentItem.polygon.count() - 1, targetPos)
+                    self.currentItem.polygon.replace(
+                        self.currentItem.polygon.count() - 1, targetPos
+                    )
                     self.currentItem.update()
         super().mouseMoveEvent(event)
 
@@ -135,14 +148,16 @@ class DrawingScene(QGraphicsScene):
             if self.currentDrawActionEnum == DrawActionEnum.DrawPolygonalLine:
                 if event.button() == Qt.RightButton and self.currentItem != None:
                     if self.currentItem.polygon.count() > 1:
-                        self.currentItem.polygon.remove(self.currentItem.polygon.count() - 1)
+                        self.currentItem.polygon.remove(
+                            self.currentItem.polygon.count() - 1
+                        )
                         self.currentItem.completeDraw()
                         self.itemList.append(self.currentItem)
                     else:
                         self.removeItem(self.currentItem)
                     self.setEditableState(True)
                     self.currentItem = None
-            elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:                
+            elif self.currentDrawActionEnum == DrawActionEnum.DrawArrow:
                 if event.button() == Qt.RightButton and self.currentItem != None:
                     self.removeItem(self.currentItem)
                     self.setEditableState(True)
@@ -155,7 +170,7 @@ class DrawingScene(QGraphicsScene):
                         self.itemList.append(self.currentItem)
                     self.setEditableState(True)
                     self.currentItem = None
-            elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:                
+            elif self.currentDrawActionEnum == DrawActionEnum.UseMarkerPen:
                 if event.button() == Qt.RightButton and self.currentItem != None:
                     self.removeItem(self.currentItem)
                     self.setEditableState(True)
@@ -170,8 +185,9 @@ class DrawingScene(QGraphicsScene):
                     self.currentItem = None
         super().mouseReleaseEvent(event)
 
+
 class DrawingView(QGraphicsView):
-    def __init__(self, scene:QGraphicsScene, parent=None):
+    def __init__(self, scene: QGraphicsScene, parent=None):
         super().__init__(scene, parent)
         self.initUI()
 
@@ -186,26 +202,31 @@ class DrawingView(QGraphicsView):
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.scene_width, self.scene_height = 64000, 64000
-        self.scene().setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
+        self.scene().setSceneRect(
+            -self.scene_width // 2,
+            -self.scene_height // 2,
+            self.scene_width,
+            self.scene_height,
+        )
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("background: transparent; border:0px;")
         self.setRenderHint(QPainter.Antialiasing)
 
     def isCanDrag(self):
-        '''判断当前是否可以拖曳图元'''
+        """判断当前是否可以拖曳图元"""
         matchMode = self.dragMode()
-        return (matchMode | QGraphicsView.RubberBandDrag == matchMode)
+        return matchMode | QGraphicsView.RubberBandDrag == matchMode
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         item = self.itemAt(event.pos())
         if item == None:
-            if(event.button() == Qt.RightButton):
+            if event.button() == Qt.RightButton:
                 if self.isCanDrag():
                     self.setEnabled(False)
                 else:
                     self.setDragMode(QGraphicsView.RubberBandDrag)
-            elif (event.button() == Qt.LeftButton):
+            elif event.button() == Qt.LeftButton:
                 self.switchCanvas()
             return
         return super().mouseDoubleClickEvent(event)
@@ -224,9 +245,10 @@ class DrawingView(QGraphicsView):
             return
         return super().wheelEvent(event)
 
+
 # 拖曳移动窗口类
 class QDragWindow(QLabel):
-    def __init__(self, parent:QWidget):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
         self.drag = False
 
@@ -261,7 +283,10 @@ class QDragWindow(QLabel):
         if self.isVisible():
             if self.drag:
                 self.setCursor(QCursor(Qt.CursorShape.SizeAllCursor))
-                self.move(event.x() + self.x() - self.posX, event.y() + self.y() - self.posY)
+                self.move(
+                    event.x() + self.x() - self.posX, event.y() + self.y() - self.posY
+                )
+
 
 class MainWindow(QDragWindow):
     def __init__(self, parent=None):
@@ -282,13 +307,36 @@ class MainWindow(QDragWindow):
     def initActions(self):
         actions = [
             QAction("退出", self, triggered=self.quitDraw, shortcut="esc"),
-            QAction("切到画板但无操作", self, triggered=self.swtichOption, shortcut="ctrl+w"),
-            QAction("切换到演示模式", self, triggered=self.swtichShow, shortcut="alt+w"),
-            QAction("切到画板但无操作", self, triggered=self.startDraw, shortcut="ctrl+t"),
-            QAction("切换到箭头", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow), shortcut="alt+1"),
-            QAction("切换到折线", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine), shortcut="alt+2"),
-            QAction("切换到记号笔", self, triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen), shortcut="alt+3"),
-            QAction("切换多选操作", self, triggered=self.switchCanvas, shortcut="alt+4"),
+            QAction(
+                "切到画板但无操作", self, triggered=self.swtichOption, shortcut="ctrl+w"
+            ),
+            QAction(
+                "切换到演示模式", self, triggered=self.swtichShow, shortcut="alt+w"
+            ),
+            QAction(
+                "切到画板但无操作", self, triggered=self.startDraw, shortcut="ctrl+t"
+            ),
+            QAction(
+                "切换到箭头",
+                self,
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow),
+                shortcut="alt+1",
+            ),
+            QAction(
+                "切换到折线",
+                self,
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawPolygonalLine),
+                shortcut="alt+2",
+            ),
+            QAction(
+                "切换到记号笔",
+                self,
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen),
+                shortcut="alt+3",
+            ),
+            QAction(
+                "切换多选操作", self, triggered=self.switchCanvas, shortcut="alt+4"
+            ),
         ]
         self.addActions(actions)
 
@@ -297,7 +345,7 @@ class MainWindow(QDragWindow):
             self.view.setEnabled(False)
             for item in self.view.scene().items():
                 if hasattr(item, "roiMgr"):
-                    roiMgr:CanvasROIManager = item.roiMgr
+                    roiMgr: CanvasROIManager = item.roiMgr
                     roiMgr.setShowState(False)
         else:
             sys.exit(0)
@@ -316,7 +364,7 @@ class MainWindow(QDragWindow):
     def switchCanvas(self):
         self.view.switchCanvas()
 
-    def switchDrawTool(self, drawActionEnum:DrawActionEnum):
+    def switchDrawTool(self, drawActionEnum: DrawActionEnum):
         self.scene.currentDrawActionEnum = drawActionEnum
         self.scene.currentItem = None
         self.view.setEnabled(drawActionEnum != DrawActionEnum.DrawNone)
@@ -344,7 +392,9 @@ class MainWindow(QDragWindow):
             finalSize.setWidth(finalSize.width() + self.shadowWidth)
             finalSize.setHeight(finalSize.height() + self.shadowWidth)
             self.resize(finalSize)
-            self.contentLayout.setContentsMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
+            self.contentLayout.setContentsMargins(
+                self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth
+            )
 
         self.scene = DrawingScene()
         if self.physicalPixmap.isNull():
@@ -366,7 +416,7 @@ class MainWindow(QDragWindow):
         self.painter.begin(self)
         self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
 
-    	# 阴影
+        # 阴影
         path = QPainterPath()
         path.setFillRule(Qt.WindingFill)
         self.painter.fillPath(path, QBrush(Qt.white))
@@ -375,10 +425,15 @@ class MainWindow(QDragWindow):
         for i in range(10):
             i_path = QPainterPath()
             i_path.setFillRule(Qt.WindingFill)
-            ref = QRectF(self.shadowWidth-i, self.shadowWidth-i, self.width()-(self.shadowWidth-i)*2, self.height()-(self.shadowWidth-i)*2)
+            ref = QRectF(
+                self.shadowWidth - i,
+                self.shadowWidth - i,
+                self.width() - (self.shadowWidth - i) * 2,
+                self.height() - (self.shadowWidth - i) * 2,
+            )
             # i_path.addRect(ref)
             i_path.addRoundedRect(ref, 5, 5)
-            color.setAlpha(int(150 - i**0.5*50))
+            color.setAlpha(int(150 - i**0.5 * 50))
             # color.setAlpha(150 - math.sqrt(i) * 50)
             self.painter.setPen(color)
             self.painter.drawPath(i_path)
@@ -386,18 +441,26 @@ class MainWindow(QDragWindow):
         self.painter.end()
 
         self.painter.begin(self)
-        frameRect = self.rect() - QMargins(self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth)
-        self.painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        frameRect = self.rect() - QMargins(
+            self.shadowWidth, self.shadowWidth, self.shadowWidth, self.shadowWidth
+        )
+        self.painter.setRenderHints(
+            QPainter.Antialiasing | QPainter.SmoothPixmapTransform
+        )
         clipPath = QPainterPath()
         clipPath.addRoundedRect(QRectF(self.rect()), 5, 5)
         self.painter.setClipPath(clipPath)
         self.painter.drawPixmap(frameRect, self.physicalPixmap)
         self.painter.end()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
+
     # enable dpi scale
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 

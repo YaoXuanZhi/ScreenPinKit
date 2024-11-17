@@ -4,8 +4,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qfluentwidgets import *
 
+
 class ColorPickerButtonPlus(QToolButton):
-    """ Color picker button """
+    """Color picker button"""
 
     colorChanged = pyqtSignal(QColor)
 
@@ -23,15 +24,19 @@ class ColorPickerButtonPlus(QToolButton):
     def __showColorDialog(self):
         options = QColorDialog.ColorDialogOption.NoButtons
         if self.enableAlpha:
-            options = QColorDialog.ColorDialogOption.ShowAlphaChannel  # 可选，显示Alpha通道
-        color:QColor = QColorDialog.getColor(self.color, self, self.tr("Select color"), options)
+            options = (
+                QColorDialog.ColorDialogOption.ShowAlphaChannel
+            )  # 可选，显示Alpha通道
+        color: QColor = QColorDialog.getColor(
+            self.color, self, self.tr("Select color"), options
+        )
 
         if color.isValid():
             self.setColor(color)
             self.colorChanged.emit(color)
 
     def setColor(self, color):
-        """ set color """
+        """set color"""
         self.color = QColor(color)
         self.update()
 
@@ -50,8 +55,9 @@ class ColorPickerButtonPlus(QToolButton):
         # painter.drawRoundedRect(self.rect().adjusted(1, 1, -1, -1), 5, 5)
         painter.drawEllipse(self.rect())
 
+
 class ColorPickerButtonEx(TransparentToggleToolButton):
-    """ Color picker button """
+    """Color picker button"""
 
     colorChanged = pyqtSignal(QColor)
 
@@ -73,15 +79,19 @@ class ColorPickerButtonEx(TransparentToggleToolButton):
     def __showColorDialog(self):
         options = QColorDialog.ColorDialogOption.NoButtons
         if self.enableAlpha:
-            options = QColorDialog.ColorDialogOption.ShowAlphaChannel  # 可选，显示Alpha通道
-        color:QColor = QColorDialog.getColor(self.color, self, self.tr("Select color"), options)
+            options = (
+                QColorDialog.ColorDialogOption.ShowAlphaChannel
+            )  # 可选，显示Alpha通道
+        color: QColor = QColorDialog.getColor(
+            self.color, self, self.tr("Select color"), options
+        )
 
         if color.isValid():
             self.setColor(color)
             self.colorChanged.emit(color)
 
     def setColor(self, color):
-        """ set color """
+        """set color"""
         self.color = QColor(color)
         self.update()
 

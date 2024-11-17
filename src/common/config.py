@@ -6,14 +6,28 @@ import os, shutil
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
-                            ColorConfigItem, OptionsValidator, RangeConfigItem, RangeValidator,
-                            FolderListValidator, EnumSerializer, ConfigValidator, FolderValidator, ConfigSerializer)
+from qfluentwidgets import (
+    qconfig,
+    QConfig,
+    ConfigItem,
+    OptionsConfigItem,
+    BoolValidator,
+    ColorConfigItem,
+    OptionsValidator,
+    RangeConfigItem,
+    RangeValidator,
+    FolderListValidator,
+    EnumSerializer,
+    ConfigValidator,
+    FolderValidator,
+    ConfigSerializer,
+)
 
 from .template_config import TEMPLATE_CONFIG
 
+
 class Language(Enum):
-    """ Language enumeration """
+    """Language enumeration"""
 
     CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
     # CHINESE_TRADITIONAL = QLocale(QLocale.Chinese, QLocale.HongKong)
@@ -22,7 +36,7 @@ class Language(Enum):
 
 
 class LanguageSerializer(ConfigSerializer):
-    """ Language serializer """
+    """Language serializer"""
 
     def serialize(self, language):
         return language.value.name() if language != Language.AUTO else "Auto"
@@ -32,138 +46,199 @@ class LanguageSerializer(ConfigSerializer):
 
 
 class Config(QConfig):
-    """ Config of application """
+    """Config of application"""
 
     # General
     dpiScale = OptionsConfigItem(
-        "General", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
+        "General",
+        "DpiScale",
+        "Auto",
+        OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]),
+        restart=True,
+    )
     language = OptionsConfigItem(
-        "General", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
-    cacheFolder = ConfigItem(
-        "General", "CacheFolder", "./cache", FolderValidator())
+        "General",
+        "Language",
+        Language.AUTO,
+        OptionsValidator(Language),
+        LanguageSerializer(),
+        restart=True,
+    )
+    cacheFolder = ConfigItem("General", "CacheFolder", "./cache", FolderValidator())
     imageNameFormat = ConfigItem(
-        "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator())
-    isAutoFindWindow = ConfigItem(
-        "General", "IsAutoFindWindow", True, BoolValidator())
+        "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator()
+    )
+    isAutoFindWindow = ConfigItem("General", "IsAutoFindWindow", True, BoolValidator())
 
-    pluginsFolder = ConfigItem(
-        "General", "PluginsFolder", "", FolderValidator())
+    pluginsFolder = ConfigItem("General", "PluginsFolder", "", FolderValidator())
 
-    depsFolder = ConfigItem(
-        "General", "DepsFolder", "", FolderValidator())
+    depsFolder = ConfigItem("General", "DepsFolder", "", FolderValidator())
 
     # HotKey
     hotKeyScreenShot = ConfigItem(
-        "HotKey", "ScreenShot", "", ConfigValidator(), restart=True)
+        "HotKey", "ScreenShot", "", ConfigValidator(), restart=True
+    )
     hotKeyScreenPaint = ConfigItem(
-        "HotKey", "ScreenPaint", "", ConfigValidator(), restart=True)
+        "HotKey", "ScreenPaint", "", ConfigValidator(), restart=True
+    )
     hotKeyToggleMouseClickThrough = ConfigItem(
-        "HotKey", "MouseThough", "", ConfigValidator(), restart=True)
+        "HotKey", "MouseThough", "", ConfigValidator(), restart=True
+    )
     hotKeyShowClipboard = ConfigItem(
-        "HotKey", "ShowClipboard", "", ConfigValidator(), restart=True)
+        "HotKey", "ShowClipboard", "", ConfigValidator(), restart=True
+    )
     hotKeySwitchScreenPaintMode = ConfigItem(
-        "HotKey", "SwitchScreenPaintMode", "", ConfigValidator(), restart=True)
+        "HotKey", "SwitchScreenPaintMode", "", ConfigValidator(), restart=True
+    )
 
     # Software Update
     checkUpdateAtStartUp = ConfigItem(
-        "Update", "CheckUpdateAtStartUp", True, BoolValidator())
+        "Update", "CheckUpdateAtStartUp", True, BoolValidator()
+    )
 
     # Toolbar
-    toolbarUseWheelZoom = ConfigItem(
-        "Toolbar", "useWheelZoom", True, BoolValidator())
+    toolbarUseWheelZoom = ConfigItem("Toolbar", "useWheelZoom", True, BoolValidator())
     toolbarApplyWheelItem = ConfigItem(
-        "Toolbar", "applyWheelItem", True, BoolValidator())
+        "Toolbar", "applyWheelItem", True, BoolValidator()
+    )
 
     # WindowShadowStyle
     windowShadowStyleFocusColor = ColorConfigItem(
-        "WindowShadowStyle", "focusColor", Qt.GlobalColor.blue)
+        "WindowShadowStyle", "focusColor", Qt.GlobalColor.blue
+    )
     windowShadowStyleUnFocusColor = ColorConfigItem(
-        "WindowShadowStyle", "unFocusColor", Qt.GlobalColor.gray)
+        "WindowShadowStyle", "unFocusColor", Qt.GlobalColor.gray
+    )
     windowShadowStyleRoundRadius = OptionsConfigItem(
-        "WindowShadowStyle", "roundRadius", 10, OptionsValidator([0, 5, 10, 15, 20]))
+        "WindowShadowStyle", "roundRadius", 10, OptionsValidator([0, 5, 10, 15, 20])
+    )
     windowShadowStyleIsSaveWithShadow = ConfigItem(
-        "WindowShadowStyle", "isSaveWithShadow", False, BoolValidator())
+        "WindowShadowStyle", "isSaveWithShadow", False, BoolValidator()
+    )
     windowShadowStyleIsCopyWithShadow = ConfigItem(
-        "WindowShadowStyle", "isCopyWithShadow", False, BoolValidator())
+        "WindowShadowStyle", "isCopyWithShadow", False, BoolValidator()
+    )
 
     # TextEditToolbar
     textEditToolbarFontFamily = ConfigItem(
-        "TextEditToolbar", "fontFamily", "Microsoft YaHei")
+        "TextEditToolbar", "fontFamily", "Microsoft YaHei"
+    )
     textEditToolbarFontSize = RangeConfigItem(
-        "TextEditToolbar", "fontSize", 5, RangeValidator(1, 100))
-    textEditToolbarTextColor = ColorConfigItem(
-        "TextEditToolbar", "textColor", Qt.red)
+        "TextEditToolbar", "fontSize", 5, RangeValidator(1, 100)
+    )
+    textEditToolbarTextColor = ColorConfigItem("TextEditToolbar", "textColor", Qt.red)
 
     # EffectToolbar
     effectToolbarStrength = RangeConfigItem(
-        "EffectToolbar", "strength", 5, RangeValidator(1, 15))
+        "EffectToolbar", "strength", 5, RangeValidator(1, 15)
+    )
     effectToolbarEffectType = OptionsConfigItem(
-        "EffectToolbar", "effectType", AfterEffectType.Blur, OptionsValidator(AfterEffectType), EnumSerializer(AfterEffectType))
+        "EffectToolbar",
+        "effectType",
+        AfterEffectType.Blur,
+        OptionsValidator(AfterEffectType),
+        EnumSerializer(AfterEffectType),
+    )
 
     # EraseToolbar
     eraseToolbarWidth = RangeConfigItem(
-        "EraseToolbar", "width", 5, RangeValidator(1, 30))
+        "EraseToolbar", "width", 5, RangeValidator(1, 30)
+    )
 
     # ShapeToolbar
     shapeToolbarPenWidth = RangeConfigItem(
-        "ShapeToolbar", "penWidth", 2, RangeValidator(1, 30))
+        "ShapeToolbar", "penWidth", 2, RangeValidator(1, 30)
+    )
     shapeToolbarBrushColor = ColorConfigItem(
-        "ShapeToolbar", "brushColor", Qt.GlobalColor.blue)
+        "ShapeToolbar", "brushColor", Qt.GlobalColor.blue
+    )
     shapeToolbarPenColor = ColorConfigItem(
-        "ShapeToolbar", "penColor", Qt.GlobalColor.gray)
+        "ShapeToolbar", "penColor", Qt.GlobalColor.gray
+    )
     shapeToolbarPenStyle = OptionsConfigItem(
-        "ShapeToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+        "ShapeToolbar",
+        "penStyle",
+        Qt.PenStyle.SolidLine,
+        OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]),
+    )
     shapeToolbarShape = OptionsConfigItem(
-        "ShapeToolbar", "shape", CanvasShapeEnum.Rectangle, OptionsValidator(CanvasShapeEnum), EnumSerializer(CanvasShapeEnum))
+        "ShapeToolbar",
+        "shape",
+        CanvasShapeEnum.Rectangle,
+        OptionsValidator(CanvasShapeEnum),
+        EnumSerializer(CanvasShapeEnum),
+    )
 
     # ArrowToolbar
     arrowToolbarPenWidth = RangeConfigItem(
-        "ArrowToolbar", "penWidth", 2, RangeValidator(1, 30))
+        "ArrowToolbar", "penWidth", 2, RangeValidator(1, 30)
+    )
     arrowToolbarBrushColor = ColorConfigItem(
-        "ArrowToolbar", "brushColor", Qt.GlobalColor.blue)
+        "ArrowToolbar", "brushColor", Qt.GlobalColor.blue
+    )
     arrowToolbarPenColor = ColorConfigItem(
-        "ArrowToolbar", "penColor", Qt.GlobalColor.gray)
+        "ArrowToolbar", "penColor", Qt.GlobalColor.gray
+    )
     arrowToolbarPenStyle = OptionsConfigItem(
-        "ArrowToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+        "ArrowToolbar",
+        "penStyle",
+        Qt.PenStyle.SolidLine,
+        OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]),
+    )
 
     # LineStripToolbar
     lineStripToolbarPenWidth = RangeConfigItem(
-        "LineStripToolbar", "penWidth", 5, RangeValidator(1, 30))
+        "LineStripToolbar", "penWidth", 5, RangeValidator(1, 30)
+    )
     lineStripToolbarPenColor = ColorConfigItem(
-        "LineStripToolbar", "penColor", Qt.GlobalColor.red)
+        "LineStripToolbar", "penColor", Qt.GlobalColor.red
+    )
 
     # MarkerPenToolbar
     markerPenToolbarPenWidth = RangeConfigItem(
-        "MarkerPenToolbar", "penWidth", 5, RangeValidator(1, 30))
+        "MarkerPenToolbar", "penWidth", 5, RangeValidator(1, 30)
+    )
     markerPenToolbarPenColor = ColorConfigItem(
-        "MarkerPenToolbar", "penColor", Qt.GlobalColor.red)
+        "MarkerPenToolbar", "penColor", Qt.GlobalColor.red
+    )
 
     # PenToolbar
     penToolbarPenWidth = RangeConfigItem(
-        "PenToolbar", "penWidth", 5, RangeValidator(1, 30))
-    penToolbarPenColor = ColorConfigItem(
-        "PenToolbar", "penColor", Qt.GlobalColor.red)
+        "PenToolbar", "penWidth", 5, RangeValidator(1, 30)
+    )
+    penToolbarPenColor = ColorConfigItem("PenToolbar", "penColor", Qt.GlobalColor.red)
 
     # NumberMarkerItemToolbar
     numberMarkerItemToolbarFontFamily = ConfigItem(
-        "NumberMarkerItemToolbar", "fontFamily", "Microsoft YaHei")
+        "NumberMarkerItemToolbar", "fontFamily", "Microsoft YaHei"
+    )
     numberMarkerItemToolbarTextColor = ColorConfigItem(
-        "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white)
+        "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white
+    )
     numberMarkerItemToolbarPenWidth = RangeConfigItem(
-        "NumberMarkerItemToolbar", "penWidth", 2, RangeValidator(1, 30))
+        "NumberMarkerItemToolbar", "penWidth", 2, RangeValidator(1, 30)
+    )
     numberMarkerItemToolbarPenColor = ColorConfigItem(
-        "NumberMarkerItemToolbar", "penColor", Qt.GlobalColor.gray)
+        "NumberMarkerItemToolbar", "penColor", Qt.GlobalColor.gray
+    )
     numberMarkerItemToolbarPenStyle = OptionsConfigItem(
-        "NumberMarkerItemToolbar", "penStyle", Qt.PenStyle.SolidLine, OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]))
+        "NumberMarkerItemToolbar",
+        "penStyle",
+        Qt.PenStyle.SolidLine,
+        OptionsValidator([Qt.PenStyle.SolidLine, Qt.PenStyle.DashLine]),
+    )
     numberMarkerItemToolbarBrushColor = ColorConfigItem(
-        "NumberMarkerItemToolbar", "brushColor", QColor(255, 0, 0, 128))
+        "NumberMarkerItemToolbar", "brushColor", QColor(255, 0, 0, 128)
+    )
 
     # OcrLoaderSetting
     # 注意，OCRLoader采取的是动态加载方式，这里只是用于占位
     useOcrLoaderType = OptionsConfigItem(
-        "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnText")
+        "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnText"
+    )
     ocrLoaderFolder = ConfigItem(
-        "OcrLoaderConfig", "OcrLoaderFolder", "", FolderValidator())
+        "OcrLoaderConfig", "OcrLoaderFolder", "", FolderValidator()
+    )
 
     @property
     def numberMarkerItemToolbarFont(self):
@@ -185,8 +260,9 @@ class Config(QConfig):
         self.textEditToolbarFontFamily.value = font.family()
         self.save()
 
+
 configFolder = os.path.join(os.path.expanduser("~"), f".{APP_NAME}")
-configPath = os.path.join(configFolder, 'config.json')
+configPath = os.path.join(configFolder, "config.json")
 if not os.path.exists(configFolder):
     os.mkdir(configFolder)
 

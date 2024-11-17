@@ -8,31 +8,36 @@ from pdf_viewer import *
 from plugin import *
 from ocr_loader import *
 
+
 # 绘制动作
-class DrawAction():
-    def __init__(self, actionEnum:DrawActionEnum, painterTool:QWidget, callback=None) -> None:
-        self.actionEnum:DrawActionEnum = actionEnum
+class DrawAction:
+    def __init__(
+        self, actionEnum: DrawActionEnum, painterTool: QWidget, callback=None
+    ) -> None:
+        self.actionEnum: DrawActionEnum = actionEnum
         self.painterTool = painterTool
         self.callback = callback
 
-    def switchEditState(self, isEdit:bool):
+    def switchEditState(self, isEdit: bool):
         if self.callback != None:
             self.callback(isEdit)
+
 
 # 绘图控件
 class PainterInterface(QWidget):
     ocrStartSignal = pyqtSignal()
     ocrEndSuccessSignal = pyqtSignal(object)
     ocrEndFailSignal = pyqtSignal(str)
-    def __init__(self, parent=None, physicalPixmap:QPixmap=None):
+
+    def __init__(self, parent=None, physicalPixmap: QPixmap = None):
         super().__init__(parent)
         self.setFocusPolicy(Qt.StrongFocus)
         self.physicalPixmap = physicalPixmap
-        self.toolbar:QWidget = None
-        self.actionGroup:QActionGroup = None
-        self.drawWidget:CanvasEditor = None
-        self.sceneBrush:QBrush = None
-        self.painterToolBarMgr:PainterToolBarManager = None
+        self.toolbar: QWidget = None
+        self.actionGroup: QActionGroup = None
+        self.drawWidget: CanvasEditor = None
+        self.sceneBrush: QBrush = None
+        self.painterToolBarMgr: PainterToolBarManager = None
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
         self.hotkey = QWidgetHotKey()
         self.hotkey.setHotkeyListenerEx("space", 3, self.clearDraw)
@@ -51,7 +56,7 @@ class PainterInterface(QWidget):
             self.sceneBrush = QBrush(basePixmap)
             screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
             transform = QTransform()
-            transform.scale(1/screenDevicePixelRatio, 1/screenDevicePixelRatio)
+            transform.scale(1 / screenDevicePixelRatio, 1 / screenDevicePixelRatio)
             self.sceneBrush.setTransform(transform)
 
             self.ocrStartSignal.connect(self.onOcrStart)
@@ -73,9 +78,15 @@ class PainterInterface(QWidget):
         # 锁定机制-绘制工具
         lockState = self.drawWidget.getLockState()
         if lockState:
-            switchLockAction = Action(ScreenShotIcon.LOCKED, self.tr("Locked"), triggered=self.switchLocked)
+            switchLockAction = Action(
+                ScreenShotIcon.LOCKED, self.tr("Locked"), triggered=self.switchLocked
+            )
         else:
-            switchLockAction = Action(ScreenShotIcon.UNLOCKED, self.tr("UnLocked"), triggered=self.switchLocked)
+            switchLockAction = Action(
+                ScreenShotIcon.UNLOCKED,
+                self.tr("UnLocked"),
+                triggered=self.switchLocked,
+            )
 
         switchLockAction.setCheckable(True)
         self.switchLockButton = view.addAction(switchLockAction)
@@ -83,22 +94,52 @@ class PainterInterface(QWidget):
 
         view.addSeparator()
 
-        selectItemAction = Action(ScreenShotIcon.SELECT_ITEM, self.tr("Select item"), triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem))
-        finalDrawActions = [
-            selectItemAction
-        ]
+        selectItemAction = Action(
+            ScreenShotIcon.SELECT_ITEM,
+            self.tr("Select item"),
+            triggered=lambda: self.switchDrawTool(DrawActionEnum.SelectItem),
+        )
+        finalDrawActions = [selectItemAction]
         self.selectItemAction = selectItemAction
 
         # 初始化绘制工具栏
         drawActions = [
-            Action(ScreenShotIcon.SHAPE, self.tr("Shape"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape)),
-            Action(ScreenShotIcon.LINE_STRIP, self.tr("Line strip"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip)),
-            Action(ScreenShotIcon.NUMBER_MARKER, self.tr("Number marker"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker)),
+            Action(
+                ScreenShotIcon.SHAPE,
+                self.tr("Shape"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawShape),
+            ),
+            Action(
+                ScreenShotIcon.LINE_STRIP,
+                self.tr("Line strip"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawLineStrip),
+            ),
+            Action(
+                ScreenShotIcon.NUMBER_MARKER,
+                self.tr("Number marker"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.UseNumberMarker),
+            ),
             # Action(ScreenShotIcon.POLYGON, '图案', triggered=lambda: self.switchDrawTool(DrawActionEnum.PasteSvg)),
-            Action(ScreenShotIcon.ARROW, self.tr("Arrow"), triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow)),
-            Action(ScreenShotIcon.MARKER_PEN, self.tr("Marker pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen)),
-            Action(ScreenShotIcon.PEN, self.tr("Pen"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePen)),
-            Action(ScreenShotIcon.TEXT, self.tr("TextEdit"), triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText)),
+            Action(
+                ScreenShotIcon.ARROW,
+                self.tr("Arrow"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.DrawArrow),
+            ),
+            Action(
+                ScreenShotIcon.MARKER_PEN,
+                self.tr("Marker pen"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.UseMarkerPen),
+            ),
+            Action(
+                ScreenShotIcon.PEN,
+                self.tr("Pen"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.UsePen),
+            ),
+            Action(
+                ScreenShotIcon.TEXT,
+                self.tr("TextEdit"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText),
+            ),
         ]
 
         for action in drawActions:
@@ -107,8 +148,16 @@ class PainterInterface(QWidget):
         # 仅当有背景画刷的时候，橡皮擦和模糊工具才可以使用
         if self.drawWidget.sceneBrush != None:
             extendActions = [
-                Action(ScreenShotIcon.ERASER, self.tr("Eraser"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser)),
-                Action(ScreenShotIcon.FILL_REGION, self.tr("Mosaic/Blur"), triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool)),
+                Action(
+                    ScreenShotIcon.ERASER,
+                    self.tr("Eraser"),
+                    triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser),
+                ),
+                Action(
+                    ScreenShotIcon.FILL_REGION,
+                    self.tr("Mosaic/Blur"),
+                    triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool),
+                ),
             ]
             for action in extendActions:
                 finalDrawActions.append(action)
@@ -125,15 +174,30 @@ class PainterInterface(QWidget):
             extraActions = [
                 Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr)
             ]
-            pluginMgr.handleEvent(GlobalEventEnum.RegisterToolbarMenuEvent, actions=extraActions, pixmap=self.physicalPixmap, parent=self)
+            pluginMgr.handleEvent(
+                GlobalEventEnum.RegisterToolbarMenuEvent,
+                actions=extraActions,
+                pixmap=self.physicalPixmap,
+                parent=self,
+            )
             view.addActions(extraActions)
 
-        view.addActions([
-            Action(ScreenShotIcon.DELETE_ALL, self.tr("Clear draw"), triggered=self.clearDraw),
-            Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
-            Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
-            Action(ScreenShotIcon.FINISHED, self.tr("Finish draw"), triggered=self.completeDraw),
-        ])
+        view.addActions(
+            [
+                Action(
+                    ScreenShotIcon.DELETE_ALL,
+                    self.tr("Clear draw"),
+                    triggered=self.clearDraw,
+                ),
+                Action(ScreenShotIcon.UNDO, self.tr("Undo"), triggered=self.undo),
+                Action(ScreenShotIcon.REDO, self.tr("Redo"), triggered=self.redo),
+                Action(
+                    ScreenShotIcon.FINISHED,
+                    self.tr("Finish draw"),
+                    triggered=self.completeDraw,
+                ),
+            ]
+        )
 
         view.hBoxLayout.setContentsMargins(1, 1, 1, 1)
         view.setIconSize(QSize(20, 20))
@@ -150,13 +214,15 @@ class PainterInterface(QWidget):
 
         self.initDrawLayer()
         self.painterToolBarMgr = PainterToolBarManager(view, self.toolbar)
-        self.painterToolBarMgr.providerChangeDrawActionSignal.connect(self.onProviderChangeDrawAction)
+        self.painterToolBarMgr.providerChangeDrawActionSignal.connect(
+            self.onProviderChangeDrawAction
+        )
 
-    def onProviderChangeDrawAction(self, drawActionEnum:DrawActionEnum):
+    def onProviderChangeDrawAction(self, drawActionEnum: DrawActionEnum):
         self.switchDrawTool(drawActionEnum)
 
     def initDrawLayer(self):
-        if self.drawWidget != None: 
+        if self.drawWidget != None:
             return
 
         self.drawWidget = CanvasEditor(self, self.sceneBrush)
@@ -164,8 +230,13 @@ class PainterInterface(QWidget):
         self.drawWidget.setNofityEvent(self.sceneUserNotifyHandler)
         self.contentLayout.addWidget(self.drawWidget)
 
-    def sceneUserNotifyHandler(self, sceneUserNotifyEnum:SceneUserNotifyEnum, item:QGraphicsItem):
-        if sceneUserNotifyEnum == SceneUserNotifyEnum.EndDrawedEvent and not self.drawWidget.getLockState():
+    def sceneUserNotifyHandler(
+        self, sceneUserNotifyEnum: SceneUserNotifyEnum, item: QGraphicsItem
+    ):
+        if (
+            sceneUserNotifyEnum == SceneUserNotifyEnum.EndDrawedEvent
+            and not self.drawWidget.getLockState()
+        ):
             if item != None:
                 item.setEditableState(True)
                 if hasattr(item, "forceSelect"):
@@ -173,9 +244,15 @@ class PainterInterface(QWidget):
                 self.directSwitchDrawTool(DrawActionEnum.SelectItem)
             self.selectItemAction.setChecked(True)
 
-        if sceneUserNotifyEnum in [SceneUserNotifyEnum.SelectItemChangedEvent, SceneUserNotifyEnum.StartDrawedEvent, SceneUserNotifyEnum.SelectNothing]:
+        if sceneUserNotifyEnum in [
+            SceneUserNotifyEnum.SelectItemChangedEvent,
+            SceneUserNotifyEnum.StartDrawedEvent,
+            SceneUserNotifyEnum.SelectNothing,
+        ]:
             if self.painterToolBarMgr != None:
-                self.painterToolBarMgr.switchSelectItemToolBar(item, sceneUserNotifyEnum)
+                self.painterToolBarMgr.switchSelectItemToolBar(
+                    item, sceneUserNotifyEnum
+                )
 
     def completeDraw(self):
         self.switchDrawTool(DrawActionEnum.DrawNone)
@@ -207,7 +284,10 @@ class PainterInterface(QWidget):
 
     def tryQuitDraw(self):
         # 如果当前绘图工具不在编辑状态，则本次按下Esc键会关掉绘图工具条
-        if not self.currentDrawActionEnum in [DrawActionEnum.DrawNone, DrawActionEnum.SelectItem]:
+        if not self.currentDrawActionEnum in [
+            DrawActionEnum.DrawNone,
+            DrawActionEnum.SelectItem,
+        ]:
             self.selectItemAction.trigger()
             return False
         elif self.toolbar != None and self.toolbar.isVisible():
@@ -228,7 +308,7 @@ class PainterInterface(QWidget):
     def getFinalPixmap(self) -> QPixmap:
         # 经测试，这种方式截屏会有概率出现白边，推测是精度问题导致的，遂改成下面的实现
         # return self.grab()
-        
+
         basePixmap = self.physicalPixmap.copy()
         painter = QPainter()
         painter.begin(basePixmap)
@@ -236,23 +316,28 @@ class PainterInterface(QWidget):
             painter.drawPixmap(self.drawWidget.geometry(), self.drawWidget.grab())
         painter.end()
         return basePixmap
-        
+
     def copyToClipboard(self):
-        kv = {
-            "pixmap" : self.getFinalPixmap()
-        }
+        kv = {"pixmap": self.getFinalPixmap()}
         pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
         finalPixmap = kv["pixmap"]
         QApplication.clipboard().setPixmap(finalPixmap)
 
-    def switchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
+    def switchDrawTool(
+        self,
+        drawActionEnum: DrawActionEnum,
+        cursor: QCursor = Qt.CursorShape.ArrowCursor,
+    ):
         self.drawWidget.switchDrawTool(drawActionEnum)
         if not hasattr(self, "drawActionInfo"):
             self.drawActionInfo = DrawActionInfo()
         if self.preHandleEraseToole(drawActionEnum):
             return
         if self.currentDrawActionEnum != drawActionEnum:
-            self.createCustomInfoBar("%s 【%s】" % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum)))
+            self.createCustomInfoBar(
+                "%s 【%s】"
+                % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum))
+            )
         self.currentDrawActionEnum = drawActionEnum
         if self.painterToolBarMgr != None:
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
@@ -266,16 +351,20 @@ class PainterInterface(QWidget):
                 self.webViewerItem.setEnabled(False)
                 self.webViewerItem.cancelSelectText()
 
-    def preHandleEraseToole(self, drawActionEnum:DrawActionEnum):
+    def preHandleEraseToole(self, drawActionEnum: DrawActionEnum):
         eraseTools = [DrawActionEnum.UseEraser, DrawActionEnum.UseEraserRectItem]
         if self.currentDrawActionEnum in eraseTools and drawActionEnum in eraseTools:
             self.directSwitchDrawTool(drawActionEnum)
             return True
         return False
 
-    def directSwitchDrawTool(self, drawActionEnum:DrawActionEnum, cursor:QCursor = Qt.CursorShape.ArrowCursor):
+    def directSwitchDrawTool(
+        self,
+        drawActionEnum: DrawActionEnum,
+        cursor: QCursor = Qt.CursorShape.ArrowCursor,
+    ):
         self.drawWidget.switchDrawTool(drawActionEnum)
-        self.currentDrawActionEnum = drawActionEnum 
+        self.currentDrawActionEnum = drawActionEnum
         self.setCursor(cursor)
 
     def clearDraw(self):
@@ -286,18 +375,24 @@ class PainterInterface(QWidget):
         self.hotkey.keyPressEvent(event)
         super().keyPressEvent(event)
 
-    def focusInEvent(self, event:QFocusEvent) -> None:
+    def focusInEvent(self, event: QFocusEvent) -> None:
         self.parentWidget().focusInEvent(event)
 
-    def focusOutEvent(self, event:QFocusEvent) -> None:
+    def focusOutEvent(self, event: QFocusEvent) -> None:
         # 获取鼠标居于屏幕上的位置点
         pos = QCursor.pos()
 
         # 计算绘图区和工具区的并集
-        painterRect = QRect(self.mapToGlobal(self.rect().topLeft()), self.mapToGlobal(self.rect().bottomRight()))
+        painterRect = QRect(
+            self.mapToGlobal(self.rect().topLeft()),
+            self.mapToGlobal(self.rect().bottomRight()),
+        )
         rects = [painterRect]
         if self.toolbar != None:
-            toolbarRect = QRect(self.toolbar.mapToGlobal(self.toolbar.rect().topLeft()), self.toolbar.mapToGlobal(self.toolbar.rect().bottomRight()))
+            toolbarRect = QRect(
+                self.toolbar.mapToGlobal(self.toolbar.rect().topLeft()),
+                self.toolbar.mapToGlobal(self.toolbar.rect().bottomRight()),
+            )
             rects.append(toolbarRect)
         region = QRegion()
         region.setRects(rects)
@@ -314,27 +409,30 @@ class PainterInterface(QWidget):
             for action in self.actionGroup.actions():
                 action.setChecked(False)
 
-    def createCustomInfoBar(self, text:str):
+    def createCustomInfoBar(self, text: str):
         w = InfoBar.new(
             icon=ScreenShotIcon.GUIDE,
-            title='',
+            title="",
             content=text,
             orient=Qt.Horizontal,
             isClosable=False,
             position=InfoBarPosition.BOTTOM,
             duration=1000,
-            parent=self
+            parent=self,
         )
         # w.iconWidget.setFixedSize(QSize(40, 40))
-        w.setCustomBackgroundColor('white', '#202020')
+        w.setCustomBackgroundColor("white", "#202020")
 
     def wheelEvent(self, event: QWheelEvent):
-        if self.painterToolBarMgr != None and int(event.modifiers()) == Qt.ControlModifier:
+        if (
+            self.painterToolBarMgr != None
+            and int(event.modifiers()) == Qt.ControlModifier
+        ):
             self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y())
         return super().wheelEvent(event)
 
     def startOcr(self):
-        '''使用独立线程进行OCR识别'''
+        """使用独立线程进行OCR识别"""
         if hasattr(self, "ocrState"):
             self.showCommandBar()
             self.selectItemAction.trigger()
@@ -345,7 +443,7 @@ class PainterInterface(QWidget):
         # self.onExecuteOcr(self.physicalPixmap)
 
     def checkOcrLoaderValid(self):
-        '''纠正OCR加载器配置失效情况'''
+        """纠正OCR加载器配置失效情况"""
         if len(ocrLoaderMgr.loaderDict) == 0:
             raise Exception("没有可支持的OCR加载器，无法进行OCR识别")
         ocrLoaderName = cfg.get(cfg.useOcrLoaderType)
@@ -353,11 +451,15 @@ class PainterInterface(QWidget):
             keys = list(ocrLoaderMgr.loaderDict.keys())
             cfg.set(cfg.useOcrLoaderType, keys[0])
 
-    def onExecuteOcr(self, pixmap:QPixmap):
+    def onExecuteOcr(self, pixmap: QPixmap):
         try:
             self.checkOcrLoaderValid()
-            self.ocrLoader:OcrLoaderInterface = ocrLoaderMgr.loaderDict[cfg.get(cfg.useOcrLoaderType)]
-            print(f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}")
+            self.ocrLoader: OcrLoaderInterface = ocrLoaderMgr.loaderDict[
+                cfg.get(cfg.useOcrLoaderType)
+            ]
+            print(
+                f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}"
+            )
             self.ocrStartSignal.emit()
 
             result = self.ocrLoader.ocr(pixmap)
@@ -371,7 +473,11 @@ class PainterInterface(QWidget):
 
     def onOcrStart(self):
         # pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.mode)
-        pluginMgr.handleEvent(GlobalEventEnum.OcrStartEvent, parent_widget=self, ocr_mode=self.ocrLoader.displayName)
+        pluginMgr.handleEvent(
+            GlobalEventEnum.OcrStartEvent,
+            parent_widget=self,
+            ocr_mode=self.ocrLoader.displayName,
+        )
 
     def onEscPressed(self, hasSelectedText):
         if hasSelectedText:
@@ -398,7 +504,7 @@ class PainterInterface(QWidget):
         self.showCommandBar()
         self.selectItemAction.trigger()
 
-    def onOcrEndForReturnStr(self, input:str):
+    def onOcrEndForReturnStr(self, input: str):
         # 渲染Html
         if input.endswith(".pdf"):
             self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
@@ -416,12 +522,12 @@ class PainterInterface(QWidget):
         # 让OCR文本层位于最底部
         self.webViewerItem.setZValue(-1)
 
-        if (input.endswith(".html") or input.endswith(".pdf")):
+        if input.endswith(".html") or input.endswith(".pdf"):
             self.webViewerItem.openFile(input)
         else:
             self.webViewerItem.setHtml(input)
 
-    def onOcrEndForReturnJson(self, input:dict):
+    def onOcrEndForReturnJson(self, input: dict):
         boxInfos = input["data"]
         # 将ocr识别结果渲染出来
         drop_score = 0.5
@@ -436,14 +542,18 @@ class PainterInterface(QWidget):
 
             polygon = QPolygonF()
             for position in box:
-                achorPos = QPointF(position[0] / dpiScale, position[-1] / dpiScale).toPoint()
+                achorPos = QPointF(
+                    position[0] / dpiScale, position[-1] / dpiScale
+                ).toPoint()
                 # finalPosition = self.drawWidget.view.mapToScene(achorPos)
                 finalPosition = achorPos
                 polygon.append(finalPosition)
 
             textItem = CanvasOcrTextItem(polygon.boundingRect(), text)
             self.drawWidget.scene.addItem(textItem)
-            self.drawWidget.scene.addPolygon(polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush))
+            self.drawWidget.scene.addPolygon(
+                polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush)
+            )
 
     def onOcrEndSuccess(self, input):
         pluginMgr.handleEvent(GlobalEventEnum.OcrEndSuccessEvent, parent_widget=self)
@@ -458,7 +568,9 @@ class PainterInterface(QWidget):
             self.ocrThread = None
 
     def onOcrEndFail(self, message):
-        pluginMgr.handleEvent(GlobalEventEnum.OcrEndFailEvent, parent_widget=self, message=message)
+        pluginMgr.handleEvent(
+            GlobalEventEnum.OcrEndFailEvent, parent_widget=self, message=message
+        )
 
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()

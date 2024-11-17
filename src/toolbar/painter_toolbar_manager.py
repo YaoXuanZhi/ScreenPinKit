@@ -12,14 +12,16 @@ from .marker_pen_toolbar import *
 from .canvas_item_toolbar import *
 from .effect_toolbar import *
 
+
 class PainterToolBarManager(QObject):
     providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
-    def __init__(self, targetWidget:QWidget, parent: QObject = None) -> None:
+
+    def __init__(self, targetWidget: QWidget, parent: QObject = None) -> None:
         super().__init__(parent)
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
         self.targetWidget = targetWidget
-        self.canvasItemBar:CommandBarView = None
-        self.optionBar:QWidget = None
+        self.canvasItemBar: CommandBarView = None
+        self.optionBar: QWidget = None
         self.zoomComponent = ZoomComponent()
         self.zoomComponent.zoomClamp = False
         self.zoomComponent.signal.connect(self.wheelZoom)
@@ -32,19 +34,21 @@ class PainterToolBarManager(QObject):
             self.canvasItemBar.close()
             self.canvasItemBar.destroy()
             self.canvasItemBar = None
-        
+
         if self.optionBar != None:
             self.optionBar.close()
             self.optionBar.destroy()
             self.optionBar = None
 
-    def switchSelectItemToolBar(self, canvasItem:QGraphicsItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
-        '''
+    def switchSelectItemToolBar(
+        self, canvasItem: QGraphicsItem, sceneUserNotifyEnum: SceneUserNotifyEnum
+    ):
+        """
         切换选中的图元
 
         1. 如果类型相同，则直接进行重新绑定
         2. 如果类型不同，则更换工具栏
-        '''
+        """
         if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectNothing:
             self.currentDrawActionEnum = DrawActionEnum.DrawNone
             self.close()
@@ -91,11 +95,14 @@ class PainterToolBarManager(QObject):
         if hasattr(self.canvasItemBar, "bindCanvasItem"):
             self.canvasItemBar.bindCanvasItem(canvasItem, sceneUserNotifyEnum)
 
-    def switchDrawTool(self, drawActionEnum:DrawActionEnum) -> CommandBarView:
+    def switchDrawTool(self, drawActionEnum: DrawActionEnum) -> CommandBarView:
         if self.currentDrawActionEnum == drawActionEnum:
             return
 
-        if self.currentDrawActionEnum != DrawActionEnum.DrawNone and self.currentDrawActionEnum != drawActionEnum:
+        if (
+            self.currentDrawActionEnum != DrawActionEnum.DrawNone
+            and self.currentDrawActionEnum != drawActionEnum
+        ):
             self.close()
 
         self.currentDrawActionEnum = drawActionEnum
@@ -110,7 +117,9 @@ class PainterToolBarManager(QObject):
                 self.canvasItemBar = ShapeToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseEraser:
                 self.canvasItemBar = EraseToolbar(parent=self.targetWidget)
-                self.canvasItemBar.eraseTypeChangedSignal = self.providerChangeDrawActionSignal
+                self.canvasItemBar.eraseTypeChangedSignal = (
+                    self.providerChangeDrawActionSignal
+                )
             elif drawActionEnum == DrawActionEnum.UseEffectTool:
                 self.canvasItemBar = EffectToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UsePen:
@@ -127,11 +136,10 @@ class PainterToolBarManager(QObject):
         if self.canvasItemBar == None:
             return
 
-        parent:BubbleTip = self.parent()
+        parent: BubbleTip = self.parent()
         finalTailPosition = BubbleTipTailPosition.TOP_LEFT_AUTO
         if parent.manager.isCorrectedBound():
             finalTailPosition = BubbleTipTailPosition.BOTTOM_LEFT_AUTO
-
 
         self.optionBar = BubbleTip.make(
             target=self.targetWidget,
@@ -140,9 +148,9 @@ class PainterToolBarManager(QObject):
             tailPosition=finalTailPosition,
             orientLength=2,
             parent=self.targetWidget,
-            )
+        )
 
-    def wheelZoom(self, angleDelta:int):
+    def wheelZoom(self, angleDelta: int):
         if self.canvasItemBar == None:
             return
 

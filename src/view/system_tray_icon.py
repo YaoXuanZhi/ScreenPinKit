@@ -5,9 +5,17 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
 
 from qfluentwidgets import SystemTrayMenu
 
+
 # 托盘菜单
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, parent:QWidget, toolTip:str, winIcon:QIcon, menuActions:list, activatedCallback):
+    def __init__(
+        self,
+        parent: QWidget,
+        toolTip: str,
+        winIcon: QIcon,
+        menuActions: list,
+        activatedCallback,
+    ):
         super().__init__(parent=parent)
         self.setIcon(winIcon)
         self.setToolTip(toolTip)

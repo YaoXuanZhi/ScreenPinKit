@@ -1,7 +1,7 @@
 # coding=utf-8
 import typing, os, threading
 from datetime import datetime
-from qfluentwidgets import (RoundMenu, Action, StateToolTip)
+from qfluentwidgets import RoundMenu, Action, StateToolTip
 from base import *
 from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
@@ -10,8 +10,16 @@ from common import cfg, ScreenShotIcon
 from plugin import *
 from .painter_interface import PainterInterface
 
+
 class PinEditorWindow(PinWindow):
-    def __init__(self, parent, screenPoint:QPoint, physicalSize:QSize, physicalPixmap:QPixmap, closeCallback:typing.Callable):
+    def __init__(
+        self,
+        parent,
+        screenPoint: QPoint,
+        physicalSize: QSize,
+        physicalPixmap: QPixmap,
+        closeCallback: typing.Callable,
+    ):
         super().__init__(parent, screenPoint, physicalSize, closeCallback)
         self.contentLayout = QVBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
@@ -25,22 +33,42 @@ class PinEditorWindow(PinWindow):
         self.painterWidget.initDrawLayer()
         self.painterWidget.drawWidget.setEditorEnabled(False)
 
-        self.setShadowColor(cfg.get(cfg.windowShadowStyleFocusColor), cfg.get(cfg.windowShadowStyleUnFocusColor))
+        self.setShadowColor(
+            cfg.get(cfg.windowShadowStyleFocusColor),
+            cfg.get(cfg.windowShadowStyleUnFocusColor),
+        )
 
         self.initActions()
 
-    def contextMenuEvent(self, event:QContextMenuEvent):
+    def contextMenuEvent(self, event: QContextMenuEvent):
         if self.painterWidget.currentDrawActionEnum != DrawActionEnum.DrawNone:
             return
         menu = RoundMenu(parent=self)
         actions = [
-            Action(ScreenShotIcon.WHITE_BOARD, self.tr("Show toolbar"), triggered=self.showCommandBar),
-            Action(ScreenShotIcon.COPY, self.tr("Copy"), triggered=self.copyToClipboard),
-            Action(ScreenShotIcon.SAVE_AS, self.tr("Save as"), triggered=self.saveToDisk),
-            Action(ScreenShotIcon.CLICK_THROUGH, self.tr("Mouse through"), triggered=self.clickThrough),
+            Action(
+                ScreenShotIcon.WHITE_BOARD,
+                self.tr("Show toolbar"),
+                triggered=self.showCommandBar,
+            ),
+            Action(
+                ScreenShotIcon.COPY, self.tr("Copy"), triggered=self.copyToClipboard
+            ),
+            Action(
+                ScreenShotIcon.SAVE_AS, self.tr("Save as"), triggered=self.saveToDisk
+            ),
+            Action(
+                ScreenShotIcon.CLICK_THROUGH,
+                self.tr("Mouse through"),
+                triggered=self.clickThrough,
+            ),
             Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
         ]
-        pluginMgr.handleEvent(GlobalEventEnum.RegisterContextMenuEvent, actions=actions, pixmap=self.painterWidget.physicalPixmap, parent=self)
+        pluginMgr.handleEvent(
+            GlobalEventEnum.RegisterContextMenuEvent,
+            actions=actions,
+            pixmap=self.painterWidget.physicalPixmap,
+            parent=self,
+        )
         menu.addActions(actions)
 
         menu.view.setIconSize(QSize(20, 20))
@@ -102,9 +130,7 @@ class PinEditorWindow(PinWindow):
         else:
             finalPixmap = self.grab()
 
-        kv = {
-            "pixmap" : finalPixmap
-        }
+        kv = {"pixmap": finalPixmap}
         pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
         finalPixmap = kv["pixmap"]
         QApplication.clipboard().setPixmap(finalPixmap)
@@ -120,16 +146,16 @@ class PinEditorWindow(PinWindow):
         if os.path.exists(tempFolder):
             finalFolder = tempFolder
         finalPath = os.path.join(finalFolder, fileName)
-        savePath, _ = QFileDialog.getSaveFileName(self, "Save File", finalPath, "PNG(*.png)")
+        savePath, _ = QFileDialog.getSaveFileName(
+            self, "Save File", finalPath, "PNG(*.png)"
+        )
         if savePath != None:
             if cfg.get(cfg.windowShadowStyleIsSaveWithShadow):
                 finalPixmap = self.grabWithShaodw()
             else:
                 finalPixmap = self.painterWidget.getFinalPixmap()
 
-            kv = {
-                "pixmap" : finalPixmap
-            }
+            kv = {"pixmap": finalPixmap}
             pluginMgr.handleEvent(GlobalEventEnum.ImageSavingEvent, kv=kv, parent=self)
             finalPixmap = kv["pixmap"]
             finalPixmap.save(savePath, "png")
@@ -155,7 +181,10 @@ class PinEditorWindow(PinWindow):
                     self.close()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:
+        if (
+            self.isAllowModifyOpactity()
+            and int(event.modifiers()) == Qt.ControlModifier
+        ):
             self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         else:
@@ -173,7 +202,9 @@ class PinEditorWindow(PinWindow):
     def closeEvent(self, event) -> None:
         self.painterWidget.close()
         cfg.windowShadowStyleRoundRadius.valueChanged.disconnect(self.setRoundRadius)
-        cfg.windowShadowStyleUnFocusColor.valueChanged.disconnect(self.refreshShadowColor)
+        cfg.windowShadowStyleUnFocusColor.valueChanged.disconnect(
+            self.refreshShadowColor
+        )
         cfg.windowShadowStyleFocusColor.valueChanged.disconnect(self.refreshShadowColor)
         super().closeEvent(event)
 
@@ -192,11 +223,13 @@ class PinEditorWindow(PinWindow):
     def setMouseThroughState(self, isThrough: bool):
         self.painterWidget.completeDraw()
         self.painterWidget.clearFocus()
-        self.focusOutEvent(QFocusEvent(QEvent.Type.FocusOut, Qt.FocusReason.NoFocusReason))
+        self.focusOutEvent(
+            QFocusEvent(QEvent.Type.FocusOut, Qt.FocusReason.NoFocusReason)
+        )
         return super().setMouseThroughState(isThrough)
 
-    def __setWindowScaleFactor(self, newScaleFactor:float):
-        '''设置窗口的缩放比例'''
+    def __setWindowScaleFactor(self, newScaleFactor: float):
+        """设置窗口的缩放比例"""
         scaledWidth = int(self._originSize.width() * newScaleFactor)
         scaledHeight = int(self._originSize.height() * newScaleFactor)
 

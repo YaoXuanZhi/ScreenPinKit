@@ -1,11 +1,26 @@
 # coding:utf-8
 from common import cfg, ScreenShotIcon, StyleSheet
 from version import HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR
-from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
-                            OptionsSettingCard, RangeSettingCard, PushSettingCard,
-                            ColorSettingCard, HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
-                            ComboBoxSettingCard, ExpandLayout, Theme, InfoBar, CustomColorSettingCard,
-                            setTheme, setThemeColor, isDarkTheme)
+from qfluentwidgets import (
+    SettingCardGroup,
+    SwitchSettingCard,
+    FolderListSettingCard,
+    OptionsSettingCard,
+    RangeSettingCard,
+    PushSettingCard,
+    ColorSettingCard,
+    HyperlinkCard,
+    PrimaryPushSettingCard,
+    ScrollArea,
+    ComboBoxSettingCard,
+    ExpandLayout,
+    Theme,
+    InfoBar,
+    CustomColorSettingCard,
+    setTheme,
+    setThemeColor,
+    isDarkTheme,
+)
 from qfluentwidgets import FluentIcon as FIF
 from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
 from PyQt5.QtGui import QDesktopServices
@@ -14,8 +29,9 @@ from .hotkey_setting_card_group import HotkeySettingCardGroup
 from .toolbar_setting_card_group import ToolbarSettingCardGroup
 from .ocr_loader_card_group import OcrLoaderSettingGroup
 
+
 class SettingInterface(ScrollArea):
-    """ Setting interface """
+    """Setting interface"""
 
     checkUpdateSig = pyqtSignal()
     cacheFolderChanged = pyqtSignal(str)
@@ -26,42 +42,40 @@ class SettingInterface(ScrollArea):
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # general
-        self.generalGroup = SettingCardGroup(
-            self.tr("General"), self.scrollWidget)
+        self.generalGroup = SettingCardGroup(self.tr("General"), self.scrollWidget)
         self.cacheFolderCard = PushSettingCard(
-            self.tr('Choose folder'),
+            self.tr("Choose folder"),
             FIF.DOWNLOAD,
             self.tr("Cache directory"),
             cfg.get(cfg.cacheFolder),
-            self.generalGroup
+            self.generalGroup,
         )
         self.pluginsFolderCard = PushSettingCard(
-            self.tr('Choose folder'),
+            self.tr("Choose folder"),
             FIF.DOWNLOAD,
             self.tr("Plugins directory"),
             cfg.get(cfg.pluginsFolder),
-            self.generalGroup
+            self.generalGroup,
         )
         self.isAutoFindWindowCard = SwitchSettingCard(
             ScreenShotIcon.COPY,
-            self.tr('Auto find window'),
+            self.tr("Auto find window"),
             None,
             configItem=cfg.isAutoFindWindow,
-            parent=self.generalGroup
+            parent=self.generalGroup,
         )
 
         # personalization
-        self.personalGroup = SettingCardGroup(self.tr('Personalization'), self.scrollWidget)
+        self.personalGroup = SettingCardGroup(
+            self.tr("Personalization"), self.scrollWidget
+        )
         self.themeCard = OptionsSettingCard(
             cfg.themeMode,
             FIF.BRUSH,
-            self.tr('Application theme'),
+            self.tr("Application theme"),
             self.tr("Change the appearance of your application"),
-            texts=[
-                self.tr('Light'), self.tr('Dark'),
-                self.tr('Use system setting')
-            ],
-            parent=self.personalGroup
+            texts=[self.tr("Light"), self.tr("Dark"), self.tr("Use system setting")],
+            parent=self.personalGroup,
         )
         self.zoomCard = OptionsSettingCard(
             cfg.dpiScale,
@@ -69,25 +83,33 @@ class SettingInterface(ScrollArea):
             self.tr("Interface zoom"),
             self.tr("Change the size of widgets and fonts"),
             texts=[
-                "100%", "125%", "150%", "175%", "200%",
-                self.tr("Use system setting")
+                "100%",
+                "125%",
+                "150%",
+                "175%",
+                "200%",
+                self.tr("Use system setting"),
             ],
-            parent=self.personalGroup
+            parent=self.personalGroup,
         )
         self.languageCard = ComboBoxSettingCard(
             cfg.language,
             FIF.LANGUAGE,
-            self.tr('Language'),
-            self.tr('Set your preferred language for UI'),
-            texts=['简体中文', 'English', self.tr('Use system setting')],
-            parent=self.personalGroup
+            self.tr("Language"),
+            self.tr("Set your preferred language for UI"),
+            texts=["简体中文", "English", self.tr("Use system setting")],
+            parent=self.personalGroup,
         )
 
         # toolbar
-        self.toolbarGroup = ToolbarSettingCardGroup(self.tr("Toolbar"), self.scrollWidget)
+        self.toolbarGroup = ToolbarSettingCardGroup(
+            self.tr("Toolbar"), self.scrollWidget
+        )
 
         # windowShadowStyle
-        self.windowShadowStyleGroup = SettingCardGroup(self.tr("WindowShadowStyle"), self.scrollWidget)
+        self.windowShadowStyleGroup = SettingCardGroup(
+            self.tr("WindowShadowStyle"), self.scrollWidget
+        )
         self.windowShadowStyleFocusColorCard = ColorSettingCard(
             cfg.windowShadowStyleFocusColor,
             ScreenShotIcon.PEN,
@@ -103,60 +125,67 @@ class SettingInterface(ScrollArea):
         self.windowShadowStyleUseRoundStyleCard = OptionsSettingCard(
             cfg.windowShadowStyleRoundRadius,
             ScreenShotIcon.ROUNDED_CORNER,
-            self.tr('Use round style'),
+            self.tr("Use round style"),
             None,
-            texts=[
-                "0", "5", "10", "15", "20"
-            ],
-            parent=self.windowShadowStyleGroup
+            texts=["0", "5", "10", "15", "20"],
+            parent=self.windowShadowStyleGroup,
         )
         self.windowShadowStyleIsSaveWithShadowCard = SwitchSettingCard(
             ScreenShotIcon.SAVE_AS,
-            self.tr('Save screenshot with shadow'),
+            self.tr("Save screenshot with shadow"),
             None,
             configItem=cfg.windowShadowStyleIsSaveWithShadow,
-            parent=self.windowShadowStyleGroup
+            parent=self.windowShadowStyleGroup,
         )
         self.windowShadowStyleisCopyWithShadowCard = SwitchSettingCard(
             ScreenShotIcon.COPY,
-            self.tr('Copy screenshot with shadow'),
+            self.tr("Copy screenshot with shadow"),
             None,
             configItem=cfg.windowShadowStyleIsCopyWithShadow,
-            parent=self.windowShadowStyleGroup
+            parent=self.windowShadowStyleGroup,
         )
 
         # OcrLoaderSetting
-        self.ocrLoaderSettingGroup = OcrLoaderSettingGroup(self.tr("OcrLoaderSetting"), self.scrollWidget)
+        self.ocrLoaderSettingGroup = OcrLoaderSettingGroup(
+            self.tr("OcrLoaderSetting"), self.scrollWidget
+        )
 
         # hotkey
-        self.hotkeyGroup = HotkeySettingCardGroup(self.tr("Global Hotkey"), self.scrollWidget)
+        self.hotkeyGroup = HotkeySettingCardGroup(
+            self.tr("Global Hotkey"), self.scrollWidget
+        )
 
         # update software
-        self.updateSoftwareGroup = SettingCardGroup(self.tr("Software update"), self.scrollWidget)
+        self.updateSoftwareGroup = SettingCardGroup(
+            self.tr("Software update"), self.scrollWidget
+        )
         self.updateOnStartUpCard = SwitchSettingCard(
             FIF.UPDATE,
-            self.tr('Check for updates when the application starts'),
-            self.tr('The new version will be more stable and have more features'),
+            self.tr("Check for updates when the application starts"),
+            self.tr("The new version will be more stable and have more features"),
             configItem=cfg.checkUpdateAtStartUp,
-            parent=self.updateSoftwareGroup
+            parent=self.updateSoftwareGroup,
         )
 
         # application
-        self.aboutGroup = SettingCardGroup(self.tr('About'), self.scrollWidget)
+        self.aboutGroup = SettingCardGroup(self.tr("About"), self.scrollWidget)
         self.feedbackCard = PrimaryPushSettingCard(
-            self.tr('Provide feedback'),
+            self.tr("Provide feedback"),
             FIF.FEEDBACK,
-            self.tr('Provide feedback'),
-            self.tr('Help us improve ScreenPinKit by providing feedback'),
-            self.aboutGroup
+            self.tr("Provide feedback"),
+            self.tr("Help us improve ScreenPinKit by providing feedback"),
+            self.aboutGroup,
         )
         self.aboutCard = PrimaryPushSettingCard(
-            self.tr('Check update'),
+            self.tr("Check update"),
             FIF.INFO,
-            self.tr('About'),
-            '© ' + self.tr('Copyright') + f" {YEAR}, {AUTHOR}. " +
-            self.tr('Version') + f" {VERSION}",
-            self.aboutGroup
+            self.tr("About"),
+            "© "
+            + self.tr("Copyright")
+            + f" {YEAR}, {AUTHOR}. "
+            + self.tr("Version")
+            + f" {VERSION}",
+            self.aboutGroup,
         )
 
         self.__initWidget()
@@ -187,10 +216,18 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.languageCard)
 
         self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleFocusColorCard)
-        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUnfocusColorCard)
-        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleUseRoundStyleCard)
-        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleIsSaveWithShadowCard)
-        self.windowShadowStyleGroup.addSettingCard(self.windowShadowStyleisCopyWithShadowCard)
+        self.windowShadowStyleGroup.addSettingCard(
+            self.windowShadowStyleUnfocusColorCard
+        )
+        self.windowShadowStyleGroup.addSettingCard(
+            self.windowShadowStyleUseRoundStyleCard
+        )
+        self.windowShadowStyleGroup.addSettingCard(
+            self.windowShadowStyleIsSaveWithShadowCard
+        )
+        self.windowShadowStyleGroup.addSettingCard(
+            self.windowShadowStyleisCopyWithShadowCard
+        )
 
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
@@ -210,22 +247,21 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.aboutGroup)
 
     def __setQss(self):
-        """ set style sheet """
-        self.scrollWidget.setObjectName('scrollWidget')
+        """set style sheet"""
+        self.scrollWidget.setObjectName("scrollWidget")
         StyleSheet.SETTING_INTERFACE.apply(self)
 
     def __showRestartTooltip(self):
-        """ show restart tooltip """
+        """show restart tooltip"""
         InfoBar.warning(
-            '',
-            self.tr('Configuration takes effect after restart'),
-            parent=self.window()
+            "",
+            self.tr("Configuration takes effect after restart"),
+            parent=self.window(),
         )
 
     def __onCacheFolderCardClicked(self):
-        """ cache folder card clicked slot """
-        folder = QFileDialog.getExistingDirectory(
-            self, self.tr("Choose folder"), "./")
+        """cache folder card clicked slot"""
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "./")
         if not folder or cfg.get(cfg.cacheFolder) == folder:
             return
 
@@ -233,9 +269,8 @@ class SettingInterface(ScrollArea):
         self.cacheFolderCard.setContent(folder)
 
     def __onPluginsFolderCardClicked(self):
-        """ plugins folder card clicked slot """
-        folder = QFileDialog.getExistingDirectory(
-            self, self.tr("Choose folder"), "")
+        """plugins folder card clicked slot"""
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "")
         if not folder or cfg.get(cfg.pluginsFolder) == folder:
             return
 
@@ -243,7 +278,7 @@ class SettingInterface(ScrollArea):
         self.pluginsFolderCard.setContent(folder)
 
     def __onThemeChanged(self, theme: Theme):
-        """ theme changed slot """
+        """theme changed slot"""
         # change the theme of qfluentwidgets
         setTheme(theme)
 
@@ -251,18 +286,17 @@ class SettingInterface(ScrollArea):
         self.__setQss()
 
     def __connectSignalToSlot(self):
-        """ connect signal to slot """
+        """connect signal to slot"""
         cfg.appRestartSig.connect(self.__showRestartTooltip)
         cfg.themeChanged.connect(self.__onThemeChanged)
 
         # general
-        self.cacheFolderCard.clicked.connect(
-            self.__onCacheFolderCardClicked)
+        self.cacheFolderCard.clicked.connect(self.__onCacheFolderCardClicked)
 
-        self.pluginsFolderCard.clicked.connect(
-            self.__onPluginsFolderCardClicked)
+        self.pluginsFolderCard.clicked.connect(self.__onPluginsFolderCardClicked)
 
         # about
         self.aboutCard.clicked.connect(self.checkUpdateSig)
         self.feedbackCard.clicked.connect(
-            lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL)))
+            lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL))
+        )

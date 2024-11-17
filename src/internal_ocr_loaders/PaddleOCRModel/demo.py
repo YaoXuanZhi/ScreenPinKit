@@ -9,7 +9,8 @@ import numpy as np
 from PIL import Image
 from PaddleOCRModel import det_rec_functions as OcrDetector
 
-def qpixmap_to_matlike(qpixmap:QPixmap):
+
+def qpixmap_to_matlike(qpixmap: QPixmap):
     # 将 QPixmap 转换为 QImage
     qimage = qpixmap.toImage()
 
@@ -26,25 +27,31 @@ def qpixmap_to_matlike(qpixmap:QPixmap):
     imageArray = np.array(image)
     return imageArray
 
+
 class OcrimgThread(QThread):
     """文字识别线程"""
+
     result_show_signal = pyqtSignal(str)
     statusbar_signal = pyqtSignal(str)
-    det_res_img = pyqtSignal(QPixmap)# 返回文字监测结果
-    boxes_info_signal = pyqtSignal(list)# 返回识别信息结果
+    det_res_img = pyqtSignal(QPixmap)  # 返回文字监测结果
+    boxes_info_signal = pyqtSignal(list)  # 返回识别信息结果
+
     def __init__(self, image):
         super(QThread, self).__init__()
         self.image = image  # img
         self.ocr_result = None
         self.ocr_sys = None
 
-    def get_match_text(self,match_text_boxes):
+    def get_match_text(self, match_text_boxes):
         if self.ocr_sys is not None:
             return self.ocr_sys.get_format_text(match_text_boxes)
+
     def run(self):
-        self.statusbar_signal.emit('正在识别文字...')
+        self.statusbar_signal.emit("正在识别文字...")
         try:
-            self.ocr_sys = OcrDetector(self.image,use_dnn = False,version=3)# 支持v2和v3版本的
+            self.ocr_sys = OcrDetector(
+                self.image, use_dnn=False, version=3
+            )  # 支持v2和v3版本的
             stime = time.time()
             # 得到检测框
             dt_boxes = self.ocr_sys.get_boxes()
@@ -54,45 +61,50 @@ class OcrimgThread(QThread):
             # 创建QImage对象
             height, width, channel = image.shape
             bytesPerLine = 3 * width
-            qimage = QImage(image.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            qimage = QImage(
+                image.data, width, height, bytesPerLine, QImage.Format_RGB888
+            )
 
             # 创建QPixmap对象
             qpixmap = QPixmap.fromImage(qimage)
             self.det_res_img.emit(qpixmap)
-            
+
             dettime = time.time()
             print(len(dt_boxes[0]))
-            if len(dt_boxes[0])==0:
-                text="<没有识别到文字>"
+            if len(dt_boxes[0]) == 0:
+                text = "<没有识别到文字>"
             else:
                 # 识别 results: 单纯的识别结果，results_info: 识别结果+置信度    原图
                 # 识别模型固定尺寸只能100长度，需要处理可以根据自己场景导出模型 1000
                 # onnx可以支持动态，不受限
                 results, results_info = self.ocr_sys.recognition_img(dt_boxes)
-                print("识别时间:",time.time()-dettime,dettime - stime)
-                match_text_boxes = self.ocr_sys.get_match_text_boxes(dt_boxes[0],results)
-                text= self.ocr_sys.get_format_text(match_text_boxes)
+                print("识别时间:", time.time() - dettime, dettime - stime)
+                match_text_boxes = self.ocr_sys.get_match_text_boxes(
+                    dt_boxes[0], results
+                )
+                text = self.ocr_sys.get_format_text(match_text_boxes)
                 self.boxes_info_signal.emit(match_text_boxes)
 
         except Exception as e:
-            print("Unexpected error:",e, "jampublic l326")
+            print("Unexpected error:", e, "jampublic l326")
             text = str(sys.exc_info()[0])
-            self.statusbar_signal.emit('识别出错！{}'.format(text))
+            self.statusbar_signal.emit("识别出错！{}".format(text))
 
-        if text == '':
-            text = '没有识别到文字'
+        if text == "":
+            text = "没有识别到文字"
         self.ocr_result = text
         self.result_show_signal.emit(text)
-        self.statusbar_signal.emit('识别完成！')
+        self.statusbar_signal.emit("识别完成！")
 
         print("识别完成")
+
 
 class OcrService:
     def __init__(self):
         pass
 
     def ocr(self, image_path):
-        with open(image_path, 'rb') as f:
+        with open(image_path, "rb") as f:
             img_bytes = f.read()
             # 从字节数组读取图像
             np_array = np.frombuffer(img_bytes, np.uint8)
@@ -113,13 +125,14 @@ class OcrService:
     def orc_boxes_info_callback(self, text_boxes):
         if self.ocr_status == "ocr":
             for tb in text_boxes:
-                tb["select"]=False
+                tb["select"] = False
             self.ocr_res_info = text_boxes
             print("rec orc_boxes_info_callback")
 
     def det_res_img_callback(self, piximg):
         if self.ocr_status == "ocr":
             print("rec det_res_img_callback")
+
 
 def directMain():
     app = QApplication(sys.argv)
@@ -129,15 +142,16 @@ def directMain():
 
     cv_image = qpixmap_to_matlike(QPixmap(image_path))
 
-    ocr_sys = OcrDetector(cv_image, use_dnn = False, version=3)# 支持v2和v3版本的
+    ocr_sys = OcrDetector(cv_image, use_dnn=False, version=3)  # 支持v2和v3版本的
     dt_boxes = ocr_sys.get_boxes()
-    image = ocr_sys.draw_boxes(dt_boxes[0],cv_image)
+    image = ocr_sys.draw_boxes(dt_boxes[0], cv_image)
     cv2.imwrite(f"{workDir}/testocr.png", image)
 
     results, results_info = ocr_sys.recognition_img(dt_boxes)
-    match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0],results)
+    match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
     text = ocr_sys.get_format_text(match_text_boxes)
-    print(f'results :{str(text)}')
+    print(f"results :{str(text)}")
+
 
 def threadMain():
     app = QApplication(sys.argv)
@@ -148,9 +162,11 @@ def threadMain():
 
     sys.exit(app.exec())
 
+
 def main():
     directMain()
     # threadMain()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -4,14 +4,15 @@ from .canvas_scene import CanvasScene, DrawActionEnum
 from .canvas_view import CanvasView
 from .canvas_commands import *
 
+
 class CanvasEditor(QWidget):
-    '''
+    """
     Canvas编辑层
     sceneBrush == None时，则说明是桌面绘图，
     在截图绘图里，其橡皮擦原理是基于sceneBrush来实现的
-    '''
+    """
 
-    def __init__(self, parent=None, sceneBrush:QBrush = None):
+    def __init__(self, parent=None, sceneBrush: QBrush = None):
         super().__init__(parent)
         self.sceneBrush = sceneBrush
         self.defaultFlag()
@@ -39,7 +40,7 @@ class CanvasEditor(QWidget):
         ]
         self.addActions(actions)
 
-    def setNofityEvent(self, callBack:callable = None):
+    def setNofityEvent(self, callBack: callable = None):
         self.scene.setNofityEvent(callBack)
 
     def clearDraw(self):
@@ -50,12 +51,12 @@ class CanvasEditor(QWidget):
         self.setEditorEnabled(False)
         for item in self.view.scene().items():
             if hasattr(item, "roiMgr"):
-                roiMgr:CanvasROIManager = item.roiMgr
+                roiMgr: CanvasROIManager = item.roiMgr
                 roiMgr.setShowState(False)
 
             item.setSelected(False)
 
-    def switchDrawTool(self, drawActionEnum:DrawActionEnum):
+    def switchDrawTool(self, drawActionEnum: DrawActionEnum):
         if self.scene.currentDrawActionEnum == drawActionEnum:
             return
         self.scene.forceCompleteDraw()
@@ -71,11 +72,11 @@ class CanvasEditor(QWidget):
     def isEditorEnabled(self):
         return self.view.isEnabled()
 
-    def setEditorEnabled(self, isOpen:bool):
-        '''
+    def setEditorEnabled(self, isOpen: bool):
+        """
         为了兼容桌面标注和截图标注，默认给QGraphicsScene添加一个透明度为1的背景，
         用来避免桌面标注时绘图层鼠标穿透了
-        '''
+        """
         if self.sceneBrush == None:
             if isOpen:
                 color = QColor(Qt.GlobalColor.white)
@@ -104,24 +105,28 @@ class CanvasEditor(QWidget):
             return
         self.undoStack.undo()
 
-    def itemMoved(self, canvasItem:QGraphicsItem, oldValue:QPointF, newValue:QPointF):
+    def itemMoved(
+        self, canvasItem: QGraphicsItem, oldValue: QPointF, newValue: QPointF
+    ):
         self.undoStack.push(MoveCommand(canvasItem, oldValue, newValue))
 
-    def itemAdd(self, canvasScene:QGraphicsScene, canvasItem:QGraphicsItem):
+    def itemAdd(self, canvasScene: QGraphicsScene, canvasItem: QGraphicsItem):
         self.undoStack.push(AddCommand(canvasScene, canvasItem))
 
-    def itemDelete(self, canvasScene:QGraphicsScene, canvasItem:QGraphicsItem):
+    def itemDelete(self, canvasScene: QGraphicsScene, canvasItem: QGraphicsItem):
         self.undoStack.push(DeleteCommand(canvasScene, canvasItem))
 
-    def itemDeleteAll(self, canvasScene:QGraphicsScene, items:list):
+    def itemDeleteAll(self, canvasScene: QGraphicsScene, items: list):
         self.undoStack.push(DeleteAllCommand(canvasScene, items))
 
-    def itemRotated(self, canvasItem:QGraphicsItem, oldValue:float, newValue:float):
+    def itemRotated(self, canvasItem: QGraphicsItem, oldValue: float, newValue: float):
         self.undoStack.push(RotateCommand(canvasItem, oldValue, newValue))
 
-    def itemResized(self, canvasItem:QGraphicsItem, oldValue:QPolygonF, newValue:QPolygonF):
+    def itemResized(
+        self, canvasItem: QGraphicsItem, oldValue: QPolygonF, newValue: QPolygonF
+    ):
         self.undoStack.push(ResizeCommand(canvasItem, oldValue, newValue))
 
-    def resizeEvent(self, a0:QResizeEvent):
+    def resizeEvent(self, a0: QResizeEvent):
         super().resizeEvent(a0)
         self.view.resize(self.size())

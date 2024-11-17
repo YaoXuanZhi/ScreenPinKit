@@ -1,11 +1,13 @@
 # coding=utf-8
 from .canvas_util import *
 
+
 class CanvasPenItem(CanvasCommonPathItem):
-    '''
+    """
     绘图工具-画笔
-    '''
-    def __init__(self, isSmoothCurve:bool = True, parent: QWidget = None) -> None:
+    """
+
+    def __init__(self, isSmoothCurve: bool = True, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
         self.__initStyle()
@@ -13,8 +15,8 @@ class CanvasPenItem(CanvasCommonPathItem):
 
     def __initStyle(self):
         styleMap = {
-            "penColor" : QColor(0, 255, 0, 100),
-            "penWidth" : 5,
+            "penColor": QColor(0, 255, 0, 100),
+            "penWidth": 5,
         }
 
         self.usePen = QPen(styleMap["penColor"])
@@ -42,9 +44,11 @@ class CanvasPenItem(CanvasCommonPathItem):
 
     def __initEditMode(self):
         self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
-        self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False) 
-        self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False) 
-        self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
+        self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
+        self.setEditMode(
+            CanvasCommonPathItem.HitTestMode, False
+        )  # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         finalStyleMap = self.styleAttribute.getValue().value()
@@ -58,17 +62,19 @@ class CanvasPenItem(CanvasCommonPathItem):
         finalStyleMap["penWidth"] = finalWidth
         self.styleAttribute.setValue(QVariant(finalStyleMap))
 
-    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:
         painter.setPen(self.usePen)
         painter.drawPath(targetPath)
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
         if self.isSmoothCurve:
             CanvasUtil.polygon2BeizerPath(targetPath, targetPolygon)
         else:
             targetPath.addPolygon(targetPolygon)
 
     def setEditableState(self, isEditable: bool):
-        '''不允许绘制结束之后的重新编辑'''
+        """不允许绘制结束之后的重新编辑"""
         # return super().setEditableState(isEditable)
         pass

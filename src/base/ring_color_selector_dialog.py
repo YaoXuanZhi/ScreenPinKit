@@ -5,9 +5,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
 
+
 class ColorCircleItem(QGraphicsEllipseItem):
-    '''颜色小圆圈图元'''
-    def __init__(self, id:int, color:QColor, parent=None):
+    """颜色小圆圈图元"""
+
+    def __init__(self, id: int, color: QColor, parent=None):
         super().__init__(parent)
         self.id = id
         self.color = color
@@ -19,13 +21,14 @@ class ColorCircleItem(QGraphicsEllipseItem):
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        scene:ColorPreviewerScene = self.scene()
+        scene: ColorPreviewerScene = self.scene()
         scene.itemClicked.emit(self.id, self.color)
+
 
 class ColorPreviewerScene(QGraphicsScene):
     itemClicked = pyqtSignal(int, QColor)
 
-    def __init__(self, colors:list, parent=None):
+    def __init__(self, colors: list, parent=None):
         super().__init__(parent)
         self.itemClicked.connect(self.onItemClicked)
         self.colors = colors
@@ -49,7 +52,7 @@ class ColorPreviewerScene(QGraphicsScene):
             text_point = self.calculatePoint(text_angle, text_radius)
             item.setPos(text_point)
 
-    def onItemClicked(self, id:int, color:QColor):
+    def onItemClicked(self, id: int, color: QColor):
         pass
 
     def calculatePoint(self, angle, radius):
@@ -58,8 +61,9 @@ class ColorPreviewerScene(QGraphicsScene):
         y = radius * math.sin(angle_rad)
         return QPointF(x, y)
 
+
 class ColorPreviewerView(QGraphicsView):
-    def __init__(self, scene:QGraphicsScene, parent=None):
+    def __init__(self, scene: QGraphicsScene, parent=None):
         super().__init__(scene, parent)
         self.initUI()
 
@@ -71,24 +75,25 @@ class ColorPreviewerView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setContentsMargins(0, 0, 0, 0)
 
+
 class RingColorSelectorDialog(MaskDialogBase):
     colorChanged = pyqtSignal(QColor)
 
-    def __init__(self, color:QColor, parent=None, enableAlpha=False):
+    def __init__(self, color: QColor, parent=None, enableAlpha=False):
         super().__init__(parent)
         self.color = color
         self.enableAlpha = enableAlpha
 
         colors = [
-            Qt.GlobalColor.yellow, 
-            Qt.GlobalColor.blue, 
+            Qt.GlobalColor.yellow,
+            Qt.GlobalColor.blue,
             Qt.GlobalColor.red,
             Qt.GlobalColor.green,
             Qt.GlobalColor.gray,
             Qt.GlobalColor.darkGray,
             Qt.GlobalColor.lightGray,
             Qt.GlobalColor.transparent,
-            ]
+        ]
         self.scene = ColorPreviewerScene(colors)
         self.view = ColorPreviewerView(self.scene)
 

@@ -1,4 +1,5 @@
 import os, sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
 from PIL import Image
@@ -6,11 +7,13 @@ import numpy as np
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
+
     _importErrorMsg = None
 except ImportError as e:
     _importErrorMsg = "\n".join(e.args)
 
-def qpixmapToMatlike(qpixmap:QPixmap):
+
+def qpixmapToMatlike(qpixmap: QPixmap):
     # 将 QPixmap 转换为 QImage
     qimage = qpixmap.toImage()
 
@@ -27,6 +30,7 @@ def qpixmapToMatlike(qpixmap:QPixmap):
     image = Image.fromqimage(qimage)
     imageArray = np.array(image)
     return imageArray
+
 
 class InternalOcrLoader_ReturnText(OcrLoaderInterface):
     @property
@@ -49,41 +53,49 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
     def returnType(self):
         return EnumOcrReturnType.Text
 
-    def ocr(self, pixmap:QPixmap):
+    def ocr(self, pixmap: QPixmap):
         jsonObj = self.__ocr(pixmap)
         boxInfos = jsonObj["data"]
         width = pixmap.size().width()
         height = pixmap.size().height()
         dpiScale = CanvasUtil.getDevicePixelRatio()
-        font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PaddleOCRModel/arial.ttf')
-        htmlContent = build_svg_html(font_path=font_path, width=width, height=height, box_infos=boxInfos, dpi_scale=dpiScale)
+        font_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "PaddleOCRModel/arial.ttf"
+        )
+        htmlContent = build_svg_html(
+            font_path=font_path,
+            width=width,
+            height=height,
+            box_infos=boxInfos,
+            dpi_scale=dpiScale,
+        )
         return htmlContent
 
-    def __ocr(self, pixmap:QPixmap):
-        '''
+    def __ocr(self, pixmap: QPixmap):
+        """
         调用ocr模块来进行OCR识别
         @note 由于ocr操作耗时较长，该函数会阻塞当前线程
         @bug 本地经过多番尝试，发现只要调用PaddleOCR.ocr()必定会导致程序崩溃，
             无关乎创建多个PaddleOCR对象还是创建多线程来执行都崩，最终采取命令行方式绕过该崩溃
         @later 后续可能会采取内建ocrweb服务的方式来提供，暂时先搁置它
-        '''
+        """
         if _importErrorMsg != None:
             raise Exception(_importErrorMsg)
 
         matlike = qpixmapToMatlike(pixmap)
 
-        ocr_sys = OcrDetector(matlike, use_dnn = False, version=3)# 支持v2和v3版本的
+        ocr_sys = OcrDetector(matlike, use_dnn=False, version=3)  # 支持v2和v3版本的
         dt_boxes = ocr_sys.get_boxes()
         results, results_info = ocr_sys.recognition_img(dt_boxes)
         match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
 
         data = []
         for info in match_text_boxes:
-            text = info['text']
-            left = float(info['box'][0][0])
-            top = float(info['box'][0][1])
-            right = float(info['box'][1][0])
-            bottom = float(info['box'][2][1])
+            text = info["text"]
+            left = float(info["box"][0][0])
+            top = float(info["box"][0][1])
+            right = float(info["box"][1][0])
+            bottom = float(info["box"][2][1])
 
             left_top = [left, top]
             right_top = [right, top]
@@ -93,4 +105,4 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
             score = 0.97
             data.append({"text": text, "box": box, "score": score})
 
-        return {"code": 100, "data":data}
+        return {"code": 100, "data": data}

@@ -3,7 +3,10 @@ from PIL import ImageFont
 from .GapTree_Sort_Algorithm.preprocessing import linePreprocessing
 from .GapTree_Sort_Algorithm.gap_tree import GapTree
 
-def calculate_best_font_size(text, font_path, max_width, max_height, initial_font_size=5):
+
+def calculate_best_font_size(
+    text, font_path, max_width, max_height, initial_font_size=5
+):
     """
     通过ImageFont计算最适合固定文本框的字体大小
     :param text: 要显示的文本
@@ -27,7 +30,10 @@ def calculate_best_font_size(text, font_path, max_width, max_height, initial_fon
 
     return font_size
 
-def calculate_best_font_size_by_qpainter(text, font_family, max_width, max_height, initial_font_size=5):
+
+def calculate_best_font_size_by_qpainter(
+    text, font_family, max_width, max_height, initial_font_size=5
+):
     """
     通过QPainter计算最适合固定文本框的字体大小
     :param text: 要显示的文本
@@ -41,8 +47,9 @@ def calculate_best_font_size_by_qpainter(text, font_family, max_width, max_heigh
     """
     from PyQt5.QtCore import Qt
     from PyQt5.QtGui import QImage, QPainter, QFont
+
     image = QImage(1, 1, QImage.Format_ARGB32)
-    
+
     painter = QPainter(image)
 
     font_size = initial_font_size
@@ -51,7 +58,7 @@ def calculate_best_font_size_by_qpainter(text, font_family, max_width, max_heigh
     while True:
         font.setPointSize(font_size)
         painter.setFont(font)
-    
+
         # 获取文本的边界矩形
         rect = painter.boundingRect(image.rect(), Qt.AlignLeft, text)
         text_width = rect.width()
@@ -64,8 +71,9 @@ def calculate_best_font_size_by_qpainter(text, font_family, max_width, max_heigh
     painter.end()
     return font_size
 
+
 def build_svg_html(font_path, width, height, box_infos, dpi_scale=1):
-    '''将图片进行OCR识别后，将结果转换成html'''
+    """将图片进行OCR识别后，将结果转换成html"""
     # box_info = {"box":[x, y, w, h], "text":text}
 
     width = width / dpi_scale
@@ -178,8 +186,9 @@ def build_svg_html(font_path, width, height, box_infos, dpi_scale=1):
 
     return html_content
 
+
 def build_origin_html(width, height, box_infos, dpi_scale=1):
-    '''将图片进行OCR识别后，将结果转换成html'''
+    """将图片进行OCR识别后，将结果转换成html"""
     # box_info = {"box":[x, y, w, h], "text":text}
 
     width = width / dpi_scale
@@ -392,6 +401,7 @@ def build_origin_html(width, height, box_infos, dpi_scale=1):
 
     return html_content
 
+
 def build_svg_content(font_path, width, height, box_infos, dpi_scale=1):
     # 构建 HTML 内容
     svg_content = f"""
@@ -428,11 +438,12 @@ def build_svg_content(font_path, width, height, box_infos, dpi_scale=1):
     """
     return svg_content
 
+
 def handle_gap_tree_sort_for_box_infos(box_infos):
-    '''
+    """
     进行版面分析，将各个boxInfo进行重新排序
     提取自https://github.com/hiroi-sora/GapTree_Sort_Algorithm/blob/main/test.py
-    '''
+    """
     bboxes = linePreprocessing(box_infos)
 
     for i, tb in enumerate(box_infos):
@@ -442,10 +453,20 @@ def handle_gap_tree_sort_for_box_infos(box_infos):
     sortedBoxInfos = gtree.sort(box_infos)  # 输入文本块，获得排序后结果
     return sortedBoxInfos
 
+
 def build_svg_html_by_gap_tree_sort(font_path, width, height, box_infos, dpi_scale=1):
     sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
-    return build_svg_html(font_path=font_path, width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)
+    return build_svg_html(
+        font_path=font_path,
+        width=width,
+        height=height,
+        box_infos=sorted_box_infos,
+        dpi_scale=dpi_scale,
+    )
+
 
 def build_origin_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
     sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
-    return build_origin_html(width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale)
+    return build_origin_html(
+        width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale
+    )

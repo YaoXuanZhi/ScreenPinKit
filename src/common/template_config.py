@@ -1,4 +1,4 @@
-TEMPLATE_CONFIG = '''
+TEMPLATE_CONFIG = """
 {
     "ArrowToolbar": {
         "brushColor": "#ffff0000",
@@ -76,4 +76,4 @@ TEMPLATE_CONFIG = '''
         "isSaveWithShadow": false,
         "roundRadius": 10
     }
-}'''
+}"""

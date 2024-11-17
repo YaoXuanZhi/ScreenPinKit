@@ -8,8 +8,9 @@ from extend_widgets import *
 from canvas_item.after_effect_util import AfterEffectType
 from canvas_item.canvas_shape_item import CanvasShapeEnum
 
+
 class ToolbarInterface(QWidget):
-    """ Toolbar interface """
+    """Toolbar interface"""
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
@@ -37,15 +38,43 @@ class ToolbarInterface(QWidget):
         self.effectToolbarInterface = self.buildEffectToolBar()
 
         # add items to pivot
-        self.addSubInterface(self.shapeToolbarInterface, 'shapeToolbarInterface', self.tr('ShapeToolbar'))
-        self.addSubInterface(self.lineStripToolbarInterface, 'lineStripToolbarInterface', self.tr('LineStripToolbar'))
-        self.addSubInterface(self.numberMarkerItemToolbarInterface, 'numberMarkerItemToolbarInterface', self.tr('NumberMarkerItemToolbar'))
-        self.addSubInterface(self.arrowToolbarInterface, 'arrowToolbarInterface', self.tr('ArrowToolbar'))
-        self.addSubInterface(self.markerPenToolbarInterface, 'markerPenToolbarInterface', self.tr('MarkerPenToolbar'))
-        self.addSubInterface(self.penToolbarInterface, 'penToolbarInterface', self.tr('PenToolbar'))
-        self.addSubInterface(self.textEditToolbarInterface, 'textEditToolbarInterface', self.tr('TextEditToolbar'))
-        self.addSubInterface(self.eraseToolbarInterface, 'eraseToolbarInterface', self.tr('EraseToolbar'))
-        self.addSubInterface(self.effectToolbarInterface, 'effectToolbarInterface', self.tr('EffectToolbar'))
+        self.addSubInterface(
+            self.shapeToolbarInterface, "shapeToolbarInterface", self.tr("ShapeToolbar")
+        )
+        self.addSubInterface(
+            self.lineStripToolbarInterface,
+            "lineStripToolbarInterface",
+            self.tr("LineStripToolbar"),
+        )
+        self.addSubInterface(
+            self.numberMarkerItemToolbarInterface,
+            "numberMarkerItemToolbarInterface",
+            self.tr("NumberMarkerItemToolbar"),
+        )
+        self.addSubInterface(
+            self.arrowToolbarInterface, "arrowToolbarInterface", self.tr("ArrowToolbar")
+        )
+        self.addSubInterface(
+            self.markerPenToolbarInterface,
+            "markerPenToolbarInterface",
+            self.tr("MarkerPenToolbar"),
+        )
+        self.addSubInterface(
+            self.penToolbarInterface, "penToolbarInterface", self.tr("PenToolbar")
+        )
+        self.addSubInterface(
+            self.textEditToolbarInterface,
+            "textEditToolbarInterface",
+            self.tr("TextEditToolbar"),
+        )
+        self.addSubInterface(
+            self.eraseToolbarInterface, "eraseToolbarInterface", self.tr("EraseToolbar")
+        )
+        self.addSubInterface(
+            self.effectToolbarInterface,
+            "effectToolbarInterface",
+            self.tr("EffectToolbar"),
+        )
 
         self.vBoxLayout.addWidget(self.pivot)
         self.vBoxLayout.addWidget(self.stackedWidget)
@@ -57,13 +86,15 @@ class ToolbarInterface(QWidget):
 
     def __onTextEditToolbarFontCardClicked(self):
         font, isOk = QFontDialog.getFont(
-            cfg.textEditToolbarFont, self.window(), self.tr("Choose font"))
+            cfg.textEditToolbarFont, self.window(), self.tr("Choose font")
+        )
         if isOk:
             cfg.textEditToolbarFont = font
 
     def __onNumberMarkerItemToolbarFontCardClicked(self):
         font, isOk = QFontDialog.getFont(
-            cfg.numberMarkerItemToolbarFont, self.window(), self.tr("Choose font"))
+            cfg.numberMarkerItemToolbarFont, self.window(), self.tr("Choose font")
+        )
         if isOk:
             cfg.numberMarkerItemToolbarFont = font
 
@@ -72,22 +103,22 @@ class ToolbarInterface(QWidget):
         effectToolBarEffectTypeCard = ComboBoxSettingCardPlus(
             cfg.effectToolbarEffectType,
             ScreenShotIcon.FILL_REGION,
-            self.tr('Effect type'),
+            self.tr("Effect type"),
             None,
             options=[
-                (self.tr('Blur'), AfterEffectType.Blur), 
-                (self.tr('Mosaic'), AfterEffectType.Mosaic), 
-                (self.tr('Detail'), AfterEffectType.Detail), 
-                (self.tr('Find_Edges'), AfterEffectType.Find_Edges), 
-                (self.tr('Contour'), AfterEffectType.Contour),
-                ],
-            parent=effectToolBarGroup
+                (self.tr("Blur"), AfterEffectType.Blur),
+                (self.tr("Mosaic"), AfterEffectType.Mosaic),
+                (self.tr("Detail"), AfterEffectType.Detail),
+                (self.tr("Find_Edges"), AfterEffectType.Find_Edges),
+                (self.tr("Contour"), AfterEffectType.Contour),
+            ],
+            parent=effectToolBarGroup,
         )
         effectToolBarStrengthCard = RangeSettingCard(
             cfg.effectToolbarStrength,
             FIF.HIGHTLIGHT,
             self.tr("Effect strength"),
-            parent=effectToolBarGroup
+            parent=effectToolBarGroup,
         )
 
         effectToolBarGroup.addSettingCard(effectToolBarEffectTypeCard)
@@ -97,30 +128,30 @@ class ToolbarInterface(QWidget):
     def buildNumberMarkerItemToolbar(self):
         numberMarkerItemToolbarGroup = SettingCardGroupLite(self)
         numberMarkerItemToolbarFontCard = PushSettingCard(
-            self.tr('Choose font'),
+            self.tr("Choose font"),
             FIF.FONT,
-            self.tr('Font family'),
-            parent=numberMarkerItemToolbarGroup
+            self.tr("Font family"),
+            parent=numberMarkerItemToolbarGroup,
         )
         numberMarkerItemToolbarTextColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarTextColor,
             ScreenShotIcon.PEN,
             self.tr("Text color"),
             parent=numberMarkerItemToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         numberMarkerItemToolbarPenWidthCard = RangeSettingCard(
             cfg.numberMarkerItemToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=numberMarkerItemToolbarGroup
+            parent=numberMarkerItemToolbarGroup,
         )
         numberMarkerItemToolbarPenColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=numberMarkerItemToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         numberMarkerItemToolbarPenStyleCard = ComboBoxSettingCardPlus(
             cfg.numberMarkerItemToolbarPenStyle,
@@ -128,26 +159,32 @@ class ToolbarInterface(QWidget):
             self.tr("Pen style"),
             None,
             options=[
-                (self.tr("Solid line"), Qt.PenStyle.SolidLine), 
+                (self.tr("Solid line"), Qt.PenStyle.SolidLine),
                 (self.tr("Dash line"), Qt.PenStyle.DashLine),
             ],
-            parent=numberMarkerItemToolbarGroup
+            parent=numberMarkerItemToolbarGroup,
         )
         numberMarkerItemToolbarBrushColorCard = ColorSettingCard(
             cfg.numberMarkerItemToolbarBrushColor,
             ScreenShotIcon.BRUSH,
             self.tr("Brush color"),
             parent=numberMarkerItemToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarFontCard)
-        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarTextColorCard)
+        numberMarkerItemToolbarGroup.addSettingCard(
+            numberMarkerItemToolbarTextColorCard
+        )
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenWidthCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenColorCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenStyleCard)
-        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarBrushColorCard)
+        numberMarkerItemToolbarGroup.addSettingCard(
+            numberMarkerItemToolbarBrushColorCard
+        )
 
-        numberMarkerItemToolbarFontCard.clicked.connect(self.__onNumberMarkerItemToolbarFontCardClicked)
+        numberMarkerItemToolbarFontCard.clicked.connect(
+            self.__onNumberMarkerItemToolbarFontCardClicked
+        )
         return numberMarkerItemToolbarGroup
 
     def buildPenToolbar(self):
@@ -156,14 +193,14 @@ class ToolbarInterface(QWidget):
             cfg.penToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=penToolbarGroup
+            parent=penToolbarGroup,
         )
         penToolbarColorCard = ColorSettingCard(
             cfg.penToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=penToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         penToolbarGroup.addSettingCard(penToolbarColorCard)
         penToolbarGroup.addSettingCard(penToolbarWidthCard)
@@ -175,14 +212,14 @@ class ToolbarInterface(QWidget):
             cfg.markerPenToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=markerPenToolbarGroup
+            parent=markerPenToolbarGroup,
         )
         markerPenToolbarColorCard = ColorSettingCard(
             cfg.markerPenToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=markerPenToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         markerPenToolbarGroup.addSettingCard(markerPenToolbarColorCard)
         markerPenToolbarGroup.addSettingCard(markerPenToolbarWidthCard)
@@ -194,14 +231,14 @@ class ToolbarInterface(QWidget):
             cfg.lineStripToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=lineStripToolbarGroup
+            parent=lineStripToolbarGroup,
         )
         lineStripToolbarColorCard = ColorSettingCard(
             cfg.lineStripToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=lineStripToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         lineStripToolbarGroup.addSettingCard(lineStripToolbarColorCard)
         lineStripToolbarGroup.addSettingCard(lineStripToolbarWidthCard)
@@ -213,21 +250,21 @@ class ToolbarInterface(QWidget):
             cfg.arrowToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=arrowToolbarGroup
+            parent=arrowToolbarGroup,
         )
         arrowToolbarBrushColorCard = ColorSettingCard(
             cfg.arrowToolbarBrushColor,
             ScreenShotIcon.BRUSH,
             self.tr("Brush color"),
             parent=arrowToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         arrowToolbarPenColorCard = ColorSettingCard(
             cfg.arrowToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=arrowToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         arrowToolbarPenStyleCard = ComboBoxSettingCardPlus(
             cfg.arrowToolbarPenStyle,
@@ -235,10 +272,10 @@ class ToolbarInterface(QWidget):
             self.tr("Pen style"),
             None,
             options=[
-                (self.tr("Solid line"), Qt.PenStyle.SolidLine), 
+                (self.tr("Solid line"), Qt.PenStyle.SolidLine),
                 (self.tr("Dash line"), Qt.PenStyle.DashLine),
             ],
-            parent=arrowToolbarGroup
+            parent=arrowToolbarGroup,
         )
 
         arrowToolbarGroup.addSettingCard(arrowToolbarPenWidthCard)
@@ -253,7 +290,7 @@ class ToolbarInterface(QWidget):
             cfg.eraseToolbarWidth,
             ScreenShotIcon.PEN,
             self.tr("Eraser width"),
-            parent=eraseToolbarGroup
+            parent=eraseToolbarGroup,
         )
         eraseToolbarGroup.addSettingCard(eraseToolbarWidthCard)
         return eraseToolbarGroup
@@ -261,23 +298,23 @@ class ToolbarInterface(QWidget):
     def buildTextEditToolbar(self):
         textEditToolbarGroup = SettingCardGroupLite(self)
         textEditToolbarFontCard = PushSettingCard(
-            self.tr('Choose font'),
+            self.tr("Choose font"),
             ScreenShotIcon.TEXT,
-            self.tr('Font family'),
-            parent=textEditToolbarGroup
+            self.tr("Font family"),
+            parent=textEditToolbarGroup,
         )
         textEditToolbarFontSizeCard = RangeSettingCard(
             cfg.textEditToolbarFontSize,
             FIF.FONT_SIZE,
-            self.tr('Font size'),
-            parent=textEditToolbarGroup
+            self.tr("Font size"),
+            parent=textEditToolbarGroup,
         )
         textEditToolbarTextColorCard = ColorSettingCard(
             cfg.textEditToolbarTextColor,
             ScreenShotIcon.PEN,
             self.tr("Text color"),
             parent=textEditToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
 
         textEditToolbarGroup.addSettingCard(textEditToolbarFontCard)
@@ -293,14 +330,14 @@ class ToolbarInterface(QWidget):
             cfg.shapeToolbarPenWidth,
             ScreenShotIcon.PEN,
             self.tr("Pen width"),
-            parent=shapeToolbarGroup
+            parent=shapeToolbarGroup,
         )
         shapeToolbarPenColorCard = ColorSettingCard(
             cfg.shapeToolbarPenColor,
             ScreenShotIcon.PEN,
             self.tr("Pen color"),
             parent=shapeToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         shapeToolbarPenStyleCard = ComboBoxSettingCardPlus(
             cfg.shapeToolbarPenStyle,
@@ -308,30 +345,30 @@ class ToolbarInterface(QWidget):
             self.tr("Pen style"),
             None,
             options=[
-                (self.tr("Solid line"), Qt.PenStyle.SolidLine), 
+                (self.tr("Solid line"), Qt.PenStyle.SolidLine),
                 (self.tr("Dash line"), Qt.PenStyle.DashLine),
             ],
-            parent=shapeToolbarGroup
+            parent=shapeToolbarGroup,
         )
         shapeToolbarBrushColorCard = ColorSettingCard(
             cfg.shapeToolbarBrushColor,
             ScreenShotIcon.BRUSH,
             self.tr("Brush color"),
             parent=shapeToolbarGroup,
-            enableAlpha=True
+            enableAlpha=True,
         )
         shapeToolbarShapeCard = ComboBoxSettingCardPlus(
             cfg.shapeToolbarShape,
             ScreenShotIcon.SHAPE,
-            self.tr('Shape'),
+            self.tr("Shape"),
             None,
             options=[
-                (self.tr('Ellipse'), CanvasShapeEnum.Ellipse),
-                (self.tr('Triangle'), CanvasShapeEnum.Triangle),
-                (self.tr('Rectangle'), CanvasShapeEnum.Rectangle),
-                (self.tr('Star'), CanvasShapeEnum.Star),
-                ],
-            parent=shapeToolbarGroup
+                (self.tr("Ellipse"), CanvasShapeEnum.Ellipse),
+                (self.tr("Triangle"), CanvasShapeEnum.Triangle),
+                (self.tr("Rectangle"), CanvasShapeEnum.Rectangle),
+                (self.tr("Star"), CanvasShapeEnum.Star),
+            ],
+            parent=shapeToolbarGroup,
         )
 
         shapeToolbarGroup.addSettingCard(shapeToolbarPenWidthCard)
@@ -356,8 +393,9 @@ class ToolbarInterface(QWidget):
         self.pivot.setCurrentItem(widget.objectName())
         self.adjustSize()
 
+
 class ToolbarSettingCard(ScrollArea):
-    """ Toolbar card with a push button """
+    """Toolbar card with a push button"""
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
@@ -367,8 +405,9 @@ class ToolbarSettingCard(ScrollArea):
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addWidget(self.interface)
 
+
 class ToolbarSettingCardGroup(SettingCardGroup):
-    """ Setting card group """
+    """Setting card group"""
 
     def __init__(self, title: str, parent=None):
         super().__init__(title, parent=parent)

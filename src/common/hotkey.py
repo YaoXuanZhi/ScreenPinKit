@@ -1,18 +1,21 @@
 # coding:utf-8
-'''
+"""
 提供全局热键的注册功能
 
 后续看下需不需要改用pynput来解决system_hotkey的兼容性问题
-'''
+"""
+
 import time
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from system_hotkey import *
 
+
 class KeyboardListener(QObject):
     _handleSignal = pyqtSignal(tuple)
-    def __init__(self,parent=None):
+
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.__initDatas()
 
@@ -26,26 +29,28 @@ class KeyboardListener(QObject):
     def hotkeyBinds(self):
         return self._hotkeyBinds
 
-    def handleKeyCallback(self, hotkeyTuple:tuple):
+    def handleKeyCallback(self, hotkeyTuple: tuple):
         if hotkeyTuple in self._hotkeyBinds:
             self._hotkeyBinds[hotkeyTuple]()
 
-    def setHotkeyListener(self, hotkeyStr:str, callback:callable) -> None:
+    def setHotkeyListener(self, hotkeyStr: str, callback: callable) -> None:
         hotkeyTuple = self.hotkeyToKeyNameTuple(hotkeyStr)
         self._hotkeyBinds[hotkeyTuple] = callback
 
-    def setHotkeyListenerEx(self, hotkeyStr:str, times:int, callback:callable) -> None:
+    def setHotkeyListenerEx(
+        self, hotkeyStr: str, times: int, callback: callable
+    ) -> None:
         hotkeyTuple = self.hotkeyToKeyNameTuple(hotkeyStr)
         defaultValue = {
-            "lastPressTime" : 0,
-            "triggerTimes" : 0,
-            "matchTimes" : times,
+            "lastPressTime": 0,
+            "triggerTimes": 0,
+            "matchTimes": times,
         }
         self._pressedRecord[hotkeyTuple] = defaultValue
         finalTuple = (hotkeyTuple, defaultValue["matchTimes"])
         self._hotkeyBinds[finalTuple] = callback
 
-    def updatePressTime(self, hotkeyStr:str):
+    def updatePressTime(self, hotkeyStr: str):
         hotkeyTuple = self.hotkeyToKeyNameTuple(hotkeyStr)
         if hotkeyTuple not in self._pressedRecord:
             return
@@ -65,30 +70,30 @@ class KeyboardListener(QObject):
             finalTuple = (hotkeyTuple, matchValue["matchTimes"])
             self._handleSignal.emit(finalTuple)
 
-    def __orderHotkeyList(self, keyNames:list) -> list:
+    def __orderHotkeyList(self, keyNames: list) -> list:
         if len(keyNames) > 2:
             new_hotkey = []
             for mod in keyNames[:-1]:
-                if 'control' == mod:
+                if "control" == mod:
                     new_hotkey.append(mod)
             for mod in keyNames[:-1]:
-                if 'shift' == mod:
+                if "shift" == mod:
                     new_hotkey.append(mod)
             for mod in keyNames[:-1]:
-                if 'alt' == mod:
+                if "alt" == mod:
                     new_hotkey.append(mod)
             for mod in keyNames[:-1]:
-                if 'super' == mod:
+                if "super" == mod:
                     new_hotkey.append(mod)
             new_hotkey.append(keyNames[-1])
             keyNames = new_hotkey
         return keyNames
 
-    def hotkeyToKeyNameTuple(self, hotkeyStr:str) -> list:
+    def hotkeyToKeyNameTuple(self, hotkeyStr: str) -> list:
         hotkeyList = self.hotkeyToKeyNames(hotkeyStr)
         return tuple(hotkeyList)
 
-    def hotkeyToKeyNames(self, hotkeyStr:str) -> list:
+    def hotkeyToKeyNames(self, hotkeyStr: str) -> list:
         result = []
         for str in hotkeyStr.split("+"):
             temp = str.replace("ctrl", "control")
@@ -101,6 +106,7 @@ class KeyboardListener(QObject):
         self._pressedRecord.clear()
         self._hotkeyBinds.clear()
 
+
 class KeyboardEx(KeyboardListener):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -110,27 +116,33 @@ class KeyboardEx(KeyboardListener):
         super().reset()
         self.hk.unregister()
 
-    def addHotKey(self, hotkeyStr:str, callback:callable, overwrite=False):
+    def addHotKey(self, hotkeyStr: str, callback: callable, overwrite=False):
         hotkey = self.hotkeyToKeyNames(hotkeyStr)
         if len(hotkey) == 0:
             return
         finalTuple = tuple(hotkey)
-        self.hk.register(hotkey, callback=lambda _: self._handleSignal.emit(finalTuple), overwrite=overwrite)
+        self.hk.register(
+            hotkey,
+            callback=lambda _: self._handleSignal.emit(finalTuple),
+            overwrite=overwrite,
+        )
         self.setHotkeyListener(hotkeyStr, callback)
 
-    def addHotKeyEx(self, hotkeyStr:str, times, callback):
+    def addHotKeyEx(self, hotkeyStr: str, times, callback):
         hotkey = self.hotkeyToKeyNames(hotkeyStr)
         if len(hotkey) == 0:
             return
         self.hk.register(hotkey, callback=lambda _: self.updatePressTime(hotkeyStr))
         self.setHotkeyListenerEx(hotkeyStr, times, callback)
 
+
 class QWidgetHotKey(KeyboardListener):
-    '''
+    """
     针对QWidget的热键监听，基于keyPressEvent实现
     Note:
         想实现一个支持多按的通用热键机制，并且其响应可以被子QWidget打断
-    '''
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.__initKeyMap()

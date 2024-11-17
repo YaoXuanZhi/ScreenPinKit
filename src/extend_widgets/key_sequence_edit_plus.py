@@ -5,8 +5,9 @@ from PyQt5.QtGui import *
 from qfluentwidgets import *
 from common import ScreenShotIcon
 
+
 class KeySequenceEditPlus(QFrame):
-    def __init__(self, hotkey:str, parent=None):
+    def __init__(self, hotkey: str, parent=None):
         super().__init__(parent=parent)
         self.setStyleSheet("""
             QKeySequenceEdit{
@@ -17,7 +18,9 @@ class KeySequenceEditPlus(QFrame):
         """)
         self.resize(250, 20)
         self.keySequenceEdit = QKeySequenceEdit(self)
-        self.cancelButton = CommandButton(FluentIcon.icon(ScreenShotIcon.ERROR_LIGHT), self)
+        self.cancelButton = CommandButton(
+            FluentIcon.icon(ScreenShotIcon.ERROR_LIGHT), self
+        )
         self.cancelButton.clicked.connect(self.onClearKeySequence)
         self.stateIconWidget = IconWidget(ScreenShotIcon.SUCCESS_LIGHT, self)
         self.keySequenceEdit.keySequenceChanged.connect(self.__onKeySequenceChanged)
@@ -32,10 +35,10 @@ class KeySequenceEditPlus(QFrame):
         self.cancelButton.setIcon(QIcon())
         self.stateIconWidget.setIcon(QIcon())
 
-    def __onKeySequenceChanged(self, keySequence:QKeySequence):
+    def __onKeySequenceChanged(self, keySequence: QKeySequence):
         self.updateState(keySequence)
 
-    def updateState(self, keySequence:QKeySequence):
+    def updateState(self, keySequence: QKeySequence):
         if keySequence.isEmpty():
             self.cancelButton.setEnabled(False)
             self.cancelButton.setIcon(QIcon())

@@ -5,8 +5,14 @@ from manager import *
 from version import *
 from plugin import *
 from ocr_loader import *
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'internal_ocr_loaders'))
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'internal_plugins'))
+
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "internal_ocr_loaders")
+)
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "internal_plugins")
+)
+
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -30,22 +36,36 @@ class MainWindow(QWidget):
     def initSystemTrayMenu(self):
         trayMenuActions = [
             Action(ScreenShotIcon.SNAP, self.tr("Snap"), triggered=self.screenShot),
-            Action(ScreenShotIcon.SETTING, self.tr("Preferences"), triggered=self.showSettingWindow),
+            Action(
+                ScreenShotIcon.SETTING,
+                self.tr("Preferences"),
+                triggered=self.showSettingWindow,
+            ),
             Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
-        self.systemTrayIcon = SystemTrayIcon(self, APP_NAME, Icon(ScreenShotIcon.LOGO), trayMenuActions, self.screenShot)
+        self.systemTrayIcon = SystemTrayIcon(
+            self, APP_NAME, Icon(ScreenShotIcon.LOGO), trayMenuActions, self.screenShot
+        )
         self.systemTrayIcon.show()
 
     def initHotKey(self):
         if self.keyObj == None:
             self.keyObj = KeyboardEx()
-        pluginMgr.handleEvent(GlobalEventEnum.GlobalHotKeyRegisterStart, keyboard=self.keyObj)
+        pluginMgr.handleEvent(
+            GlobalEventEnum.GlobalHotKeyRegisterStart, keyboard=self.keyObj
+        )
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyShowClipboard), self.showClipboard)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenPaint), self.screenPaint)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenShot), self.screenShot)
-        self.keyObj.addHotKey(cfg.get(cfg.hotKeyToggleMouseClickThrough), self.switchMouseThroughState)
-        self.keyObj.addHotKey(cfg.get(cfg.hotKeySwitchScreenPaintMode), self.switchScreenPaintMode)
-        pluginMgr.handleEvent(GlobalEventEnum.GlobalHotKeyRegisterEnd, keyboard=self.keyObj)
+        self.keyObj.addHotKey(
+            cfg.get(cfg.hotKeyToggleMouseClickThrough), self.switchMouseThroughState
+        )
+        self.keyObj.addHotKey(
+            cfg.get(cfg.hotKeySwitchScreenPaintMode), self.switchScreenPaintMode
+        )
+        pluginMgr.handleEvent(
+            GlobalEventEnum.GlobalHotKeyRegisterEnd, keyboard=self.keyObj
+        )
 
     def screenShot(self):
         if self.screenShotWindow == None:
@@ -89,10 +109,12 @@ class MainWindow(QWidget):
     def exit(self):
         sys.exit(0)
 
+
 def fixWebEngineViewCrash():
     # 修复QWebEngineView偶现卡死的问题，参考：https://bbs.csdn.net/topics/611959180
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
     os.putenv("QMLSCENE_DEVICE", "softwarecontext")
+
 
 def main():
     appDpiHelper = AppDpiHelper()
@@ -117,5 +139,6 @@ def main():
 
     sys.exit(app.exec())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,12 +1,12 @@
 # coding=utf-8
 from .canvas_util import *
 
+
 class QAutoSizeLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
 
     def initStyle(self):
-
         # 设置该控件的背景透明
         self.setStyleSheet("""
             QLineEdit {
@@ -33,13 +33,14 @@ class QAutoSizeLineEdit(QLineEdit):
             }
         """)
 
+
 class QDMNodeContentWidget(QWidget):
-    def __init__(self, rect:QRectF, text:str, parent=None):
+    def __init__(self, rect: QRectF, text: str, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
         font = QFont("Microsoft YaHei", 2)
@@ -84,7 +85,7 @@ class QDMNodeContentWidget(QWidget):
         if textSize.width() < rect.width():
             finalLetterSpacing = self.findBestLetterSpacing(font, rect)
             font.setLetterSpacing(QFont.AbsoluteSpacing, finalLetterSpacing)
-        
+
         self.lineEdit.setFont(font)
 
     def findBestLetterSpacing(self, font, rect):
@@ -113,8 +114,9 @@ class QDMNodeContentWidget(QWidget):
 
         return finalSize
 
+
 class CanvasOcrTextItem(QGraphicsRectItem):
-    def __init__(self, rect: QRectF, text:str, parent:QGraphicsItem = None) -> None:
+    def __init__(self, rect: QRectF, text: str, parent: QGraphicsItem = None) -> None:
         super().__init__(rect, parent)
         # self.setDefaultFlag()
         self.setPen(QPen(Qt.NoPen))

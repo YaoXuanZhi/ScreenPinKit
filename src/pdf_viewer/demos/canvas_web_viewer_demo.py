@@ -9,12 +9,13 @@ from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWebChannel import *
 from qframelesswindow import FramelessWindow
 
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pdf_viewer import *
 
+
 class MainWindow(FramelessWindow):
-# class MainWindow(QWidget):
-    def __init__(self, folderPath:str, parent=None):
+    # class MainWindow(QWidget):
+    def __init__(self, folderPath: str, parent=None):
         super().__init__(parent)
         self.folderPath = folderPath
         self.defaultFlag()
@@ -25,7 +26,11 @@ class MainWindow(FramelessWindow):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def initUI(self):
         workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
@@ -36,11 +41,15 @@ class MainWindow(FramelessWindow):
         self.contentLayout = QHBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.webWidgetWrapper = OcrWidgetWrapper(WebWidget(), OcrWidgetRenderMode.NormalMode)
-        self.webWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
+        self.webWidgetWrapper = OcrWidgetWrapper(
+            WebWidget(), OcrWidgetRenderMode.NormalMode
+        )
+        self.webWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(
+            self.onHtmlRenderEnd
+        )
         self.contentLayout.addWidget(self.webWidgetWrapper.contentView)
 
-        htmlConent = '''
+        htmlConent = """
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -95,7 +104,7 @@ class MainWindow(FramelessWindow):
 
 </body>
 </html>
-'''
+"""
         htmlFile = self.getHtmlFiles()[0]
         # with codecs.open(htmlFile, mode="r", encoding="utf-8", errors='ignore') as f:
         #     htmlConent = f.read()
@@ -118,14 +127,16 @@ class MainWindow(FramelessWindow):
         if event.button() == Qt.MouseButton.RightButton:
             self.close()
         return super().mouseDoubleClickEvent(event)
-    
+
     def onRenderEnd(self, width, height):
         self.resize(QSize(int(width), int(height)))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # enable dpi scale
     QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)

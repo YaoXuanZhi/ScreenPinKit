@@ -5,7 +5,7 @@ from qfluentwidgets import StyleSheetBase, Theme, isDarkTheme, qconfig
 
 
 class StyleSheet(StyleSheetBase, Enum):
-    """ Style sheet  """
+    """Style sheet"""
 
     SETTING_INTERFACE = "setting_interface"
 

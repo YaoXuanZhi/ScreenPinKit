@@ -4,8 +4,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from qframelesswindow import FramelessWindow
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pdf_viewer import *
+
 
 class PdfViewerWindow(FramelessWindow):
     def __init__(self, folderPath):
@@ -23,10 +25,12 @@ class PdfViewerWindow(FramelessWindow):
         # self.isShowSwitchUI = False
 
         # 显示Pdf
-        self.pdfWidgetWrapper = OcrWidgetWrapper(PdfWidget(), OcrWidgetRenderMode.AdvanceMode)
+        self.pdfWidgetWrapper = OcrWidgetWrapper(
+            PdfWidget(), OcrWidgetRenderMode.AdvanceMode
+        )
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
         layout.addWidget(self.pdfWidgetWrapper.contentView)
@@ -41,12 +45,14 @@ class PdfViewerWindow(FramelessWindow):
             layout.addWidget(self.nextButton)
             layout.addWidget(self.prevButton)
 
-            self.tipButton = QPushButton('提示')
+            self.tipButton = QPushButton("提示")
             self.tipButton.clicked.connect(self.showWebMessage)
             self.tipButton.resize(200, 200)
             layout.addWidget(self.tipButton)
         else:
-            self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onRenderEnd)
+            self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(
+                self.onRenderEnd
+            )
 
         self.showCurrentPdf()
 
@@ -58,7 +64,11 @@ class PdfViewerWindow(FramelessWindow):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def getPdfFiles(self):
         result = []
@@ -82,9 +92,9 @@ class PdfViewerWindow(FramelessWindow):
     def showPreviousPdf(self):
         self.currentIndex = (self.currentIndex - 1) % len(self.pathList)
         self.showCurrentPdf()
-    
+
     def showWebMessage(self):
-        self.pdfWidgetWrapper.webView.page().runJavaScript(f"alert('hello world')");
+        self.pdfWidgetWrapper.webView.page().runJavaScript(f"alert('hello world')")
 
     # 响应键盘按下
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -95,10 +105,12 @@ class PdfViewerWindow(FramelessWindow):
         else:
             super().keyPressEvent(event)
 
+
 if __name__ == "__main__":
     # enable dpi scale
     QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)

@@ -2,35 +2,54 @@
 from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
+
 class TextEditToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.listenerEvent()
 
     def initDefaultStyle(self):
-        self.opacity:int = 100
+        self.opacity: int = 100
         defaultFont = QFont()
         defaultPointSize = cfg.get(cfg.textEditToolbarFontSize)
         defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
         defaultFont.setFamily(defaultFontFamily)
         defaultFont.setPointSize(defaultPointSize)
         self.styleMap = {
-            "font" : defaultFont,
-            "textColor" : cfg.get(cfg.textEditToolbarTextColor),
+            "font": defaultFont,
+            "textColor": cfg.get(cfg.textEditToolbarTextColor),
         }
 
     def initUI(self):
-        self.boldButton = self.addAction(Action(ScreenShotIcon.TEXT_BOLD, self.tr("Text bold"), triggered=self.fontExtStyleChangedHandle))
+        self.boldButton = self.addAction(
+            Action(
+                ScreenShotIcon.TEXT_BOLD,
+                self.tr("Text bold"),
+                triggered=self.fontExtStyleChangedHandle,
+            )
+        )
         self.boldButton.setCheckable(True)
-        self.italicButton = self.addAction(Action(ScreenShotIcon.TEXT_ITALIC, self.tr("Text italic"), triggered=self.fontExtStyleChangedHandle))
+        self.italicButton = self.addAction(
+            Action(
+                ScreenShotIcon.TEXT_ITALIC,
+                self.tr("Text italic"),
+                triggered=self.fontExtStyleChangedHandle,
+            )
+        )
         self.italicButton.setCheckable(True)
-        self.textColorPickerButton = self.initColorOptionUI(self.tr("Color"), self.styleMap["textColor"])
-        self.fontPickerButton = self.initFontOptionUI(self.tr("Font"), self.styleMap["font"])
+        self.textColorPickerButton = self.initColorOptionUI(
+            self.tr("Color"), self.styleMap["textColor"]
+        )
+        self.fontPickerButton = self.initFontOptionUI(
+            self.tr("Font"), self.styleMap["font"]
+        )
         self.addSeparator()
-        self.opacitySlider = self.initSliderOptionUI(self.tr("Opacity"), self.opacity, 10, 100)
+        self.opacitySlider = self.initSliderOptionUI(
+            self.tr("Opacity"), self.opacity, 10, 100
+        )
 
     def fontExtStyleChangedHandle(self):
-        font:QFont = self.styleMap["font"]
+        font: QFont = self.styleMap["font"]
         font.setBold(self.boldButton.isChecked())
         font.setItalic(self.italicButton.isChecked())
 
@@ -39,23 +58,23 @@ class TextEditToolbar(CanvasItemToolBar):
         self.refreshAttachItem()
 
     def refreshStyleUI(self):
-        font:QFont = self.styleMap["font"]
-        textColor:QColor = self.styleMap["textColor"]
+        font: QFont = self.styleMap["font"]
+        textColor: QColor = self.styleMap["textColor"]
         self.boldButton.setChecked(font.bold())
         self.italicButton.setChecked(font.italic())
         self.opacitySlider.setValue(self.opacity)
         self.textColorPickerButton.setColor(textColor)
         self.fontPickerButton.setTargetFont(font)
 
-    def textColorChangedHandle(self, color:QColor):
+    def textColorChangedHandle(self, color: QColor):
         self.styleMap["textColor"] = color
         self.refreshAttachItem()
 
-    def fontChangedHandle(self, font:QFont):
+    def fontChangedHandle(self, font: QFont):
         self.styleMap["font"] = font
         self.refreshAttachItem()
 
-    def opacityValueChangedHandle(self, value:float):
+    def opacityValueChangedHandle(self, value: float):
         self.opacity = value
         if self.canvasItem != None:
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
@@ -70,8 +89,8 @@ class TextEditToolbar(CanvasItemToolBar):
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def onWheelZoom(self, angleDelta:int):
-        finalFont:QFont = self.styleMap["font"]
+    def onWheelZoom(self, angleDelta: int):
+        finalFont: QFont = self.styleMap["font"]
         (minValue, maxValue) = cfg.textEditToolbarFontSize.range
 
         finalFontSize = finalFont.pointSize()
@@ -82,15 +101,17 @@ class TextEditToolbar(CanvasItemToolBar):
         finalFont.setPointSize(finalFontSize)
         self.styleMap["font"] = finalFont
 
-    def bindCanvasItem(self, canvasItem:CanvasTextItem, sceneUserNotifyEnum:SceneUserNotifyEnum):
-        '''
+    def bindCanvasItem(
+        self, canvasItem: CanvasTextItem, sceneUserNotifyEnum: SceneUserNotifyEnum
+    ):
+        """
         绑定操作图元
         @note 存在多种情况
 
               1. 在选择模式下，各个图元选中切换时，此时各选项采取该图元的实际值来刷新
               2. 刚进入到绘图模式并且首次选择绘图工具，此时绑定图元为None，各选项按默认值初始化
               3. 在选择模式下，操作完当前工具对应图元之后，打算继续绘制新同类图元时，将各选项赋值到新图元上
-        '''
+        """
         if canvasItem != None:
             if self.canvasItem != None:
                 self.canvasItem.setWheelEventCallBack(None)

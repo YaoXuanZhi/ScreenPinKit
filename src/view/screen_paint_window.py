@@ -2,23 +2,26 @@
 from base import *
 from .painter_interface import *
 
+
 class QScreenPainterWidget(PainterInterface):
     completeDrawAfterSignal = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent, None)
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.BOTTOM
 
-    def contextMenuEvent(self, event:QContextMenuEvent):
+    def contextMenuEvent(self, event: QContextMenuEvent):
         return
 
     def completeDraw(self):
         super().completeDraw()
         self.completeDrawAfterSignal.emit()
 
+
 class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.defaultFlag()
         self.initUI()
@@ -28,7 +31,11 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def initUI(self):
         self.contentLayout = QVBoxLayout(self)
@@ -49,7 +56,10 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
 
     def showEvent(self, a0: QShowEvent) -> None:
         self.activateWindow()
-        if self.canvasEditor.drawWidget != None and not self.canvasEditor.drawWidget.isEditorEnabled():
+        if (
+            self.canvasEditor.drawWidget != None
+            and not self.canvasEditor.drawWidget.isEditorEnabled()
+        ):
             return
 
         self.delayTimer = QTimer(self)
@@ -89,10 +99,16 @@ class ScreenPaintWindow(MouseThroughWindow):  # 屏幕窗口
         self.setMouseThroughState(False)
 
     def isAllowModifyOpactity(self):
-        return self.canvasEditor.currentDrawActionEnum in [DrawActionEnum.SelectItem, DrawActionEnum.DrawNone]
+        return self.canvasEditor.currentDrawActionEnum in [
+            DrawActionEnum.SelectItem,
+            DrawActionEnum.DrawNone,
+        ]
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        if self.isAllowModifyOpactity() and int(event.modifiers()) == Qt.ControlModifier:
+        if (
+            self.isAllowModifyOpactity()
+            and int(event.modifiers()) == Qt.ControlModifier
+        ):
             self.zoomComponent.TriggerEvent(event.angleDelta().y())
             return
         else:

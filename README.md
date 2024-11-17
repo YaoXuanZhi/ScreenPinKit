@@ -88,6 +88,18 @@ pyinstaller --icon=../images/logo.png --add-data "internal_plugins/*.py;internal
 # pyinstaller --onefile --hidden-import=cv2 --hidden-import=onnxruntime --hidden-import=pyclipper --hidden-import=shapely --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
 ```
 
+## 代码检查&格式化
+```sh
+#利用ruff包对源码做语法检测和代码自动格式化
+pip install ruff
+
+# 作为 linter 运行
+ruff check
+
+# 作为格式化程序运行
+ruff format
+```
+
 ## 使用教程
 | 作用域 | 快捷键 | 作用 |
 |-------|-------|-------|

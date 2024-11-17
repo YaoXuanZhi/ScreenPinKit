@@ -5,8 +5,9 @@ from PyQt5.QtGui import *
 from qfluentwidgets import *
 from canvas_item.canvas_util import *
 
+
 class FontPickerButtonPlus(QToolButton):
-    """ Font picker button """
+    """Font picker button"""
 
     fontChanged = pyqtSignal(QFont)
 
@@ -21,7 +22,9 @@ class FontPickerButtonPlus(QToolButton):
         self.clicked.connect(self.__showFontDialog)
 
     def __showFontDialog(self):
-        font, ok = QFontDialog.getFont(self.targetFont, self, self.tr("Select font family"))
+        font, ok = QFontDialog.getFont(
+            self.targetFont, self, self.tr("Select font family")
+        )
         font.setBold(self.targetFont.bold())
         font.setItalic(self.targetFont.italic())
 
@@ -29,8 +32,8 @@ class FontPickerButtonPlus(QToolButton):
             self.setTargetFont(font)
             self.fontChanged.emit(font)
 
-    def setTargetFont(self, font:QFont):
-        """ set font """
+    def setTargetFont(self, font: QFont):
+        """set font"""
         self.targetFont = font
         self.update()
 
@@ -49,8 +52,8 @@ class FontPickerButtonPlus(QToolButton):
         painter.drawRect(self.rect())
 
     @staticmethod
-    def adjustFontSizeToFit(text, font:QFont, rect:QRectF):
-        '''调整字体适应大小'''
+    def adjustFontSizeToFit(text, font: QFont, rect: QRectF):
+        """调整字体适应大小"""
 
         minFontSize = 1
         maxFontSize = 50
@@ -67,7 +70,7 @@ class FontPickerButtonPlus(QToolButton):
             tempFont.setPointSizeF(finalFontSize)
             size = calcFontSize(tempFont)
             if size.width() <= rect.width() and size.height() <= rect.height():
-            # if size.width() <= rect.width() + offset:
+                # if size.width() <= rect.width() + offset:
                 # 如果文本可以放入矩形区域内，尝试使用更大的字体大小
                 finalFontSize += 0.1
             else:

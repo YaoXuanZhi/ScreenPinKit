@@ -5,17 +5,27 @@ from PyQt5.QtGui import *
 from PIL import Image
 import numpy as np
 
+
 class OsHelper:
     offsetPos = QPoint(20, 20)
 
     @staticmethod
     def executeSystemCommand(cmd):
-        '''
+        """
         执行系统shell命令的函数
         @note: 该函数会阻塞当前线程
-        '''
+        """
         try:
-            result = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=os.environ, encoding='utf-8')
+            result = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                env=os.environ,
+                encoding="utf-8",
+            )
             output = result.stdout
             print("Command Result:\n", output)
         except subprocess.CalledProcessError as e:
@@ -24,8 +34,8 @@ class OsHelper:
             raise e
 
     @staticmethod
-    def calculateHashForQPixmap(pixmap:QPixmap, cutLength=0, hashAlgorithm="sha256"):
-        '''计算QPixmap的哈希值，根据需要可以截取对应哈希结果长度'''
+    def calculateHashForQPixmap(pixmap: QPixmap, cutLength=0, hashAlgorithm="sha256"):
+        """计算QPixmap的哈希值，根据需要可以截取对应哈希结果长度"""
         byteArray = Image.fromqpixmap(pixmap).tobytes()
 
         # 创建哈希对象
@@ -43,7 +53,7 @@ class OsHelper:
         return result
 
     @staticmethod
-    def qpixmapToMatlike(qpixmap:QPixmap):
+    def qpixmapToMatlike(qpixmap: QPixmap):
         # 将 QPixmap 转换为 QImage
         qimage = qpixmap.toImage()
 
@@ -66,56 +76,66 @@ class OsHelper:
         qfile = QFile(font_path)
         if not qfile.open(QIODevice.ReadOnly):
             raise IOError("Failed to open font file from QRC")
-    
+
         font_data = qfile.readAll()
         qfile.close()
-    
+
         font_id = QFontDatabase.addApplicationFontFromData(font_data)
         if font_id == -1:
             raise IOError("Failed to load font from QRC")
-    
+
         font_families = QFontDatabase.applicationFontFamilies(font_id)
         if not font_families:
             raise IOError("Failed to get font family from QRC")
-    
+
         return font_families[0]
 
     @staticmethod
-    def textToImage(text, fontPath, fontSize=24, textColor=Qt.GlobalColor.black, bgColor=Qt.GlobalColor.white):
-        '''将文本转换成图像，返回QPixmap'''
+    def textToImage(
+        text,
+        fontPath,
+        fontSize=24,
+        textColor=Qt.GlobalColor.black,
+        bgColor=Qt.GlobalColor.white,
+    ):
+        """将文本转换成图像，返回QPixmap"""
         image = QImage(1, 1, QImage.Format_ARGB32)
-    
+
         painter = QPainter(image)
-    
+
         fontFamily = OsHelper.loadFontFamilyFromQrc(fontPath)
         font = QFont(fontFamily, fontSize)
         painter.setFont(font)
-    
+
         # 获取文本的边界矩形
         rect = painter.boundingRect(image.rect(), Qt.AlignLeft, text)
-    
+
         painter.end()
-    
+
         # 调整图像大小以适应文本
-        image = QImage(rect.width() + OsHelper.offsetPos.x() * 2 , rect.height() + OsHelper.offsetPos.y() * 2, QImage.Format_ARGB32)
-    
+        image = QImage(
+            rect.width() + OsHelper.offsetPos.x() * 2,
+            rect.height() + OsHelper.offsetPos.y() * 2,
+            QImage.Format_ARGB32,
+        )
+
         image.fill(bgColor)
-    
+
         painter = QPainter(image)
         painter.setFont(font)
-    
+
         painter.setPen(QColor(textColor))
-    
+
         rect.moveTopLeft(OsHelper.offsetPos)
         painter.drawText(rect, Qt.AlignLeft, text)
-    
+
         painter.end()
-    
+
         return QPixmap.fromImage(image)
 
     @staticmethod
-    def getColorStrByQColor(color:QColor, showColorMode:int) -> str:
-        '''将QColor转换成字符串，ShowColorMode: 0:hex, 1:rgb, 2:hsv'''
+    def getColorStrByQColor(color: QColor, showColorMode: int) -> str:
+        """将QColor转换成字符串，ShowColorMode: 0:hex, 1:rgb, 2:hsv"""
         if showColorMode == 0:
             return f"hex: {color.name()}"
         elif showColorMode == 1:
@@ -124,8 +144,8 @@ class OsHelper:
             return f"hsv: ({color.hue()}, {color.saturation()}, {color.value()})"
 
     @staticmethod
-    def tryTextToQColor(text:str) -> QColor:
-        '''将颜色文本转换为QColor并返回'''
+    def tryTextToQColor(text: str) -> QColor:
+        """将颜色文本转换为QColor并返回"""
         colorPrefixs = ["hex:", "rgb:", "hsv:"]
         result = None
         for prefix in colorPrefixs:
@@ -137,16 +157,22 @@ class OsHelper:
                     result = QColor()
                     result.setNamedColor(content)
                 elif prefix == "rgb:":
-                    r, g, b = map(int, content.split(','))
+                    r, g, b = map(int, content.split(","))
                     result = QColor.fromRgb(r, g, b)
                 elif prefix == "hsv:":
-                    h, s, v = map(int, content.split(','))
+                    h, s, v = map(int, content.split(","))
                     result = QColor.fromHsv(h, s, v)
         return result
 
     @staticmethod
-    def colorToImageEx(targetColor:QColor, fontPath:str, fontSize:int=24, textColor:QColor=Qt.GlobalColor.black, bgColor:QColor=Qt.GlobalColor.white):
-        '''将颜色数值转换成图像，返回QPixmap'''
+    def colorToImageEx(
+        targetColor: QColor,
+        fontPath: str,
+        fontSize: int = 24,
+        textColor: QColor = Qt.GlobalColor.black,
+        bgColor: QColor = Qt.GlobalColor.white,
+    ):
+        """将颜色数值转换成图像，返回QPixmap"""
         hexStr = OsHelper.getColorStrByQColor(targetColor, 0)
         rgbStr = OsHelper.getColorStrByQColor(targetColor, 1)
         hsvStr = OsHelper.getColorStrByQColor(targetColor, 2)
@@ -160,23 +186,27 @@ class OsHelper:
         painter.setPen(boundPen)
 
         colorBound = pixmap.rect() - QMargins(
-            OsHelper.offsetPos.x()/2, OsHelper.offsetPos.y()/2, 
-            OsHelper.offsetPos.x()/2, OsHelper.offsetPos.y()/2
-            )
+            OsHelper.offsetPos.x() / 2,
+            OsHelper.offsetPos.y() / 2,
+            OsHelper.offsetPos.x() / 2,
+            OsHelper.offsetPos.y() / 2,
+        )
         painter.drawRect(colorBound)
-    
+
         painter.end()
         return pixmap
 
     @staticmethod
-    def ConvertToRoundedPixmap(pixmap:QPixmap, radius:float):
-        '''让图像裁剪出圆角边缘'''
+    def ConvertToRoundedPixmap(pixmap: QPixmap, radius: float):
+        """让图像裁剪出圆角边缘"""
         finalPixmap = QPixmap(pixmap.size())
 
         # 注意，由于dpi缩放的影响，需要将其转换为逻辑坐标才能绘制正确
         finalPixmap.setDevicePixelRatio(pixmap.devicePixelRatioF())
         dpiScale = pixmap.devicePixelRatioF()
-        logicRect = QRectF(0, 0, pixmap.size().width() / dpiScale, pixmap.size().height() / dpiScale)
+        logicRect = QRectF(
+            0, 0, pixmap.size().width() / dpiScale, pixmap.size().height() / dpiScale
+        )
 
         # 填充为透明背景
         finalPixmap.fill(Qt.transparent)
@@ -198,8 +228,9 @@ class OsHelper:
 
     def get_web_engine_font_family():
         from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+
         settings = QWebEngineSettings.globalSettings()
-        return settings.fontFamily(QWebEngineSettings.FantasyFont)    
+        return settings.fontFamily(QWebEngineSettings.FantasyFont)
 
     def get_system_font_family():
         font_db = QFontDatabase()

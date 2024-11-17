@@ -1,15 +1,17 @@
 # coding=utf-8
 from .canvas_util import *
 
+
 class CanvasLineStripItem(CanvasCommonPathItem):
-    '''
+    """
     绘图工具-折线
 
     Note:
     对于一个非封闭的PathItem而言，为了让它的HitTest行为约束在线段内，将其
     shape()里的shapePath由相邻两点加上线条宽度构成的连续矩形合并；
     另一方面，最终显示出来的线条则是QPen直接绘制原始PathItem所得
-    '''
+    """
+
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent, False)
         self.__initEditMode()
@@ -19,8 +21,8 @@ class CanvasLineStripItem(CanvasCommonPathItem):
 
     def __initStyle(self):
         styleMap = {
-            "penColor" : QColor(0, 255, 0, 100),
-            "penWidth" : 5,
+            "penColor": QColor(0, 255, 0, 100),
+            "penWidth": 5,
         }
 
         self.usePen = QPen(styleMap["penColor"])
@@ -47,19 +49,21 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         self.update()
 
     def getOffsetLength(self) -> int:
-        '''
+        """
         Note:
         由于抗锯齿等渲染技术的影响，实际渲染的宽度可能会比设置的宽度略大，
         需要拿到QPaint.device().devicePixelRatioF()来进行转换处理
-        '''
+        """
         finalLength = int(self.usePen.width() / 2) / self.devicePixelRatio
-        return finalLength 
+        return finalLength
 
     def __initEditMode(self):
-        '''仅保Roi操作点'''
+        """仅保Roi操作点"""
         self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
-        # self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False) 
-        self.setEditMode(CanvasCommonPathItem.HitTestMode, False) # 如果想要显示当前HitTest区域，注释这行代码即可
+        # self.setEditMode(UICanvasCommonPathItem.AdvanceSelectMode, False)
+        self.setEditMode(
+            CanvasCommonPathItem.HitTestMode, False
+        )  # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         if not self.isCompleted:
@@ -79,7 +83,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
 
         self.styleAttribute.setValue(QVariant(finalStyleMap))
 
-    def customPaint(self, painter: QPainter, targetPath:QPainterPath) -> None:
+    def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:
         painter.setPen(self.usePen)
         painter.drawPath(self.paintPath)
 
@@ -87,7 +91,9 @@ class CanvasLineStripItem(CanvasCommonPathItem):
             painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
             painter.drawPath(targetPath)
 
-    def buildShapePath(self, targetPath:QPainterPath, targetPolygon:QPolygonF, isClosePath:bool):
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
         self.paintPath.clear()
         CanvasUtil.buildSegmentsPath(self.paintPath, targetPolygon, isClosePath)
         super().buildShapePath(targetPath, targetPolygon, isClosePath)

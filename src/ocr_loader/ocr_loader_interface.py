@@ -4,29 +4,32 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
 class EnumOcrMode(Enum):
-    '''OCR模式'''
+    """OCR模式"""
 
     NoSupport = 0
-    '''不支持'''
+    """不支持"""
 
     UseInside = 1
-    '''内部OCR模块'''
+    """内部OCR模块"""
 
     UseOutside = 2
-    '''外部OCR模块'''
+    """外部OCR模块"""
+
 
 class EnumOcrReturnType(Enum):
-    '''OCR结果返回类型'''
+    """OCR结果返回类型"""
 
     Text = 1
-    '''OCR结果之后返回文本'''
+    """OCR结果之后返回文本"""
 
     FileName = 2
-    '''OCR结果之后返回临时文件名'''
+    """OCR结果之后返回临时文件名"""
 
     Json = 3
-    '''OCR结果之后返回Json'''
+    """OCR结果之后返回Json"""
+
 
 class OcrLoaderInterface(ABC):
     @property
@@ -55,5 +58,5 @@ class OcrLoaderInterface(ABC):
         return EnumOcrReturnType.Text
 
     @abstractmethod
-    def ocr(self, image:QPixmap):
+    def ocr(self, image: QPixmap):
         return "ocr result"

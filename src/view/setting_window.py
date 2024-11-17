@@ -8,6 +8,7 @@ from qframelesswindow import FramelessWindow, StandardTitleBar
 from qfluentwidgets import *
 from .setting_interface import *
 
+
 class SettingWindow(FramelessWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -27,11 +28,11 @@ class SettingWindow(FramelessWindow):
 
         self.settingInterface = SettingInterface(self)
         self.hBoxLayout.addWidget(self.settingInterface)
-        
+
         self.resize(1080, 784)
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
-        self.move(w//2 - self.width()//2, h//2 - self.height()//2)
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
         self.setWindowIcon(Icon(ScreenShotIcon.LOGO))
         self.setWindowTitle(APP_NAME + " " + self.tr("Preferences"))

@@ -10,11 +10,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWebChannel import *
 
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pdf_viewer import *
 
+
 class MainWindow(QWidget):
-    def __init__(self, folderPath:str, parent=None):
+    def __init__(self, folderPath: str, parent=None):
         super().__init__(parent)
         self.folderPath = folderPath
         self.defaultFlag()
@@ -25,7 +26,11 @@ class MainWindow(QWidget):
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
 
     def initUI(self):
         workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
@@ -36,8 +41,12 @@ class MainWindow(QWidget):
         self.contentLayout = QHBoxLayout(self)
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.pdfWidgetWrapper = OcrWidgetWrapper(PdfWidget(), OcrWidgetRenderMode.NormalMode)
-        self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(self.onRenderEnd)
+        self.pdfWidgetWrapper = OcrWidgetWrapper(
+            PdfWidget(), OcrWidgetRenderMode.NormalMode
+        )
+        self.pdfWidgetWrapper.contentView.receiver.htmlRenderEndSlot.connect(
+            self.onRenderEnd
+        )
         self.contentLayout.addWidget(self.pdfWidgetWrapper.contentView)
         self.pdfWidgetWrapper.openFile(f"{workDir}/resources/animals2_ocr.pdf")
 
@@ -53,14 +62,16 @@ class MainWindow(QWidget):
         if event.button() == Qt.MouseButton.RightButton:
             self.close()
         return super().mouseDoubleClickEvent(event)
-    
+
     def onRenderEnd(self, width, height):
         self.resize(QSize(int(width), int(height)))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # enable dpi scale
     QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
