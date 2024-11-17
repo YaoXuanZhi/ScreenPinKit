@@ -18,7 +18,7 @@ class EraseToolbar(CanvasItemToolBar):
         eraseActions = [
             Action(ScreenShotIcon.FULL_Dot, self.tr("Eraser pen"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraser)),
             Action(ScreenShotIcon.FULL_RECTANGLE, self.tr("Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseEraserRectItem)),
-            Action(ScreenShotIcon.FILL_REGION, self.tr("Shadow Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseShadowEraserRectItem)),
+            Action(ScreenShotIcon.SHADOW_ERASER, self.tr("Shadow Eraser frame"), triggered=lambda: self.eraseTypeChangedSignal.emit(DrawActionEnum.UseShadowEraserRectItem)),
             ]
 
         self.actionGroup = QActionGroup(self)
