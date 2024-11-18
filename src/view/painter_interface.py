@@ -352,7 +352,7 @@ class PainterInterface(QWidget):
                 self.webViewerItem.cancelSelectText()
 
     def preHandleEraseToole(self, drawActionEnum: DrawActionEnum):
-        eraseTools = [DrawActionEnum.UseEraser, DrawActionEnum.UseEraserRectItem]
+        eraseTools = [DrawActionEnum.UseEraser, DrawActionEnum.UseEraserRectItem, DrawActionEnum.UseShadowEraserRectItem]
         if self.currentDrawActionEnum in eraseTools and drawActionEnum in eraseTools:
             self.directSwitchDrawTool(drawActionEnum)
             return True

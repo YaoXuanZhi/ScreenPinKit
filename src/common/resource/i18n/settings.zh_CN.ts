@@ -570,6 +570,10 @@
         <source>Eraser frame</source>
         <translation>橡皮框</translation>
     </message>
+    <message>
+        <source>Shadow Eraser frame</source>
+        <translation>阴影橡皮框</translation>
+    </message>
 </context>
 <context>
     <name>CommonPathToolbar</name>
