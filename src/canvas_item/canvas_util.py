@@ -1020,16 +1020,52 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         else:
             CanvasUtil.buildSegmentsPath(targetPath, targetPolygon, isClosePath)
 
+    def initAnimations(self):
+        # 创建动画
+        self.blurRadiusAnimation = QPropertyAnimation(self.shadowEffect, b"blurRadius")
+        self.blurRadiusAnimation.setDuration(100)  # 动画持续时间
+        self.blurRadiusAnimation.setStartValue(self.shadowEffect.blurRadius())
+        self.blurRadiusAnimation.setEndValue(0)
+        self.blurRadiusAnimation.setEasingCurve(QEasingCurve.InOutQuad)
+
+        self.offsetAnimation = QPropertyAnimation(self.shadowEffect, b"offset")
+        self.offsetAnimation.setDuration(100)  # 动画持续时间
+        self.offsetAnimation.setStartValue(self.shadowEffect.offset())
+        self.offsetAnimation.setEndValue(QPointF(0, 0))
+        self.offsetAnimation.setEasingCurve(QEasingCurve.InOutQuad)
+
+    def enterAnimations(self):
+        # 鼠标进入时启动动画
+        if hasattr(self, "blurRadiusAnimation"):
+            self.blurRadiusAnimation.setDirection(QPropertyAnimation.Forward)
+            self.blurRadiusAnimation.start()
+
+        if hasattr(self, "offsetAnimation"):
+            self.offsetAnimation.setDirection(QPropertyAnimation.Forward)
+            self.offsetAnimation.start()
+
+    def leaveAnimations(self):
+        # 鼠标离开时反向播放动画
+        if hasattr(self, "blurRadiusAnimation"):
+            self.blurRadiusAnimation.setDirection(QPropertyAnimation.Backward)
+            self.blurRadiusAnimation.start()
+
+        if hasattr(self, "offsetAnimation"):
+            self.offsetAnimation.setDirection(QPropertyAnimation.Backward)
+            self.offsetAnimation.start()
+
     def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         if self.isPreview == 0 and self.isRoiPreviewerMode():
             self.isPreview = 1
             self.roiMgr.setShowState(True)
+        self.enterAnimations()
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         if self.isPreview == 1 and self.isRoiPreviewerMode():
             self.isPreview = 0
             self.roiMgr.setShowState(False)
+        self.leaveAnimations()
         return super().hoverLeaveEvent(event)
 
     def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
@@ -1159,15 +1195,16 @@ class CanvasCommonPathItem(QGraphicsPathItem):
         painter.drawPath(targetPath)
 
     def applyShadow(self):
-        shadowEffect = QGraphicsDropShadowEffect()
-        shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
-        shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
-        shadowEffect.setOffset(5, 5)  # 阴影的偏移量
-        self.setGraphicsEffect(shadowEffect)
+        self.shadowEffect = QGraphicsDropShadowEffect()
+        self.shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        self.shadowEffect.setOffset(5, 5)  # 阴影的偏移量
+        self.setGraphicsEffect(self.shadowEffect)
 
     def initializedEvent(self):
         if self.isShadowEffectMode():
             self.applyShadow()
+            self.initAnimations()
 
     def paint(
         self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget

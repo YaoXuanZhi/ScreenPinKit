@@ -188,6 +188,8 @@ class CanvasScene(QGraphicsScene):
             self.lastAddItem = item
             if isinstance(item, CanvasTextItem):
                 item.setEditableState(True)
+            else:
+                item.setEditableState(False)
 
         if not isOk:
             self.removeItem(item)
