@@ -18,6 +18,7 @@ class TextEditToolbar(CanvasItemToolBar):
         self.styleMap = {
             "font": defaultFont,
             "textColor": cfg.get(cfg.textEditToolbarTextColor),
+            "outlineColor": cfg.get(cfg.textEditToolbarOutlineColor),
         }
 
     def initUI(self):
@@ -38,7 +39,10 @@ class TextEditToolbar(CanvasItemToolBar):
         )
         self.italicButton.setCheckable(True)
         self.textColorPickerButton = self.initColorOptionUI(
-            self.tr("Color"), self.styleMap["textColor"]
+            self.tr("Text color"), self.styleMap["textColor"]
+        )
+        self.outlineColorPickerButton = self.initColorOptionUI(
+            self.tr("Outline color"), self.styleMap["outlineColor"]
         )
         self.fontPickerButton = self.initFontOptionUI(
             self.tr("Font"), self.styleMap["font"]
@@ -60,14 +64,20 @@ class TextEditToolbar(CanvasItemToolBar):
     def refreshStyleUI(self):
         font: QFont = self.styleMap["font"]
         textColor: QColor = self.styleMap["textColor"]
+        outlineColor: QColor = self.styleMap["outlineColor"]
         self.boldButton.setChecked(font.bold())
         self.italicButton.setChecked(font.italic())
         self.opacitySlider.setValue(self.opacity)
         self.textColorPickerButton.setColor(textColor)
+        self.outlineColorPickerButton.setColor(outlineColor)
         self.fontPickerButton.setTargetFont(font)
 
     def textColorChangedHandle(self, color: QColor):
         self.styleMap["textColor"] = color
+        self.refreshAttachItem()
+
+    def outlineColorChangedHandle(self, color: QColor):
+        self.styleMap["outlineColor"] = color
         self.refreshAttachItem()
 
     def fontChangedHandle(self, font: QFont):
@@ -81,6 +91,7 @@ class TextEditToolbar(CanvasItemToolBar):
 
     def listenerEvent(self):
         self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
+        self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandle)
         self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
 

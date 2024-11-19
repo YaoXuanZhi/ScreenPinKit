@@ -316,10 +316,18 @@ class ToolbarInterface(QWidget):
             parent=textEditToolbarGroup,
             enableAlpha=True,
         )
+        textEditToolbarOutlineColorCard = ColorSettingCard(
+            cfg.textEditToolbarOutlineColor,
+            ScreenShotIcon.BRUSH,
+            self.tr("Outline color"),
+            parent=textEditToolbarGroup,
+            enableAlpha=True,
+        )
 
         textEditToolbarGroup.addSettingCard(textEditToolbarFontCard)
         textEditToolbarGroup.addSettingCard(textEditToolbarFontSizeCard)
         textEditToolbarGroup.addSettingCard(textEditToolbarTextColorCard)
+        textEditToolbarGroup.addSettingCard(textEditToolbarOutlineColorCard)
         textEditToolbarFontCard.clicked.connect(self.__onTextEditToolbarFontCardClicked)
         return textEditToolbarGroup
 

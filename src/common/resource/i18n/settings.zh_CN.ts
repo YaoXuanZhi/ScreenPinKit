@@ -168,6 +168,10 @@
         <translation>文本颜色</translation>
     </message>
     <message>
+        <source>Outline color</source>
+        <translation>描边颜色</translation>
+    </message>
+    <message>
         <source>EffectToolBar</source>
         <translation>特效工具栏</translation>
     </message>
@@ -439,6 +443,14 @@
     <message>
         <source>Opacity</source>
         <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>文本颜色</translation>
+    </message>
+    <message>
+        <source>Outline color</source>
+        <translation>描边颜色</translation>
     </message>
 </context>
 <context>
@@ -738,6 +750,10 @@
     <message>
         <source>Text color</source>
         <translation>文本颜色</translation>
+    </message>
+    <message>
+        <source>Outline color</source>
+        <translation>描边颜色</translation>
     </message>
     <message>
         <source>EffectToolbar</source>

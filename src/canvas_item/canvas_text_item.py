@@ -25,6 +25,8 @@ class CanvasTextItem(QGraphicsTextItem):
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.red),
         }
+        # 隐藏原本的文本渲染
+        self.setDefaultTextColor(Qt.GlobalColor.transparent)
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
         self.styleAttribute.setValue(QVariant(styleMap))
@@ -37,10 +39,9 @@ class CanvasTextItem(QGraphicsTextItem):
         originSize = self.boundingRect().size()
 
         styleMap = self.styleAttribute.getValue().value()
+        # 更新光标大小
         font = styleMap["font"]
-        textColor = styleMap["textColor"]
         self.setFont(font)
-        self.setDefaultTextColor(textColor)
 
         finalSize = self.boundingRect().size()
         finalPos = originPos + QPointF(
@@ -161,10 +162,46 @@ class CanvasTextItem(QGraphicsTextItem):
     def paint(
         self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget
     ):
-        # https://codebrowser.dev/qt5/qtbase/src/widgets/graphicsview/qgraphicsitem.cpp.html
+        painter.save()
+
+        styleMap = self.styleAttribute.getValue().value()
+        finalFont = styleMap["font"]
+        textColor = styleMap["textColor"]
+        outlineColor = styleMap["outlineColor"]
+
+        fm = QFontMetrics(finalFont)
+
+        path = QPainterPath()
+        block = self.document().firstBlock()
+
+        while block.isValid():
+            line_path = QPainterPath()
+            line_path.addText(0, 0, finalFont, block.text())
+
+            # 计算每行文本的偏移量
+            line_metrics = self.document().documentLayout().blockBoundingRect(block)
+            line_path.translate(line_metrics.topLeft())
+
+            path.addPath(line_path)
+
+            block = block.next()
+
+        # 平移路径到正确的位置
+        topLeft = self.boundingRect().topLeft()
+        topLeft.setY(topLeft.y() + fm.ascent())
+        path.translate(topLeft)
+
+        # 绘制轮廓
+        outlineWidth = math.ceil(finalFont.pointSize() / 10.0)
+        painter.strokePath(path, QPen(outlineColor, outlineWidth))
+
+        # 绘制文本
+        painter.fillPath(path, QBrush(textColor))
+        painter.restore()
+
         option.state = option.state & ~QStyle.StateFlag.State_Selected
         option.state = option.state & ~QStyle.StateFlag.State_HasFocus
-        return super().paint(painter, option, widget)
+        super().paint(painter, option, widget)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:

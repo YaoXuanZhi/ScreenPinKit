@@ -127,6 +127,7 @@ class Config(QConfig):
         "TextEditToolbar", "fontSize", 5, RangeValidator(1, 100)
     )
     textEditToolbarTextColor = ColorConfigItem("TextEditToolbar", "textColor", Qt.red)
+    textEditToolbarOutlineColor = ColorConfigItem("TextEditToolbar", "outlineColor", Qt.white)
 
     # EffectToolbar
     effectToolbarStrength = RangeConfigItem(
