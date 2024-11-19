@@ -37,3 +37,17 @@ class SettingCardGroupLite(QWidget):
     def adjustSize(self):
         h = self.cardLayout.heightForWidth(self.width()) + 46
         return self.resize(self.width(), h)
+
+class ScrollSettingCardGroupLite(ScrollArea):
+    """Toolbar card with a push button"""
+
+    def __init__(self, parent: QWidget = None) -> None:
+        super().__init__(parent)
+        self.scrollWidget = QWidget()
+        self.contentLayout = QVBoxLayout(self.scrollWidget)
+
+        self.setWidget(self.scrollWidget)
+        self.setWidgetResizable(True)
+
+    def addSettingCard(self, card: QWidget):
+        self.contentLayout.addWidget(card)

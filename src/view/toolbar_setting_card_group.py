@@ -126,7 +126,7 @@ class ToolbarInterface(QWidget):
         return effectToolBarGroup
 
     def buildNumberMarkerItemToolbar(self):
-        numberMarkerItemToolbarGroup = SettingCardGroupLite(self)
+        numberMarkerItemToolbarGroup = ScrollSettingCardGroupLite(self)
         numberMarkerItemToolbarFontCard = PushSettingCard(
             self.tr("Choose font"),
             FIF.FONT,
