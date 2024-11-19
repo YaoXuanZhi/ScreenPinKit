@@ -20,6 +20,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
             "penWidth": cfg.get(cfg.numberMarkerItemToolbarPenWidth),
             "penStyle": cfg.get(cfg.numberMarkerItemToolbarPenStyle),
             "brushColor": cfg.get(cfg.numberMarkerItemToolbarBrushColor),
+            "useShadowEffect": cfg.get(cfg.numberMarkerItemToolbarUseShadowEffect),
         }
 
         self.penStyleInfos = [
@@ -37,6 +38,13 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         self.textColorPickerButton = self.initColorOptionUI(
             self.tr("Text color"), self.styleMap["textColor"]
         )
+        self.shadowEffectButton = self.addAction(
+            Action(
+                ScreenShotIcon.SHADOW_EFFECT,
+                self.tr("Shadow effect"),
+            )
+        )
+        self.shadowEffectButton.setCheckable(True)
         self.fontPickerButton = self.initFontOptionUI(
             self.tr("Font"), self.styleMap["font"]
         )
@@ -50,16 +58,22 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         self.styleMap["penStyle"] = comBox.currentData()
         self.refreshAttachItem()
 
+    def shadowEffectChangedHandle(self):
+        self.styleMap["useShadowEffect"] = self.shadowEffectButton.isChecked()
+        self.refreshAttachItem()
+
     def refreshStyleUI(self):
         font: QFont = self.styleMap["font"]
         textColor: QColor = self.styleMap["textColor"]
         penColor: QColor = self.styleMap["penColor"]
         brushColor: QColor = self.styleMap["brushColor"]
+        useShadowEffect: bool = self.styleMap["useShadowEffect"]
         self.penColorPickerButton.setColor(penColor)
         self.brushColorPickerButton.setColor(brushColor)
         self.textColorPickerButton.setColor(textColor)
         self.fontPickerButton.setTargetFont(font)
         self.opacitySlider.setValue(self.opacity)
+        self.shadowEffectButton.setChecked(useShadowEffect)
 
         currentIndex = 0
         currentPenStyle = self.styleMap["penStyle"]
@@ -93,6 +107,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
         self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
+        self.shadowEffectButton.clicked.connect(self.shadowEffectChangedHandle)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:

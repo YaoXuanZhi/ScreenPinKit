@@ -19,6 +19,7 @@ class TextEditToolbar(CanvasItemToolBar):
             "font": defaultFont,
             "textColor": cfg.get(cfg.textEditToolbarTextColor),
             "outlineColor": cfg.get(cfg.textEditToolbarOutlineColor),
+            "useShadowEffect": cfg.get(cfg.textEditToolbarUseShadowEffect),
         }
 
     def initUI(self):
@@ -34,10 +35,16 @@ class TextEditToolbar(CanvasItemToolBar):
             Action(
                 ScreenShotIcon.TEXT_ITALIC,
                 self.tr("Text italic"),
-                triggered=self.fontExtStyleChangedHandle,
             )
         )
         self.italicButton.setCheckable(True)
+        self.shadowEffectButton = self.addAction(
+            Action(
+                ScreenShotIcon.SHADOW_EFFECT,
+                self.tr("Shadow effect"),
+            )
+        )
+        self.shadowEffectButton.setCheckable(True)
         self.textColorPickerButton = self.initColorOptionUI(
             self.tr("Text color"), self.styleMap["textColor"]
         )
@@ -61,16 +68,22 @@ class TextEditToolbar(CanvasItemToolBar):
 
         self.refreshAttachItem()
 
+    def shadowEffectChangedHandle(self):
+        self.styleMap["useShadowEffect"] = self.shadowEffectButton.isChecked()
+        self.refreshAttachItem()
+
     def refreshStyleUI(self):
         font: QFont = self.styleMap["font"]
         textColor: QColor = self.styleMap["textColor"]
         outlineColor: QColor = self.styleMap["outlineColor"]
+        useShadowEffect: bool = self.styleMap["useShadowEffect"]
         self.boldButton.setChecked(font.bold())
         self.italicButton.setChecked(font.italic())
         self.opacitySlider.setValue(self.opacity)
         self.textColorPickerButton.setColor(textColor)
         self.outlineColorPickerButton.setColor(outlineColor)
         self.fontPickerButton.setTargetFont(font)
+        self.shadowEffectButton.setChecked(useShadowEffect)
 
     def textColorChangedHandle(self, color: QColor):
         self.styleMap["textColor"] = color
@@ -94,6 +107,8 @@ class TextEditToolbar(CanvasItemToolBar):
         self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandle)
         self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
+        self.italicButton.clicked.connect(self.fontExtStyleChangedHandle)
+        self.shadowEffectButton.clicked.connect(self.shadowEffectChangedHandle)
 
     def refreshAttachItem(self):
         if self.canvasItem != None:

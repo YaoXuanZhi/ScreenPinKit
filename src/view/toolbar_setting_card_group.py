@@ -171,6 +171,13 @@ class ToolbarInterface(QWidget):
             parent=numberMarkerItemToolbarGroup,
             enableAlpha=True,
         )
+        numberMarkerItemToolbarShadowEffectCard = SwitchSettingCard(
+            ScreenShotIcon.SHADOW_EFFECT,
+            self.tr("Shadow effect"),
+            None,
+            configItem=cfg.numberMarkerItemToolbarUseShadowEffect,
+            parent=numberMarkerItemToolbarGroup,
+        )
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarFontCard)
         numberMarkerItemToolbarGroup.addSettingCard(
             numberMarkerItemToolbarTextColorCard
@@ -185,6 +192,7 @@ class ToolbarInterface(QWidget):
         numberMarkerItemToolbarFontCard.clicked.connect(
             self.__onNumberMarkerItemToolbarFontCardClicked
         )
+        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarShadowEffectCard)
         return numberMarkerItemToolbarGroup
 
     def buildPenToolbar(self):
@@ -323,11 +331,19 @@ class ToolbarInterface(QWidget):
             parent=textEditToolbarGroup,
             enableAlpha=True,
         )
+        textEditToolbarShadowEffectCard = SwitchSettingCard(
+            ScreenShotIcon.SHADOW_EFFECT,
+            self.tr("Shadow effect"),
+            None,
+            configItem=cfg.textEditToolbarUseShadowEffect,
+            parent=textEditToolbarGroup,
+        )
 
         textEditToolbarGroup.addSettingCard(textEditToolbarFontCard)
         textEditToolbarGroup.addSettingCard(textEditToolbarFontSizeCard)
         textEditToolbarGroup.addSettingCard(textEditToolbarTextColorCard)
         textEditToolbarGroup.addSettingCard(textEditToolbarOutlineColorCard)
+        textEditToolbarGroup.addSettingCard(textEditToolbarShadowEffectCard)
         textEditToolbarFontCard.clicked.connect(self.__onTextEditToolbarFontCardClicked)
         return textEditToolbarGroup
 

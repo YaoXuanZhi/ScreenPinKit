@@ -15,6 +15,18 @@ class CanvasTextItem(QGraphicsTextItem):
         self.transformComponent = TransformComponent()
         self.onWheelEvent = None
 
+    def applyShadow(self):
+        self.shadowEffect = QGraphicsDropShadowEffect()
+        self.shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        self.shadowEffect.setOffset(5, 5)  # 阴影的偏移量
+        self.setGraphicsEffect(self.shadowEffect)
+
+    def removeShadow(self):
+        self.setGraphicsEffect(None)
+        if hasattr(self, "shadowEffect"):
+            delattr(self, "shadowEffect")
+
     def setWheelEventCallBack(self, callback):
         self.onWheelEvent = callback
 
@@ -24,12 +36,13 @@ class CanvasTextItem(QGraphicsTextItem):
         styleMap = {
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.red),
+            "useShadowEffect": False,
         }
         # 隐藏原本的文本渲染
         self.setDefaultTextColor(Qt.GlobalColor.transparent)
         self.styleAttribute = CanvasAttribute()
-        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
         self.styleAttribute.setValue(QVariant(styleMap))
+        self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
     def type(self) -> int:
         return EnumCanvasItemType.CanvasTextItem.value
@@ -49,6 +62,17 @@ class CanvasTextItem(QGraphicsTextItem):
             (originSize.height() - finalSize.height()) / 2,
         )
         self.setPos(finalPos)
+
+        maybeUseShadowEffect = styleMap["useShadowEffect"]
+        if not hasattr(self, "useShadowEffect"):
+            self.useShadowEffect = False
+
+        if self.useShadowEffect != maybeUseShadowEffect:
+            if maybeUseShadowEffect:
+                self.applyShadow()
+            else:
+                self.removeShadow()
+        self.useShadowEffect = maybeUseShadowEffect
 
     def resetStyle(self, styleMap):
         self.styleAttribute.setValue(QVariant(styleMap))

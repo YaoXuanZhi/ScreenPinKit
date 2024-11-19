@@ -43,6 +43,7 @@
         <file>icons/success.svg</file>
         <file>icons/error.svg</file>
         <file>icons/rounded_corner.svg</file>
+        <file>icons/shadow_effect.svg</file>
 
         <file>qss/dark/setting_interface.qss</file>
         <file>qss/light/setting_interface.qss</file>

@@ -17,14 +17,17 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         CanvasNumberMarkerItem.markderIndex = self.markderIndex + 1
         self.index = CanvasNumberMarkerItem.markderIndex
         self.transformComponent = TransformComponent()
-        self.applyShadow()
 
     def applyShadow(self):
-        shadowEffect = QGraphicsDropShadowEffect()
-        shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
-        shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
-        shadowEffect.setOffset(5, 5)  # 阴影的偏移量
-        self.setGraphicsEffect(shadowEffect)
+        self.shadowEffect = QGraphicsDropShadowEffect()
+        self.shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        self.shadowEffect.setOffset(5, 5)  # 阴影的偏移量
+        self.setGraphicsEffect(self.shadowEffect)
+
+    def removeShadow(self):
+        self.setGraphicsEffect(None)
+        delattr(self, "shadowEffect")
 
     def __initStyle(self):
         defaultFont = QFont()
@@ -35,6 +38,7 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             "penWidth": 2,
             "penStyle": Qt.PenStyle.SolidLine,
             "brushColor": QColor(Qt.GlobalColor.red),
+            "useShadowEffect": False,
         }
 
         self.usePen = QPen()
@@ -63,6 +67,17 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         self.usePen.setStyle(penStyle)
 
         self.useBrushColor = styleMap["brushColor"]
+
+        maybeUseShadowEffect = styleMap["useShadowEffect"]
+        if not hasattr(self, "useShadowEffect"):
+            self.useShadowEffect = False
+
+        if self.useShadowEffect != maybeUseShadowEffect:
+            if maybeUseShadowEffect:
+                self.applyShadow()
+            else:
+                self.removeShadow()
+        self.useShadowEffect = maybeUseShadowEffect
 
         self.update()
 

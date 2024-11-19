@@ -128,6 +128,7 @@ class Config(QConfig):
     )
     textEditToolbarTextColor = ColorConfigItem("TextEditToolbar", "textColor", Qt.red)
     textEditToolbarOutlineColor = ColorConfigItem("TextEditToolbar", "outlineColor", Qt.white)
+    textEditToolbarUseShadowEffect = ConfigItem("TextEditToolbar", "useShadowEffect", True, BoolValidator())
 
     # EffectToolbar
     effectToolbarStrength = RangeConfigItem(
@@ -231,6 +232,7 @@ class Config(QConfig):
     numberMarkerItemToolbarBrushColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "brushColor", QColor(255, 0, 0, 128)
     )
+    numberMarkerItemToolbarUseShadowEffect = ConfigItem("NumberMarkerItemToolbar", "useShadowEffect", True, BoolValidator())
 
     # OcrLoaderSetting
     # 注意，OCRLoader采取的是动态加载方式，这里只是用于占位

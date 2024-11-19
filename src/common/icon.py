@@ -53,6 +53,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     SUCCESS_LIGHT = "success"
     ERROR_LIGHT = "error"
     ROUNDED_CORNER = "rounded_corner"
+    SHADOW_EFFECT = "shadow_effect"
 
     PLUGIN_MARKET = "whiteboard"
 
