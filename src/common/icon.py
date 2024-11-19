@@ -54,6 +54,14 @@ class ScreenShotIcon(FluentIconBase, Enum):
     ERROR_LIGHT = "error"
     ROUNDED_CORNER = "rounded_corner"
     SHADOW_EFFECT = "shadow_effect"
+    EFFECT_TOOLBAR = "effect_toolbar"
+    TEXT_SHADOW = "text_shadow"
+    MOSAIC2 = "mosaic2"
+    MOSAIC3 = "mosaic3"
+    FIND_EDGES = "find_edges"
+    ROUND_BOX = "round_box"
+    QR_CODE = "qr_code"
+    OCR_LOADER = "ocr_loader"
 
     PLUGIN_MARKET = "whiteboard"
 

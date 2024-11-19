@@ -40,7 +40,7 @@ class TextEditToolbar(CanvasItemToolBar):
         self.italicButton.setCheckable(True)
         self.shadowEffectButton = self.addAction(
             Action(
-                ScreenShotIcon.SHADOW_EFFECT,
+                ScreenShotIcon.TEXT_SHADOW,
                 self.tr("Shadow effect"),
             )
         )

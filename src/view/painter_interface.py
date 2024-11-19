@@ -154,7 +154,7 @@ class PainterInterface(QWidget):
                     triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEraser),
                 ),
                 Action(
-                    ScreenShotIcon.FILL_REGION,
+                    ScreenShotIcon.MOSAIC,
                     self.tr("Mosaic/Blur"),
                     triggered=lambda: self.switchDrawTool(DrawActionEnum.UseEffectTool),
                 ),

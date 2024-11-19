@@ -124,7 +124,7 @@ class SettingInterface(ScrollArea):
         )
         self.windowShadowStyleUseRoundStyleCard = OptionsSettingCard(
             cfg.windowShadowStyleRoundRadius,
-            ScreenShotIcon.ROUNDED_CORNER,
+            ScreenShotIcon.ROUND_BOX,
             self.tr("Use round style"),
             None,
             texts=["0", "5", "10", "15", "20"],

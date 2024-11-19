@@ -13,7 +13,7 @@ class OcrLoaderTypeSettingCard(OptionsSettingCard):
 
     def __init__(self, parent: QWidget = None) -> None:
         configItem = cfg.useOcrLoaderType
-        icon = ScreenShotIcon.OCR
+        icon = ScreenShotIcon.OCR_LOADER
         title = parent.tr("Use ocrloader type")
         content = None
         texts = OcrLoaderTypeSettingCard.getLoaderDisplayNames()

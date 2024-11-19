@@ -102,7 +102,7 @@ class ToolbarInterface(QWidget):
         effectToolBarGroup = SettingCardGroupLite(self)
         effectToolBarEffectTypeCard = ComboBoxSettingCardPlus(
             cfg.effectToolbarEffectType,
-            ScreenShotIcon.FILL_REGION,
+            ScreenShotIcon.EFFECT_TOOLBAR,
             self.tr("Effect type"),
             None,
             options=[

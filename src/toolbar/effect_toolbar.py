@@ -17,9 +17,9 @@ class EffectToolbar(CanvasItemToolBar):
         self.effectTypeInfos = [
             (self.tr("Blur"), ScreenShotIcon.BLUR, AfterEffectType.Blur),
             (self.tr("Mosaic"), ScreenShotIcon.MOSAIC, AfterEffectType.Mosaic),
-            (self.tr("Detail"), ScreenShotIcon.MOSAIC, AfterEffectType.Detail),
-            (self.tr("Find_Edges"), ScreenShotIcon.MOSAIC, AfterEffectType.Find_Edges),
-            (self.tr("Contour"), ScreenShotIcon.MOSAIC, AfterEffectType.Contour),
+            (self.tr("Detail"), ScreenShotIcon.MOSAIC2, AfterEffectType.Detail),
+            (self.tr("Find_Edges"), ScreenShotIcon.FIND_EDGES, AfterEffectType.Find_Edges),
+            (self.tr("Contour"), ScreenShotIcon.MOSAIC3, AfterEffectType.Contour),
         ]
 
     def refreshStyleUI(self):

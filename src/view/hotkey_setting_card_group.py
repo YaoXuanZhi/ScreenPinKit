@@ -58,7 +58,7 @@ class HotkeySettingCardGroup(SettingCardGroup):
             parent=self,
         )
         self.hotkeyToggleMouseClickThroughCard = KeySequenceEditCard(
-            self.tr("Toggle mouse cick-through"),
+            self.tr("Toggle mouse click-through"),
             cfg.hotKeyToggleMouseClickThrough,
             parent=self,
         )

@@ -271,6 +271,10 @@
         <source>Global Hotkey</source>
         <translation>全局快捷键</translation>
     </message>
+    <message>
+        <source>Shadow effect</source>
+        <translation>阴影特效</translation>
+    </message>
 </context>
 <context>
     <name>SettingWindow</name>
@@ -452,6 +456,10 @@
         <source>Outline color</source>
         <translation>描边颜色</translation>
     </message>
+    <message>
+        <source>Shadow effect</source>
+        <translation>阴影特效</translation>
+    </message>
 </context>
 <context>
     <name>PenToolbar</name>
@@ -559,6 +567,10 @@
     <message>
         <source>Opacity</source>
         <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Shadow effect</source>
+        <translation>阴影特效</translation>
     </message>
 </context>
 <context>
@@ -871,6 +883,10 @@
         <source>Star</source>
         <translation>五角星</translation>
     </message>
+    <message>
+        <source>Shadow effect</source>
+        <translation>阴影特效</translation>
+    </message>
 </context>
 <context>
     <name>HotkeySettingCardGroup</name>
@@ -891,7 +907,7 @@
         <translation>隐藏/显示桌面绘图</translation>
     </message>
     <message>
-        <source>Toggle mouse cick-through</source>
+        <source>Toggle mouse click-through</source>
         <translation>鼠标穿透开关</translation>
     </message>
 </context>
