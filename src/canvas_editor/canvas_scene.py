@@ -161,9 +161,11 @@ class CanvasScene(QGraphicsScene):
         self._isLockedTool = value
 
     def __startDraw(self, item: QGraphicsObject):
-        if self.lastAddItem != None:
-            self.lastAddItem.setEditableState(False)
         self.addItem(item)
+        if isinstance(item, CanvasTextItem):
+            item.setEditableState(True)
+        else:
+            item.setEditableState(False)
         if self._itemNotifyCallBack != None:
             self._itemNotifyCallBack(SceneUserNotifyEnum.StartDrawedEvent, item)
 
@@ -186,15 +188,6 @@ class CanvasScene(QGraphicsScene):
             item.completeDraw()
             self.itemAddSignal.emit(self, item)
             self.lastAddItem = item
-            if isinstance(item, CanvasTextItem):
-                item.setEditableState(True)
-            else:
-                item.setEditableState(False)
-
-        if not isOk:
-            self.removeItem(item)
-            if self.lastAddItem != None:
-                self.lastAddItem.setEditableState(True)
 
         self.currentItem = None
 
