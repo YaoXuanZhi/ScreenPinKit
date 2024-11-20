@@ -85,7 +85,7 @@ class PinWindowManager:
         if pinWnd != None:
             pinWnd.switchMouseThroughState()
         else:
-            for wnd in self._windowsDict.values():
+            for wnd0 in self._windowsDict.values():
                 wnd: PinWindow = wnd0
                 if wnd != None:
                     wnd.setMouseThroughState(False)

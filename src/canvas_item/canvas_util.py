@@ -1036,6 +1036,8 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
     def enterAnimations(self):
         # 鼠标进入时启动动画
+        if not self.isBorderEditableMode() and not self.isRoiEditableMode():
+            return
         if hasattr(self, "blurRadiusAnimation"):
             self.blurRadiusAnimation.setDirection(QPropertyAnimation.Forward)
             self.blurRadiusAnimation.start()
@@ -1046,6 +1048,8 @@ class CanvasCommonPathItem(QGraphicsPathItem):
 
     def leaveAnimations(self):
         # 鼠标离开时反向播放动画
+        if not self.isBorderEditableMode() and not self.isRoiEditableMode():
+            return
         if hasattr(self, "blurRadiusAnimation"):
             self.blurRadiusAnimation.setDirection(QPropertyAnimation.Backward)
             self.blurRadiusAnimation.start()
