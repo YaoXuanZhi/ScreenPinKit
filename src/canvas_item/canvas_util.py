@@ -322,27 +322,32 @@ class CanvasUtil:
         screenPixs = []
 
         # 将多显示器的屏幕快照从左往右排序，与实际屏幕摆放位置一致
-        screens.sort(key=lambda screen: screen.geometry().x())
+        screens.sort(key=lambda screen: screen.availableGeometry().x())
+
+        devicePixelRatio = CanvasUtil.getDevicePixelRatio()
 
         # 考虑到需要兼容那种一个横屏、一个竖屏的情况
         for screen in screens:
             pix = screen.grabWindow(0)
+            rect = screen.availableGeometry()
+            rect.setWidth(rect.width() * devicePixelRatio)
+            rect.setHeight(rect.height() * devicePixelRatio)
+            pix = pix.copy(rect)
             w += pix.width()
             h = max(h, pix.height())
             screenPixs.append(pix)
 
-        devicePixelRatio = CanvasUtil.getDevicePixelRatio()
-
         finalPixmap = QPixmap(w, h)
         finalPixmap.setDevicePixelRatio(devicePixelRatio)
-        finalPixmap.fill(Qt.transparent)
+        finalPixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(finalPixmap)
-        for pix in screenPixs:
+        for pix0 in screenPixs:
+            pix:QPixmap = pix0
             painter.drawPixmap(QPoint(p, 0), pix)
             p = p + pix.width()
 
         # # 拿到最左侧屏幕的左上角坐标
-        geometryTopLeft = screens[0].geometry().topLeft()
+        geometryTopLeft = screens[0].availableGeometry().topLeft()
 
         finalGeometry = QRect(
             geometryTopLeft, QSize(w / devicePixelRatio, h / devicePixelRatio)

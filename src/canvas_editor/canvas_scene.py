@@ -521,13 +521,17 @@ class CanvasScene(QGraphicsScene):
                 if isinstance(selectItem, CanvasTextItem):
                     if selectItem.isCanEditable():
                         return super().keyPressEvent(event)
+                if CanvasUtil.isRoiItem(selectItem):
+                    selectItem = selectItem.parentItem()
                 if event.key() == Qt.Key_Left:
-                    selectItem.moveBy(-1, 0)
+                    offset = QPointF(-1, 0)
                 elif event.key() == Qt.Key_Right:
-                    selectItem.moveBy(1, 0)
+                    offset = QPointF(1, 0)
                 elif event.key() == Qt.Key_Up:
-                    selectItem.moveBy(0, -1)
+                    offset = QPointF(0, -1)
                 elif event.key() == Qt.Key_Down:
-                    selectItem.moveBy(0, 1)
+                    offset = QPointF(0, 1)
+
+                selectItem.setPos(selectItem.pos() + offset)
             return
         return super().keyPressEvent(event)

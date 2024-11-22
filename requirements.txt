@@ -1,4 +1,4 @@
---extra-index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
+--extra-index-url https://mirrors.aliyun.com/pypi/simple/
 PyQt5>=5.15.0
 scipy
 pillow<=9.5.0

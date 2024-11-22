@@ -182,7 +182,6 @@ ruff format
 # sudo apt-get install openssh-server
 
 # 安装Qt依赖库
-sudo apt install qtwayland5
 sudo apt install libxcb-*
 sudo apt install python3-pip -y
 conda install -c conda-forge gcc 
@@ -190,5 +189,7 @@ conda install -c conda-forge gcc
 # Ubuntu需要xpyb - XCB 的 Python 版本
 pip install xpybutil
 ```
+ - [解决部分软件在 Linux 下截屏黑屏，远程控制黑屏的问题](https://blog.csdn.net/u010912615/article/details/141295444)
+   >某些Linux发行版默认使用Waylan显示协议，截屏时屏幕是黑的，只能截取到纯黑的图像，使用`/etc/gdm3/custom.conf`文件，在`[daemon]`段中添加`WaylandEnable=false`即可，重启电脑即可生效
 
 </details>
