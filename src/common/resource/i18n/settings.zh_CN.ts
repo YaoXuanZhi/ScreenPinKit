@@ -840,6 +840,10 @@
         <translation>画笔风格</translation>
     </message>
     <message>
+        <source>Size</source>
+        <translation>大小</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>形状</translation>
     </message>

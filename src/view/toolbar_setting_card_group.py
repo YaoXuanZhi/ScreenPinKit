@@ -140,10 +140,10 @@ class ToolbarInterface(QWidget):
             parent=numberMarkerItemToolbarGroup,
             enableAlpha=True,
         )
-        numberMarkerItemToolbarPenWidthCard = RangeSettingCard(
-            cfg.numberMarkerItemToolbarPenWidth,
-            ScreenShotIcon.PEN,
-            self.tr("Pen width"),
+        numberMarkerItemToolbarSizeCard = RangeSettingCard(
+            cfg.numberMarkerItemToolbarSize,
+            ScreenShotIcon.CHOICE_SIZE,
+            self.tr("Size"),
             parent=numberMarkerItemToolbarGroup,
         )
         numberMarkerItemToolbarPenColorCard = ColorSettingCard(
@@ -178,11 +178,11 @@ class ToolbarInterface(QWidget):
             configItem=cfg.numberMarkerItemToolbarUseShadowEffect,
             parent=numberMarkerItemToolbarGroup,
         )
+        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarSizeCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarFontCard)
         numberMarkerItemToolbarGroup.addSettingCard(
             numberMarkerItemToolbarTextColorCard
         )
-        numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenWidthCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenColorCard)
         numberMarkerItemToolbarGroup.addSettingCard(numberMarkerItemToolbarPenStyleCard)
         numberMarkerItemToolbarGroup.addSettingCard(

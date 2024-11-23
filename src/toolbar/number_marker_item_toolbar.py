@@ -17,7 +17,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
             "font": defaultFont,
             "textColor": cfg.get(cfg.numberMarkerItemToolbarTextColor),
             "penColor": cfg.get(cfg.numberMarkerItemToolbarPenColor),
-            "penWidth": cfg.get(cfg.numberMarkerItemToolbarPenWidth),
+            "size": cfg.get(cfg.numberMarkerItemToolbarSize),
             "penStyle": cfg.get(cfg.numberMarkerItemToolbarPenStyle),
             "brushColor": cfg.get(cfg.numberMarkerItemToolbarBrushColor),
             "useShadowEffect": cfg.get(cfg.numberMarkerItemToolbarUseShadowEffect),
@@ -152,14 +152,14 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
         return penStyleComBox, colorPickerButton
 
     def wheelZoom(self, angleDelta: int):
-        finalValue = self.styleMap["penWidth"]
-        (minValue, maxValue) = cfg.numberMarkerItemToolbarPenWidth.range
+        finalValue = self.styleMap["size"]
+        (minValue, maxValue) = cfg.numberMarkerItemToolbarSize.range
 
         if angleDelta > 1:
             finalValue = min(maxValue, finalValue + 1)
         else:
             finalValue = max(minValue, finalValue - 1)
-        self.styleMap["penWidth"] = finalValue
+        self.styleMap["size"] = finalValue
 
         if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
             self.canvasItem.resetStyle(self.styleMap.copy())

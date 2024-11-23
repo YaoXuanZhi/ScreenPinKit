@@ -52,6 +52,7 @@
         <file>icons/round_box.svg</file>
         <file>icons/qr_code.svg</file>
         <file>icons/ocr_loader.svg</file>
+        <file>icons/choice_size.svg</file>
 
         <file>qss/dark/setting_interface.qss</file>
         <file>qss/light/setting_interface.qss</file>

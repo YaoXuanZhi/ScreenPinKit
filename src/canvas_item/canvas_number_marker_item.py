@@ -38,14 +38,13 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.white),
             "penColor": QColor(Qt.GlobalColor.red),
-            "penWidth": 2,
+            "size": 20,
             "penStyle": Qt.PenStyle.SolidLine,
             "brushColor": QColor(Qt.GlobalColor.red),
             "useShadowEffect": False,
         }
 
         self.usePen = QPen()
-        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setColor(styleMap["penColor"])
         self.usePen.setStyle(styleMap["penStyle"])
         self.useBrushColor = styleMap["brushColor"]
@@ -63,9 +62,18 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         penColor = styleMap["penColor"]
-        penWidth = styleMap["penWidth"]
         penStyle = styleMap["penStyle"]
+
+        center = self.mapToScene(self.rect().center())
+        rect = self.rect()
+        size = styleMap["size"] * self.devicePixelRatio
+        rect.setWidth(size)
+        rect.setHeight(size)
+        self.setRect(rect)
+        self.setPos(center - self.rect().center())
+
         self.usePen.setColor(penColor)
+        penWidth = math.ceil(self.rect().width() / 14.0)
         self.usePen.setWidth(penWidth)
         self.usePen.setStyle(penStyle)
 
@@ -143,13 +151,12 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             return
         else:
             finalStyleMap = self.styleAttribute.getValue().value()
-            finalWidth = finalStyleMap["penWidth"]
+            finalWidth = finalStyleMap["size"]
             if event.delta() > 0:
-                finalWidth = finalWidth + 1
+                finalWidth = finalWidth + 2
             else:
-                finalWidth = max(finalWidth - 1, 1)
-            finalStyleMap["penWidth"] = finalWidth
-            self.usePen.setWidth(finalWidth * self.devicePixelRatio)
+                finalWidth = max(finalWidth - 2, 1)
+            finalStyleMap["size"] = finalWidth
             self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def completeDraw(self):

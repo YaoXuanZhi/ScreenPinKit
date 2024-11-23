@@ -217,8 +217,8 @@ class Config(QConfig):
     numberMarkerItemToolbarTextColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "textColor", Qt.GlobalColor.white
     )
-    numberMarkerItemToolbarPenWidth = RangeConfigItem(
-        "NumberMarkerItemToolbar", "penWidth", 2, RangeValidator(1, 30)
+    numberMarkerItemToolbarSize = RangeConfigItem(
+        "NumberMarkerItemToolbar", "size", 20, RangeValidator(1, 100)
     )
     numberMarkerItemToolbarPenColor = ColorConfigItem(
         "NumberMarkerItemToolbar", "penColor", Qt.GlobalColor.gray

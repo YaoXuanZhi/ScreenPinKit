@@ -62,6 +62,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     ROUND_BOX = "round_box"
     QR_CODE = "qr_code"
     OCR_LOADER = "ocr_loader"
+    CHOICE_SIZE = "choice_size"
 
     PLUGIN_MARKET = "whiteboard"
 
