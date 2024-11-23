@@ -14,13 +14,14 @@ class CanvasPenItem(CanvasCommonPathItem):
         self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         styleMap = {
             "penColor": QColor(0, 255, 0, 100),
             "penWidth": 5,
         }
 
         self.usePen = QPen(styleMap["penColor"])
-        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -36,7 +37,7 @@ class CanvasPenItem(CanvasCommonPathItem):
         penColor = styleMap["penColor"]
         penWidth = styleMap["penWidth"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth)
+        self.usePen.setWidth(penWidth * self.devicePixelRatio)
         self.update()
 
     def resetStyle(self, styleMap):

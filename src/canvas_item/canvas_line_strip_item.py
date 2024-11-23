@@ -20,13 +20,14 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         self.isCompleted = False
 
     def __initStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         styleMap = {
             "penColor": QColor(0, 255, 0, 100),
             "penWidth": 5,
         }
 
         self.usePen = QPen(styleMap["penColor"])
-        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -45,7 +46,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         penColor = styleMap["penColor"]
         penWidth = styleMap["penWidth"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth)
+        self.usePen.setWidth(penWidth * self.devicePixelRatio)
         self.update()
 
     def getOffsetLength(self) -> int:
@@ -68,7 +69,6 @@ class CanvasLineStripItem(CanvasCommonPathItem):
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         if not self.isCompleted:
             return
-
         finalStyleMap = self.styleAttribute.getValue().value()
         finalWidth = finalStyleMap["penWidth"]
 
@@ -77,10 +77,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
             finalWidth = finalWidth + 1
         else:
             finalWidth = max(1, finalWidth - 1)
-
         finalStyleMap["penWidth"] = finalWidth
-        self.usePen.setWidth(finalWidth)
-
         self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:

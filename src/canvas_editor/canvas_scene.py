@@ -279,7 +279,7 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
-                        self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 25, 25))
+                        self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 20, 20))
                         self.__startDraw(self.currentItem)
                         targetPos.setX(
                             targetPos.x() - self.currentItem.boundingRect().width() / 2

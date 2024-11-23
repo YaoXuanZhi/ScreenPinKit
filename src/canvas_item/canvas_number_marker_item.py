@@ -11,6 +11,9 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
     markderIndex = 0
 
     def __init__(self, rect: QRectF, parent: QGraphicsItem = None) -> None:
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
+        rect.setWidth(rect.width() * self.devicePixelRatio)
+        rect.setHeight(rect.height() * self.devicePixelRatio)
         super().__init__(rect, parent)
         self.__initStyle()
         self.setDefaultFlag()
@@ -22,7 +25,7 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         self.shadowEffect = QGraphicsDropShadowEffect()
         self.shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
         self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
-        self.shadowEffect.setOffset(5, 5)  # 阴影的偏移量
+        self.shadowEffect.setOffset(5 * self.devicePixelRatio, 5 * self.devicePixelRatio)  # 阴影的偏移量
         self.setGraphicsEffect(self.shadowEffect)
 
     def removeShadow(self):
@@ -42,7 +45,7 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         }
 
         self.usePen = QPen()
-        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setColor(styleMap["penColor"])
         self.usePen.setStyle(styleMap["penStyle"])
         self.useBrushColor = styleMap["brushColor"]
@@ -146,7 +149,7 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             else:
                 finalWidth = max(finalWidth - 1, 1)
             finalStyleMap["penWidth"] = finalWidth
-            self.usePen.setWidth(finalWidth)
+            self.usePen.setWidth(finalWidth * self.devicePixelRatio)
             self.styleAttribute.setValue(QVariant(finalStyleMap))
 
     def completeDraw(self):

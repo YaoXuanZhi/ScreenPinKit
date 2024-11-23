@@ -19,11 +19,12 @@ class CanvasEraserItem(CanvasCommonPathItem):
         self.isSmoothCurve = isSmoothCurve
 
     def __initStyle(self, pen: QPen):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         styleMap = {
             "width": 5,
         }
         self.usePen = pen
-        self.usePen.setWidth(styleMap["width"])
+        self.usePen.setWidth(styleMap["width"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -37,7 +38,7 @@ class CanvasEraserItem(CanvasCommonPathItem):
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         width = styleMap["width"]
-        self.usePen.setWidth(width)
+        self.usePen.setWidth(width * self.devicePixelRatio)
         self.update()
 
     def resetStyle(self, styleMap):
@@ -155,6 +156,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 class CanvasShadowEraserRectItem(QGraphicsRectItem):
     def __init__(self, bgBrush, parent=None):
         super().__init__(parent)
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         self.bgBrush = bgBrush
         self.bgPixmap = self.bgBrush.texture()
         self.attachPath = QPainterPath()
@@ -184,7 +186,7 @@ class CanvasShadowEraserRectItem(QGraphicsRectItem):
 
     def applyShadow(self):
         shadowEffect = QGraphicsDropShadowEffect()
-        shadowEffect.setBlurRadius(30)  # 阴影的模糊半径
+        shadowEffect.setBlurRadius(30 * self.devicePixelRatio)  # 阴影的模糊半径
         shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
         shadowEffect.setOffset(0, 0)  # 阴影的偏移量
         self.setGraphicsEffect(shadowEffect)

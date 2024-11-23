@@ -27,6 +27,7 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
         )  # 如果想要显示当前HitTest区域，注释这行代码即可
 
     def __initStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         # 由于图元和工具栏是采用动态方式绑定的，必须确保绑定时触发一次valueChangedSignal
         styleMap = {
             "strength": 5,
@@ -122,7 +123,7 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
 
     def applyShadow(self):
         self.shadowEffect = QGraphicsDropShadowEffect()
-        self.shadowEffect.setBlurRadius(20)  # 阴影的模糊半径
+        self.shadowEffect.setBlurRadius(20 * self.devicePixelRatio)  # 阴影的模糊半径
         self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
         self.shadowEffect.setOffset(0, 0)  # 阴影的偏移量
         self.setGraphicsEffect(self.shadowEffect)

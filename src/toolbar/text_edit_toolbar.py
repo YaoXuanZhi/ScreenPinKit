@@ -9,9 +9,10 @@ class TextEditToolbar(CanvasItemToolBar):
         self.listenerEvent()
 
     def initDefaultStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         self.opacity: int = 100
         defaultFont = QFont()
-        defaultPointSize = cfg.get(cfg.textEditToolbarFontSize)
+        defaultPointSize = cfg.get(cfg.textEditToolbarFontSize) * self.devicePixelRatio
         defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
         defaultFont.setFamily(defaultFontFamily)
         defaultFont.setPointSize(defaultPointSize)

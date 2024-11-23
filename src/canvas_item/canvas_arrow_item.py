@@ -18,10 +18,11 @@ class CanvasArrowItem(CanvasCommonPathItem):
         self.zoomComponent.signal.connect(self.zoomHandle)
 
     def __initStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         internalStyleMap = {
-            "arrowLength": 32.0,
+            "arrowLength": 32.0 * self.devicePixelRatio,
             "arrowAngle": 0.5,
-            "arrowBodyLength": 18,
+            "arrowBodyLength": 18 * self.devicePixelRatio,
             "arrowBodyAngle": 0.2,
         }
         self.internalAttribute = CanvasAttribute()
@@ -31,7 +32,7 @@ class CanvasArrowItem(CanvasCommonPathItem):
         styleMap = {
             "brushColor": QColor(255, 0, 0, 100),
             "penColor": QColor(255, 0, 0),
-            "penWidth": 2,
+            "penWidth": 2 * self.devicePixelRatio,
             "penStyle": Qt.PenStyle.SolidLine,
         }
 

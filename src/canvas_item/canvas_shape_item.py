@@ -27,7 +27,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
         self.sides = 3
 
     def __initStyle(self, shapeType: CanvasShapeEnum):
-        # todo 后续可以借用这里面的配置类 qfluentwidgets\common\config.py
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         styleMap = {
             "brushColor": QColor(255, 0, 0, 100),
             "penColor": QColor(255, 0, 0),
@@ -37,7 +37,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
         }
 
         self.usePen = QPen()
-        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setColor(styleMap["penColor"])
         self.usePen.setStyle(styleMap["penStyle"])
 
@@ -67,7 +67,7 @@ class CanvasShapeItem(CanvasCommonPathItem):
         penWidth = styleMap["penWidth"]
         penStyle = styleMap["penStyle"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth)
+        self.usePen.setWidth(penWidth * self.devicePixelRatio)
         self.usePen.setStyle(penStyle)
 
         self.useBrushColor = styleMap["brushColor"]

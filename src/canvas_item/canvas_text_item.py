@@ -31,8 +31,9 @@ class CanvasTextItem(QGraphicsTextItem):
         self.onWheelEvent = callback
 
     def __initStyle(self):
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         defaultFont = QFont()
-        defaultFont.setPointSize(16)
+        defaultFont.setPointSize(16 * self.devicePixelRatio)
         styleMap = {
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.red),
