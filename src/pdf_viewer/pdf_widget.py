@@ -15,12 +15,12 @@
 
 import os
 from .ocr_widget_interface import *
-
+from misc import *
 
 class PdfWidget(OcrWidgetInterface):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.workDir = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.workDir = os.path.join(OsHelper.getInternalPath(), "internal_deps").replace("\\", "/")
         self.pdfjs_web = (
             f"file:///{self.workDir}/pdfjs-3.4.120-legacy-dist/web/viewer.html"
         )

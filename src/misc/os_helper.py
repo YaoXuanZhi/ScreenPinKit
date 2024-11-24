@@ -1,4 +1,4 @@
-import os, subprocess, hashlib
+import os, sys, inspect, subprocess, hashlib
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -226,13 +226,35 @@ class OsHelper:
 
         return finalPixmap
 
-    def get_web_engine_font_family():
+    @staticmethod
+    def getWebEngineFontFamily():
         from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 
         settings = QWebEngineSettings.globalSettings()
         return settings.fontFamily(QWebEngineSettings.FantasyFont)
 
-    def get_system_font_family():
+    @staticmethod
+    def getSystemFontFamily():
         font_db = QFontDatabase()
         font_family = font_db.families()[0]
         return font_family
+
+    @staticmethod
+    def getCallerFilePath():
+        stack = inspect.stack()
+        # 获取调用该函数的帧（即调用栈的第三帧）
+        callerFrame = stack[2]
+        # 获取调用该函数的源文件路径
+        callerFilePath = callerFrame.filename
+        return callerFilePath
+
+    @staticmethod
+    def getInternalPath():
+        if getattr(sys, 'frozen', False):
+            # 如果是打包后的可执行文件
+            result = sys._MEIPASS
+        else:
+            # 如果是源码运行，目的是定位到src目录
+            result = os.path.abspath(os.path.join(os.path.dirname(OsHelper.getCallerFilePath()), ".."))
+    
+        return result

@@ -44,14 +44,12 @@ class OcrLoaderManager:
         from cv2.wechat_qrcode import WeChatQRCode
         import qrcode
 
-        # 打包指令：pyinstaller --onefile --icon=../images/logo.png --add-data "internal_plugins/*.py;internal_plugins" --add-data "internal_ocr_loaders/*.py;internal_ocr_loaders" --add-data "internal_ocr_loaders/PaddleOCRModel;internal_ocr_loaders/PaddleOCRModel" --windowed main.py -n ScreenPinKit
-        self.__initLoadersByModuleName("internal_ocr_loader_return_text")
-        self.__initLoadersByModuleName("internal_ocr_loader_return_text_plus")
-        self.__initLoadersByModuleName("internal_ocr_loader_return_json")
+        internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_ocr_loaders")
+        self.__initLoadersByFolder(internalPath)
 
     def __initLoadersOutside(self):
-        plugin_dir = cfg.get(cfg.ocrLoaderFolder)
-        self.__initLoadersByFolder(plugin_dir)
+        pluginDir = cfg.get(cfg.ocrLoaderFolder)
+        self.__initLoadersByFolder(pluginDir)
 
     def __initLoadersByText(self, moduleName, text):
         loader = CustomLoader(text)
@@ -84,10 +82,10 @@ class OcrLoaderManager:
         pyFiles = glob.glob(f"{folderPath}/*.py", recursive=False)
         for filePath in pyFiles:
             filename = os.path.basename(filePath)
-            module_name = filename[:-3]
-            module_path = f"{module_name}"
+            moduleName = filename[:-3]
+            modulePath = f"{moduleName}"
             try:
-                module = importlib.import_module(module_path)
+                module = importlib.import_module(modulePath)
                 self.__filterInterface(module)
             except Exception:
                 pass
@@ -97,8 +95,8 @@ class OcrLoaderManager:
         self.__filterInterface(module)
 
     def __filterInterface(self, module):
-        for attr_name in dir(module):
-            attr = getattr(module, attr_name)
+        for attrName in dir(module):
+            attr = getattr(module, attrName)
             if (
                 isinstance(attr, type)
                 and issubclass(attr, OcrLoaderInterface)

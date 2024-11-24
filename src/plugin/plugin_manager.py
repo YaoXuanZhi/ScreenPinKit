@@ -3,7 +3,7 @@ import os, sys, glob
 import importlib
 from .plugin_interface import PluginInterface, GlobalEventEnum
 from common import *
-
+from misc import *
 
 class CustomLoader(importlib.abc.Loader):
     def __init__(self, module_code):
@@ -22,7 +22,8 @@ class PluginManager:
         self.__loadPluginsOutside()
 
     def __loadPluginsInside(self):
-        self.__loadPluginByModuleName("ocr_progress_display")
+        internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_plugins")
+        self.__loadPluginsByFolder(internalPath)
 
     def __loadPluginsOutside(self):
         folderPath = cfg.get(cfg.pluginsFolder)
