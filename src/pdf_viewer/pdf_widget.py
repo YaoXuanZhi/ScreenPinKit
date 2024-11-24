@@ -21,11 +21,11 @@ class PdfWidget(OcrWidgetInterface):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.workDir = os.path.join(OsHelper.getInternalPath(), "internal_deps").replace("\\", "/")
-        self.pdfjs_web = (
+        self.pdfjsWebUrl = (
             f"file:///{self.workDir}/pdfjs-3.4.120-legacy-dist/web/viewer.html"
         )
 
     def openFile(self, pdfPath):
         self.receiver.htmlRenderStartSlot.emit()
         pdfPath = pdfPath.replace("\\", "/")
-        self.webView.load(QUrl.fromUserInput(f"{self.pdfjs_web}?file={pdfPath}"))
+        self.webView.load(QUrl.fromUserInput(f"{self.pdfjsWebUrl}?file={pdfPath}"))
