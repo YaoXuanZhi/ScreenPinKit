@@ -1483,7 +1483,7 @@ class CanvasAttribute(QObject):
 class ZoomComponent(QObject):
     """缩放组件"""
 
-    signal = pyqtSignal(float)
+    signal = pyqtSignal(float, dict)
 
     def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
@@ -1494,7 +1494,7 @@ class ZoomComponent(QObject):
         self.zoomStep = 1
         self.zoomRange = [0, 10]
 
-    def TriggerEvent(self, angleDelta):
+    def TriggerEvent(self, angleDelta, **kwargs):
         """触发事件"""
 
         # calculate our zoom Factor
@@ -1516,7 +1516,7 @@ class ZoomComponent(QObject):
 
         # set scene scale
         if not clamped or self.zoomClamp is False:
-            self.signal.emit(zoomFactor)
+            self.signal.emit(zoomFactor, kwargs)
 
 
 class TransformComponent(QObject):

@@ -104,3 +104,10 @@ class ArrowToolbar(CanvasItemToolBar):
         self.addWidget(optionView)
 
         return penStyleComBox, colorPickerButton
+
+    def wheelZoom(self, angleDelta: int, kwargs):
+        if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
+            if angleDelta > 1:
+                self.canvasItem.zoomComponent.TriggerEvent(1)
+            else:
+                self.canvasItem.zoomComponent.TriggerEvent(-1)

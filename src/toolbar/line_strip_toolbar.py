@@ -47,7 +47,7 @@ class LineStripToolbar(CanvasItemToolBar):
             self.canvasItem.setOpacity(self.opacity * 1.0 / 100)
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def wheelZoom(self, angleDelta: int):
+    def wheelZoom(self, angleDelta: int, kwargs):
         finalValue = self.styleMap["penWidth"]
         (minValue, maxValue) = cfg.lineStripToolbarPenWidth.range
 

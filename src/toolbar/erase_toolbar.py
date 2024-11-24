@@ -58,7 +58,7 @@ class EraseToolbar(CanvasItemToolBar):
         if self.canvasItem != None and hasattr(self.canvasItem, "resetStyle"):
             self.canvasItem.resetStyle(self.styleMap.copy())
 
-    def wheelZoom(self, angleDelta: int):
+    def wheelZoom(self, angleDelta: int, kwargs):
         finalValue = self.styleMap["width"]
         (minValue, maxValue) = cfg.eraseToolbarWidth.range
 

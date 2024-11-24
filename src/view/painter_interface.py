@@ -424,11 +424,8 @@ class PainterInterface(QWidget):
         w.setCustomBackgroundColor("white", "#202020")
 
     def wheelEvent(self, event: QWheelEvent):
-        if (
-            self.painterToolBarMgr != None
-            and int(event.modifiers()) == Qt.ControlModifier
-        ):
-            self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y())
+        if self.painterToolBarMgr != None:
+            self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y(), wheelEvent=event)
         return super().wheelEvent(event)
 
     def startOcr(self):

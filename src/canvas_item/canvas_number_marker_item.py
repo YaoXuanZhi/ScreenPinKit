@@ -20,6 +20,9 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         CanvasNumberMarkerItem.markderIndex = self.markderIndex + 1
         self.index = CanvasNumberMarkerItem.markderIndex
         self.transformComponent = TransformComponent()
+        self.zoomComponent = ZoomComponent()
+        self.zoomComponent.zoomClamp = False
+        self.zoomComponent.signal.connect(self.zoomHandle)
 
     def applyShadow(self):
         self.shadowEffect = QGraphicsDropShadowEffect()
@@ -139,25 +142,29 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
             self.transformComponent.movedSignal.emit(self, self.oldPos, self.pos())
         return super().mouseReleaseEvent(event)
 
-    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
-        if int(event.modifiers()) == Qt.ControlModifier:
+    def completeDraw(self):
+        pass
+
+    def zoomHandle(self, zoomFactor:float, kwargs):
+        wheelEvent:QGraphicsSceneWheelEvent = kwargs["wheelEvent"]
+        finalStyleMap = self.styleAttribute.getValue().value()
+        if int(wheelEvent.modifiers()) == Qt.ControlModifier:
             finalIndex = self.index
-            if event.delta() > 0:
+            if zoomFactor > 1:
                 finalIndex = finalIndex + 1
             else:
-                finalIndex = max(1, finalIndex - 1)
+                finalIndex = finalIndex - 1
             self.index = finalIndex
-            self.update()
-            return
+            finalStyleMap["index"] = self.index
         else:
             finalStyleMap = self.styleAttribute.getValue().value()
             finalWidth = finalStyleMap["size"]
-            if event.delta() > 0:
+            if zoomFactor > 1:
                 finalWidth = finalWidth + 2
             else:
                 finalWidth = max(finalWidth - 2, 1)
             finalStyleMap["size"] = finalWidth
-            self.styleAttribute.setValue(QVariant(finalStyleMap))
+        self.styleAttribute.setValue(QVariant(finalStyleMap))
 
-    def completeDraw(self):
-        pass
+    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        self.zoomComponent.TriggerEvent(event.delta(), wheelEvent=event)

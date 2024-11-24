@@ -151,15 +151,7 @@ class NumberMarkerItemToolbar(CanvasItemToolBar):
 
         return penStyleComBox, colorPickerButton
 
-    def wheelZoom(self, angleDelta: int):
-        finalValue = self.styleMap["size"]
-        (minValue, maxValue) = cfg.numberMarkerItemToolbarSize.range
-
-        if angleDelta > 1:
-            finalValue = min(maxValue, finalValue + 1)
-        else:
-            finalValue = max(minValue, finalValue - 1)
-        self.styleMap["size"] = finalValue
-
+    def wheelZoom(self, angleDelta: int, kwargs):
         if self.canvasItem != None and cfg.get(cfg.toolbarApplyWheelItem):
-            self.canvasItem.resetStyle(self.styleMap.copy())
+            self.canvasItem.zoomHandle(angleDelta, kwargs)
+            self.styleMap["size"] = self.canvasItem.styleAttribute.getValue().value()["size"]

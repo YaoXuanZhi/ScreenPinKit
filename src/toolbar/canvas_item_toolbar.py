@@ -28,10 +28,17 @@ class CanvasItemToolBar(CommandBarView):
               3. 在选择模式下，操作完当前工具对应图元之后，打算继续绘制新同类图元时，将各选项赋值到新图元上
         """
         if canvasItem != None:
+            # 移除旧的绑定
+            if self.canvasItem != None:
+                if hasattr(self.canvasItem, "setWheelEventCallBack"):
+                    self.canvasItem.setWheelEventCallBack(None)
             self.canvasItem = canvasItem
 
             if sceneUserNotifyEnum == SceneUserNotifyEnum.SelectItemChangedEvent:
-                self.styleMap = self.canvasItem.styleAttribute.getValue().value()
+                # 重新选中图元时，刷新各选项
+                if hasattr(self.canvasItem, "setWheelEventCallBack") and hasattr(self.canvasItem, "onWheelZoom"):
+                # if hasattr(self.canvasItem, "setWheelEventCallBack"):
+                    self.canvasItem.setWheelEventCallBack(self.canvasItem.onWheelZoom)
 
                 # QGraphicsItem.opacity()数值范围是：[0, 1]，滑块数值范围设定为：[0, 100]，这里需要转换下
                 self.opacity = int(self.canvasItem.opacity() * 100)

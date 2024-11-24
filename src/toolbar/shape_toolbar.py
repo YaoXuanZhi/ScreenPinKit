@@ -140,7 +140,7 @@ class ShapeToolbar(CanvasItemToolBar):
 
         return penStyleComBox, colorPickerButton
 
-    def wheelZoom(self, angleDelta: int):
+    def wheelZoom(self, angleDelta: int, kwargs):
         finalValue = self.styleMap["penWidth"]
         (minValue, maxValue) = cfg.shapeToolbarPenWidth.range
 

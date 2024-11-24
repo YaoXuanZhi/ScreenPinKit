@@ -67,7 +67,7 @@ class EffectToolbar(CanvasItemToolBar):
         self.styleMap["effectType"] = comBox.currentData()
         self.refreshAttachItem()
 
-    def wheelZoom(self, angleDelta: int):
+    def wheelZoom(self, angleDelta: int, kwargs):
         finalValue = self.strengthSlider.value()
         (minValue, maxValue) = cfg.effectToolbarStrength.range
         if angleDelta > 1:

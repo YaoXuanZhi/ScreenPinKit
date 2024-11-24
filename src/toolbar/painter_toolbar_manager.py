@@ -150,10 +150,10 @@ class PainterToolBarManager(QObject):
             parent=self.targetWidget,
         )
 
-    def wheelZoom(self, angleDelta: int):
+    def wheelZoom(self, angleDelta: int, kwargs):
         if self.canvasItemBar == None:
             return
 
         if cfg.get(cfg.toolbarUseWheelZoom):
             if hasattr(self.canvasItemBar, "wheelZoom"):
-                self.canvasItemBar.wheelZoom(angleDelta)
+                self.canvasItemBar.wheelZoom(angleDelta, kwargs)
