@@ -82,10 +82,10 @@ python ./canvas_item/demos/canvas_arrow_demo.py
 # Windows Defender可能会报毒，忽略即可打包出来
 cd src
 # 显式打包OCR环境，需要在ocr_loader_manager.py里显式导入相关依赖模块
-pyinstaller --icon=../images/logo.png --add-data "internal_deps;internal_deps" --windowed main.py -n ScreenPinKit
+pyinstaller --icon=../images/logo.png --add-data "internal_deps:internal_deps" --windowed main.py -n ScreenPinKit
 
 # 隐式包含内置OCR环境
-# pyinstaller --onefile --hidden-import=cv2 --hidden-import=onnxruntime --hidden-import=pyclipper --hidden-import=shapely --icon=../images/logo.png --add-data "internal_deps;internal_deps" --windowed main.py -n ScreenPinKit
+# pyinstaller --onefile --hidden-import=cv2 --hidden-import=onnxruntime --hidden-import=pyclipper --hidden-import=shapely --icon=../images/logo.png --add-data "internal_deps:internal_deps" --windowed main.py -n ScreenPinKit
 ```
 
 ## 代码检查&格式化
@@ -177,7 +177,7 @@ ruff format
 ## ☐ 重构绘图工具模块
 由于当初实现的时候，很多绘图工具功能并没有明晰，都是摸索着实现的，所以存在很多硬编码的情况，现在功能基本已稳定，可以重新梳理该功能的行为，计划将拆分为DrawToolProvider、DrawToolSchduler、DrawToolFactory等模块，甚至将它们提炼为一个插件，让绘图工具的实现更灵活，更易扩展
 
-## ☐ 兼容Linux Desktop系统，比如Ubuntu
+## ✔ 兼容Linux Desktop系统，比如Ubuntu
 由于采用了Qt，它是一个跨平台的GUI，因此理论上是可以兼容Linux Desktop的，但需要做以下适配，比如热键注册之类需要调整
 
 ```sh
@@ -186,12 +186,17 @@ ruff format
 
 # 安装Qt依赖库
 sudo apt install libxcb-*
-sudo apt install python3-pip -y
-conda install -c conda-forge gcc 
 
 # Ubuntu需要xpyb - XCB 的 Python 版本
 pip install xpybutil
 ```
+
+```sh
+# 打包应用
+sudo apt install binutils
+pip install pyinstaller
+```
+
  - [解决部分软件在 Linux 下截屏黑屏，远程控制黑屏的问题](https://blog.csdn.net/u010912615/article/details/141295444)
    >某些Linux发行版默认使用Waylan显示协议，截屏时屏幕是黑的，只能截取到纯黑的图像，使用`/etc/gdm3/custom.conf`文件，在`[daemon]`段中添加`WaylandEnable=false`即可，重启电脑即可生效
 
