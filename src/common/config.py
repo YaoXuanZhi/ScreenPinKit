@@ -149,7 +149,7 @@ class Config(QConfig):
 
     # ShapeToolbar
     shapeToolbarPenWidth = RangeConfigItem(
-        "ShapeToolbar", "penWidth", 2, RangeValidator(1, 30)
+        "ShapeToolbar", "penWidth", 4, RangeValidator(1, 30)
     )
     shapeToolbarBrushColor = ColorConfigItem(
         "ShapeToolbar", "brushColor", Qt.GlobalColor.blue

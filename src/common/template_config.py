@@ -24,7 +24,7 @@ TEMPLATE_CONFIG = """
     },
     "LineStripToolbar": {
         "penColor": "#ffff0000",
-        "penWidth": 5
+        "penWidth": 4
     },
     "MarkerPenToolbar": {
         "penColor": "#995f0f26",
@@ -41,19 +41,20 @@ TEMPLATE_CONFIG = """
         "penColor": "#ffff0000",
         "penStyle": 1,
         "penWidth": 2,
+        "size": 24,
         "fontFamily": "Microsoft YaHei",
         "textColor": "#ffffffff",
         "brushColor": "#7fff0000"
     },
     "PenToolbar": {
         "penColor": "#ffff0000",
-        "penWidth": 5
+        "penWidth": 3
     },
     "ShapeToolbar": {
         "brushColor": "#00ff00ff",
         "penColor": "#ffff0000",
         "penStyle": 1,
-        "penWidth": 2,
+        "penWidth": 3,
         "shape": "Rectangle"
     },
     "TextEditToolbar": {
