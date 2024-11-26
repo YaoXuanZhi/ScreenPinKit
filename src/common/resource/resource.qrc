@@ -25,7 +25,6 @@
         <file>icons/line_strip.svg</file>
         <file>icons/polygon.svg</file>
         <file>icons/select_item.svg</file>
-        <file>icons/mosaic.svg</file>
         <file>icons/locked.svg</file>
         <file>icons/unlocked.svg</file>
         <file>icons/circle.svg</file>
@@ -46,13 +45,16 @@
         <file>icons/shadow_effect.svg</file>
         <file>icons/effect_toolbar.svg</file>
         <file>icons/text_shadow.svg</file>
-        <file>icons/mosaic2.svg</file>
-        <file>icons/mosaic3.svg</file>
-        <file>icons/find_edges.svg</file>
         <file>icons/round_box.svg</file>
         <file>icons/qr_code.svg</file>
         <file>icons/ocr_loader.svg</file>
         <file>icons/choice_size.svg</file>
+        <file>icons/shadow_eraser.svg</file>
+        <file>icons/image_mosaic.svg</file>
+        <file>icons/image_invert.svg</file>
+        <file>icons/image_contour.svg</file>
+        <file>icons/image_detail.svg</file>
+        <file>icons/image_find_edges.svg</file>
 
         <file>qss/dark/setting_interface.qss</file>
         <file>qss/light/setting_interface.qss</file>

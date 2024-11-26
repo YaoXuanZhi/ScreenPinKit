@@ -198,7 +198,7 @@ class Config(QConfig):
 
     # MarkerPenToolbar
     markerPenToolbarPenWidth = RangeConfigItem(
-        "MarkerPenToolbar", "penWidth", 5, RangeValidator(1, 30)
+        "MarkerPenToolbar", "penWidth", 10, RangeValidator(1, 30)
     )
     markerPenToolbarPenColor = ColorConfigItem(
         "MarkerPenToolbar", "penColor", Qt.GlobalColor.red

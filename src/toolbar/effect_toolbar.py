@@ -16,10 +16,11 @@ class EffectToolbar(CanvasItemToolBar):
 
         self.effectTypeInfos = [
             (self.tr("Blur"), ScreenShotIcon.BLUR, AfterEffectType.Blur),
-            (self.tr("Mosaic"), ScreenShotIcon.MOSAIC, AfterEffectType.Mosaic),
-            (self.tr("Detail"), ScreenShotIcon.MOSAIC2, AfterEffectType.Detail),
-            (self.tr("Find_Edges"), ScreenShotIcon.FIND_EDGES, AfterEffectType.Find_Edges),
-            (self.tr("Contour"), ScreenShotIcon.MOSAIC3, AfterEffectType.Contour),
+            (self.tr("Mosaic"), ScreenShotIcon.IMAGE_MOSAIC, AfterEffectType.Mosaic),
+            (self.tr("Detail"), ScreenShotIcon.IMAGE_DETAIL, AfterEffectType.Detail),
+            (self.tr("Find_Edges"), ScreenShotIcon.IMAGE_FIND_EDGES, AfterEffectType.Find_Edges),
+            (self.tr("Contour"), ScreenShotIcon.IMAGE_CONTOUR, AfterEffectType.Contour),
+            (self.tr("Invert"), ScreenShotIcon.IMAGE_INVERT, AfterEffectType.Invert),
         ]
 
     def refreshStyleUI(self):

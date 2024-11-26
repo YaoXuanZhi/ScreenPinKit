@@ -17,6 +17,7 @@ class AfterEffectType(Enum):
     Detail = "Detail"
     Find_Edges = "Find_Edges"
     Contour = "Contour"
+    Invert = "Invert"
 
 
 class AfterEffectUtilByPIL:
@@ -84,6 +85,13 @@ class AfterEffectUtilByPIL:
     def contour(pixmap: QPixmap):
         """轮廓提取"""
         return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
+
+    @staticmethod
+    def invert(pixmap: QPixmap):
+        """反色"""
+        img:QImage = pixmap.toImage()
+        img.invertPixels()
+        return QPixmap.fromImage(img)
 
     # @staticmethod
     # def mosaic2(pixmap:QPixmap, blockSize = 16):
@@ -248,6 +256,8 @@ class EffectWorker(QThread):
                 finalPixmap = AfterEffectUtilByPIL.findEdges(self.sourcePixmap)
             elif self.effectType == AfterEffectType.Contour:
                 finalPixmap = AfterEffectUtilByPIL.contour(self.sourcePixmap)
+            elif self.effectType == AfterEffectType.Invert:
+                finalPixmap = AfterEffectUtilByPIL.invert(self.sourcePixmap)
             else:
                 pass
             self.effectFinishedSignal.emit(finalPixmap)

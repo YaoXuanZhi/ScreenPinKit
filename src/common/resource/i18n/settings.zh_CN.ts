@@ -633,6 +633,10 @@
         <translation>轮廓提取</translation>
     </message>
     <message>
+        <source>Invert</source>
+        <translation>反色</translation>
+    </message>
+    <message>
         <source>Effect strength</source>
         <translation>强度</translation>
     </message>
