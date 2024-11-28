@@ -51,8 +51,7 @@ class PainterInterface(QWidget):
 
         if self.physicalPixmap != None:
             basePixmap = self.physicalPixmap.copy()
-            roundRadius = cfg.get(cfg.windowShadowStyleRoundRadius)
-            basePixmap = OsHelper.ConvertToRoundedPixmap(basePixmap, roundRadius)
+            basePixmap = OsHelper.ConvertToRoundedPixmap(basePixmap, 0)
             self.sceneBrush = QBrush(basePixmap)
             screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
             transform = QTransform()

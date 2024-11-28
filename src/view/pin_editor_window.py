@@ -153,7 +153,7 @@ class PinEditorWindow(PinWindow):
             if cfg.get(cfg.windowShadowStyleIsSaveWithShadow):
                 finalPixmap = self.grabWithShaodw()
             else:
-                finalPixmap = self.painterWidget.getFinalPixmap()
+                finalPixmap = self.grab()
 
             kv = {"pixmap": finalPixmap}
             pluginMgr.handleEvent(GlobalEventEnum.ImageSavingEvent, kv=kv, parent=self)

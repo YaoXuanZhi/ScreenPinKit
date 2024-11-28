@@ -95,7 +95,7 @@ class ShadowWindow(MouseThroughWindow):
 
         # 创建一个QPainter对象，用于绘制遮罩
         painter = QPainter(maskBitmap)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform | QPainter.RenderHint.Antialiasing)
 
         # 设置画笔和画刷
         painter.setPen(Qt.GlobalColor.color1)  # 设置画笔颜色为白色（不透明）

@@ -216,7 +216,9 @@ class CanvasScene(QGraphicsScene):
         """捕获当前场景快照"""
         view = self.views()[0]
         shotGrab = view.grab()
-        finalSize = self.bgBrush.texture().size()
+        devicePixelRatio = self.bgBrush.texture().devicePixelRatio()
+        finalSize = QSizeF(qRound(self.sceneRect().width() * devicePixelRatio), qRound(self.sceneRect().height() * devicePixelRatio))
+
         shotGrab = shotGrab.scaled(
             finalSize.width(), finalSize.height(), Qt.KeepAspectRatio
         )

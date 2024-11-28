@@ -5,6 +5,7 @@ from PyQt5.QtGui import QShowEvent
 from PyQt5.QtWidgets import *
 from .drag_window import *
 from .shadow_window import *
+from misc import OsHelper
 
 
 class PinWindow(DragWindow):
@@ -89,6 +90,7 @@ class PinWindow(DragWindow):
         basePixmap = self.shadowWindow.grab()
         painter = QPainter()
         painter.begin(basePixmap)
-        painter.drawPixmap(self.shadowWidth, self.shadowWidth, self.grab())
+        grab = OsHelper.ConvertToRoundedPixmap(self.grab(), self.roundRadius)
+        painter.drawPixmap(self.shadowWidth, self.shadowWidth, grab)
         painter.end()
         return basePixmap
