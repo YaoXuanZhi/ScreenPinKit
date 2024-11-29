@@ -1,7 +1,7 @@
 # coding=utf-8
 from .canvas_util import *
 from .after_effect_util import *
-
+from base import *
 
 class CanvasEffectRectItem(CanvasCommonPathItem):
     """
@@ -10,6 +10,7 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
 
     def __init__(self, sourcePixmap: QPixmap, parent: QWidget = None) -> None:
         super().__init__(parent, False)
+        self.defaultColor = QColor(0, 0, 0, 150)
         self.sourcePixmap = sourcePixmap
         self.effectedPixmap = None
         self.effectWorker = EffectWorker()
@@ -124,6 +125,23 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
     def applyShadow(self):
         self.shadowEffect = QGraphicsDropShadowEffect()
         self.shadowEffect.setBlurRadius(20 * self.devicePixelRatio)  # 阴影的模糊半径
-        self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
+        self.shadowEffect.setColor(self.defaultColor)  # 阴影的颜色和透明度
         self.shadowEffect.setOffset(0, 0)  # 阴影的偏移量
         self.setGraphicsEffect(self.shadowEffect)
+
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent):
+        if(event.button() == Qt.MouseButton.LeftButton):
+            self.colorDialog = RingColorSelectorDialog(self.defaultColor, self.scene().views()[0])
+            self.colorDialog.colorChanged.connect(self.__onColorChanged)
+            self.colorDialog.exec()
+            return
+        return super().mouseDoubleClickEvent(event)
+
+    def __onColorChanged(self, color:QColor):
+        self.shadowEffect.setColor(color)
+        self.colorDialog.close()
+
+    def completeDraw(self):
+        if hasattr(self, 'colorDialog'):
+            self.colorDialog.close()
+        return super().completeDraw()

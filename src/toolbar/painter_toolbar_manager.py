@@ -15,6 +15,7 @@ from .effect_toolbar import *
 
 class PainterToolBarManager(QObject):
     providerChangeDrawActionSignal = pyqtSignal(DrawActionEnum)
+    showToolbarSignal = pyqtSignal(QWidget)
 
     def __init__(self, targetWidget: QWidget, parent: QObject = None) -> None:
         super().__init__(parent)
@@ -39,6 +40,11 @@ class PainterToolBarManager(QObject):
             self.optionBar.close()
             self.optionBar.destroy()
             self.optionBar = None
+
+    def getActiveState(self) -> bool:
+        if self.canvasItemBar != None and self.canvasItemBar.isActiveWindow():
+            return True
+        return False
 
     def switchSelectItemToolBar(
         self, canvasItem: QGraphicsItem, sceneUserNotifyEnum: SceneUserNotifyEnum
@@ -149,6 +155,7 @@ class PainterToolBarManager(QObject):
             orientLength=2,
             parent=self.targetWidget,
         )
+        self.showToolbarSignal.emit(self.optionBar)
 
     def wheelZoom(self, angleDelta: int, kwargs):
         if self.canvasItemBar == None:

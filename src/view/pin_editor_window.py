@@ -32,6 +32,7 @@ class PinEditorWindow(PinWindow):
 
         self.painterWidget.initDrawLayer()
         self.painterWidget.drawWidget.setEditorEnabled(False)
+        self.painterWidget.showCommandBarSignal.connect(self.onShowCommandBar)
 
         self.setShadowColor(
             cfg.get(cfg.windowShadowStyleFocusColor),
@@ -39,6 +40,12 @@ class PinEditorWindow(PinWindow):
         )
 
         self.initActions()
+
+    def onShowCommandBar(self, toolbar:QWidget) -> None:
+        toolbar.installEventFilter(self.shadowWindow)
+
+    def getActiveState(self) -> bool:
+        return self.isActiveWindow() or self.painterWidget.getActiveState()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         if self.painterWidget.currentDrawActionEnum != DrawActionEnum.DrawNone:

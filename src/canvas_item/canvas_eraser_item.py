@@ -213,4 +213,6 @@ class CanvasShadowEraserRectItem(QGraphicsRectItem):
         pass
 
     def completeDraw(self):
+        if hasattr(self, 'colorDialog'):
+            self.colorDialog.close()
         pass

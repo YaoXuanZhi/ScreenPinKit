@@ -28,6 +28,7 @@ class PainterInterface(QWidget):
     ocrStartSignal = pyqtSignal()
     ocrEndSuccessSignal = pyqtSignal(object)
     ocrEndFailSignal = pyqtSignal(str)
+    showCommandBarSignal = pyqtSignal(QWidget)
 
     def __init__(self, parent=None, physicalPixmap: QPixmap = None):
         super().__init__(parent)
@@ -64,6 +65,15 @@ class PainterInterface(QWidget):
 
     def getCommandBarPosition(self) -> BubbleTipTailPosition:
         return BubbleTipTailPosition.AUTO
+
+    def getActiveState(self) -> bool:
+        if self.toolbar != None and  self.toolbar.isActiveWindow():
+            return True
+        
+        if self.painterToolBarMgr != None and self.painterToolBarMgr.getActiveState():
+            return True
+
+        return False
 
     def showCommandBar(self):
         if self.toolbar != None:
@@ -210,9 +220,11 @@ class PainterInterface(QWidget):
             tailPosition=position,
             parent=self,
         )
+        self.showCommandBarSignal.emit(self.toolbar)
 
         self.initDrawLayer()
         self.painterToolBarMgr = PainterToolBarManager(view, self.toolbar)
+        self.painterToolBarMgr.showToolbarSignal.connect(self.showCommandBarSignal)
         self.painterToolBarMgr.providerChangeDrawActionSignal.connect(
             self.onProviderChangeDrawAction
         )

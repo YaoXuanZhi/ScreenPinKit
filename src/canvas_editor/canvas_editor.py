@@ -62,6 +62,8 @@ class CanvasEditor(QWidget):
         self.scene.forceCompleteDraw()
         self.scene.currentDrawActionEnum = drawActionEnum
         self.setEditorEnabled(drawActionEnum != DrawActionEnum.DrawNone)
+        if drawActionEnum == DrawActionEnum.DrawNone:
+            self.scene.tryCloseColorPicker()
 
     def switchLockState(self):
         self.scene.switchLockState()

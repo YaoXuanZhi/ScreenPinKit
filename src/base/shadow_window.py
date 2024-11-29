@@ -13,8 +13,8 @@ class ShadowWindow(MouseThroughWindow):
         self.roundRadius = roundRadius
         self.shadowWidth = shadowWidth
         self.borderLineWidth = 0.5
-        self.unFocusColor = QColor(125, 125, 125, 50)
-        self.focusColor = QColor(255, 0, 255, 50)
+        self.deactivedColor = QColor(125, 125, 125, 50)
+        self.activedColor = QColor(255, 0, 255, 50)
 
         # 根据吸附的窗口大小设置阴影窗口大小
         self.margins = QMargins(
@@ -108,10 +108,13 @@ class ShadowWindow(MouseThroughWindow):
         # 设置遮罩
         targetWidget.setMask(maskBitmap)
 
-    def setShadowColor(self, focusColor: QColor, unFocusColor: QColor):
-        self.focusColor = focusColor
-        self.unFocusColor = unFocusColor
+    def setShadowColor(self, activedColor: QColor, deactivedColor: QColor):
+        self.activedColor = activedColor
+        self.deactivedColor = deactivedColor
         self.update()
+
+    def getActiveState(self) -> bool:
+        return self.attachParent.getActiveState()
 
     def paintEvent(self, event):
         self.painter.begin(self)
@@ -121,10 +124,10 @@ class ShadowWindow(MouseThroughWindow):
         path = QPainterPath()
         path.setFillRule(Qt.WindingFill)
         self.painter.fillPath(path, QBrush(Qt.white))
-        if self.attachParent.isActiveWindow():
-            color = self.focusColor
+        if self.getActiveState():
+            color = self.activedColor
         else:
-            color = self.unFocusColor
+            color = self.deactivedColor
 
         for i in range(10):
             i_path = QPainterPath()

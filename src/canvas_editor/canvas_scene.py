@@ -183,6 +183,11 @@ class CanvasScene(QGraphicsScene):
             self.__completeDraw(self.currentItem, isOk)
         self.lastAddItem = None
 
+    def tryCloseColorPicker(self):
+        for item0 in self.itemList:
+            item:CanvasCommonPathItem = item0
+            item.completeDraw()
+
     def __completeDraw(self, item: CanvasCommonPathItem, isOk: bool = True):
         if isOk:
             item.completeDraw()
