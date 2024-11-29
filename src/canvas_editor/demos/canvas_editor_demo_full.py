@@ -163,12 +163,6 @@ class MainWindow(DragWindow):
             self.windowFlags() | Qt.WindowType.WindowTransparentForInput
         ) == self.windowFlags()
 
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        self.shadowWindow.focusInEvent(event)
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        self.shadowWindow.focusOutEvent(event)
-
     def initUI(self):
         self.contentLayout = QVBoxLayout(self)
         sceneBrush = None

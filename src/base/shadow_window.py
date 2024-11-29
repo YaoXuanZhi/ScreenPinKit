@@ -15,7 +15,6 @@ class ShadowWindow(MouseThroughWindow):
         self.borderLineWidth = 0.5
         self.unFocusColor = QColor(125, 125, 125, 50)
         self.focusColor = QColor(255, 0, 255, 50)
-        self.focused = False
 
         # 根据吸附的窗口大小设置阴影窗口大小
         self.margins = QMargins(
@@ -41,11 +40,9 @@ class ShadowWindow(MouseThroughWindow):
                 self.attachParent.geometry().topLeft()
                 - QPoint(self.shadowWidth, self.shadowWidth)
             )
-        elif event.type() == QEvent.Type.FocusIn:
-            self.focused = True
+        elif event.type() == QEvent.Type.WindowActivate:
             self.update()
-        elif event.type() == QEvent.Type.FocusOut:
-            self.focused = False
+        elif event.type() == QEvent.Type.WindowDeactivate:
             self.update()
         return super().eventFilter(obj, event)
 
@@ -116,14 +113,6 @@ class ShadowWindow(MouseThroughWindow):
         self.unFocusColor = unFocusColor
         self.update()
 
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        self.focused = True
-        self.update()
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        self.focused = False
-        self.update()
-
     def paintEvent(self, event):
         self.painter.begin(self)
         self.painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # 抗锯齿
@@ -132,7 +121,7 @@ class ShadowWindow(MouseThroughWindow):
         path = QPainterPath()
         path.setFillRule(Qt.WindingFill)
         self.painter.fillPath(path, QBrush(Qt.white))
-        if self.focused:
+        if self.attachParent.isActiveWindow():
             color = self.focusColor
         else:
             color = self.unFocusColor

@@ -1,6 +1,6 @@
 # coding=utf-8
 from .canvas_util import *
-
+from base import *
 
 class CanvasEraserItem(CanvasCommonPathItem):
     """
@@ -156,6 +156,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 class CanvasShadowEraserRectItem(QGraphicsRectItem):
     def __init__(self, bgBrush, parent=None):
         super().__init__(parent)
+        self.defaultColor = QColor(0, 0, 0, 150)
         self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         self.bgBrush = bgBrush
         self.bgPixmap = self.bgBrush.texture()
@@ -185,16 +186,28 @@ class CanvasShadowEraserRectItem(QGraphicsRectItem):
         painter.drawPixmap(topLeft, self.bgPixmap)
 
     def applyShadow(self):
-        shadowEffect = QGraphicsDropShadowEffect()
-        shadowEffect.setBlurRadius(30 * self.devicePixelRatio)  # 阴影的模糊半径
-        shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
-        shadowEffect.setOffset(0, 0)  # 阴影的偏移量
-        self.setGraphicsEffect(shadowEffect)
+        self.shadowEffect = QGraphicsDropShadowEffect()
+        self.shadowEffect.setBlurRadius(30 * self.devicePixelRatio)  # 阴影的模糊半径
+        self.shadowEffect.setColor(self.defaultColor)  # 阴影的颜色和透明度
+        self.shadowEffect.setOffset(0, 0)  # 阴影的偏移量
+        self.setGraphicsEffect(self.shadowEffect)
 
     def paint(
         self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget
     ) -> None:
         self.customPaintByClip(painter, self.attachPath)
+
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent):
+        if(event.button() == Qt.MouseButton.LeftButton):
+            self.colorDialog = RingColorSelectorDialog(self.defaultColor, self.scene().views()[0])
+            self.colorDialog.colorChanged.connect(self.__onColorChanged)
+            self.colorDialog.exec()
+            return
+        return super().mouseDoubleClickEvent(event)
+
+    def __onColorChanged(self, color:QColor):
+        self.shadowEffect.setColor(color)
+        self.colorDialog.close()
 
     def setEditableState(self, isEditable: bool):
         pass

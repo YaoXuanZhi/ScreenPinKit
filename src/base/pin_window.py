@@ -76,12 +76,6 @@ class PinWindow(DragWindow):
         elif event.key() == Qt.Key_Down:
             self.move(self.x(), self.y() + 1)
 
-    def focusInEvent(self, event: QFocusEvent) -> None:
-        self.shadowWindow.focusInEvent(event)
-
-    def focusOutEvent(self, event: QFocusEvent) -> None:
-        self.shadowWindow.focusOutEvent(event)
-
     def setWindowOpacity(self, level: float) -> None:
         self.shadowWindow.setWindowOpacity(level)
         super().setWindowOpacity(level)
