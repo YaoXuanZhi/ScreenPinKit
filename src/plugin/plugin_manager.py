@@ -2,6 +2,7 @@ import importlib.util
 import os, sys, glob
 import importlib
 from .plugin_interface import PluginInterface, GlobalEventEnum
+from .plugin_config import *
 from common import *
 from misc import *
 
@@ -16,6 +17,7 @@ class CustomLoader(importlib.abc.Loader):
 class PluginManager:
     def __init__(self):
         self.plugins = []
+        pluginCfg.load("plugin_settings.json")
 
     def loadPlugins(self):
         self.__loadPluginsInside()
@@ -82,13 +84,18 @@ class PluginManager:
                 and attr != PluginInterface
             ):
                 pluginInst = attr()
+                pluginInst.enable = pluginCfg.isOnByPluginName(attr_name)
                 self.plugins.append(pluginInst)
                 pluginInst.onLoaded()
 
     def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
         for plugin0 in self.plugins:
             plugin: PluginInterface = plugin0
-            plugin.handleEvent(eventName, *args, **kwargs)
+            if plugin.enable:
+                plugin.handleEvent(eventName, *args, **kwargs)
 
+    def reloadPlugins(self):
+        self.plugins.clear()
+        self.loadPlugins()
 
 pluginMgr = PluginManager()

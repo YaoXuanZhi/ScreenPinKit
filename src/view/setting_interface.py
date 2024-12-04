@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QFontDialog, QFileDialog
 from .hotkey_setting_card_group import HotkeySettingCardGroup
 from .toolbar_setting_card_group import ToolbarSettingCardGroup
 from .ocr_loader_card_group import OcrLoaderSettingGroup
+from .plugin_market_card_group import PluginMarketCardGroup
 
 
 class SettingInterface(ScrollArea):
@@ -63,6 +64,11 @@ class SettingInterface(ScrollArea):
             None,
             configItem=cfg.isAutoFindWindow,
             parent=self.generalGroup,
+        )
+
+        # pluginMarket
+        self.pluginMarketGroup = PluginMarketCardGroup(
+            self.tr("Plugin Market"), self.scrollWidget
         )
 
         # personalization
@@ -238,6 +244,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.generalGroup)
+        self.expandLayout.addWidget(self.pluginMarketGroup)
         self.expandLayout.addWidget(self.personalGroup)
         self.expandLayout.addWidget(self.ocrLoaderSettingGroup)
         self.expandLayout.addWidget(self.windowShadowStyleGroup)

@@ -1,7 +1,8 @@
 import os, inspect
+from PyQt5.QtWidgets import QApplication, QStyle
+from PyQt5.QtGui import QIcon
 from abc import ABC, abstractmethod
 from enum import Enum
-
 
 class GlobalEventEnum(Enum):
     OcrStartEvent = 1
@@ -29,15 +30,50 @@ class GlobalEventEnum(Enum):
 
 
 class PluginInterface(ABC):
-    @property
-    @abstractmethod
-    def name(self):
-        pass
+    def __init__(self):
+        self._enable = True
 
     @property
     @abstractmethod
-    def desc(self):
+    def name(self) -> str:
         pass
+
+    @property
+    def displayName(self):
+        return "Unknown"
+
+    @property
+    @abstractmethod
+    def desc(self) -> str:
+        pass
+
+    @property
+    def author(self) -> str:
+        return "Unknown"
+
+    @property
+    def version(self) -> str:
+        return "v0.0.1"
+
+    @property
+    def url(self) -> str:
+        return "http://interwovencode.xyz/"
+
+    @property
+    def tags(self) -> list:
+        return []
+
+    @property
+    def icon(self) -> any:
+        return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarShadeButton)
+
+    @property
+    def enable(self) -> bool:
+        return self._enable
+
+    @enable.setter
+    def enable(self, value: bool):
+        self._enable = value
 
     def onLoaded(self):
         pass

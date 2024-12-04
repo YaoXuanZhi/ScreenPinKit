@@ -10,13 +10,41 @@ from qfluentwidgets import (
 
 
 class OCRProgressDisplay(PluginInterface):
+    def __init__(self):
+        super().__init__()
+        self._runtimePath = os.path.dirname(os.path.abspath(__file__))
+    
+    @property
+    def runtimePath(self):
+        return self._runtimePath
+
     @property
     def name(self):
         return "OCRProgressDisplay"
 
     @property
+    def displayName(self):
+        return "OCR进度显示"
+
+    @property
     def desc(self):
         return "将OCR识别进度显示在UI上"
+
+    @property
+    def author(self) -> str:
+        return "yaoxuanzhi"
+
+    @property
+    def icon(self):
+        return QIcon(self.runtimePath + "/icons/ocr_process_display.svg")
+
+    @property
+    def version(self) -> str:
+        return "v1.0.0"
+
+    @property
+    def url(self) -> str:
+        return "https://github.com/InterwovenCode/ScreenPinKit/blob/main/src/internal_deps/internal_plugins/ocr_progress_display.py"
 
     def handleEvent(self, eventName, *args, **kwargs):
         if eventName == GlobalEventEnum.OcrStartEvent:
