@@ -45,15 +45,15 @@ class AppDpiHelper:
     def tryApplyDpiConfig():
         """尝试应用Dpi配置"""
 
-        # # enable dpi scale
-        # # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
-        # # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
-        # QApplication.setHighDpiScaleFactorRoundingPolicy(
-        #     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-        # )
-        # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        # QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-        # return True
+        # enable dpi scale
+        # note：开启自动高dpi支持，会导致其所保存的图片经过ocrmypdf转换为pdf时出现不明放大情况，
+        # 因此推荐通过os.environ["QT_SCALE_FACTOR"]设置方式来设置Dpi
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+        )
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+        return True
 
         # 如果采用了这种方式，pyinstaller打打包参数不能传入--onefile
         # 由于pyinstaller --onefile打包生成的.exe其临时解压文件夹名字是一样的，首次啥进程的时候

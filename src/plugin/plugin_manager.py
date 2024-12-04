@@ -58,18 +58,20 @@ class PluginManager:
     #     self.__filterInterface(module)
 
     def __loadPluginsByFolder(self, folderPath):
-        sys.path.append(folderPath)
-        pyFiles = glob.glob(f"{folderPath}/*.py", recursive=False)
-        for filePath in pyFiles:
-            filename = os.path.basename(filePath)
-            module_name = filename[:-3]
-            module_path = f"{module_name}"
-            try:
-                module = importlib.import_module(module_path)
-                self.__filterInterface(module)
-            except Exception as e:
-                print("\n".join(e.args))
-                pass
+        for pluginName in os.listdir(folderPath):
+            pluginFolderPath = os.path.join(folderPath, pluginName)
+            sys.path.append(pluginFolderPath)
+            pyFiles = glob.glob(f"{pluginFolderPath}/*.py", recursive=False)
+            for filePath in pyFiles:
+                filename = os.path.basename(filePath)
+                module_name = filename[:-3]
+                module_path = f"{module_name}"
+                try:
+                    module = importlib.import_module(module_path)
+                    self.__filterInterface(module)
+                except Exception as e:
+                    print("\n".join(e.args))
+                    pass
 
     def __loadPluginByModuleName(self, moduleName):
         module = importlib.import_module(moduleName)

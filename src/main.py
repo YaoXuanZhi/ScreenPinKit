@@ -17,6 +17,7 @@ class MainWindow(QWidget):
         self.initSystemTrayMenu()
         self.initHotKey()
         self.initPinWindowManager()
+        self.showSettingWindow()
 
     def initPluginManager(self):
         pluginMgr.loadPlugins()

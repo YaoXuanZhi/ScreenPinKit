@@ -65,7 +65,7 @@ class PluginInterface(ABC):
 
     @property
     def icon(self) -> any:
-        return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarShadeButton)
+        return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarMenuButton)
 
     @property
     def enable(self) -> bool:
