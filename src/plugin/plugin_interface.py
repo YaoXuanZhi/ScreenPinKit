@@ -64,6 +64,14 @@ class PluginInterface(ABC):
         return []
 
     @property
+    def previewImages(self) -> list:
+        return []
+
+    @property
+    def supportSystems(self) -> list:
+        return ["win32", "darwin", "linux"]
+
+    @property
     def icon(self) -> any:
         return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarMenuButton)
 

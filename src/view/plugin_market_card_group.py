@@ -2,6 +2,7 @@
 import os, random, time
 from extend_widgets import *
 from plugin import *
+from .plugin_card_view import PluginCardView
 
 class LineEdit(SearchLineEdit):
     """ Search line edit """
@@ -12,49 +13,49 @@ class LineEdit(SearchLineEdit):
         self.setFixedWidth(304)
         self.textChanged.connect(self.search)
 
-class StatisticsWidget(QWidget):
-    """ Statistics widget """
+class TagGroupWidget(QWidget):
+    """ Tags widget """
 
-    def __init__(self, title: str, value: str, parent=None):
+    def __init__(self, tags: list, parent=None):
         super().__init__(parent=parent)
-        self.titleLabel = CaptionLabel(title, self)
+        self.hBoxLayout = QHBoxLayout(self)
+        self.hBoxLayout.setSpacing(2)
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.hBoxLayout.setAlignment(Qt.AlignLeft)
 
-        self.valueLabel = BodyLabel(value, self)
-        self.vBoxLayout = QVBoxLayout(self)
-
-        self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
-        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
-
-        setFont(self.valueLabel, 18, QFont.DemiBold)
-        self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
+        for tag in tags:
+            tagLabel = PushButton(tag, self)
+            tagLabel.setEnabled(False)
+            setFont(tagLabel, 12, QFont.DemiBold)
+            self.hBoxLayout.addWidget(tagLabel, 0, Qt.AlignLeft)
 
 class ItemCard(ElevatedCardWidget):
     """ App information card """
 
-    def __init__(self, icon: FluentIcon, parent=None):
+    def __init__(self, plugin: PluginInterface, parent=None):
         super().__init__(parent)
         self.setFixedSize(304, 160)
+        self.plugin = plugin
         self.itemState = EnumItemCardState.NoneState
-        self.iconWidget = TransparentToolButton(icon, self)
+        self.iconWidget = TransparentToolButton(plugin.icon, self)
         self.iconWidget.setIconSize(QSize(64, 64))
+        self.iconWidget.clicked.connect(self.onIconClicked)
 
-        self.nameLabel = TitleLabel('PluginTemplate', self)
+        self.nameLabel = TitleLabel(plugin.displayName, self)
         setFont(self.nameLabel, 14, QFont.Bold)
-        self.versionLabel = QLabel("v1.0.0")
-        setFont(self.versionLabel, 14)
+        self.tagGroupWidget = TagGroupWidget(plugin.tags, self)
         self.companyLabel = HyperlinkLabel(
-            QUrl('http://interwovencode.xyz/'), 'InterwovenCode Inc.', self)
+            QUrl(plugin.url), plugin.author, self)
 
         self.descriptionLabel = BodyLabel(
-            'This is a plugin template for developing plugins.', self)
+            plugin.desc, self)
         setFont(self.descriptionLabel, 12)
         self.descriptionLabel.setWordWrap(True)
 
-        self.tagButton = PillPushButton('Component', self)
-        self.tagButton.setCheckable(False)
-        setFont(self.tagButton, 12)
-        self.tagButton.setFixedSize(80, 32)
+        self.versionButton = PillPushButton(plugin.version, self)
+        self.versionButton.setCheckable(False)
+        setFont(self.versionButton, 12)
+        self.versionButton.setFixedSize(80, 32)
 
         self.contentLayout = QVBoxLayout(self)
         self.leftLayout = QVBoxLayout()
@@ -71,12 +72,12 @@ class ItemCard(ElevatedCardWidget):
         iconLayout = QVBoxLayout()
         self.topLayout.addLayout(iconLayout)
         iconLayout.addWidget(self.iconWidget)
-        iconLayout.addWidget(self.tagButton)
+        iconLayout.addWidget(self.versionButton)
 
         pluginBaseLayout = QVBoxLayout()
         self.topLayout.addLayout(pluginBaseLayout)
         pluginBaseLayout.addWidget(self.nameLabel)
-        pluginBaseLayout.addWidget(self.versionLabel)
+        pluginBaseLayout.addWidget(self.tagGroupWidget)
         pluginBaseLayout.addWidget(self.companyLabel)
 
         pluginBaseLayout.addLayout(self.optionSliderLayout)
@@ -122,6 +123,11 @@ class ItemCard(ElevatedCardWidget):
             self.setInstalledUI()
             self.switchButton.setChecked(False)
 
+    def onIconClicked(self):
+        # pluginView = PluginCardView(self.plugin)
+        # pluginView.exec()
+        pass
+
     def onDeleteButtonClicked(self):
         self.setUnInstalledUI()
 
@@ -136,12 +142,12 @@ class ItemCard(ElevatedCardWidget):
         pluginCfg.set(self.configItem, newState)
 
     @property
-    def tagName(self) -> str:
-        return self.tagButton.text()
+    def tags(self) -> str:
+        return self.tagGroupWidget.text()
 
-    @tagName.setter
-    def tagName(self, value:str):
-        self.tagButton.setText(value)
+    @tags.setter
+    def tags(self, value:str):
+        self.tagGroupWidget.setText(value)
 
     @property
     def url(self) -> str:
@@ -161,11 +167,11 @@ class ItemCard(ElevatedCardWidget):
 
     @property
     def version(self) -> str:
-        return self.versionLabel.text()
+        return self.versionButton.text()
 
     @version.setter
     def version(self, value:str):
-        self.versionLabel.setText(value)
+        self.versionButton.setText(value)
 
     @property
     def description(self) -> str:
@@ -209,7 +215,6 @@ class ItemCardView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setStyleSheet("background-color: transparent;")
-        self.trie = Trie()
         self.searchLineEdit = LineEdit(self)
 
         self.view = QFrame(self)
@@ -258,7 +263,6 @@ class ItemCardView(QWidget):
     def addPlugin(self, plugin: PluginInterface):
         """ add plugin to view """
         pluginName = plugin.name
-        icon = plugin.icon
         if not hasattr(pluginCfg, pluginName):
             configItem = PluginConfigItemEx(
                 pluginName, "pluginState", 
@@ -269,18 +273,11 @@ class ItemCardView(QWidget):
         else:
             configItem = getattr(pluginCfg, pluginName)
 
-        card = ItemCard(icon, self)
+        card = ItemCard(plugin, self)
         card.bindConfigItem(configItem)
-        card.title = plugin.displayName
-        card.version = plugin.version
-        card.author = plugin.author
-        card.description = plugin.desc
-        card.url = plugin.url
-        # card.tagName = plugin.tags[0]
-        card.tagName = "内置库"
 
-        self.trie.insert(pluginName, len(self.cards))
         self.fuzzyMatch.insertItem(pluginName + plugin.displayName + plugin.desc)
+
         self.cards.append(card)
         self.icons.append(icon)
         self.options.append(pluginName)

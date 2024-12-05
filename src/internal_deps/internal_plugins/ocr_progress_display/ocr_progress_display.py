@@ -8,7 +8,6 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-
 class OCRProgressDisplay(PluginInterface):
     def __init__(self):
         super().__init__()
@@ -17,6 +16,12 @@ class OCRProgressDisplay(PluginInterface):
     @property
     def runtimePath(self):
         return self._runtimePath
+
+    @property
+    def previewImages(self) -> list:
+        folderPath = os.path.join(self.runtimePath, "preview")
+        images = glob.glob(f"{folderPath}/*.*", recursive=False)
+        return images
 
     @property
     def name(self):
@@ -45,6 +50,10 @@ class OCRProgressDisplay(PluginInterface):
     @property
     def url(self) -> str:
         return "https://github.com/InterwovenCode/ScreenPinKit/blob/main/src/internal_deps/internal_plugins/ocr_progress_display.py"
+
+    @property
+    def tags(self) -> list:
+        return ["ocr","ui"]
 
     def handleEvent(self, eventName, *args, **kwargs):
         if eventName == GlobalEventEnum.OcrStartEvent:

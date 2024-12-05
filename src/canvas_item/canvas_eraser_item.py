@@ -210,7 +210,7 @@ class CanvasShadowEraserRectItem(QGraphicsRectItem):
         self.colorDialog.close()
 
     def setEditableState(self, isEditable: bool):
-        pass
+        self.setFlag(QGraphicsItem.ItemIsSelectable, isEditable)
 
     def completeDraw(self):
         if hasattr(self, 'colorDialog'):

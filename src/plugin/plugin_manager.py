@@ -86,7 +86,7 @@ class PluginManager:
                 and attr != PluginInterface
             ):
                 pluginInst = attr()
-                pluginInst.enable = pluginCfg.isOnByPluginName(attr_name)
+                pluginInst.enable = pluginCfg.isOnByPluginName(pluginInst.name)
                 self.plugins.append(pluginInst)
                 if pluginInst.enable:
                     pluginInst.onLoaded()
