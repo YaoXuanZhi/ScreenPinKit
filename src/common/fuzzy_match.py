@@ -1,12 +1,9 @@
 # coding:utf-8
 """
-提供全局热键的注册功能
-
-后续看下需不需要改用pynput来解决system_hotkey的兼容性问题
+模糊匹配库，用来辅助插件市场的快捷搜索
 """
 
 from PyQt5.QtCore import *
-from system_hotkey import *
 
 from fuzzywuzzy import process
 from .trie import Trie

@@ -88,7 +88,8 @@ class PluginManager:
                 pluginInst = attr()
                 pluginInst.enable = pluginCfg.isOnByPluginName(attr_name)
                 self.plugins.append(pluginInst)
-                pluginInst.onLoaded()
+                if pluginInst.enable:
+                    pluginInst.onLoaded()
 
     def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
         for plugin0 in self.plugins:

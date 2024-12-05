@@ -11,3 +11,4 @@ qrcode==8.0
 onnxruntime==1.19.2
 pyclipper
 shapely==2.0.6
+fuzzywuzzy

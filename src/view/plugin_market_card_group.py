@@ -306,20 +306,19 @@ class ItemCardView(QWidget):
 
         for i, card in enumerate(self.cards):
             isVisible = i in indexes
-            if isVisible:
-                card.show()
-            else:
-                card.hide()
+            card.setVisible(isVisible)
             if isVisible:
                 self.flowLayout.addWidget(card)
 
-        self.update()
+        self.flowLayout.update()
 
     def showAllPlugins(self):
         self.flowLayout.removeAllWidgets()
         for card in self.cards:
-            card.show()
+            card.setVisible(True)
             self.flowLayout.addWidget(card)
+
+        self.flowLayout.update()
 
 class MarketSettingCard(ScrollArea):
     """Toolbar card with a push button"""
