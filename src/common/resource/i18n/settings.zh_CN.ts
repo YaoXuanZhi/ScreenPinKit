@@ -275,6 +275,17 @@
         <source>Shadow effect</source>
         <translation>阴影特效</translation>
     </message>
+    <message>
+        <source>Plugin Market</source>
+        <translation>插件市场</translation>
+    </message>
+</context>
+<context>
+    <name>LineEdit</name>
+    <message>
+        <source>Search plugins</source>
+        <translation>查找插件</translation>
+    </message>
 </context>
 <context>
     <name>SettingWindow</name>
@@ -417,6 +428,70 @@
     <message>
         <source>Switch to</source>
         <translation>切换到</translation>
+    </message>
+    <message>
+        <source>Locked</source>
+        <translation>锁定</translation>
+    </message>
+    <message>
+        <source>UnLocked</source>
+        <translation>解锁</translation>
+    </message>
+    <message>
+        <source>Select item</source>
+        <translation>选择对象</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>形状</translation>
+    </message>
+    <message>
+        <source>Line strip</source>
+        <translation>折线</translation>
+    </message>
+    <message>
+        <source>Number marker</source>
+        <translation>数字标记</translation>
+    </message>
+    <message>
+        <source>Arrow</source>
+        <translation>箭头</translation>
+    </message>
+    <message>
+        <source>Marker pen</source>
+        <translation>记号笔</translation>
+    </message>
+    <message>
+        <source>Pen</source>
+        <translation>画笔</translation>
+    </message>
+    <message>
+        <source>TextEdit</source>
+        <translation>文本框</translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation>橡皮擦</translation>
+    </message>
+    <message>
+        <source>Mosaic/Blur</source>
+        <translation>马赛克/模糊工具</translation>
+    </message>
+    <message>
+        <source>Clear draw</source>
+        <translation>清除绘画</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>撤销</translation>
+    </message>
+    <message>
+        <source>Redo</source>
+        <translation>重做</translation>
+    </message>
+    <message>
+        <source>Finish draw</source>
+        <translation>完成绘画</translation>
     </message>
 </context>
 <context>
