@@ -145,7 +145,7 @@ class BubbleTip(QWidget):
             view, tailPosition, showStyle, orientLength, self
         )
 
-        self.hBoxLayout.setContentsMargins(15, 8, 15, 20)
+        self.hBoxLayout.setContentsMargins(15, 0, 15, 0)
         self.hBoxLayout.addWidget(self.bubble)
         self.setShadowEffect()
 

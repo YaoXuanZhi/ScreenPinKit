@@ -219,6 +219,7 @@ class PainterInterface(QWidget):
             duration=-1,
             tailPosition=position,
             parent=self,
+            orientLength=0,
         )
         self.showCommandBarSignal.emit(self.toolbar)
 

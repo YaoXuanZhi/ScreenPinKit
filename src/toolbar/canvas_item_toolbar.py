@@ -12,6 +12,7 @@ class CanvasItemToolBar(CommandBarView):
         self.initDefaultStyle()
         self.initUI()
         self.refreshStyleUI()
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
 
     def initDefaultStyle(self):
         raise NotImplementedError("子类需要重写该函数")
