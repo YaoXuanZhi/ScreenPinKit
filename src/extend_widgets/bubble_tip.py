@@ -39,7 +39,6 @@ class BubbleTipContent(QWidget):
         view: FlyoutViewBase,
         tailPosition=BubbleTipTailPosition.BOTTOM,
         showStyle: int = 0,
-        orientLength: int = 8,
         parent=None,
     ):
         super().__init__(parent=parent)
@@ -47,9 +46,7 @@ class BubbleTipContent(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.view = view
         self.showStyle = showStyle
-        self.orientLength = orientLength
-
-        self.manager.doLayout(self)
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.hBoxLayout.addWidget(self.view)
 
     def setView(self, view: QWidget):
@@ -85,7 +82,6 @@ class BubbleTip(QWidget):
         duration=1000,
         tailPosition=BubbleTipTailPosition.BOTTOM,
         showStyle: int = 0,
-        orientLength: int = 8,
         parent=None,
     ):
         """
@@ -115,10 +111,10 @@ class BubbleTip(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.opacityAni = QPropertyAnimation(self, b"windowOpacity", self)
         self.bubble = BubbleTipContent(
-            view, tailPosition, showStyle, orientLength, self
+            view, tailPosition, showStyle, self
         )
 
-        self.hBoxLayout.setContentsMargins(15, 0, 15, 0)
+        self.hBoxLayout.setContentsMargins(15, 4, 15, 0)
         self.hBoxLayout.addWidget(self.bubble)
         self.setShadowEffect()
 
@@ -191,7 +187,6 @@ class BubbleTip(QWidget):
         duration=1000,
         tailPosition=BubbleTipTailPosition.BOTTOM,
         showStyle: int = 0,
-        orientLength=8,
         parent=None,
     ):
         """
@@ -213,7 +208,7 @@ class BubbleTip(QWidget):
         parent: QWidget
             parent widget
         """
-        w = cls(view, target, duration, tailPosition, showStyle, orientLength, parent)
+        w = cls(view, target, duration, tailPosition, showStyle, parent)
         w.show()
         return w
 
@@ -223,10 +218,6 @@ class BubbleTipManager(QObject):
 
     def __init__(self):
         super().__init__()
-
-    def doLayout(self, tip: BubbleTipContent):
-        """manage the layout of tip"""
-        tip.hBoxLayout.setContentsMargins(0, 0, 0, 0)
 
     def position(self, tip: BubbleTip) -> QPoint:
         pos = self._pos(tip)
@@ -275,9 +266,6 @@ class TopTailBubbleTipManager(BubbleTipManager):
         super().__init__()
         self._isCorrectedBound = False
 
-    def doLayout(self, tip: BubbleTipContent):
-        tip.hBoxLayout.setContentsMargins(0, tip.orientLength, 0, 0)
-
     def draw(self, tip: BubbleTipContent, painter):
         w, h = tip.width(), tip.height()
         pt = tip.hBoxLayout.contentsMargins().top()
@@ -306,7 +294,7 @@ class TopTailBubbleTipManager(BubbleTipManager):
         target = tip.target
 
         pos = target.mapToGlobal(QPoint(0, target.height()))
-        y = pos.y() - tip.layout().contentsMargins().top()
+        y = pos.y()
 
         self._isCorrectedBound = y > maxPosY
         if self._isCorrectedBound:
@@ -330,9 +318,6 @@ class BottomTailBubbleTipManager(BubbleTipManager):
     def __init__(self):
         super().__init__()
         self._isCorrectedBound = False
-
-    def doLayout(self, tip: BubbleTipContent):
-        tip.hBoxLayout.setContentsMargins(0, 0, 0, tip.orientLength)
 
     def draw(self, tip: BubbleTipContent, painter):
         w, h = tip.width(), tip.height()
@@ -375,8 +360,7 @@ class BottomTailBubbleTipManager(BubbleTipManager):
         self._isCorrectedBound = y < minPosY
         if self._isCorrectedBound:
             pos = target.mapToGlobal(QPoint(0, target.height()))
-            y = pos.y() - tip.layout().contentsMargins().top()
-
+            y = pos.y()
         return y
 
     def isCorrectedBound(self):

@@ -152,7 +152,6 @@ class PainterToolBarManager(QObject):
             view=self.canvasItemBar,
             duration=-1,
             tailPosition=finalTailPosition,
-            orientLength=2,
             parent=self.targetWidget,
         )
         self.showToolbarSignal.emit(self.optionBar)
