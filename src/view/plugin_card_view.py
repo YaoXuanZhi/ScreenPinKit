@@ -129,7 +129,7 @@ class InstallDepsCard(HeaderCardWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        import markdown
+        # import markdown
         self.setTitle('安装')
 
         self.webView = QWebEngineView()
@@ -162,7 +162,7 @@ pip3 install PyQt5
 choco install python tessactocr
 ```
         """
-        htmlConent = markdown.markdown(text)
+        # htmlConent = markdown.markdown(text)
 
         self.markdownWidget.setMarkdown(text)
         self.viewLayout.addWidget(self.markdownWidget)

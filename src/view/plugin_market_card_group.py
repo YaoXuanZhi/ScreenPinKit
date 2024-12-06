@@ -83,11 +83,12 @@ class ItemCard(ElevatedCardWidget):
         pluginBaseLayout.addLayout(self.optionSliderLayout)
         self.contentLayout.addWidget(self.descriptionLabel)
 
-    def setInstalledUI(self):
+    def setInstalledUI(self, defaultChecked):
         if hasattr(self, 'downloadButton'):
             self.downloadButton.deleteLater()
 
         self.switchButton = SwitchButton(self.tr('关闭'))
+        self.switchButton.setChecked(defaultChecked)
         self.deleteButton = TransparentToolButton(FluentIcon.DELETE)
 
         self.optionSliderLayout.addWidget(self.switchButton)
@@ -95,9 +96,6 @@ class ItemCard(ElevatedCardWidget):
 
         self.deleteButton.clicked.connect(self.onDeleteButtonClicked)
         self.switchButton.checkedChanged.connect(self.onSwitchCheckedChanged)
-
-        self.switchButton.setChecked(True)
-        self.setItemState(EnumItemCardState.ActiveState)
 
     def setUnInstalledUI(self):
         if hasattr(self, 'deleteButton'):
@@ -108,20 +106,17 @@ class ItemCard(ElevatedCardWidget):
         self.downloadButton = TransparentToolButton(FluentIcon.DOWNLOAD)
         self.downloadButton.clicked.connect(self.onDownloadButtonClicked)
         self.optionSliderLayout.addWidget(self.downloadButton, 0, Qt.AlignRight)
-        self.setItemState(EnumItemCardState.UninstallState)
 
     def bindConfigItem(self, configItem: PluginConfigItemEx):
         self.configItem = configItem
-        self.configItem.valueChanged.connect(pluginMgr.reloadPlugins)
 
         lastItemState:EnumItemCardState = pluginCfg.get(self.configItem)
         if lastItemState == EnumItemCardState.UninstallState:
             self.setUnInstalledUI()
         elif lastItemState == EnumItemCardState.ActiveState:
-            self.setInstalledUI()
+            self.setInstalledUI(True)
         elif lastItemState == EnumItemCardState.DeActiveState:
-            self.setInstalledUI()
-            self.switchButton.setChecked(False)
+            self.setInstalledUI(False)
 
     def onIconClicked(self):
         parent = self.parentWidget()
@@ -133,9 +128,11 @@ class ItemCard(ElevatedCardWidget):
 
     def onDeleteButtonClicked(self):
         self.setUnInstalledUI()
+        self.setItemState(EnumItemCardState.UninstallState)
 
     def onDownloadButtonClicked(self):
-        self.setInstalledUI()
+        self.setInstalledUI(True)
+        self.setItemState(EnumItemCardState.ActiveState)
 
     def setItemState(self, newState: EnumItemCardState):
         if self.itemState == newState:
@@ -143,6 +140,9 @@ class ItemCard(ElevatedCardWidget):
 
         self.itemState = newState
         pluginCfg.set(self.configItem, newState)
+        self.plugin.enable = newState == EnumItemCardState.ActiveState
+        if newState == EnumItemCardState.UninstallState:
+            pluginMgr.removePlugin(self.plugin.name)
 
     @property
     def tags(self) -> str:
@@ -260,7 +260,7 @@ class ItemCardView(QWidget):
         self.initUI()
 
     def initUI(self):
-        for plugin in pluginMgr.plugins:
+        for plugin in pluginMgr.pluginDict.values():
             self.addPlugin(plugin)
 
     def addPlugin(self, plugin: PluginInterface):

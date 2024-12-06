@@ -31,7 +31,7 @@ class GlobalEventEnum(Enum):
 
 class PluginInterface(ABC):
     def __init__(self):
-        self._enable = True
+        self._enable = False
 
     @property
     @abstractmethod
@@ -81,9 +81,16 @@ class PluginInterface(ABC):
 
     @enable.setter
     def enable(self, value: bool):
+        if self._enable == value:
+            return
         self._enable = value
+        self.onChangeEnabled()
 
     def onLoaded(self):
+        pass
+
+    def onChangeEnabled(self):
+        # self.log(f"onChangeEnabled ===> {self.name} ===> {self.enable}")
         pass
 
     def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
