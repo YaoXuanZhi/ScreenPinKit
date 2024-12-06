@@ -124,9 +124,12 @@ class ItemCard(ElevatedCardWidget):
             self.switchButton.setChecked(False)
 
     def onIconClicked(self):
-        # pluginView = PluginCardView(self.plugin)
-        # pluginView.exec()
-        pass
+        parent = self.parentWidget()
+        while parent.parentWidget():
+            parent = parent.parentWidget()
+
+        pluginView = PluginCardView(self.plugin, parent)
+        pluginView.exec()
 
     def onDeleteButtonClicked(self):
         self.setUnInstalledUI()
@@ -285,29 +288,23 @@ class ItemCardView(QWidget):
 
     def search(self, keyWord: str):
         """ search icons """
+        now = time.time()
+        if not hasattr(self, "updateLastTime"):
+            self.updateLastTime = 0
+        if now - self.updateLastTime > 0.2:
+            self.updateLastTime = now
 
-        isSkip = True
-        if not hasattr(self, "lastIndexes"):
-            self.lastIndexes = {}
+            indexes = self.fuzzyMatch.bestMatch(keyWord)
 
-        indexes = self.fuzzyMatch.bestMatch(keyWord)
-        if indexes != self.lastIndexes:
-            isSkip = False
+            self.flowLayout.removeAllWidgets()
 
-        self.lastIndexes = indexes
+            for i, card in enumerate(self.cards):
+                isVisible = i in indexes
+                card.setVisible(isVisible)
+                if isVisible:
+                    self.flowLayout.addWidget(card)
 
-        if isSkip:
-            return
-
-        self.flowLayout.removeAllWidgets()
-
-        for i, card in enumerate(self.cards):
-            isVisible = i in indexes
-            card.setVisible(isVisible)
-            if isVisible:
-                self.flowLayout.addWidget(card)
-
-        self.flowLayout.update()
+            self.flowLayout.update()
 
     def showAllPlugins(self):
         self.flowLayout.removeAllWidgets()

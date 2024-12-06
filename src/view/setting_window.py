@@ -13,13 +13,6 @@ class SettingWindow(FramelessWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
-        self.initActions()
-
-    def initActions(self):
-        actions = [
-            QAction(parent=self, triggered=self.close, shortcut="esc"),
-        ]
-        self.addActions(actions)
 
     def initUI(self):
         self.setTitleBar(StandardTitleBar(self))
@@ -37,3 +30,8 @@ class SettingWindow(FramelessWindow):
         self.setWindowIcon(Icon(ScreenShotIcon.LOGO))
         self.setWindowTitle(APP_NAME + " " + self.tr("Preferences"))
         self.titleBar.raise_()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key_Escape:
+            self.close()
+        return super().keyPressEvent(a0)
