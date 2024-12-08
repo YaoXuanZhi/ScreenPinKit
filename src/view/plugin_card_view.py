@@ -203,6 +203,40 @@ class PluginCardView(MaskDialogBase):
         super().__init__(parent)
 
         self.plugin = plugin
+        self.contentLayout = QVBoxLayout(self.widget)
+        self.view = QWidget(self.widget)
+
+        self.pluginCard = PluginInfoCard(self)
+        self.systemCard = SystemRequirementCard(self)
+
+        self.contentLayout.setContentsMargins(50, 50, 50, 50)
+        self.contentLayout.setAlignment(Qt.AlignCenter)
+
+        self.contentLayout.addWidget(self.pluginCard, 0, Qt.AlignTop)
+        if len(self.plugin.previewImages) > 0:
+            self.galleryCard = GalleryCard(self)
+            self.contentLayout.addWidget(self.galleryCard, 0, Qt.AlignTop)
+
+        self.contentLayout.addWidget(self.systemCard, 0, Qt.AlignTop)
+        self.setStyleSheet(
+            "PluginCardView {border: none; background:transparent}")
+        self.__initLayout()
+
+    def __initLayout(self):
+        self._hBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.contentLayout.setContentsMargins(0, 0, 0, 0)
+        self.contentLayout.setSpacing(1)
+        self.contentLayout.addWidget(self.view)
+
+    def showEvent(self, e):
+        self.setFocus()
+        return super().showEvent(e)
+
+class PluginCardViewWithScrollArea(MaskDialogBase):
+    def __init__(self, plugin: PluginInterface, parent=None):
+        super().__init__(parent)
+
+        self.plugin = plugin
         self.hBoxLayout = QHBoxLayout(self.widget)
         self.scrollArea = SingleDirectionScrollArea(self)
         self.view = QWidget(self.widget)

@@ -3,7 +3,7 @@ import time
 from sortedcontainers import SortedDict
 from extend_widgets import *
 from plugin import *
-from .plugin_card_view import PluginCardView
+from .plugin_card_view import PluginCardView, PluginCardViewWithScrollArea
 
 class LineEdit(SearchLineEdit):
     """ Search line edit """
@@ -128,6 +128,7 @@ class ItemCard(ElevatedCardWidget):
             parent = parent.parentWidget()
 
         pluginView = PluginCardView(self.plugin, parent)
+        # pluginView = PluginCardViewWithScrollArea(self.plugin, parent)
         pluginView.exec()
 
     def onDeleteButtonClicked(self):
@@ -164,9 +165,6 @@ class ItemCard(ElevatedCardWidget):
 
         self.itemState = newState
         pluginCfg.set(self.configItem, newState)
-        self.plugin.enable = newState == EnumItemCardState.ActiveState
-        if newState == EnumItemCardState.UninstallState:
-            pluginMgr.removePlugin(self.plugin.name)
 
     @property
     def tags(self) -> str:
@@ -358,6 +356,8 @@ class ItemCardView(QWidget):
             )
 
             setattr(pluginCfg, pluginName, configItem)
+            if not issubclass(type(plugin), PluginInstConfig):
+                pluginCfg.set(configItem, EnumItemCardState.ActiveState)
         else:
             configItem = getattr(pluginCfg, pluginName)
 

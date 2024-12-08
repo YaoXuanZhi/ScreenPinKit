@@ -155,8 +155,9 @@ class QPluginConfig(QObject):
                         items[key].deserializeFrom(value)
 
     def isOnByPluginName(self, pluginName):
+        # 如果插件目录里已经包含该插件，那么默认该插件已开启
         if not hasattr(self._cfg, pluginName):
-            return False
+            return True
 
         configItem = getattr(self._cfg, pluginName)
         result = self.get(configItem)

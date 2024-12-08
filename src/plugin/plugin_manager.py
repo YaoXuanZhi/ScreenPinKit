@@ -128,10 +128,6 @@ class PluginManager(QObject):
                 except Exception as e:
                     print("\n".join(e.args))
 
-    def removePlugin(self, pluginName: str):
-        # removedPlugin = self.plugins.pop(pluginName)
-        pass
-
     def reloadPlugins(self):
         for plugin0 in self.pluginDict.values():
             plugin: PluginInterface = plugin0
