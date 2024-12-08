@@ -1,7 +1,15 @@
 import importlib.util
-import os, sys, glob, re
+import os, sys, glob, re, platform
 import importlib
+from qfluentwidgets import (
+    InfoBar,
+    InfoBarIcon,
+    InfoBarPosition,
+    FluentIcon as FIF,
+    TransparentToolButton,
+)
 from .plugin_interface import PluginInterface, GlobalEventEnum
+from .plugin_inst_config import PluginInstConfig
 from .plugin_config import *
 from common import *
 from misc import *
@@ -17,6 +25,7 @@ class CustomLoader(importlib.abc.Loader):
 class PluginManager:
     def __init__(self):
         self.pluginDict = {}
+        self.pluginGroupDict = {}
         pluginCfg.load("plugin_settings.json")
 
     def loadPlugins(self):
@@ -79,7 +88,9 @@ class PluginManager:
                             moduleName = fileName[:-3]
                             try:
                                 module = importlib.import_module(moduleName)
-                                self.__filterInterface(module)
+                                pluginInst = self.__filterInterface(module)
+                                if pluginInst != None:
+                                    self.pluginGroupDict[pluginInst.name] = root
                             except Exception as e:
                                 print("\n".join(e.args))
 
@@ -94,6 +105,7 @@ class PluginManager:
                 isinstance(attr, type)
                 and issubclass(attr, PluginInterface)
                 and attr != PluginInterface
+                and attr != PluginInstConfig
             ):
                 pluginInst = attr()
                 if pluginInst.name in self.pluginDict:
@@ -104,14 +116,94 @@ class PluginManager:
                 if pluginInst.enable:
                     pluginInst.onLoaded()
 
+                return pluginInst
+
     def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
         for plugin0 in self.pluginDict.values():
             plugin: PluginInterface = plugin0
             if plugin.enable:
-                plugin.handleEvent(eventName, *args, **kwargs)
+                try:
+                    plugin.handleEvent(eventName, *args, **kwargs)
+                except Exception as e:
+                    print("\n".join(e.args))
 
     def removePlugin(self, pluginName: str):
         # removedPlugin = self.plugins.pop(pluginName)
         pass
+
+    def reloadPlugins(self):
+        self.pluginDict.clear()
+        self.pluginGroupDict.clear()
+        self.loadPlugins()
+
+    def installNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str, gitUrl: str) -> bool:
+        try:
+            self.__installNetworkPlugin(targetPluginName, gitUrl)
+            return True
+        except Exception as e:
+            if hasattr(e, "stderr"):
+                _importErrorMsg = e.stderr
+            else:
+                _importErrorMsg = "\n".join(e.args)
+            self.__showErrBar(parentWidget, "插件安装失败", _importErrorMsg)
+            return False
+
+    def __installNetworkPlugin(self, targetPluginName: str, gitUrl: str):
+        pluginInst = self.pluginDict.get(targetPluginName)
+        if not pluginInst == None:
+            return
+
+        outsidePluginFolderPath = cfg.get(cfg.pluginsFolder)
+        if platform.system() == "Windows":
+            fullCmd = f"cd /d {outsidePluginFolderPath} & git clone {gitUrl}"
+        else:
+            fullCmd = f"cd {outsidePluginFolderPath} & git clone {gitUrl}"
+        OsHelper.executeSystemCommand(fullCmd)
+
+    def unInstallNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str) -> bool:
+        try:
+            self.__unInstallNetworkPlugin(targetPluginName)
+            return True
+        except Exception as e:
+            if hasattr(e, "stderr"):
+                _importErrorMsg = e.stderr
+            else:
+                _importErrorMsg = "\n".join(e.args)
+            self.__showErrBar(parentWidget, "插件卸载失败", _importErrorMsg)
+            return False
+
+    def __unInstallNetworkPlugin(self, targetPluginName: str):
+        dirPath:str = self.pluginGroupDict[targetPluginName]
+        dirPath = dirPath.replace("/", "\\")
+
+        if platform.system() == "Windows":
+            fullCmd = f"rd /s /q {dirPath}"
+        else:
+            fullCmd = f"rm -rf {dirPath}"
+        OsHelper.executeSystemCommand(fullCmd)
+
+    def __showErrBar(self, parentWidget:QWidget, title:str, errMsg:str):
+        infoBar = InfoBar(
+            icon=InfoBarIcon.ERROR,
+            title=title,
+            content=errMsg,
+            orient=Qt.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=-1,  # won't disappear automatically
+            parent=parentWidget,
+        )
+        copyButton = TransparentToolButton(FIF.COPY, parentWidget)
+        copyButton.setFixedSize(36, 36)
+        copyButton.setIconSize(QSize(12, 12))
+        copyButton.setCursor(Qt.PointingHandCursor)
+        copyButton.setVisible(True)
+        copyButton.clicked.connect(lambda: self.copyText(infoBar))
+        infoBar.addWidget(copyButton)
+        infoBar.show()
+
+    def copyText(self, infoBar: InfoBar):
+        text = infoBar.contentLabel.text()
+        QApplication.clipboard().setText(text)
 
 pluginMgr = PluginManager()

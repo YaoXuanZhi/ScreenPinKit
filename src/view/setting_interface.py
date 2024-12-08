@@ -51,6 +51,14 @@ class SettingInterface(ScrollArea):
             cfg.get(cfg.cacheFolder),
             self.generalGroup,
         )
+        self.pluginMarketUrlCard = HyperlinkCard(
+            cfg.get(cfg.pluginMarketUrl),
+            "Github Url",
+            FIF.MARKET,
+            self.tr("Plugin Market"),
+            cfg.get(cfg.pluginMarketUrl),
+            self.generalGroup,
+        )
         self.pluginsFolderCard = PushSettingCard(
             self.tr("Choose folder"),
             FIF.DOWNLOAD,
@@ -214,6 +222,7 @@ class SettingInterface(ScrollArea):
     def __initLayout(self):
         # add cards to group
         self.generalGroup.addSettingCard(self.cacheFolderCard)
+        self.generalGroup.addSettingCard(self.pluginMarketUrlCard)
         self.generalGroup.addSettingCard(self.pluginsFolderCard)
         self.generalGroup.addSettingCard(self.isAutoFindWindowCard)
 

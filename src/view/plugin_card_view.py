@@ -137,7 +137,6 @@ class InstallDepsCard(HeaderCardWidget):
             QWebEngineSettings.WebAttribute.PluginsEnabled, True
         )
 
-        # self.markdownWidget = QTextEdit(self)
         self.markdownWidget = QTextBrowser(self)
         self.markdownWidget.setStyleSheet("QTextEdit {background-color: transparent; border: none;}")
         self.markdownWidget.setReadOnly(True)
@@ -162,7 +161,6 @@ pip3 install PyQt5
 choco install python tessactocr
 ```
         """
-        # htmlConent = markdown.markdown(text)
 
         self.markdownWidget.setMarkdown(text)
         self.viewLayout.addWidget(self.markdownWidget)

@@ -70,6 +70,7 @@ class Config(QConfig):
     )
     isAutoFindWindow = ConfigItem("General", "IsAutoFindWindow", True, BoolValidator())
 
+    pluginMarketUrl = ConfigItem("General", "PluginMarketUrl", "http://localhost:3000/yaoxuanzhi/plugin_market/raw/master/extensions.json", ConfigValidator())
     pluginsFolder = ConfigItem("General", "PluginsFolder", "", FolderValidator())
 
     depsFolder = ConfigItem("General", "DepsFolder", "", FolderValidator())

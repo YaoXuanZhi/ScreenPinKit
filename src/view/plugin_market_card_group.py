@@ -127,10 +127,26 @@ class ItemCard(ElevatedCardWidget):
         pluginView.exec()
 
     def onDeleteButtonClicked(self):
+        parent = self.parentWidget()
+        while parent.parentWidget():
+            parent = parent.parentWidget()
+
+        isOk = pluginMgr.unInstallNetworkPlugin(parent, self.plugin.name)
+        if not isOk:
+            return
+
         self.setUnInstalledUI()
         self.setItemState(EnumItemCardState.UninstallState)
 
     def onDownloadButtonClicked(self):
+        parent = self.parentWidget()
+        while parent.parentWidget():
+            parent = parent.parentWidget()
+
+        isOk = pluginMgr.installNetworkPlugin(parent, self.plugin.name, self.plugin.url)
+        if not isOk:
+            return
+
         self.setInstalledUI(True)
         self.setItemState(EnumItemCardState.ActiveState)
 
@@ -260,12 +276,24 @@ class ItemCardView(QWidget):
         self.initUI()
 
     def initUI(self):
+        # 添加本地磁盘上的插件到UI上
         for plugin in pluginMgr.pluginDict.values():
             self.addPlugin(plugin)
 
+        # 添加网络插件市场的插件到UI上
+        self.networkLoaderMgr = NetworkLoaderManager(cfg.get(cfg.pluginMarketUrl))
+        self.networkLoaderMgr.loadItemFinishedSignal.connect(self.addPlugin)
+        self.networkLoaderMgr.loadAllFinishedSignal.connect(self.onLoadAllFinished)
+        self.networkLoaderMgr.start()
+
+    def onLoadAllFinished(self):
+        self.showAllPlugins()
+
     def addPlugin(self, plugin: PluginInterface):
         """ add plugin to view """
-        pluginName = plugin.name
+        pluginName:str = plugin.name
+        if pluginName in self.options:
+            return
         if not hasattr(pluginCfg, pluginName):
             configItem = PluginConfigItemEx(
                 pluginName, "pluginState", 
