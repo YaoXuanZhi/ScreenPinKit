@@ -1,5 +1,6 @@
 # coding=utf-8
-import os, random, time
+import time
+from sortedcontainers import SortedDict
 from extend_widgets import *
 from plugin import *
 from .plugin_card_view import PluginCardView
@@ -35,6 +36,7 @@ class ItemCard(ElevatedCardWidget):
     def __init__(self, plugin: PluginInterface, parent=None):
         super().__init__(parent)
         self.setFixedSize(304, 160)
+        self.attachWidget:ItemCardView = parent
         self.plugin = plugin
         self.itemState = EnumItemCardState.NoneState
         self.iconWidget = TransparentToolButton(plugin.icon, self)
@@ -95,6 +97,8 @@ class ItemCard(ElevatedCardWidget):
         self.optionSliderLayout.addWidget(self.deleteButton, 0, Qt.AlignRight)
 
         self.deleteButton.clicked.connect(self.onDeleteButtonClicked)
+
+        self.deleteButton.setEnabled(self.plugin.isAllowModify)
         self.switchButton.checkedChanged.connect(self.onSwitchCheckedChanged)
 
     def setUnInstalledUI(self):
@@ -138,6 +142,8 @@ class ItemCard(ElevatedCardWidget):
         self.setUnInstalledUI()
         self.setItemState(EnumItemCardState.UninstallState)
 
+        self.attachWidget.reloadUISignal.emit()
+
     def onDownloadButtonClicked(self):
         parent = self.parentWidget()
         while parent.parentWidget():
@@ -149,6 +155,8 @@ class ItemCard(ElevatedCardWidget):
 
         self.setInstalledUI(True)
         self.setItemState(EnumItemCardState.ActiveState)
+
+        self.attachWidget.reloadUISignal.emit()
 
     def setItemState(self, newState: EnumItemCardState):
         if self.itemState == newState:
@@ -227,9 +235,12 @@ class ItemCard(ElevatedCardWidget):
         else:
             self.setItemState(EnumItemCardState.DeActiveState)
 
+        self.attachWidget.reloadUISignal.emit()
+
 class ItemCardView(QWidget):
     """ Item card view """
     searchedSignal = pyqtSignal(list)
+    reloadUISignal = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -244,10 +255,11 @@ class ItemCardView(QWidget):
         self.hBoxLayout = QHBoxLayout(self.view)
         self.flowLayout = FlowLayout(self.scrollWidget, isTight=True)
         self.fuzzyMatch = FuzzyMatch()
+        self.reloadUISignal.connect(self.reloadUI)
 
+        self.sortedDict = SortedDict()
         self.cards = []     # type:List[ItemCard]
         self.icons = []
-        self.currentIndex = -1
         self.options = []
 
         self.__initWidget()
@@ -278,16 +290,61 @@ class ItemCardView(QWidget):
     def initUI(self):
         # 添加本地磁盘上的插件到UI上
         for plugin in pluginMgr.pluginDict.values():
+            self.insertPluginPrepare(plugin)
+
+        # 先排序再渲染(这里先显示，等到网络插件加载完成后再重刷UI)
+        for plugin in self.sortedDict.values():
             self.addPlugin(plugin)
 
         # 添加网络插件市场的插件到UI上
         self.networkLoaderMgr = NetworkLoaderManager(cfg.get(cfg.pluginMarketUrl))
-        self.networkLoaderMgr.loadItemFinishedSignal.connect(self.addPlugin)
-        self.networkLoaderMgr.loadAllFinishedSignal.connect(self.onLoadAllFinished)
+        self.networkLoaderMgr.loadItemFinishedSignal.connect(self.onLoadNetworkItemFinished)
+        self.networkLoaderMgr.loadAllFinishedSignal.connect(self.reloadUI)
         self.networkLoaderMgr.start()
 
+    def onLoadNetworkItemFinished(self, plugin: PluginInterface):
+        if not hasattr(self, 'networkPluginCache'):
+            self.networkPluginCache = []
+
+        self.networkPluginCache.append(plugin)
+
     def onLoadAllFinished(self):
+        if hasattr(self, 'networkPluginCache'):
+            for plugin in self.networkPluginCache:
+                self.insertPluginPrepare(plugin)
+
+        # 先排序再渲染
+        for plugin in self.sortedDict.values():
+            self.addPlugin(plugin)
+
         self.showAllPlugins()
+
+    def reloadUI(self):
+        pluginMgr.reloadPlugins()
+        self.flowLayout.removeAllWidgets()
+
+        for card in self.cards:
+            card.setVisible(False)
+            card.deleteLater()
+            card.close()
+
+        self.cards.clear()
+        self.icons.clear()
+        self.options.clear()
+
+        self.resettPluginPrepare()
+        for plugin in pluginMgr.pluginDict.values():
+            self.insertPluginPrepare(plugin)
+
+        self.onLoadAllFinished()
+
+    def insertPluginPrepare(self, plugin: PluginInterface):
+        if plugin.name in self.sortedDict:
+            return
+        self.sortedDict[plugin.name] = plugin
+
+    def resettPluginPrepare(self):
+        self.sortedDict.clear()
 
     def addPlugin(self, plugin: PluginInterface):
         """ add plugin to view """

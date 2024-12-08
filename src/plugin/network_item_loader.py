@@ -55,12 +55,17 @@ class MarketWorker(QThread):
         self.url = url
 
     def run(self):
-        jsonData = requests.get(self.url).text
-        if jsonData:
-            jsonObj = json.loads(jsonData)
-            self.loadFinishedSignal.emit(jsonObj)
-        else:
-            print("MarketWorker: load failed")
+        try:
+            jsonData = requests.get(self.url).text
+            if jsonData:
+                jsonObj = json.loads(jsonData)
+                self.loadFinishedSignal.emit(jsonObj)
+        except Exception as e:
+            if hasattr(e, "stderr"):
+                _importErrorMsg = e.stderr
+            else:
+                _importErrorMsg = "\n".join([str(arg) for arg in e.args])
+            print(f"MarketWorker: load failed {_importErrorMsg}")
 
 class NetworkLoaderManager(QObject):
     loadItemFinishedSignal = pyqtSignal(PluginInstConfig)

@@ -55,6 +55,10 @@ class OCRProgressDisplay(PluginInterface):
     def tags(self) -> list:
         return ["ocr","ui"]
 
+    @property
+    def isAllowModify(self) -> bool:
+        return False
+
     def handleEvent(self, eventName, *args, **kwargs):
         if eventName == GlobalEventEnum.OcrStartEvent:
             self.log(f"OCR started {self.name} ===> {self.desc}")

@@ -22,8 +22,9 @@ class CustomLoader(importlib.abc.Loader):
         exec(self.module_code, module.__dict__)
 
 
-class PluginManager:
-    def __init__(self):
+class PluginManager(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.pluginDict = {}
         self.pluginGroupDict = {}
         pluginCfg.load("plugin_settings.json")
@@ -132,6 +133,11 @@ class PluginManager:
         pass
 
     def reloadPlugins(self):
+        for plugin0 in self.pluginDict.values():
+            plugin: PluginInterface = plugin0
+            if plugin.enable:                
+                plugin.enable = False
+
         self.pluginDict.clear()
         self.pluginGroupDict.clear()
         self.loadPlugins()

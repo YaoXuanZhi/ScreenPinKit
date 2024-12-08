@@ -79,6 +79,10 @@ class PluginInterface(ABC):
     def enable(self) -> bool:
         return self._enable
 
+    @property
+    def isAllowModify(self) -> bool:
+        return True
+
     @enable.setter
     def enable(self, value: bool):
         if self._enable == value:
