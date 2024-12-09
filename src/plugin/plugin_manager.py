@@ -159,7 +159,7 @@ class PluginManager(QObject):
         if platform.system() == "Windows":
             fullCmd = f"cd /d {outsidePluginFolderPath} & git clone {gitUrl}"
         else:
-            fullCmd = f"cd {outsidePluginFolderPath} & git clone {gitUrl}"
+            fullCmd = f"cd {outsidePluginFolderPath} ; git clone {gitUrl}"
         OsHelper.executeSystemCommand(fullCmd)
 
     def unInstallNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str) -> bool:
@@ -176,11 +176,12 @@ class PluginManager(QObject):
 
     def __unInstallNetworkPlugin(self, targetPluginName: str):
         dirPath:str = self.pluginGroupDict[targetPluginName]
-        dirPath = dirPath.replace("/", "\\")
 
         if platform.system() == "Windows":
+            dirPath = dirPath.replace("/", "\\")
             fullCmd = f"rd /s /q {dirPath}"
         else:
+            dirPath = dirPath.replace("\\", "/")
             fullCmd = f"rm -rf {dirPath}"
         OsHelper.executeSystemCommand(fullCmd)
 

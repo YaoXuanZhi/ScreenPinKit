@@ -3,6 +3,8 @@ from requests import Session
 from .plugin_inst_config import PluginInstConfig
 from .plugin_config import *
 
+networkImageCache = {}
+
 class WorkerSignals(QObject):
     loadFinishedSignal = pyqtSignal(PluginInstConfig, int)
 
@@ -35,9 +37,14 @@ class NetworkItemLoader(QRunnable):
             iconPixmap.loadFromData(imageData)
             temp.icon = QIcon(iconPixmap)
 
+            global networkImageCache
             # 加载网络预览图片
-            for previewImage in self.configItem["previewImages"]:
-                imageData = server.get(previewImage).content
+            for imageUrl in self.configItem["previewImages"]:
+                if imageUrl in networkImageCache:
+                    imageData = networkImageCache[imageUrl]
+                else:
+                    imageData = server.get(imageUrl).content
+                    networkImageCache[imageUrl] = imageData
                 previewPixmap = QPixmap()
                 previewPixmap.loadFromData(imageData)
                 if not previewPixmap.isNull():
