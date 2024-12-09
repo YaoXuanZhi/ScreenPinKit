@@ -26,7 +26,9 @@ class FuzzyMatch(QObject):
         self.trie.insert(item, index)
 
     def clear(self):
+        self.map.clear()
         self.choices.clear()
+        self.trie = Trie()
 
     def bestMatch2(self, keyWord0:str):
         keyWord = keyWord0.lower()

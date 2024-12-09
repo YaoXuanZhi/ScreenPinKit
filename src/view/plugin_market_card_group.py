@@ -330,6 +330,7 @@ class ItemCardView(QWidget):
         self.icons.clear()
         self.options.clear()
 
+        self.fuzzyMatch.clear()
         self.resettPluginPrepare()
         for plugin in pluginMgr.pluginDict.values():
             self.insertPluginPrepare(plugin)
