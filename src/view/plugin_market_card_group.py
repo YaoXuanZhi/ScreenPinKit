@@ -107,7 +107,13 @@ class ItemCard(ElevatedCardWidget):
         if hasattr(self,'switchButton'):
             self.switchButton.deleteLater()
 
+        isSupport = False
+        for system in self.plugin.supportSystems:
+            if sys.platform.startswith(system):
+                isSupport = True
+
         self.downloadButton = TransparentToolButton(FluentIcon.DOWNLOAD)
+        self.downloadButton.setEnabled(isSupport)
         self.downloadButton.clicked.connect(self.onDownloadButtonClicked)
         self.optionSliderLayout.addWidget(self.downloadButton, 0, Qt.AlignRight)
 

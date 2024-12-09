@@ -13,3 +13,4 @@ pyclipper
 shapely==2.0.6
 fuzzywuzzy
 sortedcontainers
+requests

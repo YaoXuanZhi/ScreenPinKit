@@ -13,6 +13,7 @@ class PluginInstConfig(PluginInterface):
         self._url = ""
         self._tags = []
         self._previewImages = []
+        self._supportSystems = []
 
     @property
     def name(self):
@@ -85,3 +86,11 @@ class PluginInstConfig(PluginInterface):
     @previewImages.setter
     def previewImages(self, value):
         self._previewImages = value
+
+    @property
+    def supportSystems(self) -> list:
+        return self._supportSystems    
+
+    @supportSystems.setter
+    def supportSystems(self, value):
+        self._supportSystems = value

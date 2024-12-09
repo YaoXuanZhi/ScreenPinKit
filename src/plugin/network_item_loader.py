@@ -1,4 +1,4 @@
-import requests
+import sys, requests
 from requests import Session
 from .plugin_inst_config import PluginInstConfig
 from .plugin_config import *
@@ -26,6 +26,7 @@ class NetworkItemLoader(QRunnable):
             temp.author = self.configItem["author"]
             temp.url = self.configItem["url"]
             temp.tags = self.configItem["tags"]
+            temp.supportSystems = self.configItem["supportSystems"]
             temp.enable = False
 
             server = Session()
@@ -105,6 +106,16 @@ class NetworkLoaderManager(QObject):
 
     def __executeThreadPool(self, jsonObj:dict):
         for index, item in enumerate(jsonObj):
+
+            # 跳过不支持当前系统的插件
+            isSkip = True
+            for system in item["supportSystems"]:
+                if sys.platform.startswith(system):
+                    isSkip = False
+
+            if isSkip:
+                continue
+
             self.taskDict[index] = 1
             loader = NetworkItemLoader(item, index)
             loader.signals.loadFinishedSignal.connect(self.__addNetworkItem)
