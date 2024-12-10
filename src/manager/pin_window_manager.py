@@ -38,7 +38,7 @@ class PinWindowManager:
         elif mimeData.hasUrls():
             imgPath = clipboard.text().replace("file:///", "")
             extension = Path(imgPath).suffix
-            supportImgs = [".png", ".jpg", ".jpeg"]
+            supportImgs = [".png", ".jpg", ".jpeg", ".svg", ".webp", ".jfif"]
             if extension in supportImgs:
                 pixmap = QPixmap(imgPath)
         elif mimeData.hasText():
