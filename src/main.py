@@ -15,8 +15,8 @@ class MainWindow(QWidget):
         self.screenPaintWindow = None
         self.initPluginManager()
         self.initSystemTrayMenu()
-        self.initHotKey()
         self.initPinWindowManager()
+        self.initHotKey()
 
     def initPluginManager(self):
         pluginMgr.loadPlugins()
@@ -49,6 +49,7 @@ class MainWindow(QWidget):
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyShowClipboard), self.showClipboard)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenPaint), self.screenPaint)
         self.keyObj.addHotKey(cfg.get(cfg.hotKeyScreenShot), self.screenShot)
+        self.keyObj.addHotKey(cfg.get(cfg.hotKeyRepeatScreenShot), self.repeatScreenShot)
         self.keyObj.addHotKey(
             cfg.get(cfg.hotKeyToggleMouseClickThrough), self.switchMouseThroughState
         )
@@ -58,6 +59,9 @@ class MainWindow(QWidget):
         pluginMgr.handleEvent(
             GlobalEventEnum.GlobalHotKeyRegisterEnd, keyboard=self.keyObj
         )
+
+    def repeatScreenShot(self):
+        self.pinWindowMgr.repeatSnip()
 
     def screenShot(self):
         if self.screenShotWindow == None:

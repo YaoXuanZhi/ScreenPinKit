@@ -9,6 +9,7 @@ class PinWindowManager:
         super().__init__()
         self.screenDevicePixelRatio = CanvasUtil.getDevicePixelRatio()
         self._windowsDict = {}
+        self.lastCropRect = None
 
         startupImagePath, screenX, screenY = self.findScreenImagePath()
         if startupImagePath != None and os.path.exists(startupImagePath):
@@ -90,12 +91,57 @@ class PinWindowManager:
                 if wnd != None:
                     wnd.setMouseThroughState(False)
 
-    def snip(self, screenPoint: QPoint, realSize: QSize, pixmap: QPixmap):
-        self.clearScreenImages()
-        saveFolder = cfg.get(cfg.cacheFolder)
-        savePath = os.path.join(saveFolder, self.getScreenImageName(screenPoint))
-        pixmap.save(savePath, "png")
-        self.addPinWindow(screenPoint, realSize, pixmap)
+    def recordCropRect(self, cropRect: QRectF):
+        self.lastCropRect = cropRect
+
+    def repeatSnip(self):
+        if self.lastCropRect == None:
+            return
+
+        cropRect = self.lastCropRect
+        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
+        pixelRatio = finalPixmap.devicePixelRatio()
+        realCropRect = QRectF(
+            cropRect.x() * pixelRatio,
+            cropRect.y() * pixelRatio,
+            cropRect.width() * pixelRatio,
+            cropRect.height() * pixelRatio,
+        ).toRect()
+        if realCropRect.size() != QSize(0, 0):
+            cropPixmap = finalPixmap.copy(realCropRect)
+            cropImage = cropPixmap.toImage().convertToFormat(
+                QImage.Format.Format_RGB888
+            )
+            cropPixmap = QPixmap.fromImage(cropImage)
+            self.snip(cropRect, cropPixmap)
+
+    def copyToClipboard(self, cropRect: QRectF):
+        finalPixmap, finalGeometry = canvas_util.CanvasUtil.grabScreens()
+        pixelRatio = finalPixmap.devicePixelRatio()
+        realCropRect = QRectF(
+            cropRect.x() * pixelRatio,
+            cropRect.y() * pixelRatio,
+            cropRect.width() * pixelRatio,
+            cropRect.height() * pixelRatio,
+        ).toRect()
+        cropPixmap = finalPixmap.copy(realCropRect)
+        kv = {"pixmap": cropPixmap}
+        pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
+        finalPixmap = kv["pixmap"]
+        QApplication.clipboard().setPixmap(finalPixmap)
+
+    def snip(self, cropRect:QRectF, pixmap: QPixmap):
+        if QPixmap.isNull(pixmap):
+            self.copyToClipboard(cropRect)
+        else:
+            screenPoint = cropRect.topLeft().toPoint()
+            realSize = cropRect.size().toSize()
+            self.clearScreenImages()
+            saveFolder = cfg.get(cfg.cacheFolder)
+            savePath = os.path.join(saveFolder, self.getScreenImageName(screenPoint))
+            pixmap.save(savePath, "png")
+            self.addPinWindow(screenPoint, realSize, pixmap)
+        self.recordCropRect(cropRect)
 
     def clearScreenImages(self):
         searchFolder = cfg.get(cfg.cacheFolder)

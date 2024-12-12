@@ -79,6 +79,9 @@ class Config(QConfig):
     hotKeyScreenShot = ConfigItem(
         "HotKey", "ScreenShot", "", ConfigValidator(), restart=True
     )
+    hotKeyRepeatScreenShot = ConfigItem(
+        "HotKey", "RepeatScreenShot", "", ConfigValidator(), restart=True
+    )
     hotKeyScreenPaint = ConfigItem(
         "HotKey", "ScreenPaint", "", ConfigValidator(), restart=True
     )

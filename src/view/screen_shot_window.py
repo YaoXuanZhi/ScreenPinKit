@@ -6,7 +6,7 @@ from plugin import *
 
 
 class ScreenShotWindow(QWidget):
-    snipedSignal = pyqtSignal(QPoint, QSize, QPixmap)
+    snipedSignal = pyqtSignal(QRectF, QPixmap)
     closedSignal = pyqtSignal()
 
     Unknown = 0
@@ -62,15 +62,10 @@ class ScreenShotWindow(QWidget):
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
         if cropRect.size() == QSizeF(0, 0) and cfg.get(cfg.isAutoFindWindow):
             cropRect = QRectF(self.previewRect)
-        realCropRect = self.physicalRectF(cropRect, False).toRect()
-        if realCropRect.size() != QSize(0, 0):
-            cropPixmap = self.screenPixmap.copy(realCropRect)
-            kv = {"pixmap": cropPixmap}
-            pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
-            finalPixmap = kv["pixmap"]
-            QApplication.clipboard().setPixmap(finalPixmap)
         self.clearScreenShot(False)
         self.close()
+        if cropRect.size() != QSize(0, 0):
+            self.snipedSignal.emit(cropRect, QPixmap())
 
     def snip(self):
         cropRect = self.normalizeRectF(self._pt_start, self._pt_end)
@@ -80,13 +75,11 @@ class ScreenShotWindow(QWidget):
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
-            screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
             cropImage = cropPixmap.toImage().convertToFormat(
                 QImage.Format.Format_RGB888
             )
             cropPixmap = QPixmap.fromImage(cropImage)
-            self.snipedSignal.emit(screenPoint, cropRect.size().toSize(), cropPixmap)
-
+            self.snipedSignal.emit(cropRect, cropPixmap)
             self.clearScreenShot(False)
             self.close()
 

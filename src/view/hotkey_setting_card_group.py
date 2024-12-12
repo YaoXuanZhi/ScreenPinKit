@@ -46,6 +46,9 @@ class HotkeySettingCardGroup(SettingCardGroup):
         self.hotkeyScreenShotCard = KeySequenceEditCard(
             self.tr("Screen shot"), cfg.hotKeyScreenShot, parent=self
         )
+        self.hotkeyRepeatScreenShotCard = KeySequenceEditCard(
+            self.tr("Repeat Screen shot"), cfg.hotKeyRepeatScreenShot, parent=self
+        )
         self.hotkeyShowClipboardCard = KeySequenceEditCard(
             self.tr("Show clipboard"), cfg.hotKeyShowClipboard, parent=self
         )
@@ -67,6 +70,7 @@ class HotkeySettingCardGroup(SettingCardGroup):
 
     def __initLayout(self):
         self.addSettingCard(self.hotkeyScreenShotCard)
+        self.addSettingCard(self.hotkeyRepeatScreenShotCard)
         self.addSettingCard(self.hotkeyShowClipboardCard)
         self.addSettingCard(self.hotkeyScreenPaintCard)
         self.addSettingCard(self.hotkeySwitchScreenPaintModeCard)

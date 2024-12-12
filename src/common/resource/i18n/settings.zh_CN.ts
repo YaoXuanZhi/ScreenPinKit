@@ -974,6 +974,10 @@
 <context>
     <name>HotkeySettingCardGroup</name>
     <message>
+        <source>Repeat Screen shot</source>
+        <translation>重复上次截图</translation>
+    </message>
+    <message>
         <source>Screen shot</source>
         <translation>桌面截图</translation>
     </message>

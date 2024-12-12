@@ -34,6 +34,7 @@ TEMPLATE_CONFIG = """
         "MouseThough": "alt+f",
         "ScreenPaint": "f4",
         "ScreenShot": "f7",
+        "RepeatScreenShot": "shift+f7",
         "ShowClipboard": "f2",
         "SwitchScreenPaintMode": "alt+l"
     },
