@@ -12,7 +12,11 @@ from .setting_interface import *
 class SettingWindow(FramelessWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.defaultFlag()
         self.initUI()
+
+    def defaultFlag(self) -> None:
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
     def initUI(self):
         self.setTitleBar(StandardTitleBar(self))
