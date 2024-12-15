@@ -75,6 +75,8 @@ class ScreenShotWindow(QWidget):
         realCropRect = self.physicalRectF(cropRect, False).toRect()
         if realCropRect.size() != QSize(0, 0):
             cropPixmap = self.screenPixmap.copy(realCropRect)
+            screenPoint = self.mapToGlobal(cropRect.topLeft().toPoint())
+            cropRect.moveTo(screenPoint)
             cropImage = cropPixmap.toImage().convertToFormat(
                 QImage.Format.Format_RGB888
             )
