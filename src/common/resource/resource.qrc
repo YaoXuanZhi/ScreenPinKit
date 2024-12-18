@@ -50,6 +50,7 @@
         <file>icons/ocr_loader.svg</file>
         <file>icons/choice_size.svg</file>
         <file>icons/shadow_eraser.svg</file>
+        <file>icons/shadow_ellipse.svg</file>
         <file>icons/image_mosaic.svg</file>
         <file>icons/image_invert.svg</file>
         <file>icons/image_contour.svg</file>

@@ -673,6 +673,10 @@
         <source>Shadow Eraser frame</source>
         <translation>阴影橡皮框</translation>
     </message>
+    <message>
+        <source>Shadow Eraser ellipse</source>
+        <translation>阴影橡皮圈</translation>
+    </message>
 </context>
 <context>
     <name>CommonPathToolbar</name>

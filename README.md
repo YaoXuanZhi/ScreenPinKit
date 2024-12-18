@@ -177,6 +177,12 @@ ruff format
 ## ☐ 重构绘图工具模块
 由于当初实现的时候，很多绘图工具功能并没有明晰，都是摸索着实现的，所以存在很多硬编码的情况，现在功能基本已稳定，可以重新梳理该功能的行为，计划将拆分为DrawToolProvider、DrawToolSchduler、DrawToolFactory等模块，甚至将它们提炼为一个插件，让绘图工具的实现更灵活，更易扩展
 
+## ☐ 增加节点式流程定制化支持
+可以让用户通过节点式拖曳定制一些快捷流程，比如某些自动化任务啥的，具体可以参考以下项目
+ - [pyqt-node-editor](https://gitlab.com/pavel.krupala/pyqt-node-editor)
+ - [qtpynodeeditor](https://github.com/klauer/qtpynodeeditor)
+ - [graphite (Node Graph Feauture)](https://editor.graphite.rs/)
+
 ## ✔ 兼容Linux Desktop系统，比如Ubuntu
 由于采用了Qt，它是一个跨平台的GUI，因此理论上是可以兼容Linux Desktop的，但需要做以下适配，比如热键注册之类需要调整
 

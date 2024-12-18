@@ -65,10 +65,9 @@ class CanvasEraserItem(CanvasCommonPathItem):
         else:
             targetPath.addPolygon(targetPolygon)
 
-    def setEditableState(self, isEditable: bool):
-        """橡皮擦不允许绘制结束之后的重新编辑"""
-        # return super().setEditableState(isEditable)
-        pass
+    # def setEditableState(self, isEditable: bool):
+    #     """橡皮擦不允许绘制结束之后的重新编辑"""
+    #     # super().setEditableState(isEditable)
 
 
 class CanvasEraserRectItem(CanvasCommonPathItem):
@@ -83,7 +82,7 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         self.bgPixmap = self.bgBrush.texture()
 
     def __initEditMode(self):
-        # self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
+        self.setEditMode(CanvasCommonPathItem.BorderEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.RoiEditableMode, False)
         self.setEditMode(CanvasCommonPathItem.AdvanceSelectMode, False)
         self.setEditMode(
@@ -99,8 +98,8 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
 
     def customPaint(self, painter: QPainter, targetPath: QPainterPath) -> None:
         # bug:目前实现方式在该图元旋转时会出现bug
-        # self.customPaintByClip(painter, targetPath)
-        self.customPaintByCopy(painter, targetPath)
+        self.customPaintByClip(painter, targetPath)
+        # self.customPaintByCopy(painter, targetPath)
 
     def physicalRectF(self, rectf: QRectF):
         pixelRatio = self.bgPixmap.devicePixelRatio()
@@ -135,25 +134,80 @@ class CanvasEraserRectItem(CanvasCommonPathItem):
         CanvasUtil.buildRectanglePath(targetPath, targetPolygon)
 
 
-# class CanvasShadowEraserRectItem(CanvasEraserRectItem):
-#     def initializedEvent(self):
-#         self.applyShadow()
+class CanvasShadowEraserRectItem(CanvasEraserRectItem):
+    def __init__(self, bgBrush: QBrush, parent: QWidget = None) -> None:
+        super().__init__(bgBrush, parent)
+        self.defaultColor = QColor(0, 0, 0, 150)
+        self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
 
-#     def applyShadow(self):
-#         shadowEffect = QGraphicsDropShadowEffect()
-#         shadowEffect.setBlurRadius(30)  # 阴影的模糊半径
-#         shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
-#         shadowEffect.setOffset(0, 0)  # 阴影的偏移量
-#         self.setGraphicsEffect(shadowEffect)
+    def initializedEvent(self):
+        self.applyShadow()
 
-#     def setEditableState(self, isEditable: bool):
-#         pass
+    def applyShadow(self):
+        self.shadowEffect = QGraphicsDropShadowEffect()
+        self.shadowEffect.setBlurRadius(30 * self.devicePixelRatio)  # 阴影的模糊半径
+        self.shadowEffect.setColor(QColor(0, 0, 0, 150))  # 阴影的颜色和透明度
+        self.shadowEffect.setOffset(0, 0)  # 阴影的偏移量
+        self.setGraphicsEffect(self.shadowEffect)
 
-#     def type(self) -> int:
-#         return EnumCanvasItemType.CanvasShadowEraserRectItem.value
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasShadowEraserRectItem.value
+
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
+        targetPath.clear()
+        targetPath.addRoundedRect(targetPolygon.boundingRect(), 6, 6)
+
+    def forceSquare(self):
+        if self.polygon.count() == 2:
+            begin = self.polygon.at(0)
+            end = self.polygon.at(self.polygon.count() - 1)
+
+            finalRect = QRectF(begin, end).normalized()
+            maxLength = max(finalRect.width(), finalRect.height())
+
+            if end.x() - begin.x() > 0:
+                endPosX = begin.x() + maxLength
+            else:
+                endPosX = begin.x() - maxLength
+
+            if end.y() - begin.y() > 0:
+                endPosY = begin.y() + maxLength
+            else:
+                endPosY = begin.y() - maxLength
+
+            end = QPointF(endPosX, endPosY)
+            self.polygon.replace(1, end)
+
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent):
+        if(event.button() == Qt.MouseButton.LeftButton):
+            self.colorDialog = RingColorSelectorDialog(self.defaultColor, self.scene().views()[0])
+            self.colorDialog.colorChanged.connect(self.__onColorChanged)
+            self.colorDialog.exec()
+            return
+        return super().mouseDoubleClickEvent(event)
+
+    def __onColorChanged(self, color:QColor):
+        self.shadowEffect.setColor(color)
+        self.colorDialog.close()
+
+    def completeDraw(self):
+        super().completeDraw()
+        if hasattr(self, 'colorDialog'):
+            self.colorDialog.close()
+
+class CanvasShadowEraserEllipseItem(CanvasShadowEraserRectItem):
+    def buildShapePath(
+        self, targetPath: QPainterPath, targetPolygon: QPolygonF, isClosePath: bool
+    ):
+        CanvasUtil.buildEllipsePath(targetPath, targetPolygon)
+
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasShadowEraserEllipseItem.value
 
 
-class CanvasShadowEraserRectItem(QGraphicsRectItem):
+class CanvasShadowEraserRectItemBak(QGraphicsRectItem):
     def __init__(self, bgBrush, parent=None):
         super().__init__(parent)
         self.defaultColor = QColor(0, 0, 0, 150)
@@ -215,4 +269,33 @@ class CanvasShadowEraserRectItem(QGraphicsRectItem):
     def completeDraw(self):
         if hasattr(self, 'colorDialog'):
             self.colorDialog.close()
-        pass
+
+    def forceSquare(self):
+        if self.polygon.count() == 2:
+            begin = self.polygon.at(0)
+            end = self.polygon.at(self.polygon.count() - 1)
+
+            finalRect = QRectF(begin, end).normalized()
+            maxLength = max(finalRect.width(), finalRect.height())
+
+            if end.x() - begin.x() > 0:
+                endPosX = begin.x() + maxLength
+            else:
+                endPosX = begin.x() - maxLength
+
+            if end.y() - begin.y() > 0:
+                endPosY = begin.y() + maxLength
+            else:
+                endPosY = begin.y() - maxLength
+
+            end = QPointF(endPosX, endPosY)
+            self.polygon.replace(1, end)
+
+class CanvasShadowEraserEllipseItemBak(CanvasShadowEraserRectItemBak):
+    def type(self) -> int:
+        return EnumCanvasItemType.CanvasShadowEraserEllipseItem.value
+
+    def boundingRect(self) -> QRectF:
+        self.attachPath.clear()
+        CanvasUtil.buildEllipsePath(self.attachPath, self.polygon)
+        return self.attachPath.boundingRect()

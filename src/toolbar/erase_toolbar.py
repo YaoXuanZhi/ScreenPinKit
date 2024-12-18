@@ -39,6 +39,13 @@ class EraseToolbar(CanvasItemToolBar):
                     DrawActionEnum.UseShadowEraserRectItem
                 ),
             ),
+            Action(
+                ScreenShotIcon.SHADOW_ELLIPSE_ERASER,
+                self.tr("Shadow Eraser ellipse"),
+                triggered=lambda: self.eraseTypeChangedSignal.emit(
+                    DrawActionEnum.UseShadowEraserEllipseItem
+                ),
+            ),
         ]
 
         self.actionGroup = QActionGroup(self)

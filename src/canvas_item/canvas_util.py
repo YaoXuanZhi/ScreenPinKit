@@ -27,6 +27,7 @@ class EnumCanvasItemType(Enum):
     CanvasStarItem = QGraphicsItem.UserType + 11
     CanvasSvgItem = QGraphicsItem.UserType + 12
     CanvasShadowEraserRectItem = QGraphicsItem.UserType + 13
+    CanvasShadowEraserEllipseItem = QGraphicsItem.UserType + 14
 
 
 class EnumPosType(Enum):

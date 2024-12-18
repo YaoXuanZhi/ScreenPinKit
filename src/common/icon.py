@@ -14,6 +14,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     TEXT = "text"
     ERASER = "eraser"
     SHADOW_ERASER = "shadow_eraser"
+    SHADOW_ELLIPSE_ERASER = "shadow_ellipse"
     PEN = "pen"
     SAVE_AS = "save_as"
     FINISHED = "finished"

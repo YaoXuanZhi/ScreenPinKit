@@ -11,6 +11,7 @@ class DrawActionEnum(Enum):
     UseEraser = "使用橡皮擦"
     UseEraserRectItem = "使用橡皮框"
     UseShadowEraserRectItem = "阴影橡皮框"
+    UseShadowEraserEllipseItem = "阴影橡皮圈"
     UseMarkerPen = "使用记号笔"
     UseNumberMarker = "使用数字标记"
     PasteSvg = "粘贴图案"
@@ -36,6 +37,9 @@ class DrawActionInfo(QObject):
         self.map[DrawActionEnum.UseEraserRectItem] = self.tr("UseEraserRectItem")
         self.map[DrawActionEnum.UseShadowEraserRectItem] = self.tr(
             "UseShadowEraserRectItem"
+        )
+        self.map[DrawActionEnum.UseShadowEraserEllipseItem] = self.tr(
+            "UseShadowEraserEllipseItem"
         )
         self.map[DrawActionEnum.UseMarkerPen] = self.tr("UseMarkerPen")
         self.map[DrawActionEnum.UseNumberMarker] = self.tr("UseNumberMarker")
@@ -349,6 +353,18 @@ class CanvasScene(QGraphicsScene):
                                 self.currentItem.polygon.append(targetPos)
                     elif (
                         self.currentDrawActionEnum
+                        == DrawActionEnum.UseShadowEraserEllipseItem
+                    ):
+                        if self.currentItem == None:
+                            if self.bgBrush != None:
+                                self.currentItem = CanvasShadowEraserEllipseItem(
+                                    self.bgBrush
+                                )
+                                self.__startDraw(self.currentItem)
+                                self.currentItem.polygon.append(targetPos)
+                                self.currentItem.polygon.append(targetPos)
+                    elif (
+                        self.currentDrawActionEnum
                         == DrawActionEnum.UseShadowEraserRectItem
                     ):
                         if self.currentItem == None:
@@ -416,7 +432,11 @@ class CanvasScene(QGraphicsScene):
         ):
             targetPos = event.scenePos()
 
-            if self.currentDrawActionEnum == DrawActionEnum.DrawShape:
+            if self.currentDrawActionEnum in [
+                    DrawActionEnum.DrawShape, 
+                    DrawActionEnum.UseShadowEraserRectItem,
+                    DrawActionEnum.UseShadowEraserEllipseItem,
+                ]:
                 self.currentItem.polygon.replace(
                     self.currentItem.polygon.count() - 1, targetPos
                 )
@@ -432,6 +452,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.UseMarkerPen,
                 DrawActionEnum.UseEraserRectItem,
                 DrawActionEnum.UseShadowEraserRectItem,
+                DrawActionEnum.UseShadowEraserEllipseItem,
                 DrawActionEnum.UseEffectTool,
             ]:
                 self.currentItem.polygon.replace(
@@ -485,6 +506,7 @@ class CanvasScene(QGraphicsScene):
                 DrawActionEnum.UseMarkerPen,
                 DrawActionEnum.UseEraserRectItem,
                 DrawActionEnum.UseShadowEraserRectItem,
+                DrawActionEnum.UseShadowEraserEllipseItem,
                 DrawActionEnum.DrawShape,
                 DrawActionEnum.UseEffectTool,
             ]:
