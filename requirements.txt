@@ -7,10 +7,11 @@ PyQtWebEngine
 system_hotkey
 opencv-python==4.10.0.84
 opencv-contrib-python==4.10.0.84
-qrcode==8.0
+qrcode
 onnxruntime==1.19.2
 pyclipper
 shapely==2.0.6
 fuzzywuzzy
+python-Levenshtein
 sortedcontainers
 requests

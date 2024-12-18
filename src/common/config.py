@@ -71,9 +71,7 @@ class Config(QConfig):
     isAutoFindWindow = ConfigItem("General", "IsAutoFindWindow", True, BoolValidator())
 
     pluginMarketUrl = ConfigItem("General", "PluginMarketUrl", "https://github.com/InterwovenCode/ScreenPinKit-Plugin-Examples/raw/refs/heads/main/plugin_market/extensions.json", ConfigValidator())
-    pluginsFolder = ConfigItem("General", "PluginsFolder", "", FolderValidator())
-
-    depsFolder = ConfigItem("General", "DepsFolder", "", FolderValidator())
+    pluginsFolder = ConfigItem("General", "PluginsFolder", "..", FolderValidator())
 
     # HotKey
     hotKeyScreenShot = ConfigItem(

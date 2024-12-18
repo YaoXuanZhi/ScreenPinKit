@@ -337,7 +337,7 @@ class ItemCardView(QWidget):
         self.options.clear()
 
         self.fuzzyMatch.clear()
-        self.resettPluginPrepare()
+        self.resetPluginPrepare()
         for plugin in pluginMgr.pluginDict.values():
             self.insertPluginPrepare(plugin)
 
@@ -348,7 +348,7 @@ class ItemCardView(QWidget):
             return
         self.sortedDict[plugin.name] = plugin
 
-    def resettPluginPrepare(self):
+    def resetPluginPrepare(self):
         self.sortedDict.clear()
 
     def addPlugin(self, plugin: PluginInterface):

@@ -277,7 +277,7 @@ class SettingInterface(ScrollArea):
 
     def __onCacheFolderCardClicked(self):
         """cache folder card clicked slot"""
-        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "./")
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), cfg.get(cfg.cacheFolder))
         if not folder or cfg.get(cfg.cacheFolder) == folder:
             return
 
@@ -286,7 +286,7 @@ class SettingInterface(ScrollArea):
 
     def __onPluginsFolderCardClicked(self):
         """plugins folder card clicked slot"""
-        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "")
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), cfg.get(cfg.pluginsFolder))
         if not folder or cfg.get(cfg.pluginsFolder) == folder:
             return
 

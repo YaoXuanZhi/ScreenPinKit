@@ -64,7 +64,7 @@ class OcrLoaderSettingGroup(SettingCardGroup):
 
     def __onOcrLoaderFolderCardClicked(self):
         """ocrloader folder card clicked slot"""
-        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), "")
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Choose folder"), cfg.get(cfg.ocrLoaderFolder))
         if not folder or cfg.get(cfg.ocrLoaderFolder) == folder:
             return
 

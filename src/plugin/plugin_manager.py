@@ -87,13 +87,16 @@ class PluginManager(QObject):
                                 sys.path.append(root)
 
                             moduleName = fileName[:-3]
+                            if moduleName in ["plugin_inst_config", "plugin_manager"]:
+                                continue
                             try:
                                 module = importlib.import_module(moduleName)
                                 pluginInst = self.__filterInterface(module)
                                 if pluginInst != None:
                                     self.pluginGroupDict[pluginInst.name] = root
                             except Exception as e:
-                                print("\n".join(e.args))
+                                errorMessage = "\n".join(e.args)
+                                print(f"{moduleName} load fail：{errorMessage}")
 
     def __loadPluginByModuleName(self, moduleName):
         module = importlib.import_module(moduleName)
